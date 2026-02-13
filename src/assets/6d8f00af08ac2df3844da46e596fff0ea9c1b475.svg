@@ -1,0 +1,12 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 52 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Browser Controls" clip-path="url(#clip0_52604_11512)">
+<circle id="Option - Expand" cx="46" cy="6" r="5.75" fill="var(--fill-0, #27CA40)" stroke="var(--stroke-0, #3EAF3F)" stroke-width="0.5"/>
+<circle id="Option - Minimize" cx="26" cy="6" r="5.75" fill="var(--fill-0, #FFC130)" stroke="var(--stroke-0, #E1A325)" stroke-width="0.5"/>
+<circle id="Option - Close" cx="6" cy="6" r="5.75" fill="var(--fill-0, #FF6058)" stroke="var(--stroke-0, #E14942)" stroke-width="0.5"/>
+</g>
+<defs>
+<clipPath id="clip0_52604_11512">
+<rect width="52" height="12" fill="white"/>
+</clipPath>
+</defs>
+</svg>
