@@ -11,22 +11,22 @@ import imgRectangle24 from '../assets/0c3090fa51a394a39ced02aa6235d63e1ed6948a.p
 import imgRectangle25 from '../assets/e9b01d1a4a14a251433baa636e611ba911b29402.png'
 
 const allProducts = [
-  { image: imgRectangle15, category: 'ไม้พื้น', name: 'ไม้พื้นลามิเนตแบบแผ่นยาว 55690' },
-  { image: imgRectangle21, category: 'ไม้พื้น', name: 'ไม้พื้นลามิเนต รุ่น Standard 30600' },
-  { image: imgRectangle22, category: 'ไม้พื้น', name: 'ไม้พื้นลามิเนตแบบแผ่นกว้าง (Wide Plank) 10746' },
-  { image: imgRectangle23, category: 'ไม้พื้น', name: 'ไม้พื้นลามิเนต รุ่น V-Groove 10172' },
-  { image: imgRectangle24, category: 'ไม้พื้น', name: 'ไม้พื้นไม้ HDF เคลือบผิว' },
-  { image: imgRectangle25, category: 'ไม้พื้น', name: 'ไม้พื้นไม้ HDF เคลือบผิว VY15003 White oak' },
-  { image: imgRectangle22, category: 'ไม้บอร์ด', name: 'PB : ParticleBoard' },
-  { image: imgRectangle23, category: 'ไม้บอร์ด', name: 'MDF : Medium Density Fiberboard' },
-  { image: imgRectangle15, category: 'ไม้บอร์ด', name: 'HDF : High Density Fiber Board' },
-  { image: imgRectangle21, category: 'ไม้บอร์ด', name: 'Laminated Board' },
-  { image: imgRectangle24, category: 'ไม้บอร์ด', name: 'OSB: Oriented Strand Board' },
-  { image: imgRectangle25, category: 'ไม้บอร์ด', name: 'ไม้พื้น' },
-  { image: imgRectangle22, category: 'ประตู', name: 'ประตูเมลามีน MELAMINE DOOR MAG1 10780' },
-  { image: imgRectangle23, category: 'ประตู', name: 'ประตูเมลามีน MELAMINE DOOR MAG1 10790' },
-  { image: imgRectangle24, category: 'ประตู', name: 'ประตูหลัก HMR+ HDF HMR Moulded Door 2MV1' },
-  { image: imgRectangle25, category: 'ประตู', name: 'ประตูหลัก HMR+ HDF HMR Moulded Door 4MV2' },
+  { id: '55690', image: imgRectangle15, category: 'ไม้พื้น', name: 'ไม้พื้นลามิเนตแบบแผ่นยาว 55690' },
+  { id: '30600', image: imgRectangle21, category: 'ไม้พื้น', name: 'ไม้พื้นลามิเนต รุ่น Standard 30600' },
+  { id: '10746', image: imgRectangle22, category: 'ไม้พื้น', name: 'ไม้พื้นลามิเนตแบบแผ่นกว้าง (Wide Plank) 10746' },
+  { id: '10172', image: imgRectangle23, category: 'ไม้พื้น', name: 'ไม้พื้นลามิเนต รุ่น V-Groove 10172' },
+  { id: 'hdf-01', image: imgRectangle24, category: 'ไม้พื้น', name: 'ไม้พื้นไม้ HDF เคลือบผิว' },
+  { id: 'vy15003', image: imgRectangle25, category: 'ไม้พื้น', name: 'ไม้พื้นไม้ HDF เคลือบผิว VY15003 White oak' },
+  { id: 'pb-01', image: imgRectangle22, category: 'ไม้บอร์ด', name: 'PB : ParticleBoard' },
+  { id: 'mdf-01', image: imgRectangle23, category: 'ไม้บอร์ด', name: 'MDF : Medium Density Fiberboard' },
+  { id: 'hdf-02', image: imgRectangle15, category: 'ไม้บอร์ด', name: 'HDF : High Density Fiber Board' },
+  { id: 'lb-01', image: imgRectangle21, category: 'ไม้บอร์ด', name: 'Laminated Board' },
+  { id: 'osb-01', image: imgRectangle24, category: 'ไม้บอร์ด', name: 'OSB: Oriented Strand Board' },
+  { id: 'floor-01', image: imgRectangle25, category: 'ไม้บอร์ด', name: 'ไม้พื้น' },
+  { id: '10780', image: imgRectangle22, category: 'ประตู', name: 'ประตูเมลามีน MELAMINE DOOR MAG1 10780' },
+  { id: '10790', image: imgRectangle23, category: 'ประตู', name: 'ประตูเมลามีน MELAMINE DOOR MAG1 10790' },
+  { id: '2mv1', image: imgRectangle24, category: 'ประตู', name: 'ประตูหลัก HMR+ HDF HMR Moulded Door 2MV1' },
+  { id: '4mv2', image: imgRectangle25, category: 'ประตู', name: 'ประตูหลัก HMR+ HDF HMR Moulded Door 4MV2' },
 ]
 
 const filterCategories = [
@@ -62,9 +62,9 @@ const activeFilters = ['ไม้พื้นลามิเนต', 'ไม้�
 const DESKTOP_PAGE_SIZE = 16
 const MOBILE_PAGE_SIZE = 6
 
-function ProductCard({ image, category, name }) {
+function ProductCard({ id, image, category, name }) {
   return (
-    <div className="flex flex-col gap-[16px] items-start w-full">
+    <Link to={`/product/${id}`} className="flex flex-col gap-[16px] items-start w-full no-underline">
       <div className="h-[170px] lg:h-[222px] relative w-full overflow-hidden">
         <div className="absolute bg-[#e8e3da] inset-0" />
         <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
@@ -83,7 +83,7 @@ function ProductCard({ image, category, name }) {
           <ArrowRight />
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
 

@@ -13,51 +13,51 @@ const subcategoryData = {
       'particleboard': {
         title: 'ปาร์ติเกิลบอร์ด',
         products: [
-          { image: imgRectangle15, name: 'PB : ParticleBoard 55690' },
-          { image: imgRectangle21, name: 'PB : ParticleBoard รุ่น Standard 30600' },
-          { image: imgRectangle22, name: 'PB : ParticleBoard รุ่น V-Groove 10172' },
-          { image: imgRectangle23, name: 'PB : ParticleBoard รุ่น Premium' },
-          { image: imgRectangle24, name: 'PB : ParticleBoard รุ่น Natural' },
+          { id: 'pb-55690', image: imgRectangle15, name: 'PB : ParticleBoard 55690' },
+          { id: 'pb-30600', image: imgRectangle21, name: 'PB : ParticleBoard รุ่น Standard 30600' },
+          { id: 'pb-10172', image: imgRectangle22, name: 'PB : ParticleBoard รุ่น V-Groove 10172' },
+          { id: 'pb-premium', image: imgRectangle23, name: 'PB : ParticleBoard รุ่น Premium' },
+          { id: 'pb-natural', image: imgRectangle24, name: 'PB : ParticleBoard รุ่น Natural' },
         ],
       },
       'osb': {
         title: 'ไม้อัด OSB',
         products: [
-          { image: imgRectangle21, name: 'OSB : Oriented Strand Board 55690' },
-          { image: imgRectangle22, name: 'OSB : Oriented Strand Board รุ่น Standard' },
-          { image: imgRectangle23, name: 'OSB : Oriented Strand Board รุ่น V-Groove' },
-          { image: imgRectangle15, name: 'OSB : Oriented Strand Board รุ่น Premium' },
-          { image: imgRectangle24, name: 'OSB : Oriented Strand Board รุ่น Natural' },
+          { id: 'osb-55690', image: imgRectangle21, name: 'OSB : Oriented Strand Board 55690' },
+          { id: 'osb-standard', image: imgRectangle22, name: 'OSB : Oriented Strand Board รุ่น Standard' },
+          { id: 'osb-vgroove', image: imgRectangle23, name: 'OSB : Oriented Strand Board รุ่น V-Groove' },
+          { id: 'osb-premium', image: imgRectangle15, name: 'OSB : Oriented Strand Board รุ่น Premium' },
+          { id: 'osb-natural', image: imgRectangle24, name: 'OSB : Oriented Strand Board รุ่น Natural' },
         ],
       },
       'mdf': {
         title: 'แผ่นใยไม้อัด MDF',
         products: [
-          { image: imgRectangle22, name: 'MDF : Medium Density Fiberboard 55690' },
-          { image: imgRectangle23, name: 'MDF : Medium Density Fiberboard รุ่น Standard' },
-          { image: imgRectangle15, name: 'MDF : Medium Density Fiberboard รุ่น V-Groove' },
-          { image: imgRectangle21, name: 'MDF : Medium Density Fiberboard รุ่น Premium' },
-          { image: imgRectangle24, name: 'MDF : Medium Density Fiberboard รุ่น Natural' },
+          { id: 'mdf-55690', image: imgRectangle22, name: 'MDF : Medium Density Fiberboard 55690' },
+          { id: 'mdf-standard', image: imgRectangle23, name: 'MDF : Medium Density Fiberboard รุ่น Standard' },
+          { id: 'mdf-vgroove', image: imgRectangle15, name: 'MDF : Medium Density Fiberboard รุ่น V-Groove' },
+          { id: 'mdf-premium', image: imgRectangle21, name: 'MDF : Medium Density Fiberboard รุ่น Premium' },
+          { id: 'mdf-natural', image: imgRectangle24, name: 'MDF : Medium Density Fiberboard รุ่น Natural' },
         ],
       },
       'hdf': {
         title: 'แผ่นใยไม้อัด HDF',
         products: [
-          { image: imgRectangle23, name: 'HDF : High Density FiberBoard 55690' },
-          { image: imgRectangle15, name: 'HDF : High Density FiberBoard รุ่น Standard' },
-          { image: imgRectangle22, name: 'HDF : High Density FiberBoard รุ่น V-Groove' },
-          { image: imgRectangle21, name: 'HDF : High Density FiberBoard รุ่น Premium' },
-          { image: imgRectangle24, name: 'HDF : High Density FiberBoard รุ่น Natural' },
+          { id: 'hdf-55690', image: imgRectangle23, name: 'HDF : High Density FiberBoard 55690' },
+          { id: 'hdf-standard', image: imgRectangle15, name: 'HDF : High Density FiberBoard รุ่น Standard' },
+          { id: 'hdf-vgroove', image: imgRectangle22, name: 'HDF : High Density FiberBoard รุ่น V-Groove' },
+          { id: 'hdf-premium', image: imgRectangle21, name: 'HDF : High Density FiberBoard รุ่น Premium' },
+          { id: 'hdf-natural', image: imgRectangle24, name: 'HDF : High Density FiberBoard รุ่น Natural' },
         ],
       },
       'laminated-board': {
         title: 'ไม้บอร์ดปิดผิว',
         products: [
-          { image: imgRectangle24, name: 'Laminated Board รุ่น Natural' },
-          { image: imgRectangle15, name: 'Laminated Board รุ่น Standard' },
-          { image: imgRectangle22, name: 'Laminated Board รุ่น V-Groove' },
-          { image: imgRectangle23, name: 'Laminated Board รุ่น Premium' },
-          { image: imgRectangle21, name: 'Laminated Board รุ่น Classic' },
+          { id: 'lb-natural', image: imgRectangle24, name: 'Laminated Board รุ่น Natural' },
+          { id: 'lb-standard', image: imgRectangle15, name: 'Laminated Board รุ่น Standard' },
+          { id: 'lb-vgroove', image: imgRectangle22, name: 'Laminated Board รุ่น V-Groove' },
+          { id: 'lb-premium', image: imgRectangle23, name: 'Laminated Board รุ่น Premium' },
+          { id: 'lb-classic', image: imgRectangle21, name: 'Laminated Board รุ่น Classic' },
         ],
       },
     },
@@ -68,51 +68,51 @@ const subcategoryData = {
       'flooring': {
         title: 'ไม้พื้น',
         products: [
-          { image: imgRectangle15, name: 'ไม้พื้นลามิเนตแบบแผ่นยาว 55690' },
-          { image: imgRectangle21, name: 'ไม้พื้นลามิเนต รุ่น Standard 30600' },
-          { image: imgRectangle22, name: 'ไม้พื้นลามิเนตแบบแผ่นกว้าง (Wide Plank) 10746' },
-          { image: imgRectangle23, name: 'ไม้พื้นลามิเนต รุ่น V-Groove 10172' },
-          { image: imgRectangle24, name: 'ไม้พื้นไม้ HDF เคลือบผิว' },
+          { id: 'fl-55690', image: imgRectangle15, name: 'ไม้พื้นลามิเนตแบบแผ่นยาว 55690' },
+          { id: 'fl-30600', image: imgRectangle21, name: 'ไม้พื้นลามิเนต รุ่น Standard 30600' },
+          { id: 'fl-10746', image: imgRectangle22, name: 'ไม้พื้นลามิเนตแบบแผ่นกว้าง (Wide Plank) 10746' },
+          { id: 'fl-10172', image: imgRectangle23, name: 'ไม้พื้นลามิเนต รุ่น V-Groove 10172' },
+          { id: 'fl-hdf', image: imgRectangle24, name: 'ไม้พื้นไม้ HDF เคลือบผิว' },
         ],
       },
       'staircase': {
         title: 'ไม้บันได',
         products: [
-          { image: imgRectangle23, name: 'ไม้บันได ลูกตั้ง' },
-          { image: imgRectangle22, name: 'ไม้บันได ลูกนอน' },
-          { image: imgRectangle15, name: 'ไม้บันได รุ่น Standard' },
-          { image: imgRectangle21, name: 'ไม้บันได รุ่น Premium' },
-          { image: imgRectangle24, name: 'ไม้บันได รุ่น Classic' },
+          { id: 'st-riser', image: imgRectangle23, name: 'ไม้บันได ลูกตั้ง' },
+          { id: 'st-tread', image: imgRectangle22, name: 'ไม้บันได ลูกนอน' },
+          { id: 'st-standard', image: imgRectangle15, name: 'ไม้บันได รุ่น Standard' },
+          { id: 'st-premium', image: imgRectangle21, name: 'ไม้บันได รุ่น Premium' },
+          { id: 'st-classic', image: imgRectangle24, name: 'ไม้บันได รุ่น Classic' },
         ],
       },
       'wall-panel': {
         title: 'ไม้ตกแต่งผนัง/ไม้ฝาตกแต่ง',
         products: [
-          { image: imgRectangle22, name: 'ไม้ฝาตกแต่ง รุ่น Natural' },
-          { image: imgRectangle24, name: 'ไม้ตกแต่งผนัง รุ่น Standard' },
-          { image: imgRectangle15, name: 'ไม้ตกแต่งผนัง รุ่น V-Groove' },
-          { image: imgRectangle23, name: 'ไม้ตกแต่งผนัง รุ่น Premium' },
-          { image: imgRectangle21, name: 'ไม้ตกแต่งผนัง รุ่น Classic' },
+          { id: 'wp-natural', image: imgRectangle22, name: 'ไม้ฝาตกแต่ง รุ่น Natural' },
+          { id: 'wp-standard', image: imgRectangle24, name: 'ไม้ตกแต่งผนัง รุ่น Standard' },
+          { id: 'wp-vgroove', image: imgRectangle15, name: 'ไม้ตกแต่งผนัง รุ่น V-Groove' },
+          { id: 'wp-premium', image: imgRectangle23, name: 'ไม้ตกแต่งผนัง รุ่น Premium' },
+          { id: 'wp-classic', image: imgRectangle21, name: 'ไม้ตกแต่งผนัง รุ่น Classic' },
         ],
       },
       'skirt': {
         title: 'บัวพื้น/บัวเพดาน',
         products: [
-          { image: imgRectangle24, name: 'ตัวจบไม้พื้น SK004 – Skirting ตัวจบพื้น' },
-          { image: imgRectangle15, name: 'ตัวจบไม้พื้น TS401 – Transition ตัวจบครอบจมูก WPC' },
-          { image: imgRectangle21, name: 'ตัวจบไม้พื้น JT601 – Joint ตัวจบครอบจมูก WPC' },
-          { image: imgRectangle22, name: 'ตัวจบไม้พื้น EG501 – Edge ตัวจบครอบข้าง WPC' },
-          { image: imgRectangle23, name: 'ตัวจบไม้พื้น OC201 – Cover ตัวครอบตะเฆ่ลอย' },
+          { id: 'sk-004', image: imgRectangle24, name: 'ตัวจบไม้พื้น SK004 – Skirting ตัวจบพื้น' },
+          { id: 'ts-401', image: imgRectangle15, name: 'ตัวจบไม้พื้น TS401 – Transition ตัวจบครอบจมูก WPC' },
+          { id: 'jt-601', image: imgRectangle21, name: 'ตัวจบไม้พื้น JT601 – Joint ตัวจบครอบจมูก WPC' },
+          { id: 'eg-501', image: imgRectangle22, name: 'ตัวจบไม้พื้น EG501 – Edge ตัวจบครอบข้าง WPC' },
+          { id: 'oc-201', image: imgRectangle23, name: 'ตัวจบไม้พื้น OC201 – Cover ตัวครอบตะเฆ่ลอย' },
         ],
       },
       'melamine-table': {
         title: 'โต๊ะปิดผิวเมลามีน',
         products: [
-          { image: imgRectangle15, name: 'โต๊ะเมลามีน รุ่น Standard' },
-          { image: imgRectangle22, name: 'โต๊ะเมลามีน รุ่น Premium' },
-          { image: imgRectangle23, name: 'ตู้เมลามีน รุ่น Standard' },
-          { image: imgRectangle24, name: 'ตู้เมลามีน รุ่น Premium' },
-          { image: imgRectangle21, name: 'ชั้นเมลามีน รุ่น Standard' },
+          { id: 'mt-standard', image: imgRectangle15, name: 'โต๊ะเมลามีน รุ่น Standard' },
+          { id: 'mt-premium', image: imgRectangle22, name: 'โต๊ะเมลามีน รุ่น Premium' },
+          { id: 'mc-standard', image: imgRectangle23, name: 'ตู้เมลามีน รุ่น Standard' },
+          { id: 'mc-premium', image: imgRectangle24, name: 'ตู้เมลามีน รุ่น Premium' },
+          { id: 'ms-standard', image: imgRectangle21, name: 'ชั้นเมลามีน รุ่น Standard' },
         ],
       },
     },
@@ -136,9 +136,9 @@ function ChevronRightIcon() {
   )
 }
 
-function ProductCard({ image, subcategoryTitle, name }) {
+function ProductCard({ id, image, subcategoryTitle, name }) {
   return (
-    <div className="flex flex-col gap-[16px] items-start w-full">
+    <Link to={`/product/${id}`} className="flex flex-col gap-[16px] items-start w-full no-underline">
       <div className="h-[170px] lg:h-[222px] relative w-full overflow-hidden">
         <div className="absolute bg-[#e8e3da] inset-0" />
         <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
@@ -157,7 +157,7 @@ function ProductCard({ image, subcategoryTitle, name }) {
           <ArrowRight />
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
 
@@ -221,7 +221,7 @@ export default function ProductSubcategoryPage() {
         {/* Product grid - 2 cols mobile, 5 cols desktop */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-[16px] lg:gap-[25px] w-full">
           {subData.products.map((p, i) => (
-            <ProductCard key={i} image={p.image} subcategoryTitle={subData.title} name={p.name} />
+            <ProductCard key={i} id={p.id} image={p.image} subcategoryTitle={subData.title} name={p.name} />
           ))}
         </div>
       </div>
