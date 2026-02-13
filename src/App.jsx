@@ -69,24 +69,26 @@ function ArrowRight() {
 
 function TopBar() {
   return (
-    <div className="hidden lg:flex bg-[#ff7e1b] items-center justify-between px-[150px] py-[6px] w-full">
-      <div className="flex gap-[8px] items-center w-[300px]">
-        <div className="overflow-clip shrink-0 size-[16px]">
-          <img alt="" className="block max-w-none size-full" src={imgGroup4} />
-        </div>
-        <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-white">
-          Call Center 0 258 9700-1
-        </p>
-      </div>
-      <div className="flex items-center justify-end overflow-clip">
-        <div className="flex gap-[12px] items-center">
-          <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[15px] text-white">
-            ติดตามเรา: vanachai.woodsmith
+    <div className="hidden lg:block bg-[#ff7e1b] py-[6px] w-full">
+      <div className="max-w-[1212px] mx-auto w-full flex items-center justify-between px-[16px]">
+        <div className="flex gap-[8px] items-center w-[300px]">
+          <div className="overflow-clip shrink-0 size-[16px]">
+            <img alt="" className="block max-w-none size-full" src={imgGroup4} />
+          </div>
+          <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-white">
+            Call Center 0 258 9700-1
           </p>
-          <img alt="Facebook" className="shrink-0 size-[22px]" src={imgGroup5} />
-          <img alt="Instagram" className="shrink-0 size-[22px]" src={imgGroup6} />
-          <img alt="TikTok" className="shrink-0 size-[22px]" src={imgGroup7} />
-          <img alt="LINE" className="shrink-0 size-[22px]" src={imgLineLogo2} />
+        </div>
+        <div className="flex items-center justify-end overflow-clip">
+          <div className="flex gap-[12px] items-center">
+            <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[15px] text-white">
+              ติดตามเรา: vanachai.woodsmith
+            </p>
+            <img alt="Facebook" className="shrink-0 size-[22px]" src={imgGroup5} />
+            <img alt="Instagram" className="shrink-0 size-[22px]" src={imgGroup6} />
+            <img alt="TikTok" className="shrink-0 size-[22px]" src={imgGroup7} />
+            <img alt="LINE" className="shrink-0 size-[22px]" src={imgLineLogo2} />
+          </div>
         </div>
       </div>
     </div>
@@ -134,40 +136,42 @@ function Navbar() {
 
   return (
     <>
-      <div className="bg-white flex items-center justify-between px-[16px] lg:px-[150px] py-[12px] h-[60px] lg:h-auto w-full sticky top-0 z-50 border-b border-[#e5e7eb] lg:border-b-0">
-        <div className="flex gap-[40px] items-center">
-          <img alt="WoodSmith" className="h-[48px] w-[38px] lg:h-[60px] lg:w-[47px] object-cover" src={imgFavicon} />
-          {/* Desktop nav menu */}
-          <div className="hidden lg:flex gap-[36px] items-start">
-            {menuItems.map((item) => (
-              <div key={item.label} className="flex flex-col gap-px items-start">
-                <p className={`font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] ${item.active ? 'text-[#ff7e1b]' : 'text-black'}`}>
-                  {item.label}
-                </p>
-                {item.active && <div className="bg-[#ff7e1b] h-[2px] w-full" />}
-              </div>
-            ))}
+      <div className="bg-white w-full sticky top-0 z-50 border-b border-[#e5e7eb] lg:border-b-0">
+        <div className="max-w-[1212px] mx-auto w-full flex items-center justify-between px-[16px] py-[12px] h-[60px] lg:h-auto">
+          <div className="flex gap-[40px] items-center">
+            <img alt="WoodSmith" className="h-[48px] w-[38px] lg:h-[60px] lg:w-[47px] object-cover" src={imgFavicon} />
+            {/* Desktop nav menu */}
+            <div className="hidden lg:flex gap-[36px] items-start">
+              {menuItems.map((item) => (
+                <div key={item.label} className="flex flex-col gap-px items-start">
+                  <p className={`font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] ${item.active ? 'text-[#ff7e1b]' : 'text-black'}`}>
+                    {item.label}
+                  </p>
+                  {item.active && <div className="bg-[#ff7e1b] h-[2px] w-full" />}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-        {/* Right side actions */}
-        <div className="flex gap-[24px] items-center">
-          {/* Mobile: Login button (orange) */}
-          <button className="lg:hidden bg-[#ff7e1b] flex h-[36px] items-center justify-center px-[18px]">
-            <p className="font-['Circular_Std'] font-medium text-[14px] text-white">Login</p>
-          </button>
-          <button className="block shrink-0 size-[20px]">
-            <img alt="Search" className="block max-w-none size-full" src={imgUnion} />
-          </button>
-          {/* Desktop: Login button (outlined) */}
-          <button className="hidden lg:flex border border-[#e5e7eb] h-[40px] items-center justify-center px-[24px]">
-            <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[15px] text-[#35383b]">
-              เข้าสู่ระบบ
-            </p>
-          </button>
-          {/* Mobile: Hamburger menu */}
-          <button className="lg:hidden shrink-0 size-[20px]" onClick={() => setMobileMenuOpen(true)}>
-            <img alt="Menu" className="block max-w-none size-full" src={imgMenu1} />
-          </button>
+          {/* Right side actions */}
+          <div className="flex gap-[24px] items-center">
+            {/* Mobile: Login button (orange) */}
+            <button className="lg:hidden bg-[#ff7e1b] flex h-[36px] items-center justify-center px-[18px]">
+              <p className="font-['Circular_Std'] font-medium text-[14px] text-white">Login</p>
+            </button>
+            <button className="block shrink-0 size-[20px]">
+              <img alt="Search" className="block max-w-none size-full" src={imgUnion} />
+            </button>
+            {/* Desktop: Login button (outlined) */}
+            <button className="hidden lg:flex border border-[#e5e7eb] h-[40px] items-center justify-center px-[24px]">
+              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[15px] text-[#35383b]">
+                เข้าสู่ระบบ
+              </p>
+            </button>
+            {/* Mobile: Hamburger menu */}
+            <button className="lg:hidden shrink-0 size-[20px]" onClick={() => setMobileMenuOpen(true)}>
+              <img alt="Menu" className="block max-w-none size-full" src={imgMenu1} />
+            </button>
+          </div>
         </div>
       </div>
       <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
@@ -209,65 +213,67 @@ function HeroSection() {
 
 function AboutSection() {
   return (
-    <div className="bg-[#f8f3ea] flex flex-col gap-[32px] items-center justify-center px-[16px] py-[36px] lg:pb-[80px] lg:pt-[60px] lg:px-[150px] w-full">
-      <div className="flex flex-col gap-[12px] items-center w-full">
-        <p className="font-['Circular_Std'] font-medium text-[36px] lg:text-[80px] text-[#ff7e1b] tracking-[0.25px] leading-[1.3]">
-          WoodSmith
-        </p>
-        <p className="font-['Circular_Std'] font-medium text-[#ff7e1b] text-[16px] text-center tracking-[2.25px] leading-[1.3]">
-          BUILDING HARDWARE &amp; TOOLS CENTER
-        </p>
-        <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[24px] lg:text-[36px] text-black text-center tracking-[0.25px] leading-[1.3]">
-          ศูนย์รวมวัสดุก่อสร้างและสินค้าสำเร็จรูปโดยโรงงานผู้ผลิต
-        </p>
-        <p className="font-['IBM_Plex_Sans_Thai'] text-[16px] lg:text-[20px] text-[#35383b] text-center">
-          วู้ดสมิตร "มิตรงานไม้" ที่เป็นมิตรกับคู่ค้าลูกค้า และให้ความสำคัญกับการผลิตที่มิตรกับสิ่งแวดล้อม
-        </p>
-      </div>
-      {/* Images */}
-      <div className="flex gap-[7px] lg:gap-[23px] items-start justify-center w-full lg:w-auto">
-        <div className="h-[172px] lg:h-[400px] shrink-0 w-[85px] lg:w-[243px] relative overflow-hidden">
-          <img alt="" className="absolute h-[114.5%] left-[-76.54%] max-w-none top-[-1.41%] w-[188.48%]" src={imgImg1} />
+    <div className="bg-[#f8f3ea] w-full py-[36px] lg:pb-[80px] lg:pt-[60px]">
+      <div className="max-w-[1212px] mx-auto w-full flex flex-col gap-[32px] items-center justify-center px-[16px]">
+        <div className="flex flex-col gap-[12px] items-center w-full">
+          <p className="font-['Circular_Std'] font-medium text-[36px] lg:text-[80px] text-[#ff7e1b] tracking-[0.25px] leading-[1.3]">
+            WoodSmith
+          </p>
+          <p className="font-['Circular_Std'] font-medium text-[#ff7e1b] text-[16px] text-center tracking-[2.25px] leading-[1.3]">
+            BUILDING HARDWARE &amp; TOOLS CENTER
+          </p>
+          <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[24px] lg:text-[36px] text-black text-center tracking-[0.25px] leading-[1.3]">
+            ศูนย์รวมวัสดุก่อสร้างและสินค้าสำเร็จรูปโดยโรงงานผู้ผลิต
+          </p>
+          <p className="font-['IBM_Plex_Sans_Thai'] text-[16px] lg:text-[20px] text-[#35383b] text-center">
+            วู้ดสมิตร "มิตรงานไม้" ที่เป็นมิตรกับคู่ค้าลูกค้า และให้ความสำคัญกับการผลิตที่มิตรกับสิ่งแวดล้อม
+          </p>
         </div>
-        <div className="h-[172px] lg:h-[400px] shrink-0 w-[85px] lg:w-[241px] relative overflow-hidden">
-          <img alt="" className="absolute max-w-none object-cover size-full" src={imgImg2} />
-        </div>
-        <div className="flex flex-col gap-[56px] items-start lg:w-[610px]">
-          <div className="flex items-end w-full">
-            <div className="relative rounded-tr-[15px] lg:rounded-tr-[50px] h-[116px] w-[101px] lg:size-[243px] overflow-hidden">
-              <img alt="" className="absolute h-full left-[-46.81%] max-w-none top-0 w-[150%]" src={imgImg3} />
+        {/* Images */}
+        <div className="flex gap-[7px] lg:gap-[23px] items-start justify-center w-full lg:w-auto">
+          <div className="h-[172px] lg:h-[400px] shrink-0 w-[85px] lg:w-[243px] relative overflow-hidden">
+            <img alt="" className="absolute h-[114.5%] left-[-76.54%] max-w-none top-[-1.41%] w-[188.48%]" src={imgImg1} />
+          </div>
+          <div className="h-[172px] lg:h-[400px] shrink-0 w-[85px] lg:w-[241px] relative overflow-hidden">
+            <img alt="" className="absolute max-w-none object-cover size-full" src={imgImg2} />
+          </div>
+          <div className="flex flex-col gap-[56px] items-start lg:w-[610px]">
+            <div className="flex items-end w-full">
+              <div className="relative rounded-tr-[15px] lg:rounded-tr-[50px] h-[116px] w-[101px] lg:size-[243px] overflow-hidden">
+                <img alt="" className="absolute h-full left-[-46.81%] max-w-none top-0 w-[150%]" src={imgImg3} />
+              </div>
+            </div>
+            {/* Stats - hidden on mobile, shown in separate row */}
+            <div className="hidden lg:flex font-['Circular_Std'] font-medium items-center text-[#35383b] w-full">
+              <div className="flex flex-col items-start w-[203.333px]">
+                <p className="text-[64px]">97</p>
+                <p className="text-[16px] tracking-[6.88px]">Branch</p>
+              </div>
+              <div className="flex flex-col items-start w-[203.333px]">
+                <p className="text-[64px]">20+</p>
+                <p className="text-[16px] tracking-[6.88px]">Products</p>
+              </div>
+              <div className="flex flex-col items-start w-[203.333px]">
+                <p className="text-[64px]">10K+</p>
+                <p className="text-[16px] tracking-[6.88px]">Customers</p>
+              </div>
             </div>
           </div>
-          {/* Stats - hidden on mobile, shown in separate row */}
-          <div className="hidden lg:flex font-['Circular_Std'] font-medium items-center text-[#35383b] w-full">
-            <div className="flex flex-col items-start w-[203.333px]">
-              <p className="text-[64px]">97</p>
-              <p className="text-[16px] tracking-[6.88px]">Branch</p>
-            </div>
-            <div className="flex flex-col items-start w-[203.333px]">
-              <p className="text-[64px]">20+</p>
-              <p className="text-[16px] tracking-[6.88px]">Products</p>
-            </div>
-            <div className="flex flex-col items-start w-[203.333px]">
-              <p className="text-[64px]">10K+</p>
-              <p className="text-[16px] tracking-[6.88px]">Customers</p>
-            </div>
+        </div>
+        {/* Mobile stats row */}
+        <div className="flex lg:hidden font-['Circular_Std'] font-medium gap-[24px] items-center justify-center text-[#35383b] w-full">
+          <div className="flex flex-col items-start">
+            <p className="text-[32px]">97</p>
+            <p className="text-[12px] tracking-[0.6px]">Branch</p>
           </div>
-        </div>
-      </div>
-      {/* Mobile stats row */}
-      <div className="flex lg:hidden font-['Circular_Std'] font-medium gap-[24px] items-center justify-center text-[#35383b] w-full">
-        <div className="flex flex-col items-start">
-          <p className="text-[32px]">97</p>
-          <p className="text-[12px] tracking-[0.6px]">Branch</p>
-        </div>
-        <div className="flex flex-col items-start">
-          <p className="text-[32px]">20+</p>
-          <p className="text-[12px] tracking-[0.6px]">Products</p>
-        </div>
-        <div className="flex flex-col items-start">
-          <p className="text-[32px]">10K+</p>
-          <p className="text-[12px] tracking-[0.36px]">Customers</p>
+          <div className="flex flex-col items-start">
+            <p className="text-[32px]">20+</p>
+            <p className="text-[12px] tracking-[0.6px]">Products</p>
+          </div>
+          <div className="flex flex-col items-start">
+            <p className="text-[32px]">10K+</p>
+            <p className="text-[12px] tracking-[0.36px]">Customers</p>
+          </div>
         </div>
       </div>
     </div>
@@ -317,52 +323,20 @@ function BlogSection() {
   ]
 
   return (
-    <div className="flex flex-col gap-[48px] items-center justify-center px-[16px] py-[36px] lg:px-[150px] lg:py-[60px] w-full">
-      <div className="flex flex-col items-center w-full">
-        <p className="font-['IBM_Plex_Sans_Thai_Looped'] font-bold text-[32px] lg:text-[40px] text-[#35383b] text-center leading-[1.2] lg:leading-[1.5]">
-          เคล็ดลับฉบับ Wood Smith
-        </p>
-      </div>
-      {/* Mobile layout: stacked */}
-      <div className="flex flex-col gap-[16px] items-start w-full lg:hidden">
-        {/* Featured Blog Card */}
-        <div className="flex flex-col gap-[16px] items-start w-full">
-          <div className="relative w-full aspect-square overflow-hidden">
-            <div className="absolute bg-[#e8e3da] inset-0" />
-            <img alt="" className="absolute max-w-none object-cover size-full" src={imgRectangle15} />
-          </div>
-          <div className="flex flex-col gap-[16px] items-start w-full">
-            <div className="flex flex-col items-start w-full">
-              <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[15px] text-[#ff7e1b] tracking-[0.15px]">
-                Idea &amp; Tips
-              </p>
-              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold leading-[1.4] overflow-hidden text-[20px] text-[#35383b] text-ellipsis">
-                เปิด 6 ไอเดียตกแต่งบ้านด้วย "ไม้บอร์ด MDF HMR ปิดผิวเมลามีน" Melamine on MDF
-              </p>
-            </div>
-            <div className="flex gap-[8px] items-center">
-              <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#35383b] tracking-[0.28px]">อ่านต่อ</p>
-              <ArrowRight />
-            </div>
-          </div>
+    <div className="w-full py-[36px] lg:py-[60px]">
+      <div className="max-w-[1212px] mx-auto w-full flex flex-col gap-[48px] items-center justify-center px-[16px]">
+        <div className="flex flex-col items-center w-full">
+          <p className="font-['IBM_Plex_Sans_Thai_Looped'] font-bold text-[32px] lg:text-[40px] text-[#35383b] text-center leading-[1.2] lg:leading-[1.5]">
+            เคล็ดลับฉบับ Wood Smith
+          </p>
         </div>
-        {/* Landscape cards */}
-        <div className="flex flex-col gap-[25px] items-start w-full">
-          {mobileBlogCards.map((card, i) => (
-            <CardBlogLandscape key={i} {...card} />
-          ))}
-        </div>
-        <button className="border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full">
-          <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#35383b]">ดูเพิ่มเติม</p>
-        </button>
-      </div>
-      {/* Desktop layout: side by side */}
-      <div className="hidden lg:flex gap-[25px] items-start w-full">
-        <div className="flex flex-col items-start shrink-0">
+        {/* Mobile layout: stacked */}
+        <div className="flex flex-col gap-[16px] items-start w-full lg:hidden">
+          {/* Featured Blog Card */}
           <div className="flex flex-col gap-[16px] items-start w-full">
-            <div className="relative shrink-0 size-[600px] overflow-hidden">
+            <div className="relative w-full aspect-square overflow-hidden">
               <div className="absolute bg-[#e8e3da] inset-0" />
-              <img alt="" className="absolute max-w-none object-cover size-full" src={imgRectangle17} />
+              <img alt="" className="absolute max-w-none object-cover size-full" src={imgRectangle15} />
             </div>
             <div className="flex flex-col gap-[16px] items-start w-full">
               <div className="flex flex-col items-start w-full">
@@ -379,16 +353,50 @@ function BlogSection() {
               </div>
             </div>
           </div>
-        </div>
-        <div className="flex flex-1 flex-col gap-[25px] items-start justify-center">
-          <div className="flex flex-col gap-[25px] items-start justify-center w-full">
-            {desktopBlogCards.map((card, i) => (
+          {/* Landscape cards */}
+          <div className="flex flex-col gap-[25px] items-start w-full">
+            {mobileBlogCards.map((card, i) => (
               <CardBlogLandscape key={i} {...card} />
             ))}
           </div>
           <button className="border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full">
             <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#35383b]">ดูเพิ่มเติม</p>
           </button>
+        </div>
+        {/* Desktop layout: side by side */}
+        <div className="hidden lg:flex gap-[25px] items-start w-full">
+          <div className="flex flex-col items-start shrink-0">
+            <div className="flex flex-col gap-[16px] items-start w-full">
+              <div className="relative shrink-0 size-[600px] overflow-hidden">
+                <div className="absolute bg-[#e8e3da] inset-0" />
+                <img alt="" className="absolute max-w-none object-cover size-full" src={imgRectangle17} />
+              </div>
+              <div className="flex flex-col gap-[16px] items-start w-full">
+                <div className="flex flex-col items-start w-full">
+                  <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[15px] text-[#ff7e1b] tracking-[0.15px]">
+                    Idea &amp; Tips
+                  </p>
+                  <p className="font-['IBM_Plex_Sans_Thai'] font-semibold leading-[1.4] overflow-hidden text-[20px] text-[#35383b] text-ellipsis">
+                    เปิด 6 ไอเดียตกแต่งบ้านด้วย "ไม้บอร์ด MDF HMR ปิดผิวเมลามีน" Melamine on MDF
+                  </p>
+                </div>
+                <div className="flex gap-[8px] items-center">
+                  <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#35383b] tracking-[0.28px]">อ่านต่อ</p>
+                  <ArrowRight />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-1 flex-col gap-[25px] items-start justify-center">
+            <div className="flex flex-col gap-[25px] items-start justify-center w-full">
+              {desktopBlogCards.map((card, i) => (
+                <CardBlogLandscape key={i} {...card} />
+              ))}
+            </div>
+            <button className="border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full">
+              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#35383b]">ดูเพิ่มเติม</p>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -432,40 +440,42 @@ function YoutubeCard({ image, duration, channelName, title }) {
 
 function HighlightSection() {
   return (
-    <div className="relative flex flex-col items-end px-[20px] lg:px-[150px] py-[40px] w-full">
+    <div className="relative py-[40px] w-full">
       <div className="absolute inset-0 overflow-hidden">
         <img alt="" className="absolute max-w-none object-cover size-full" src={imgRectangle38} />
       </div>
       <div className="absolute bg-[rgba(62,38,31,0.9)] inset-0" />
-      {/* Mobile: stacked vertically */}
-      <div className="flex flex-col lg:flex-row gap-[24px] lg:gap-[40px] items-start relative w-full">
-        <div className="flex flex-col gap-[32px] items-start w-full lg:flex-1 lg:self-stretch">
-          <div className="flex flex-col items-start leading-[1.5] w-full">
-            <p className="font-['Circular_Std'] font-medium text-[48px] lg:text-[64px] text-[#ff7e1b]">
-              Highlight
-            </p>
-            <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[36px] lg:text-[32px] text-white">
-              ความรู้/อินไซต์เชิงลึก
-            </p>
-            <p className="font-['IBM_Plex_Sans_Thai'] text-[16px] text-white">
-              Inside the Brand: ถอดรหัส DNA องค์กรสู่ความสำเร็จ
-            </p>
+      <div className="max-w-[1212px] mx-auto w-full px-[20px] lg:px-[16px] relative">
+        {/* Mobile: stacked vertically */}
+        <div className="flex flex-col lg:flex-row gap-[24px] lg:gap-[40px] items-start w-full">
+          <div className="flex flex-col gap-[32px] items-start w-full lg:flex-1 lg:self-stretch">
+            <div className="flex flex-col items-start leading-[1.5] w-full">
+              <p className="font-['Circular_Std'] font-medium text-[48px] lg:text-[64px] text-[#ff7e1b]">
+                Highlight
+              </p>
+              <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[36px] lg:text-[32px] text-white">
+                ความรู้/อินไซต์เชิงลึก
+              </p>
+              <p className="font-['IBM_Plex_Sans_Thai'] text-[16px] text-white">
+                Inside the Brand: ถอดรหัส DNA องค์กรสู่ความสำเร็จ
+              </p>
+            </div>
+            {/* Desktop-only button */}
+            <button className="hidden lg:flex border border-[#e5e7eb] h-[48px] items-center justify-center w-full">
+              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-white">ดูเพิ่มเติม</p>
+            </button>
           </div>
-          {/* Desktop-only button */}
-          <button className="hidden lg:flex border border-[#e5e7eb] h-[48px] items-center justify-center w-full">
+          <div className="flex flex-col lg:flex-row lg:flex-wrap gap-[25px] items-start justify-center w-full lg:w-[800px]">
+            <YoutubeCard image={imgImage} duration="0:42" channelName="WoodSmith Learning Center" title="WoodSmith Learning Center" />
+            <YoutubeCard image={imgImage1} duration="0:50" channelName="WoodSmith Art Collaboration Interview Artist" title="WoodSmith Art Collaboration Interview Artist" />
+            <YoutubeCard image={imgImage2} duration="1:29" channelName="Woodsmith Art Collaboration" title="Woodsmith Art Collaboration" />
+            <YoutubeCard image={imgImage3} duration="0:51" channelName="WoodSmith Guest Interview คุณหนุ่ย รติวัฒน์ สุวรรณไตรย์" title="WoodSmith Guest Interview คุณหนุ่ย รติวัฒน์ สุวรรณไตรย์" />
+          </div>
+          {/* Mobile-only button */}
+          <button className="lg:hidden border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full">
             <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-white">ดูเพิ่มเติม</p>
           </button>
         </div>
-        <div className="flex flex-col lg:flex-row lg:flex-wrap gap-[25px] items-start justify-center w-full lg:w-[800px]">
-          <YoutubeCard image={imgImage} duration="0:42" channelName="WoodSmith Learning Center" title="WoodSmith Learning Center" />
-          <YoutubeCard image={imgImage1} duration="0:50" channelName="WoodSmith Art Collaboration Interview Artist" title="WoodSmith Art Collaboration Interview Artist" />
-          <YoutubeCard image={imgImage2} duration="1:29" channelName="Woodsmith Art Collaboration" title="Woodsmith Art Collaboration" />
-          <YoutubeCard image={imgImage3} duration="0:51" channelName="WoodSmith Guest Interview คุณหนุ่ย รติวัฒน์ สุวรรณไตรย์" title="WoodSmith Guest Interview คุณหนุ่ย รติวัฒน์ สุวรรณไตรย์" />
-        </div>
-        {/* Mobile-only button */}
-        <button className="lg:hidden border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full">
-          <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-white">ดูเพิ่มเติม</p>
-        </button>
       </div>
     </div>
   )
@@ -516,53 +526,55 @@ function ProductsSection() {
   ]
 
   return (
-    <div className="flex flex-col gap-[24px] lg:gap-[48px] items-center justify-center px-[16px] py-[36px] lg:px-[150px] lg:py-[60px] w-full">
-      <div className="flex flex-col gap-[12px] lg:gap-[32px] items-center w-full">
-        <div className="flex flex-col gap-[12px] lg:gap-[16px] items-center w-full">
-          <p className="font-['IBM_Plex_Sans_Thai'] font-bold text-[32px] lg:text-[40px] text-[#35383b] text-center leading-[1.5]">
-            สินค้าแนะนำ
+    <div className="w-full py-[36px] lg:py-[60px]">
+      <div className="max-w-[1212px] mx-auto w-full flex flex-col gap-[24px] lg:gap-[48px] items-center justify-center px-[16px]">
+        <div className="flex flex-col gap-[12px] lg:gap-[32px] items-center w-full">
+          <div className="flex flex-col gap-[12px] lg:gap-[16px] items-center w-full">
+            <p className="font-['IBM_Plex_Sans_Thai'] font-bold text-[32px] lg:text-[40px] text-[#35383b] text-center leading-[1.5]">
+              สินค้าแนะนำ
+            </p>
+            <div className="flex gap-[24px] items-start justify-center">
+              <div className="flex flex-col gap-px items-start">
+                <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[#ff7e1b] text-[16px]">
+                  วัสดุก่อสร้าง
+                </p>
+                <div className="bg-[#ff7e1b] h-[2px] w-full" />
+              </div>
+              <div className="flex flex-col gap-px items-start">
+                <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#35383b]">
+                  ผลิตภัณฑ์สำเร็จ
+                </p>
+              </div>
+            </div>
+          </div>
+          {/* Mobile: 2-column grid */}
+          <div className="grid grid-cols-2 gap-[20px] w-full lg:hidden">
+            {products.map((p, i) => (
+              <CardProduct key={i} {...p} />
+            ))}
+          </div>
+          {/* Desktop: 3-column rows */}
+          <div className="hidden lg:flex flex-col gap-[48px] items-start">
+            <div className="flex gap-[25px] items-start">
+              {desktopProducts.slice(0, 3).map((p) => (
+                <CardProduct key={p.engName} {...p} />
+              ))}
+            </div>
+            <div className="flex gap-[25px] items-start">
+              {desktopProducts.slice(3, 6).map((p) => (
+                <CardProduct key={p.engName} {...p} />
+              ))}
+            </div>
+          </div>
+        </div>
+        {/* Mobile button text slightly different */}
+        <button className="border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full lg:w-[1139px]">
+          <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#35383b]">
+            <span className="lg:hidden">ดูสินค้าทั้งหมด</span>
+            <span className="hidden lg:inline">ดูสินค้าของเราทั้งหมด</span>
           </p>
-          <div className="flex gap-[24px] items-start justify-center">
-            <div className="flex flex-col gap-px items-start">
-              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[#ff7e1b] text-[16px]">
-                วัสดุก่อสร้าง
-              </p>
-              <div className="bg-[#ff7e1b] h-[2px] w-full" />
-            </div>
-            <div className="flex flex-col gap-px items-start">
-              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#35383b]">
-                ผลิตภัณฑ์สำเร็จ
-              </p>
-            </div>
-          </div>
-        </div>
-        {/* Mobile: 2-column grid */}
-        <div className="grid grid-cols-2 gap-[20px] w-full lg:hidden">
-          {products.map((p, i) => (
-            <CardProduct key={i} {...p} />
-          ))}
-        </div>
-        {/* Desktop: 3-column rows */}
-        <div className="hidden lg:flex flex-col gap-[48px] items-start">
-          <div className="flex gap-[25px] items-start">
-            {desktopProducts.slice(0, 3).map((p) => (
-              <CardProduct key={p.engName} {...p} />
-            ))}
-          </div>
-          <div className="flex gap-[25px] items-start">
-            {desktopProducts.slice(3, 6).map((p) => (
-              <CardProduct key={p.engName} {...p} />
-            ))}
-          </div>
-        </div>
+        </button>
       </div>
-      {/* Mobile button text slightly different */}
-      <button className="border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full lg:w-[1139px]">
-        <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#35383b]">
-          <span className="lg:hidden">ดูสินค้าทั้งหมด</span>
-          <span className="hidden lg:inline">ดูสินค้าของเราทั้งหมด</span>
-        </p>
-      </button>
     </div>
   )
 }
@@ -654,28 +666,30 @@ function Footer() {
       </div>
 
       {/* Desktop: side by side */}
-      <div className="hidden lg:flex items-start justify-between px-[150px] relative w-full">
-        <div className="flex gap-[24px] items-start">
-          <img alt="WoodSmith Logo" className="h-[171px] w-[184px] object-cover" src={imgImgLogofooter1} />
-          <div className="flex flex-col gap-[16px] items-start">
-            <div className="text-white">
-              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[32px] mb-0">บริษัท วนชัย วู้ดสมิธ จำกัด (สำนักงานใหญ่)</p>
-              <p className="font-['IBM_Plex_Sans_Thai'] text-[16px]">เลขที่ 2/1 ถนน วงศ์สว่าง แขวงวงศ์สว่าง เขตบางซื่อ กรุงเทพฯ 10800</p>
-            </div>
-            <div className="flex flex-col items-start">
-              <div className="flex gap-[8px] items-center">
-                <img alt="Phone" className="shrink-0 size-[20px]" src={imgGroup} />
-                <p className="font-['Circular_Std'] font-medium text-[18px] text-white leading-[1.2]">Call Center</p>
+      <div className="hidden lg:block relative w-full">
+        <div className="max-w-[1212px] mx-auto w-full flex items-start justify-between px-[16px]">
+          <div className="flex gap-[24px] items-start">
+            <img alt="WoodSmith Logo" className="h-[171px] w-[184px] object-cover" src={imgImgLogofooter1} />
+            <div className="flex flex-col gap-[16px] items-start">
+              <div className="text-white">
+                <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[32px] mb-0">บริษัท วนชัย วู้ดสมิธ จำกัด (สำนักงานใหญ่)</p>
+                <p className="font-['IBM_Plex_Sans_Thai'] text-[16px]">เลขที่ 2/1 ถนน วงศ์สว่าง แขวงวงศ์สว่าง เขตบางซื่อ กรุงเทพฯ 10800</p>
               </div>
-              <p className="font-['Circular_Std'] font-medium text-[36px] text-[#ff7e1b] leading-[1.2]">0 2587 9700-1</p>
+              <div className="flex flex-col items-start">
+                <div className="flex gap-[8px] items-center">
+                  <img alt="Phone" className="shrink-0 size-[20px]" src={imgGroup} />
+                  <p className="font-['Circular_Std'] font-medium text-[18px] text-white leading-[1.2]">Call Center</p>
+                </div>
+                <p className="font-['Circular_Std'] font-medium text-[36px] text-[#ff7e1b] leading-[1.2]">0 2587 9700-1</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex flex-col gap-[12px] items-end">
-          <img alt="QR Code" className="h-[110px] w-[109px] object-cover" src={imgQRCode} />
-          <div className="text-right text-white">
-            <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] mb-0">สแกนคิวอาร์โค้ดเพื่อเพิ่มเพื่อน LINE</p>
-            <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[16px] text-[#ff7e1b]">@vanachai.woodsmith</p>
+          <div className="flex flex-col gap-[12px] items-end">
+            <img alt="QR Code" className="h-[110px] w-[109px] object-cover" src={imgQRCode} />
+            <div className="text-right text-white">
+              <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] mb-0">สแกนคิวอาร์โค้ดเพื่อเพิ่มเพื่อน LINE</p>
+              <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[16px] text-[#ff7e1b]">@vanachai.woodsmith</p>
+            </div>
           </div>
         </div>
       </div>
@@ -697,42 +711,45 @@ function Footer() {
         </div>
       </div>
       {/* Desktop: single row */}
-      <div className="hidden lg:flex items-center justify-between px-[150px] relative w-full">
-        <div className="flex font-['IBM_Plex_Sans_Thai'] font-medium gap-[32px] items-center text-[14px] text-white">
-          {allFooterLinks.map((link) => (
-            <p key={link} className="shrink-0">{link}</p>
-          ))}
-        </div>
-        <div className="flex gap-[12px] items-center">
-          <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-white">ติดตามเรา</p>
-          <div className="flex gap-[14px] items-center">
-            <img alt="Facebook" className="shrink-0 size-[32px]" src={imgGroup1} />
-            <img alt="Instagram" className="shrink-0 size-[32px]" src={imgGroup2} />
-            <img alt="TikTok" className="shrink-0 size-[32px]" src={imgGroup3} />
-            <img alt="LINE" className="shrink-0 size-[32px]" src={imgLineLogo1} />
+      <div className="hidden lg:block relative w-full">
+        <div className="max-w-[1212px] mx-auto w-full flex items-center justify-between px-[16px]">
+          <div className="flex font-['IBM_Plex_Sans_Thai'] font-medium gap-[32px] items-center text-[14px] text-white">
+            {allFooterLinks.map((link) => (
+              <p key={link} className="shrink-0">{link}</p>
+            ))}
+          </div>
+          <div className="flex gap-[12px] items-center">
+            <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-white">ติดตามเรา</p>
+            <div className="flex gap-[14px] items-center">
+              <img alt="Facebook" className="shrink-0 size-[32px]" src={imgGroup1} />
+              <img alt="Instagram" className="shrink-0 size-[32px]" src={imgGroup2} />
+              <img alt="TikTok" className="shrink-0 size-[32px]" src={imgGroup3} />
+              <img alt="LINE" className="shrink-0 size-[32px]" src={imgLineLogo1} />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Footer Bottom */}
-      {/* Mobile: centered stacked */}
-      <div className="border-t border-[rgba(255,255,255,0.1)] lg:border-[rgba(255,255,255,0.25)] flex flex-col lg:flex-row items-center lg:justify-between gap-[12px] px-[16px] lg:px-[150px] py-[32px] relative w-full">
-        <p className="font-['Circular_Std'] font-medium text-[14px] lg:text-[13px] text-white">
-          © 2019 @<span className="uppercase">vanachai.woodsmith</span>. All rights reserved.
-        </p>
-        <div className="flex flex-col lg:flex-row gap-[12px] lg:gap-[32px] items-center justify-center lg:justify-end">
-          <div className="flex gap-[16px] items-center justify-center lg:justify-end">
-            <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] lg:text-[13px] text-white">ข้อกำหนดและเงื่อนไขการใช้งาน</p>
-            <div className="h-[13px] flex items-center justify-center w-0">
-              <div className="rotate-90 w-[13px] h-0 relative">
-                <img alt="" className="absolute inset-[-0.5px_0_0_0] block max-w-none size-full" src={imgLine34} />
+      <div className="border-t border-[rgba(255,255,255,0.1)] lg:border-[rgba(255,255,255,0.25)] py-[32px] relative w-full">
+        <div className="max-w-[1212px] mx-auto w-full flex flex-col lg:flex-row items-center lg:justify-between gap-[12px] px-[16px]">
+          <p className="font-['Circular_Std'] font-medium text-[14px] lg:text-[13px] text-white">
+            © 2019 @<span className="uppercase">vanachai.woodsmith</span>. All rights reserved.
+          </p>
+          <div className="flex flex-col lg:flex-row gap-[12px] lg:gap-[32px] items-center justify-center lg:justify-end">
+            <div className="flex gap-[16px] items-center justify-center lg:justify-end">
+              <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] lg:text-[13px] text-white">ข้อกำหนดและเงื่อนไขการใช้งาน</p>
+              <div className="h-[13px] flex items-center justify-center w-0">
+                <div className="rotate-90 w-[13px] h-0 relative">
+                  <img alt="" className="absolute inset-[-0.5px_0_0_0] block max-w-none size-full" src={imgLine34} />
+                </div>
               </div>
+              <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] lg:text-[13px] text-white">นโยบายความเป็นส่วนตัว</p>
             </div>
-            <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] lg:text-[13px] text-white">นโยบายความเป็นส่วนตัว</p>
-          </div>
-          <div className="h-[42px] rounded-[5px] w-[88px] relative overflow-hidden">
-            <div className="absolute bg-white inset-0 rounded-[5px]" />
-            <img alt="DBD" className="absolute max-w-none object-cover rounded-[5px] size-full" src={imgBanner1} />
+            <div className="h-[42px] rounded-[5px] w-[88px] relative overflow-hidden">
+              <div className="absolute bg-white inset-0 rounded-[5px]" />
+              <img alt="DBD" className="absolute max-w-none object-cover rounded-[5px] size-full" src={imgBanner1} />
+            </div>
           </div>
         </div>
       </div>
