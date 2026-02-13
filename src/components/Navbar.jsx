@@ -7,7 +7,7 @@ import imgMenu1 from '../assets/ef18b0c8e480616ebef0c37dee581ff94d0c7c97.svg'
 const menuItems = [
   { label: 'หน้าแรก', path: '/' },
   { label: 'เกี่ยวกับเรา', path: '/about' },
-  { label: 'สินค้าของเรา', path: '#' },
+  { label: 'สินค้าของเรา', path: '/products' },
   { label: 'ค้นหาสาขา', path: '/branches' },
   { label: 'บทความ', path: '/blog' },
   { label: 'คู่มือ', path: '/manual' },

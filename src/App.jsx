@@ -11,6 +11,8 @@ import BlogPostPage from './pages/BlogPostPage'
 import ManualPage from './pages/ManualPage'
 import HighlightPage from './pages/HighlightPage'
 import FaqPage from './pages/FaqPage'
+import ProductPage from './pages/ProductPage'
+import ProductCategoryPage from './pages/ProductCategoryPage'
 
 export default function App() {
   return (
@@ -27,6 +29,8 @@ export default function App() {
           <Route path="/manual" element={<ManualPage />} />
           <Route path="/highlight" element={<HighlightPage />} />
           <Route path="/faq" element={<FaqPage />} />
+          <Route path="/products" element={<ProductPage />} />
+          <Route path="/products/:category" element={<ProductCategoryPage />} />
         </Routes>
         <Footer />
         <LineFAB />

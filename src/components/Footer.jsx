@@ -18,6 +18,7 @@ const footerLinkMap = {
   'คู่มือ': '/manual',
   'ไฮไลท์': '/highlight',
   'FAQs': '/faq',
+  'สินค้าของเรา': '/products',
 }
 
 export default function Footer() {
