@@ -12,7 +12,7 @@ const menuItems = [
   { label: 'บทความ', path: '/blog' },
   { label: 'คู่มือ', path: '/manual' },
   { label: 'ไฮไลท์', path: '/highlight' },
-  { label: 'FAQ', path: '#' },
+  { label: 'FAQ', path: '/faq' },
 ]
 
 function MobileMenu({ isOpen, onClose }) {

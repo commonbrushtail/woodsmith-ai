@@ -17,6 +17,7 @@ const footerLinkMap = {
   'บทความ': '/blog',
   'คู่มือ': '/manual',
   'ไฮไลท์': '/highlight',
+  'FAQs': '/faq',
 }
 
 export default function Footer() {

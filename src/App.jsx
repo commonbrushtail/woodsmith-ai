@@ -10,6 +10,7 @@ import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
 import ManualPage from './pages/ManualPage'
 import HighlightPage from './pages/HighlightPage'
+import FaqPage from './pages/FaqPage'
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/blog/:id" element={<BlogPostPage />} />
           <Route path="/manual" element={<ManualPage />} />
           <Route path="/highlight" element={<HighlightPage />} />
+          <Route path="/faq" element={<FaqPage />} />
         </Routes>
         <Footer />
         <LineFAB />
