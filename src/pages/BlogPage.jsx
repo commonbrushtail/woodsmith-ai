@@ -83,9 +83,9 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
         disabled={currentPage === 1}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="shrink-0">
-          <path d="M15 6L9 12L15 18" stroke={currentPage === 1 ? '#d1d5db' : '#6b7280'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M15 6L9 12L15 18" stroke={currentPage === 1 ? '#d1d5db' : '#35383b'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <p className={`font-['Inter'] font-medium text-[16px] tracking-[0.08px] ${currentPage === 1 ? 'text-[#d1d5db]' : 'text-[#6b7280]'}`}>
+        <p className={`font-['IBM_Plex_Sans_Thai'] font-medium text-[16px] tracking-[0.08px] ${currentPage === 1 ? 'text-[#d1d5db]' : 'text-[#35383b]'}`}>
           ก่อนหน้า
         </p>
       </button>
@@ -95,15 +95,15 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
         {pages.map((page, i) =>
           page === '...' ? (
             <div key={`dots-${i}`} className="flex items-center justify-center size-[38px]">
-              <span className="font-['Inter'] font-medium text-[12px] text-[#6b7280] leading-[16px] tracking-[0.06px]">•••</span>
+              <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[12px] text-[#35383b] leading-[16px] tracking-[0.06px]">•••</span>
             </div>
           ) : (
             <button
               key={page}
-              className={`flex items-center justify-center size-[38px] rounded-full cursor-pointer ${page === currentPage ? 'border-2 border-orange text-orange' : 'text-[#6b7280]'}`}
+              className={`flex items-center justify-center size-[38px] rounded-full cursor-pointer ${page === currentPage ? 'border-2 border-orange text-orange' : 'text-[#35383b]'}`}
               onClick={() => onPageChange(page)}
             >
-              <span className="font-['Inter'] font-medium text-[16px] leading-[24px] tracking-[0.08px]">{page}</span>
+              <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[16px] leading-[24px] tracking-[0.08px]">{page}</span>
             </button>
           )
         )}
@@ -115,11 +115,11 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
       >
-        <p className={`font-['Inter'] font-medium text-[16px] tracking-[0.08px] ${currentPage === totalPages ? 'text-[#d1d5db]' : 'text-[#6b7280]'}`}>
+        <p className={`font-['IBM_Plex_Sans_Thai'] font-medium text-[16px] tracking-[0.08px] ${currentPage === totalPages ? 'text-[#d1d5db]' : 'text-[#35383b]'}`}>
           ถัดไป
         </p>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="shrink-0">
-          <path d="M9 6L15 12L9 18" stroke={currentPage === totalPages ? '#d1d5db' : '#6b7280'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M9 6L15 12L9 18" stroke={currentPage === totalPages ? '#d1d5db' : '#35383b'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
     </div>
