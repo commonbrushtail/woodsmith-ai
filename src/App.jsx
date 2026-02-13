@@ -6,6 +6,8 @@ import LineFAB from './components/LineFAB'
 import HomePage from './pages/HomePage'
 import AboutPage from './pages/AboutPage'
 import BranchPage from './pages/BranchPage'
+import BlogPage from './pages/BlogPage'
+import BlogPostPage from './pages/BlogPostPage'
 
 export default function App() {
   return (
@@ -17,6 +19,8 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/branches" element={<BranchPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:id" element={<BlogPostPage />} />
         </Routes>
         <Footer />
         <LineFAB />

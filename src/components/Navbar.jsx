@@ -9,7 +9,7 @@ const menuItems = [
   { label: 'เกี่ยวกับเรา', path: '/about' },
   { label: 'สินค้าของเรา', path: '#' },
   { label: 'ค้นหาสาขา', path: '/branches' },
-  { label: 'บทความ', path: '#' },
+  { label: 'บทความ', path: '/blog' },
   { label: 'คู่มือ', path: '#' },
   { label: 'ไฮไลท์', path: '#' },
   { label: 'FAQ', path: '#' },
