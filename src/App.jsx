@@ -5,6 +5,7 @@ import Footer from './components/Footer'
 import LineFAB from './components/LineFAB'
 import HomePage from './pages/HomePage'
 import AboutPage from './pages/AboutPage'
+import BranchPage from './pages/BranchPage'
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/branches" element={<BranchPage />} />
         </Routes>
         <Footer />
         <LineFAB />

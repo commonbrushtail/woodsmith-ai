@@ -8,7 +8,7 @@ const menuItems = [
   { label: 'หน้าแรก', path: '/' },
   { label: 'เกี่ยวกับเรา', path: '/about' },
   { label: 'สินค้าของเรา', path: '#' },
-  { label: 'ค้นหาสาขา', path: '#' },
+  { label: 'ค้นหาสาขา', path: '/branches' },
   { label: 'บทความ', path: '#' },
   { label: 'คู่มือ', path: '#' },
   { label: 'ไฮไลท์', path: '#' },
