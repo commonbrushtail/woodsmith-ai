@@ -1,27 +1,24 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import TopBar from './components/TopBar'
 import Navbar from './components/Navbar'
-import HeroSection from './components/HeroSection'
-import AboutSection from './components/AboutSection'
-import BlogSection from './components/BlogSection'
-import HighlightSection from './components/HighlightSection'
-import ProductsSection from './components/ProductsSection'
-import GallerySection from './components/GallerySection'
 import Footer from './components/Footer'
 import LineFAB from './components/LineFAB'
+import HomePage from './pages/HomePage'
+import AboutPage from './pages/AboutPage'
 
 export default function App() {
   return (
-    <div className="bg-white w-full min-h-screen">
-      <TopBar />
-      <Navbar />
-      <HeroSection />
-      <AboutSection />
-      <BlogSection />
-      <HighlightSection />
-      <ProductsSection />
-      <GallerySection />
-      <Footer />
-      <LineFAB />
-    </div>
+    <BrowserRouter>
+      <div className="bg-white w-full min-h-screen">
+        <TopBar />
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+        </Routes>
+        <Footer />
+        <LineFAB />
+      </div>
+    </BrowserRouter>
   )
 }

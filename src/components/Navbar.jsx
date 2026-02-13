@@ -1,10 +1,22 @@
 import { useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import imgFavicon from '../assets/6727cae5f32ea2c35a94792ae9603addc6300612.png'
 import imgUnion from '../assets/4e24c29ef271a3dd1cdfea028b3abb8fceed5119.svg'
 import imgMenu1 from '../assets/ef18b0c8e480616ebef0c37dee581ff94d0c7c97.svg'
 
+const menuItems = [
+  { label: 'หน้าแรก', path: '/' },
+  { label: 'เกี่ยวกับเรา', path: '/about' },
+  { label: 'สินค้าของเรา', path: '#' },
+  { label: 'ค้นหาสาขา', path: '#' },
+  { label: 'บทความ', path: '#' },
+  { label: 'คู่มือ', path: '#' },
+  { label: 'ไฮไลท์', path: '#' },
+  { label: 'FAQ', path: '#' },
+]
+
 function MobileMenu({ isOpen, onClose }) {
-  const menuItems = ['หน้าแรก', 'เกี่ยวกับเรา', 'สินค้าของเรา', 'ค้นหาสาขา', 'บทความ', 'คู่มือ', 'ไฮไลท์', 'FAQ']
+  const { pathname } = useLocation()
 
   if (!isOpen) return null
 
@@ -17,10 +29,10 @@ function MobileMenu({ isOpen, onClose }) {
           <button onClick={onClose} className="size-[24px] flex items-center justify-center text-black text-[20px]">✕</button>
         </div>
         <div className="flex flex-col p-[16px] gap-[20px]">
-          {menuItems.map((item, i) => (
-            <p key={item} className={`font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] ${i === 0 ? 'text-orange' : 'text-black'}`}>
-              {item}
-            </p>
+          {menuItems.map((item) => (
+            <Link key={item.label} to={item.path} onClick={onClose} className={`font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] no-underline ${pathname === item.path ? 'text-orange' : 'text-black'}`}>
+              {item.label}
+            </Link>
           ))}
         </div>
       </div>
@@ -30,33 +42,25 @@ function MobileMenu({ isOpen, onClose }) {
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  const menuItems = [
-    { label: 'หน้าแรก', active: true },
-    { label: 'เกี่ยวกับเรา' },
-    { label: 'สินค้าของเรา' },
-    { label: 'ค้นหาสาขา' },
-    { label: 'บทความ' },
-    { label: 'คู่มือ' },
-    { label: 'ไฮไลท์' },
-    { label: 'FAQ' },
-  ]
+  const { pathname } = useLocation()
 
   return (
     <>
       <div className="bg-white w-full sticky top-0 z-50 border-b border-[#e5e7eb] lg:border-b-0">
         <div className="max-w-[1212px] mx-auto w-full flex items-center justify-between px-[16px] py-[12px] h-[60px] lg:h-auto">
           <div className="flex gap-[40px] items-center">
-            <img alt="WoodSmith" className="h-[48px] w-[38px] lg:h-[60px] lg:w-[47px] object-cover" src={imgFavicon} />
+            <Link to="/">
+              <img alt="WoodSmith" className="h-[48px] w-[38px] lg:h-[60px] lg:w-[47px] object-cover" src={imgFavicon} />
+            </Link>
             {/* Desktop nav menu */}
             <div className="hidden lg:flex gap-[36px] items-start">
               {menuItems.map((item) => (
-                <div key={item.label} className="flex flex-col gap-px items-start">
-                  <p className={`font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] ${item.active ? 'text-orange' : 'text-black'}`}>
+                <Link key={item.label} to={item.path} className="flex flex-col gap-px items-start no-underline">
+                  <p className={`font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] ${pathname === item.path ? 'text-orange' : 'text-black'}`}>
                     {item.label}
                   </p>
-                  {item.active && <div className="bg-orange h-[2px] w-full" />}
-                </div>
+                  {pathname === item.path && <div className="bg-orange h-[2px] w-full" />}
+                </Link>
               ))}
             </div>
           </div>
