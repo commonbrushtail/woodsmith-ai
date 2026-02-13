@@ -8,6 +8,16 @@ import imgGroup2 from '../assets/df1ebd85d6429885836d2abd5f34a651350f8e02.svg'
 import imgGroup3 from '../assets/965eaf2fbd5951c3b183edca911f967a9ff81858.svg'
 import imgLineLogo1 from '../assets/460e9562d009a9dc06b89094e9317c05197e3894.svg'
 import imgLine34 from '../assets/a41fa6d7209c715799bf9e2145af85fd67c3a650.svg'
+import { Link } from 'react-router-dom'
+
+const footerLinkMap = {
+  'หน้าแรก': '/',
+  'เกี่ยวกับเรา': '/about',
+  'ค้นหาสาขา': '/branches',
+  'บทความ': '/blog',
+  'คู่มือ': '/manual',
+  'ไฮไลท์': '/highlight',
+}
 
 export default function Footer() {
   const footerLinksLeft = ['หน้าแรก', 'เกี่ยวกับเรา', 'สินค้าของเรา', 'ค้นหาสาขา']
@@ -96,14 +106,22 @@ export default function Footer() {
       <div className="border-t border-[rgba(255,255,255,0.1)] pt-[20px] px-[16px] relative w-full lg:hidden">
         <div className="flex font-['IBM_Plex_Sans_Thai'] font-medium items-center justify-between px-[36px] text-[14px] text-white w-full">
           <div className="flex flex-col gap-[16px] items-start w-[100px]">
-            {footerLinksLeft.map((link) => (
-              <p key={link}>{link}</p>
-            ))}
+            {footerLinksLeft.map((link) =>
+              footerLinkMap[link] ? (
+                <Link key={link} to={footerLinkMap[link]} className="text-white no-underline">{link}</Link>
+              ) : (
+                <p key={link}>{link}</p>
+              )
+            )}
           </div>
           <div className="flex flex-col gap-[16px] items-start w-[100px]">
-            {footerLinksRight.map((link) => (
-              <p key={link}>{link}</p>
-            ))}
+            {footerLinksRight.map((link) =>
+              footerLinkMap[link] ? (
+                <Link key={link} to={footerLinkMap[link]} className="text-white no-underline">{link}</Link>
+              ) : (
+                <p key={link}>{link}</p>
+              )
+            )}
           </div>
         </div>
       </div>
@@ -111,9 +129,13 @@ export default function Footer() {
       <div className="hidden lg:block relative w-full">
         <div className="max-w-[1212px] mx-auto w-full flex items-center justify-between px-[16px]">
           <div className="flex font-['IBM_Plex_Sans_Thai'] font-medium gap-[32px] items-center text-[14px] text-white">
-            {allFooterLinks.map((link) => (
-              <p key={link} className="shrink-0">{link}</p>
-            ))}
+            {allFooterLinks.map((link) =>
+              footerLinkMap[link] ? (
+                <Link key={link} to={footerLinkMap[link]} className="shrink-0 text-white no-underline">{link}</Link>
+              ) : (
+                <p key={link} className="shrink-0">{link}</p>
+              )
+            )}
           </div>
           <div className="flex gap-[12px] items-center">
             <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-white">ติดตามเรา</p>

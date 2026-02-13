@@ -8,6 +8,8 @@ import AboutPage from './pages/AboutPage'
 import BranchPage from './pages/BranchPage'
 import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
+import ManualPage from './pages/ManualPage'
+import HighlightPage from './pages/HighlightPage'
 
 export default function App() {
   return (
@@ -21,6 +23,8 @@ export default function App() {
           <Route path="/branches" element={<BranchPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:id" element={<BlogPostPage />} />
+          <Route path="/manual" element={<ManualPage />} />
+          <Route path="/highlight" element={<HighlightPage />} />
         </Routes>
         <Footer />
         <LineFAB />

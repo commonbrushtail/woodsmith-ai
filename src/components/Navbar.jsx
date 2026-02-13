@@ -10,8 +10,8 @@ const menuItems = [
   { label: 'สินค้าของเรา', path: '#' },
   { label: 'ค้นหาสาขา', path: '/branches' },
   { label: 'บทความ', path: '/blog' },
-  { label: 'คู่มือ', path: '#' },
-  { label: 'ไฮไลท์', path: '#' },
+  { label: 'คู่มือ', path: '/manual' },
+  { label: 'ไฮไลท์', path: '/highlight' },
   { label: 'FAQ', path: '#' },
 ]
 
