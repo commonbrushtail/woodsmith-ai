@@ -49,6 +49,10 @@ import imgLine34 from './assets/a41fa6d7209c715799bf9e2145af85fd67c3a650.svg'
 import imgMenu1 from './assets/ef18b0c8e480616ebef0c37dee581ff94d0c7c97.svg'
 
 import { useState } from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation, Pagination } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/pagination'
 
 function ArrowRight() {
   return (
@@ -180,33 +184,73 @@ function Navbar() {
 }
 
 function HeroSection() {
+  const slides = [
+    { src: imgRectangle38 },
+    { src: imgRectangle36 },
+    { src: imgRectangle37 },
+  ]
+
   return (
     <div className="relative h-[224px] lg:h-[664px] w-full overflow-hidden">
-      <div className="absolute inset-0">
-        <div className="absolute bg-[#e8e3da] inset-0" />
-        <img alt="" className="absolute max-w-none object-cover opacity-80 size-full" src={imgRectangle36} />
-        <img alt="" className="absolute max-w-none object-cover opacity-20 size-full" src={imgRectangle37} />
-        <div className="absolute inset-0 overflow-hidden hidden lg:block">
-          <img alt="" className="absolute h-[279.23%] left-[-11.53%] max-w-none top-[-163.57%] w-[122.38%]" src={imgRectangle38} />
-        </div>
-      </div>
-      <div className="absolute bottom-[12px] lg:bottom-[20px] left-1/2 -translate-x-1/2 flex gap-[6px] lg:gap-[10px] items-center">
-        <div className="bg-white rounded-full size-[6px] lg:size-[10px]" />
-        <div className="bg-white/60 rounded-full size-[6px] lg:size-[10px]" />
-        <div className="bg-white/60 rounded-full size-[6px] lg:size-[10px]" />
-      </div>
-      <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex items-center justify-between px-[10px] lg:px-[46px]">
-        <button className="bg-white/10 rounded-full size-[46px] flex items-center justify-center">
-          <div className="overflow-clip size-[20px]">
+      <Swiper
+        modules={[Navigation, Pagination]}
+        loop
+        pagination={{ clickable: true }}
+        navigation={{
+          prevEl: '.hero-prev',
+          nextEl: '.hero-next',
+        }}
+        className="hero-swiper size-full"
+      >
+        {slides.map((slide, i) => (
+          <SwiperSlide key={i}>
+            <div className="relative size-full">
+              <div className="absolute bg-[#e8e3da] inset-0" />
+              <img alt="" className="absolute max-w-none object-cover size-full" src={slide.src} />
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+      <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex items-center justify-between px-[10px] lg:px-[46px] z-10 pointer-events-none">
+        <button className="hero-prev bg-white/10 rounded-full size-[46px] flex items-center justify-center pointer-events-auto cursor-pointer">
+          <div className="overflow-clip size-[12px]">
             <img alt="Previous" className="block max-w-none size-full" src={imgVector2} />
           </div>
         </button>
-        <button className="bg-white/10 rounded-full size-[46px] flex items-center justify-center">
-          <div className="overflow-clip size-[20px]">
+        <button className="hero-next bg-white/10 rounded-full size-[46px] flex items-center justify-center pointer-events-auto cursor-pointer">
+          <div className="overflow-clip size-[12px]">
             <img alt="Next" className="block max-w-none size-full" src={imgVector3} />
           </div>
         </button>
       </div>
+      <style>{`
+        .hero-swiper .swiper-pagination {
+          bottom: 12px !important;
+          display: flex;
+          justify-content: center;
+          gap: 6px;
+        }
+        .hero-swiper .swiper-pagination-bullet {
+          width: 6px;
+          height: 6px;
+          border-radius: 9999px;
+          background: rgba(255,255,255,0.6);
+          opacity: 1;
+        }
+        .hero-swiper .swiper-pagination-bullet-active {
+          background: white;
+        }
+        @media (min-width: 1024px) {
+          .hero-swiper .swiper-pagination {
+            bottom: 20px !important;
+            gap: 10px;
+          }
+          .hero-swiper .swiper-pagination-bullet {
+            width: 10px;
+            height: 10px;
+          }
+        }
+      `}</style>
     </div>
   )
 }
@@ -237,25 +281,25 @@ function AboutSection() {
           <div className="h-[172px] lg:h-[400px] shrink-0 w-[85px] lg:w-[241px] relative overflow-hidden">
             <img alt="" className="absolute max-w-none object-cover size-full" src={imgImg2} />
           </div>
-          <div className="flex flex-col gap-[56px] items-start lg:w-[610px]">
+          <div className="flex flex-col gap-[56px] items-start xl:w-[610px]">
             <div className="flex items-end w-full">
               <div className="relative rounded-tr-[15px] lg:rounded-tr-[50px] h-[116px] w-[101px] lg:size-[243px] overflow-hidden">
                 <img alt="" className="absolute h-full left-[-46.81%] max-w-none top-0 w-[150%]" src={imgImg3} />
               </div>
             </div>
             {/* Stats - hidden on mobile, shown in separate row */}
-            <div className="hidden lg:flex font-['Circular_Std'] font-medium items-center text-[#35383b] w-full">
-              <div className="flex flex-col items-start w-[203.333px]">
+            <div className="hidden lg:flex font-['Circular_Std'] font-medium items-center text-[#35383b] w-full ">
+              <div className="flex flex-col items-start lg:w-[140px] xl:w-[203.333px]">
                 <p className="text-[64px]">97</p>
-                <p className="text-[16px] tracking-[6.88px]">Branch</p>
+                <p className="text-[16px] tracking-[6.88px] relative bottom-[14px]">Branch</p>
               </div>
-              <div className="flex flex-col items-start w-[203.333px]">
+              <div className="flex flex-col items-start lg:w-[140px] xl:w-[203.333px]">
                 <p className="text-[64px]">20+</p>
-                <p className="text-[16px] tracking-[6.88px]">Products</p>
+                <p className="text-[16px] tracking-[6.88px] relative bottom-[14px]">Products</p>
               </div>
-              <div className="flex flex-col items-start w-[203.333px]">
+              <div className="flex flex-col items-start lg:w-[140px] xl:w-[203.333px]">
                 <p className="text-[64px]">10K+</p>
-                <p className="text-[16px] tracking-[6.88px]">Customers</p>
+                <p className="text-[16px] tracking-[6.88px] relative bottom-[14px]">Customers</p>
               </div>
             </div>
           </div>
@@ -283,7 +327,7 @@ function AboutSection() {
 function CardBlogLandscape({ image, category, title }) {
   return (
     <div className="flex gap-[16px] items-start w-full">
-      <div className="shrink-0 self-stretch aspect-[288.75/284.25] lg:aspect-auto lg:h-[160px] lg:w-[162px] relative overflow-hidden">
+      <div className="shrink-0 w-[120px] h-[120px] lg:aspect-auto lg:h-[160px] lg:w-[162px] relative overflow-hidden">
         <div className="absolute bg-[#e8e3da] inset-0" />
         <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
       </div>
@@ -330,46 +374,13 @@ function BlogSection() {
             เคล็ดลับฉบับ Wood Smith
           </p>
         </div>
-        {/* Mobile layout: stacked */}
-        <div className="flex flex-col gap-[16px] items-start w-full lg:hidden">
-          {/* Featured Blog Card */}
-          <div className="flex flex-col gap-[16px] items-start w-full">
-            <div className="relative w-full aspect-square overflow-hidden">
-              <div className="absolute bg-[#e8e3da] inset-0" />
-              <img alt="" className="absolute max-w-none object-cover size-full" src={imgRectangle15} />
-            </div>
-            <div className="flex flex-col gap-[16px] items-start w-full">
-              <div className="flex flex-col items-start w-full">
-                <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[15px] text-[#ff7e1b] tracking-[0.15px]">
-                  Idea &amp; Tips
-                </p>
-                <p className="font-['IBM_Plex_Sans_Thai'] font-semibold leading-[1.4] overflow-hidden text-[20px] text-[#35383b] text-ellipsis">
-                  เปิด 6 ไอเดียตกแต่งบ้านด้วย "ไม้บอร์ด MDF HMR ปิดผิวเมลามีน" Melamine on MDF
-                </p>
-              </div>
-              <div className="flex gap-[8px] items-center">
-                <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#35383b] tracking-[0.28px]">อ่านต่อ</p>
-                <ArrowRight />
-              </div>
-            </div>
-          </div>
-          {/* Landscape cards */}
-          <div className="flex flex-col gap-[25px] items-start w-full">
-            {mobileBlogCards.map((card, i) => (
-              <CardBlogLandscape key={i} {...card} />
-            ))}
-          </div>
-          <button className="border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full">
-            <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#35383b]">ดูเพิ่มเติม</p>
-          </button>
-        </div>
-        {/* Desktop layout: side by side */}
-        <div className="hidden lg:flex gap-[25px] items-start w-full">
+
+        <div className=" grid grid-cols-1 lg:grid-cols-2 gap-6.25 items-start w-full">
           <div className="flex flex-col items-start shrink-0">
-            <div className="flex flex-col gap-[16px] items-start w-full">
-              <div className="relative shrink-0 size-[600px] overflow-hidden">
-                <div className="absolute bg-[#e8e3da] inset-0" />
-                <img alt="" className="absolute max-w-none object-cover size-full" src={imgRectangle17} />
+            <div className="flex flex-col gap-[16px]  w-full">
+              <div className="relative  overflow-hidden">
+              
+                <img alt="" className="  object-cover size-full" src={imgRectangle17} />
               </div>
               <div className="flex flex-col gap-[16px] items-start w-full">
                 <div className="flex flex-col items-start w-full">
@@ -407,7 +418,7 @@ function YoutubeCard({ image, duration, channelName, title }) {
   return (
     <div className="flex flex-col gap-[10px] items-start w-full lg:w-[387px]">
       <div className="relative w-full lg:w-[387px]">
-        <div className="h-[198px] lg:h-[219px] relative w-full overflow-hidden">
+        <div className="aspect-video relative w-full overflow-hidden">
           <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
           <div className="absolute bg-gradient-to-b from-[rgba(0,0,0,0.77)] inset-0 to-[60.195%] to-[rgba(0,0,0,0)]" />
         </div>
@@ -483,7 +494,7 @@ function HighlightSection() {
 
 function CardProduct({ image, thaiName, engName }) {
   return (
-    <div className="bg-white flex flex-col gap-[12px] lg:gap-[16px] items-start w-full lg:w-[363px]">
+    <div className="bg-white flex flex-col gap-[12px] lg:gap-[16px] items-start w-full">
       <div className="h-[170px] lg:h-[268px] relative w-full overflow-hidden">
         <div className="absolute bg-[#e8e3da] inset-0" />
         <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
@@ -507,22 +518,31 @@ function CardProduct({ image, thaiName, engName }) {
 }
 
 function ProductsSection() {
-  const products = [
-    { image: imgRectangle15, thaiName: 'ไม้บอร์ด', engName: 'PB : ParticleBoard' },
-    { image: imgRectangle21, thaiName: 'ไม้อัด', engName: 'MDF : Medium Density Fiberboard' },
-    { image: imgRectangle15, thaiName: 'ไม้บอร์ด', engName: 'PB : ParticleBoard' },
-    { image: imgRectangle21, thaiName: 'ไม้อัด', engName: 'MDF : Medium Density Fiberboard' },
-    { image: imgRectangle15, thaiName: 'ไม้บอร์ด', engName: 'PB : ParticleBoard' },
-    { image: imgRectangle21, thaiName: 'ไม้อัด', engName: 'MDF : Medium Density Fiberboard' },
-  ]
+  const [activeTab, setActiveTab] = useState('construction')
 
-  const desktopProducts = [
+  const constructionProducts = [
     { image: imgRectangle15, thaiName: 'ปาร์ติเกิลบอร์ด', engName: 'PB : ParticleBoard' },
-    { image: imgRectangle21, thaiName: 'ไม้อัด OSB', engName: 'OSB: Oriented Strand Board' },
+    { image: imgRectangle21, thaiName: 'ไม้อัด OSB', engName: 'OSB : Oriented Strand Board' },
     { image: imgRectangle22, thaiName: 'แผ่นใยไม้อัดความหนาแน่นปานกลาง', engName: 'MDF : Medium Density Fiberboard' },
     { image: imgRectangle23, thaiName: 'แผ่นใยไม้อัดความหนาแน่นสูง', engName: 'HDF : High Density FiberBoard' },
     { image: imgRectangle24, thaiName: 'ไม้บอร์ดปิดผิวลามิเนต', engName: 'Laminated Board' },
     { image: imgRectangle25, thaiName: 'แผ่นใยไม้เชิงวิศวกรรม', engName: 'Shuttering Board' },
+  ]
+
+  const finishedProducts = [
+    { image: imgRectangle22, thaiName: 'ประตูเมลามีน', engName: 'Melamine Door' },
+    { image: imgRectangle23, thaiName: 'วงกบประตู', engName: 'Door Frame' },
+    { image: imgRectangle24, thaiName: 'บานประตู PVC', engName: 'PVC Door' },
+    { image: imgRectangle25, thaiName: 'พื้นลามิเนต', engName: 'Laminate Flooring' },
+    { image: imgRectangle15, thaiName: 'ไม้ฝาเฌอร่า', engName: 'Shera Plank' },
+    { image: imgRectangle21, thaiName: 'ไม้พื้นสำเร็จรูป', engName: 'Engineered Wood Flooring' },
+  ]
+
+  const products = activeTab === 'construction' ? constructionProducts : finishedProducts
+
+  const tabs = [
+    { key: 'construction', label: 'วัสดุก่อสร้าง' },
+    { key: 'finished', label: 'ผลิตภัณฑ์สำเร็จ' },
   ]
 
   return (
@@ -534,41 +554,24 @@ function ProductsSection() {
               สินค้าแนะนำ
             </p>
             <div className="flex gap-[24px] items-start justify-center">
-              <div className="flex flex-col gap-px items-start">
-                <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[#ff7e1b] text-[16px]">
-                  วัสดุก่อสร้าง
-                </p>
-                <div className="bg-[#ff7e1b] h-[2px] w-full" />
-              </div>
-              <div className="flex flex-col gap-px items-start">
-                <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#35383b]">
-                  ผลิตภัณฑ์สำเร็จ
-                </p>
-              </div>
+              {tabs.map((tab) => (
+                <button key={tab.key} className="flex flex-col gap-px items-start cursor-pointer" onClick={() => setActiveTab(tab.key)}>
+                  <p className={`font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] ${activeTab === tab.key ? 'text-[#ff7e1b]' : 'text-[#35383b]'}`}>
+                    {tab.label}
+                  </p>
+                  {activeTab === tab.key && <div className="bg-[#ff7e1b] h-[2px] w-full" />}
+                </button>
+              ))}
             </div>
           </div>
-          {/* Mobile: 2-column grid */}
-          <div className="grid grid-cols-2 gap-[20px] w-full lg:hidden">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-[20px] lg:gap-[25px] w-full">
             {products.map((p, i) => (
-              <CardProduct key={i} {...p} />
+              <CardProduct key={`${activeTab}-${i}`} {...p} />
             ))}
-          </div>
-          {/* Desktop: 3-column rows */}
-          <div className="hidden lg:flex flex-col gap-[48px] items-start">
-            <div className="flex gap-[25px] items-start">
-              {desktopProducts.slice(0, 3).map((p) => (
-                <CardProduct key={p.engName} {...p} />
-              ))}
-            </div>
-            <div className="flex gap-[25px] items-start">
-              {desktopProducts.slice(3, 6).map((p) => (
-                <CardProduct key={p.engName} {...p} />
-              ))}
-            </div>
           </div>
         </div>
         {/* Mobile button text slightly different */}
-        <button className="border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full lg:w-[1139px]">
+        <button className="border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full ">
           <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#35383b]">
             <span className="lg:hidden">ดูสินค้าทั้งหมด</span>
             <span className="hidden lg:inline">ดูสินค้าของเราทั้งหมด</span>
@@ -580,32 +583,45 @@ function ProductsSection() {
 }
 
 function GallerySection() {
+  const galleryImages = [
+    { src: imgImg4, imgClass: 'absolute h-[118.94%] left-[-12.04%] max-w-none top-[-9.87%] w-[191.42%]' },
+    { src: imgImg5, imgClass: 'absolute h-[179.78%] left-[-18.45%] max-w-none top-[-6.25%] w-[192.89%]' },
+    { src: imgImg6, imgClass: 'absolute max-w-none object-cover size-full' },
+    { src: imgImg7, imgClass: 'absolute h-[191.09%] left-[-19.8%] max-w-none top-[-8.61%] w-[205.03%]' },
+    { src: imgImg4, imgClass: 'absolute h-[118.94%] left-[-12.04%] max-w-none top-[-9.87%] w-[191.42%]' },
+    { src: imgImg5, imgClass: 'absolute h-[179.78%] left-[-18.45%] max-w-none top-[-6.25%] w-[192.89%]' },
+  ]
+
   return (
     <div className="relative w-full overflow-hidden">
-      <div className="flex items-center">
-        <div className="h-[240px] lg:h-[405px] shrink-0 w-[224px] lg:w-[378px] relative overflow-hidden">
-          <div className="absolute bg-[#d9d9d9] inset-0" />
-          <img alt="" className="absolute h-[118.94%] left-[-12.04%] max-w-none top-[-9.87%] w-[191.42%]" src={imgImg4} />
-        </div>
-        <div className="h-[240px] lg:h-[405px] shrink-0 w-[224px] lg:w-[378px] relative overflow-hidden">
-          <div className="absolute bg-[#d9d9d9] inset-0" />
-          <img alt="" className="absolute h-[179.78%] left-[-18.45%] max-w-none top-[-6.25%] w-[192.89%]" src={imgImg5} />
-        </div>
-        <div className="h-[240px] lg:h-[405px] shrink-0 w-[224px] lg:w-[378px] relative overflow-hidden">
-          <div className="absolute bg-[#d9d9d9] inset-0" />
-          <img alt="" className="absolute max-w-none object-cover size-full" src={imgImg6} />
-        </div>
-        <div className="h-[240px] lg:h-[405px] shrink-0 w-[224px] lg:w-[378px] relative overflow-hidden">
-          <div className="absolute bg-[#d9d9d9] inset-0" />
-          <img alt="" className="absolute h-[191.09%] left-[-19.8%] max-w-none top-[-8.61%] w-[205.03%]" src={imgImg7} />
-        </div>
-      </div>
-      <div className="absolute top-1/2 -translate-y-1/2 left-[10px] right-[10px] lg:left-[46px] lg:right-[46px] flex items-center justify-between pointer-events-none">
-        <button className="bg-white/10 rounded-full size-[27px] lg:size-[46px] flex items-center justify-center pointer-events-auto">
-          <img alt="Previous" className="size-[16px] lg:size-[20px]" src={imgVector2} />
+      <Swiper
+        modules={[Navigation]}
+        slidesPerView={1.5}
+        loop
+        navigation={{ prevEl: '.gallery-prev', nextEl: '.gallery-next' }}
+        breakpoints={{
+          768: { slidesPerView: 2 },
+          1024: { slidesPerView: 3 },
+          1280: { slidesPerView: 4 },
+          1536: { slidesPerView: 5 },
+        }}
+        className="gallery-swiper"
+      >
+        {galleryImages.map((img, i) => (
+          <SwiperSlide key={i}>
+            <div className="h-[240px] lg:h-[405px] relative overflow-hidden">
+              <div className="absolute bg-[#d9d9d9] inset-0" />
+              <img alt="" className={img.imgClass} src={img.src} />
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+      <div className="absolute top-1/2 -translate-y-1/2 left-[10px] right-[10px] lg:left-[46px] lg:right-[46px] flex items-center justify-between pointer-events-none z-10">
+        <button className="gallery-prev bg-white/10 rounded-full size-[27px] lg:size-[46px] flex items-center justify-center pointer-events-auto">
+          <img alt="Previous" className="size-[12px]" src={imgVector2} />
         </button>
-        <button className="bg-white/10 rounded-full size-[27px] lg:size-[46px] flex items-center justify-center pointer-events-auto">
-          <img alt="Next" className="size-[16px] lg:size-[20px]" src={imgVector3} />
+        <button className="gallery-next bg-white/10 rounded-full size-[27px] lg:size-[46px] flex items-center justify-center pointer-events-auto">
+          <img alt="Next" className="size-[12px]" src={imgVector3} />
         </button>
       </div>
     </div>
