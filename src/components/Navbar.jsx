@@ -1,0 +1,88 @@
+import { useState } from 'react'
+import imgFavicon from '../assets/6727cae5f32ea2c35a94792ae9603addc6300612.png'
+import imgUnion from '../assets/4e24c29ef271a3dd1cdfea028b3abb8fceed5119.svg'
+import imgMenu1 from '../assets/ef18b0c8e480616ebef0c37dee581ff94d0c7c97.svg'
+
+function MobileMenu({ isOpen, onClose }) {
+  const menuItems = ['หน้าแรก', 'เกี่ยวกับเรา', 'สินค้าของเรา', 'ค้นหาสาขา', 'บทความ', 'คู่มือ', 'ไฮไลท์', 'FAQ']
+
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-[60] lg:hidden">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute right-0 top-0 bottom-0 w-[280px] bg-white shadow-xl flex flex-col">
+        <div className="flex items-center justify-between p-[16px] border-b border-[#e5e7eb]">
+          <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[18px] text-black">เมนู</p>
+          <button onClick={onClose} className="size-[24px] flex items-center justify-center text-black text-[20px]">✕</button>
+        </div>
+        <div className="flex flex-col p-[16px] gap-[20px]">
+          {menuItems.map((item, i) => (
+            <p key={item} className={`font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] ${i === 0 ? 'text-orange' : 'text-black'}`}>
+              {item}
+            </p>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function Navbar() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const menuItems = [
+    { label: 'หน้าแรก', active: true },
+    { label: 'เกี่ยวกับเรา' },
+    { label: 'สินค้าของเรา' },
+    { label: 'ค้นหาสาขา' },
+    { label: 'บทความ' },
+    { label: 'คู่มือ' },
+    { label: 'ไฮไลท์' },
+    { label: 'FAQ' },
+  ]
+
+  return (
+    <>
+      <div className="bg-white w-full sticky top-0 z-50 border-b border-[#e5e7eb] lg:border-b-0">
+        <div className="max-w-[1212px] mx-auto w-full flex items-center justify-between px-[16px] py-[12px] h-[60px] lg:h-auto">
+          <div className="flex gap-[40px] items-center">
+            <img alt="WoodSmith" className="h-[48px] w-[38px] lg:h-[60px] lg:w-[47px] object-cover" src={imgFavicon} />
+            {/* Desktop nav menu */}
+            <div className="hidden lg:flex gap-[36px] items-start">
+              {menuItems.map((item) => (
+                <div key={item.label} className="flex flex-col gap-px items-start">
+                  <p className={`font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] ${item.active ? 'text-orange' : 'text-black'}`}>
+                    {item.label}
+                  </p>
+                  {item.active && <div className="bg-orange h-[2px] w-full" />}
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Right side actions */}
+          <div className="flex gap-[24px] items-center">
+            {/* Mobile: Login button (orange) */}
+            <button className="lg:hidden bg-orange flex h-[36px] items-center justify-center px-[18px]">
+              <p className="font-['Circular_Std'] font-medium text-[14px] text-white">Login</p>
+            </button>
+            <button className="block shrink-0 size-[20px]">
+              <img alt="Search" className="block max-w-none size-full" src={imgUnion} />
+            </button>
+            {/* Desktop: Login button (outlined) */}
+            <button className="hidden lg:flex border border-[#e5e7eb] h-[40px] items-center justify-center px-[24px]">
+              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[15px] text-black">
+                เข้าสู่ระบบ
+              </p>
+            </button>
+            {/* Mobile: Hamburger menu */}
+            <button className="lg:hidden shrink-0 size-[20px]" onClick={() => setMobileMenuOpen(true)}>
+              <img alt="Menu" className="block max-w-none size-full" src={imgMenu1} />
+            </button>
+          </div>
+        </div>
+      </div>
+      <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+    </>
+  )
+}
