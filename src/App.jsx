@@ -135,10 +135,10 @@ function Navbar() {
   return (
     <>
       <div className="bg-white flex items-center justify-between px-[16px] lg:px-[150px] py-[12px] h-[60px] lg:h-auto w-full sticky top-0 z-50 border-b border-[#e5e7eb] lg:border-b-0">
-        <img alt="WoodSmith" className="h-[48px] w-[38px] lg:h-[60px] lg:w-[47px] object-cover" src={imgFavicon} />
-        {/* Desktop nav menu */}
-        <div className="hidden lg:flex gap-[40px] items-center">
-          <div className="flex gap-[36px] items-start">
+        <div className="flex gap-[40px] items-center">
+          <img alt="WoodSmith" className="h-[48px] w-[38px] lg:h-[60px] lg:w-[47px] object-cover" src={imgFavicon} />
+          {/* Desktop nav menu */}
+          <div className="hidden lg:flex gap-[36px] items-start">
             {menuItems.map((item) => (
               <div key={item.label} className="flex flex-col gap-px items-start">
                 <p className={`font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] ${item.active ? 'text-[#ff7e1b]' : 'text-black'}`}>
