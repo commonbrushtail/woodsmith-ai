@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import ArrowRight from './ArrowRight'
 import imgRectangle15 from '../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'

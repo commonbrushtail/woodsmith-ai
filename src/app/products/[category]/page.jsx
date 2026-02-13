@@ -1,13 +1,15 @@
-import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import ArrowRight from '../components/ArrowRight'
-import imgSearch from '../assets/icon_search.svg'
-import imgRectangle15 from '../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
-import imgRectangle21 from '../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
-import imgRectangle22 from '../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
-import imgRectangle23 from '../assets/363360e0eabb614000b96e9e0872777c65463b3a.png'
-import imgRectangle24 from '../assets/0c3090fa51a394a39ced02aa6235d63e1ed6948a.png'
-import imgRectangle25 from '../assets/e9b01d1a4a14a251433baa636e611ba911b29402.png'
+'use client'
+
+import { useState, use } from 'react'
+import Link from 'next/link'
+import ArrowRight from '../../../components/ArrowRight'
+import imgSearch from '../../../assets/icon_search.svg'
+import imgRectangle15 from '../../../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
+import imgRectangle21 from '../../../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
+import imgRectangle22 from '../../../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
+import imgRectangle23 from '../../../assets/363360e0eabb614000b96e9e0872777c65463b3a.png'
+import imgRectangle24 from '../../../assets/0c3090fa51a394a39ced02aa6235d63e1ed6948a.png'
+import imgRectangle25 from '../../../assets/e9b01d1a4a14a251433baa636e611ba911b29402.png'
 
 const categoryData = {
   construction: {
@@ -105,14 +107,14 @@ function ChevronRightIcon() {
 function Breadcrumb({ categoryTitle }) {
   return (
     <nav className="flex gap-[8px] items-center px-[20px] lg:px-0 w-full">
-      <Link to="/" className="flex gap-[4px] items-center no-underline shrink-0">
+      <Link href="/" className="flex gap-[4px] items-center no-underline shrink-0">
         <HomeIcon />
         <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#202124] tracking-[0.06px] leading-[20px]">
           หน้าแรก
         </span>
       </Link>
       <ChevronRightIcon />
-      <Link to="/products" className="no-underline shrink-0">
+      <Link href="/products" className="no-underline shrink-0">
         <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#202124] tracking-[0.06px] leading-[20px]">
           สินค้าของเรา
         </span>
@@ -267,8 +269,8 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
   )
 }
 
-export default function ProductCategoryPage() {
-  const { category } = useParams()
+export default function ProductCategoryPage({ params }) {
+  const { category } = use(params)
   const data = categoryData[category] || categoryData.finished
   const [filterOpen, setFilterOpen] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
@@ -304,7 +306,7 @@ export default function ProductCategoryPage() {
         <div className="w-full overflow-x-auto lg:overflow-visible">
           <div className="flex lg:grid lg:grid-cols-5 gap-[20px] lg:gap-[25px] w-max lg:w-full">
             {data.subcategories.map((sub) => (
-              <Link key={sub.engName} to={`/products/${category}/${sub.slug}`} className="w-[160px] lg:w-auto shrink-0 no-underline">
+              <Link key={sub.engName} href={`/products/${category}/${sub.slug}`} className="w-[160px] lg:w-auto shrink-0 no-underline">
                 <SubcategoryCard {...sub} />
               </Link>
             ))}

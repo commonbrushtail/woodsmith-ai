@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-orange: #ff7e1b;
+  --color-black: #35383b;
+  --color-grey: #bfbfbf;
+  --color-brown: #915e36;
+  --color-dark-brown: #3e261f;
+  --color-white: #ffffff;
+  --color-beige: #f8f3ea;
+  --color-dark: #494c4f;
+  --color-highlight-bg: rgba(62, 38, 31, 0.9);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

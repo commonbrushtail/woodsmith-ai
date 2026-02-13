@@ -1,11 +1,13 @@
+'use client'
+
 import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
-import ArrowRight from '../components/ArrowRight'
-import imgBanner from '../assets/blog_banner.png'
-import imgCard1 from '../assets/blog_card_1.png'
-import imgCard2 from '../assets/blog_card_2.png'
-import imgCard3 from '../assets/blog_card_3.png'
-import imgCard4 from '../assets/blog_card_4.png'
+import Link from 'next/link'
+import ArrowRight from '../../components/ArrowRight'
+import imgBanner from '../../assets/blog_banner.png'
+import imgCard1 from '../../assets/blog_card_1.png'
+import imgCard2 from '../../assets/blog_card_2.png'
+import imgCard3 from '../../assets/blog_card_3.png'
+import imgCard4 from '../../assets/blog_card_4.png'
 
 const categoryTabs = [
   { key: 'all', label: 'ทั้งหมด' },
@@ -36,7 +38,7 @@ const DESKTOP_PAGE_SIZE = 20
 
 function BlogCard({ id, image, category, title }) {
   return (
-    <Link to={`/blog/${id}`} className="flex gap-[16px] items-start lg:flex-col cursor-pointer no-underline">
+    <Link href={`/blog/${id}`} className="flex gap-[16px] items-start lg:flex-col cursor-pointer no-underline">
       <div className="shrink-0 w-[120px] h-[120px] lg:w-full lg:h-auto lg:aspect-square relative overflow-hidden">
         <div className="absolute bg-[#e8e3da] inset-0" />
         <img alt="" className="absolute max-w-none object-cover size-full" src={image} />

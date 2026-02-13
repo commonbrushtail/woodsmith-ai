@@ -1,16 +1,18 @@
-import { Link } from 'react-router-dom'
-import imgHero from '../assets/blog_hero.png'
-import imgContent1 from '../assets/blog_content_1.png'
-import imgContent2 from '../assets/blog_content_2.png'
-import imgContent3 from '../assets/blog_content_3.png'
-import imgShareFb from '../assets/icon_share_facebook.svg'
-import imgShareLine from '../assets/icon_share_line.svg'
-import imgShareX from '../assets/icon_share_x.svg'
-import imgView from '../assets/icon_view.svg'
-import imgCard1 from '../assets/blog_card_1.png'
-import imgCard2 from '../assets/blog_card_2.png'
-import imgCard3 from '../assets/blog_card_3.png'
-import imgCard4 from '../assets/blog_card_4.png'
+'use client'
+
+import Link from 'next/link'
+import imgHero from '../../../assets/blog_hero.png'
+import imgContent1 from '../../../assets/blog_content_1.png'
+import imgContent2 from '../../../assets/blog_content_2.png'
+import imgContent3 from '../../../assets/blog_content_3.png'
+import imgShareFb from '../../../assets/icon_share_facebook.svg'
+import imgShareLine from '../../../assets/icon_share_line.svg'
+import imgShareX from '../../../assets/icon_share_x.svg'
+import imgView from '../../../assets/icon_view.svg'
+import imgCard1 from '../../../assets/blog_card_1.png'
+import imgCard2 from '../../../assets/blog_card_2.png'
+import imgCard3 from '../../../assets/blog_card_3.png'
+import imgCard4 from '../../../assets/blog_card_4.png'
 
 const relatedPosts = [
   { id: 2, image: imgCard1, category: 'Idea & Tips', title: 'Goodbye Sun☀️ & Rain 🌧️ประตูสวย ไม่กลัวน้ำ ไม่กลัว แดด \u200B3 จุดเด่นที่ทำให้ประตูเมลามีนกันน้ำอัลตร้าคือคำตอบของทุกบ้าน' },
@@ -39,14 +41,14 @@ function ChevronRightIcon() {
 function Breadcrumb() {
   return (
     <nav className="flex gap-[8px] items-center px-[20px] lg:px-0 w-full">
-      <Link to="/" className="flex gap-[4px] items-center no-underline shrink-0">
+      <Link href="/" className="flex gap-[4px] items-center no-underline shrink-0">
         <HomeIcon />
         <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#202124] tracking-[0.06px] leading-[20px]">
           หน้าแรก
         </span>
       </Link>
       <ChevronRightIcon />
-      <Link to="/blog" className="no-underline shrink-0">
+      <Link href="/blog" className="no-underline shrink-0">
         <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#202124] tracking-[0.06px] leading-[20px]">
           บทความ
         </span>
@@ -61,7 +63,7 @@ function Breadcrumb() {
 
 function RelatedPostCard({ id, image, category, title }) {
   return (
-    <Link to={`/blog/${id}`} className="flex gap-[16px] items-start w-full no-underline">
+    <Link href={`/blog/${id}`} className="flex gap-[16px] items-start w-full no-underline">
       <div className="shrink-0 w-[102px] h-[100px] relative overflow-hidden">
         <div className="absolute bg-[#e8e3da] inset-0" />
         <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
@@ -104,7 +106,7 @@ function RelatedPosts() {
           <RelatedPostCard key={post.id} {...post} />
         ))}
       </div>
-      <Link to="/blog" className="border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full no-underline">
+      <Link href="/blog" className="border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full no-underline">
         <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#35383b]">
           ดูเพิ่มเติม
         </p>

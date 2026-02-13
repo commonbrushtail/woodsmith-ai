@@ -1,14 +1,16 @@
+'use client'
+
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import ArrowRight from '../components/ArrowRight'
-import imgCategoryBg from '../assets/product_category_bg.png'
-import imgSearch from '../assets/icon_search.svg'
-import imgRectangle15 from '../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
-import imgRectangle21 from '../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
-import imgRectangle22 from '../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
-import imgRectangle23 from '../assets/363360e0eabb614000b96e9e0872777c65463b3a.png'
-import imgRectangle24 from '../assets/0c3090fa51a394a39ced02aa6235d63e1ed6948a.png'
-import imgRectangle25 from '../assets/e9b01d1a4a14a251433baa636e611ba911b29402.png'
+import Link from 'next/link'
+import ArrowRight from '../../components/ArrowRight'
+import imgCategoryBg from '../../assets/product_category_bg.png'
+import imgSearch from '../../assets/icon_search.svg'
+import imgRectangle15 from '../../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
+import imgRectangle21 from '../../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
+import imgRectangle22 from '../../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
+import imgRectangle23 from '../../assets/363360e0eabb614000b96e9e0872777c65463b3a.png'
+import imgRectangle24 from '../../assets/0c3090fa51a394a39ced02aa6235d63e1ed6948a.png'
+import imgRectangle25 from '../../assets/e9b01d1a4a14a251433baa636e611ba911b29402.png'
 
 const allProducts = [
   { id: '55690', image: imgRectangle15, category: 'ไม้พื้น', name: 'ไม้พื้นลามิเนตแบบแผ่นยาว 55690' },
@@ -64,7 +66,7 @@ const MOBILE_PAGE_SIZE = 6
 
 function ProductCard({ id, image, category, name }) {
   return (
-    <Link to={`/product/${id}`} className="flex flex-col gap-[16px] items-start w-full no-underline">
+    <Link href={`/product/${id}`} className="flex flex-col gap-[16px] items-start w-full no-underline">
       <div className="h-[170px] lg:h-[222px] relative w-full overflow-hidden">
         <div className="absolute bg-[#e8e3da] inset-0" />
         <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
@@ -222,7 +224,7 @@ export default function ProductPage() {
           </p>
           {/* Hero search bar */}
           <div className="border border-[#e5e7eb] rounded-full flex items-center gap-[4px] h-[40px] lg:h-[48px] px-[16px] w-full max-w-[500px]">
-            <img alt="" className="shrink-0 size-[20 px] " src={imgSearch} />
+            <img alt="" className="shrink-0 size-[20px]" src={imgSearch} />
             <input
               type="text"
               placeholder="กำลังมองหาสินค้าอะไร? ค้นหาเลย..."
@@ -239,7 +241,7 @@ export default function ProductPage() {
             ].map((cat) => (
               <Link
                 key={cat.label}
-                to={cat.path}
+                href={cat.path}
                 className="relative flex-1 flex flex-col gap-[8px] items-center justify-center py-[48px] lg:py-[120px] px-[32px] border-b-[8px] border-orange overflow-hidden no-underline"
               >
                 <img

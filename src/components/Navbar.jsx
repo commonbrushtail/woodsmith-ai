@@ -1,5 +1,8 @@
+'use client'
+
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import imgFavicon from '../assets/6727cae5f32ea2c35a94792ae9603addc6300612.png'
 import imgUnion from '../assets/4e24c29ef271a3dd1cdfea028b3abb8fceed5119.svg'
 import imgMenu1 from '../assets/ef18b0c8e480616ebef0c37dee581ff94d0c7c97.svg'
@@ -16,7 +19,7 @@ const menuItems = [
 ]
 
 function MobileMenu({ isOpen, onClose }) {
-  const { pathname } = useLocation()
+  const pathname = usePathname()
 
   if (!isOpen) return null
 
@@ -30,7 +33,7 @@ function MobileMenu({ isOpen, onClose }) {
         </div>
         <div className="flex flex-col p-[16px] gap-[20px]">
           {menuItems.map((item) => (
-            <Link key={item.label} to={item.path} onClick={onClose} className={`font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] no-underline ${pathname === item.path ? 'text-orange' : 'text-black'}`}>
+            <Link key={item.label} href={item.path} onClick={onClose} className={`font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] no-underline ${pathname === item.path ? 'text-orange' : 'text-black'}`}>
               {item.label}
             </Link>
           ))}
@@ -42,20 +45,20 @@ function MobileMenu({ isOpen, onClose }) {
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { pathname } = useLocation()
+  const pathname = usePathname()
 
   return (
     <>
       <div className="bg-white w-full sticky top-0 z-50 border-b border-[#e5e7eb] lg:border-b-0">
         <div className="max-w-[1212px] mx-auto w-full flex items-center justify-between px-[16px] py-[12px] h-[60px] lg:h-auto">
           <div className="flex gap-[40px] items-center">
-            <Link to="/">
+            <Link href="/">
               <img alt="WoodSmith" className="h-[48px] w-[38px] lg:h-[60px] lg:w-[47px] object-cover" src={imgFavicon} />
             </Link>
             {/* Desktop nav menu */}
             <div className="hidden lg:flex gap-[36px] items-start">
               {menuItems.map((item) => (
-                <Link key={item.label} to={item.path} className="flex flex-col gap-px items-start no-underline">
+                <Link key={item.label} href={item.path} className="flex flex-col gap-px items-start no-underline">
                   <p className={`font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] ${pathname === item.path ? 'text-orange' : 'text-black'}`}>
                     {item.label}
                   </p>

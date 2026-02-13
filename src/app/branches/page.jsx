@@ -1,8 +1,10 @@
+'use client'
+
 import { useState } from 'react'
-import imgHqPhoto from '../assets/branch_hq_photo.png'
-import imgWsmLogo from '../assets/logo_wsm_express.svg'
-import imgSearch from '../assets/icon_search.svg'
-import imgLineLogo from '../assets/line_logo_green.svg'
+import imgHqPhoto from '../../assets/branch_hq_photo.png'
+import imgWsmLogo from '../../assets/logo_wsm_express.svg'
+import imgSearch from '../../assets/icon_search.svg'
+import imgLineLogo from '../../assets/line_logo_green.svg'
 
 const regionTabs = [
   { key: 'all', label: 'ทุกภูมิภาค' },
@@ -70,7 +72,6 @@ function HqCard() {
 function CardBranch({ region, name, address, phone, hours }) {
   return (
     <div className="bg-white flex flex-col lg:flex-row gap-[12px] lg:gap-[24px] items-start px-[20px] lg:px-0 w-full">
-      {/* Mobile: small logo tile */}
       <div className="lg:hidden flex flex-col gap-[12px] items-start w-full">
         <div className="h-[97px] w-[159px] relative overflow-hidden rounded-[4px]">
           <div className="absolute inset-0 bg-orange" />
@@ -81,13 +82,11 @@ function CardBranch({ region, name, address, phone, hours }) {
           <p className="font-['IBM_Plex_Sans_Thai'] font-bold text-[20px] leading-[1.5] w-full">{name}</p>
         </div>
       </div>
-      {/* Desktop: large logo tile */}
       <div className="hidden lg:block h-[218px] w-[358px] shrink-0 relative overflow-hidden rounded-[4px]">
         <div className="absolute inset-0 bg-orange" />
         <img alt="WoodSmith Express" className="absolute top-[88px] left-[104px] w-[150px] h-[42px]" src={imgWsmLogo} />
       </div>
       <div className="flex flex-col gap-[16px] items-start w-full lg:w-[500px]">
-        {/* Desktop: branch name/region */}
         <div className="hidden lg:flex flex-col items-start text-black w-full">
           <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[15px] leading-[1.2]">{region}</p>
           <p className="font-['IBM_Plex_Sans_Thai'] font-bold text-[32px] leading-[1.5] w-full">{name}</p>
@@ -118,12 +117,10 @@ export default function BranchPage() {
 
   return (
     <div className="flex flex-col items-start lg:items-center w-full">
-      {/* HQ Featured Card */}
       <div className="w-full lg:max-w-[882px] lg:mx-auto lg:py-[40px]">
         <HqCard />
       </div>
 
-      {/* Search Input */}
       <div className="px-[20px] py-[16px] lg:pt-[40px] lg:pb-[32px] w-full lg:max-w-[660px] lg:mx-auto">
         <div className="border border-[#e5e7eb] rounded-full flex gap-[7px] items-center px-[20px] lg:px-[16px] py-[6px] lg:py-[15px] w-full">
           <img alt="" className="size-[20px] shrink-0" src={imgSearch} />
@@ -135,7 +132,6 @@ export default function BranchPage() {
         </div>
       </div>
 
-      {/* Region Tabs */}
       <div className="flex gap-[32px] items-start px-[20px] w-full lg:max-w-[882px] lg:mx-auto lg:justify-center overflow-x-auto lg:overflow-visible scrollbar-hide">
         {regionTabs.map((tab) => (
           <button key={tab.key} className="flex flex-col gap-px items-start shrink-0 cursor-pointer" onClick={() => setActiveTab(tab.key)}>
@@ -147,21 +143,18 @@ export default function BranchPage() {
         ))}
       </div>
 
-      {/* Branch Count */}
       <div className="px-[20px] py-[16px] lg:py-[32px] w-full">
         <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] lg:text-[20px] text-black lg:text-center">
           ทั้งหมด <span className="text-orange">97</span> สาขา
         </p>
       </div>
 
-      {/* Branch Cards List */}
       <div className="flex flex-col gap-[36px] lg:gap-[32px] items-start w-full lg:max-w-[882px] lg:mx-auto">
         {branches.map((branch, i) => (
           <CardBranch key={i} {...branch} />
         ))}
       </div>
 
-      {/* See More Button */}
       <div className="flex flex-col gap-[12px] items-center px-[20px] py-[36px] w-full lg:max-w-[882px] lg:mx-auto">
         <button className="border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full">
           <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-black">ดูสาขาทั้งหมด</p>

@@ -1,3 +1,5 @@
+'use client'
+
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation } from 'swiper/modules'
 import imgImg4 from '../assets/f7255ed778b64cf2b23182a0a2a87707a625f317.png'

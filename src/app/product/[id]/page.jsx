@@ -1,13 +1,15 @@
+'use client'
+
 import { useState, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css'
-import ArrowRight from '../components/ArrowRight'
-import imgRectangle15 from '../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
-import imgRectangle21 from '../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
-import imgRectangle22 from '../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
-import imgRectangle23 from '../assets/363360e0eabb614000b96e9e0872777c65463b3a.png'
-import imgRectangle24 from '../assets/0c3090fa51a394a39ced02aa6235d63e1ed6948a.png'
+import ArrowRight from '../../../components/ArrowRight'
+import imgRectangle15 from '../../../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
+import imgRectangle21 from '../../../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
+import imgRectangle22 from '../../../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
+import imgRectangle23 from '../../../assets/363360e0eabb614000b96e9e0872777c65463b3a.png'
+import imgRectangle24 from '../../../assets/0c3090fa51a394a39ced02aa6235d63e1ed6948a.png'
 
 const productData = {
   name: 'ไม้พื้นไส้ HDF ปิดวีเนียร์',
@@ -350,20 +352,20 @@ export default function ProductDetailPage() {
       {/* Breadcrumb */}
       <div className="max-w-[1212px] mx-auto w-full py-[8px] px-[16px]">
         <nav className="flex gap-[8px] items-center w-full">
-          <Link to="/" className="flex gap-[4px] items-center no-underline shrink-0">
+          <Link href="/" className="flex gap-[4px] items-center no-underline shrink-0">
             <HomeIcon />
             <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#202124] tracking-[0.06px] leading-[20px]">
               หน้าแรก
             </span>
           </Link>
           <ChevronRightIcon />
-          <Link to={`/products/${product.category.slug}`} className="no-underline shrink-0">
+          <Link href={`/products/${product.category.slug}`} className="no-underline shrink-0">
             <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#202124] tracking-[0.06px] leading-[20px]">
               {product.category.title}
             </span>
           </Link>
           <ChevronRightIcon />
-          <Link to={`/products/${product.category.slug}/${product.subcategory.slug}`} className="no-underline shrink-0">
+          <Link href={`/products/${product.category.slug}/${product.subcategory.slug}`} className="no-underline shrink-0">
             <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#202124] tracking-[0.06px] leading-[20px]">
               {product.subcategory.title}
             </span>

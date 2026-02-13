@@ -1,80 +1,22 @@
+'use client'
+
 import { useState } from 'react'
-import imgBanner from '../assets/manual_banner.png'
-import imgCard1 from '../assets/manual_card_1.png'
-import imgCard2 from '../assets/manual_card_2.png'
-import imgYoutube from '../assets/youtube_1.svg'
+import imgBanner from '../../assets/manual_banner.png'
+import imgCard1 from '../../assets/manual_card_1.png'
+import imgCard2 from '../../assets/manual_card_2.png'
+import imgYoutube from '../../assets/youtube_1.svg'
 
 const baseManuals = [
-  {
-    image: imgCard1,
-    title: 'คู่มือแนะนำการติดตั้งวงกบห่อ PVC',
-    date: '25 ตุลาคม 2568',
-    pdfUrl: '#',
-    youtubeUrl: 'https://youtube.com',
-  },
-  {
-    image: imgCard2,
-    title: 'คู่มือแนะนำการติดตั้งไม้ฝากแนวต่อ HMR',
-    date: '25 ตุลาคม 2568',
-    pdfUrl: '#',
-    youtubeUrl: 'https://youtube.com',
-  },
-  {
-    image: imgCard1,
-    title: 'คู่มือแนะนำการติดตั้งไม้ปิ่นโต',
-    date: '25 ตุลาคม 2568',
-    pdfUrl: '#',
-    youtubeUrl: null,
-  },
-  {
-    image: imgCard2,
-    title: 'คู่มือแนะนำการติดตั้งไม้ผ้า ใช้กาวเบอร์',
-    date: '25 ตุลาคม 2568',
-    pdfUrl: '#',
-    youtubeUrl: null,
-  },
-  {
-    image: imgCard1,
-    title: 'คู่มือแนะนำการติดตั้งไม้ผ้าหนังผิน',
-    date: '25 ตุลาคม 2568',
-    pdfUrl: '#',
-    youtubeUrl: 'https://youtube.com',
-  },
-  {
-    image: imgCard2,
-    title: 'คู่มือแนะนำการติดตั้งประตูพร้อมวงกบ',
-    date: '20 ตุลาคม 2568',
-    pdfUrl: '#',
-    youtubeUrl: 'https://youtube.com',
-  },
-  {
-    image: imgCard1,
-    title: 'คู่มือแนะนำการติดตั้งประตูพร้อมวงกบ',
-    date: '25 ตุลาคม 2568',
-    pdfUrl: '#',
-    youtubeUrl: 'https://youtube.com',
-  },
-  {
-    image: imgCard2,
-    title: 'คู่มือแนะนำการติดตั้งประตูพร้อมวงกบ',
-    date: '25 ตุลาคม 2568',
-    pdfUrl: '#',
-    youtubeUrl: 'https://youtube.com',
-  },
-  {
-    image: imgCard1,
-    title: 'คู่มือแนะนำการติดตั้งประตูพร้อมวงกบ',
-    date: '25 ตุลาคม 2568',
-    pdfUrl: '#',
-    youtubeUrl: 'https://youtube.com',
-  },
-  {
-    image: imgCard2,
-    title: 'คู่มือแนะนำการติดตั้งประตูพร้อมวงกบ',
-    date: '25 ตุลาคม 2568',
-    pdfUrl: '#',
-    youtubeUrl: 'https://youtube.com',
-  },
+  { image: imgCard1, title: 'คู่มือแนะนำการติดตั้งวงกบห่อ PVC', date: '25 ตุลาคม 2568', pdfUrl: '#', youtubeUrl: 'https://youtube.com' },
+  { image: imgCard2, title: 'คู่มือแนะนำการติดตั้งไม้ฝากแนวต่อ HMR', date: '25 ตุลาคม 2568', pdfUrl: '#', youtubeUrl: 'https://youtube.com' },
+  { image: imgCard1, title: 'คู่มือแนะนำการติดตั้งไม้ปิ่นโต', date: '25 ตุลาคม 2568', pdfUrl: '#', youtubeUrl: null },
+  { image: imgCard2, title: 'คู่มือแนะนำการติดตั้งไม้ผ้า ใช้กาวเบอร์', date: '25 ตุลาคม 2568', pdfUrl: '#', youtubeUrl: null },
+  { image: imgCard1, title: 'คู่มือแนะนำการติดตั้งไม้ผ้าหนังผิน', date: '25 ตุลาคม 2568', pdfUrl: '#', youtubeUrl: 'https://youtube.com' },
+  { image: imgCard2, title: 'คู่มือแนะนำการติดตั้งประตูพร้อมวงกบ', date: '20 ตุลาคม 2568', pdfUrl: '#', youtubeUrl: 'https://youtube.com' },
+  { image: imgCard1, title: 'คู่มือแนะนำการติดตั้งประตูพร้อมวงกบ', date: '25 ตุลาคม 2568', pdfUrl: '#', youtubeUrl: 'https://youtube.com' },
+  { image: imgCard2, title: 'คู่มือแนะนำการติดตั้งประตูพร้อมวงกบ', date: '25 ตุลาคม 2568', pdfUrl: '#', youtubeUrl: 'https://youtube.com' },
+  { image: imgCard1, title: 'คู่มือแนะนำการติดตั้งประตูพร้อมวงกบ', date: '25 ตุลาคม 2568', pdfUrl: '#', youtubeUrl: 'https://youtube.com' },
+  { image: imgCard2, title: 'คู่มือแนะนำการติดตั้งประตูพร้อมวงกบ', date: '25 ตุลาคม 2568', pdfUrl: '#', youtubeUrl: 'https://youtube.com' },
 ]
 
 const allManuals = Array.from({ length: 27 }, (_, i) => ({
@@ -90,13 +32,10 @@ function CardManual({ image, title, date, pdfUrl, youtubeUrl }) {
 
   return (
     <div className="bg-white w-full flex flex-col lg:flex-row lg:gap-[24px] items-start px-[20px] lg:px-0">
-      {/* Thumbnail */}
       <div className="w-full lg:w-[345px] lg:shrink-0 h-[213px] lg:h-[210px] relative overflow-hidden">
         <div className="absolute bg-[#e8e3da] inset-0" />
         <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
       </div>
-
-      {/* Content */}
       <div className="border-b-3 border-dark-brown flex flex-1 flex-col gap-[16px] lg:justify-between items-start pt-[12px] lg:pt-[8px] pb-[20px] w-full lg:self-stretch">
         <div className="flex flex-col gap-[12px] lg:gap-[8px] items-start w-full text-black">
           <p className="font-['IBM_Plex_Sans_Thai'] font-bold text-[20px] lg:text-[24px] leading-[1.4]">
@@ -107,8 +46,6 @@ function CardManual({ image, title, date, pdfUrl, youtubeUrl }) {
             <span>: {date}</span>
           </p>
         </div>
-
-        {/* Buttons */}
         <div className="flex gap-[8px] h-[48px] items-center w-full">
           {hasPdf && (
             <a
@@ -149,7 +86,6 @@ export default function ManualPage() {
 
   return (
     <div className="flex flex-col items-center w-full pb-[36px] lg:pb-[60px]">
-      {/* Banner */}
       <div className="h-[116px] lg:h-[200px] relative w-full overflow-hidden flex items-center justify-center">
         <img alt="" className="absolute max-w-none object-cover size-full" src={imgBanner} />
         <p className="relative font-['IBM_Plex_Sans_Thai'] font-semibold text-[24px] lg:text-[64px] text-white text-center tracking-[0.25px] leading-[1.3]">
@@ -157,14 +93,12 @@ export default function ManualPage() {
         </p>
       </div>
 
-      {/* Manual Cards */}
       <div className="flex flex-col gap-[32px] lg:gap-[48px] items-center mt-[36px] lg:mt-[48px] w-full lg:max-w-[882px] lg:mx-auto">
         {visibleManuals.map((manual) => (
           <CardManual key={manual.id} {...manual} />
         ))}
       </div>
 
-      {/* Load More */}
       {remaining > 0 && (
         <div className="flex flex-col gap-[12px] items-center mt-[32px] lg:mt-[48px] px-[20px] w-full lg:max-w-[882px] lg:mx-auto">
           <button

@@ -1,10 +1,13 @@
-import { Link, useParams } from 'react-router-dom'
-import ArrowRight from '../components/ArrowRight'
-import imgRectangle15 from '../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
-import imgRectangle21 from '../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
-import imgRectangle22 from '../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
-import imgRectangle23 from '../assets/363360e0eabb614000b96e9e0872777c65463b3a.png'
-import imgRectangle24 from '../assets/0c3090fa51a394a39ced02aa6235d63e1ed6948a.png'
+'use client'
+
+import { use } from 'react'
+import Link from 'next/link'
+import ArrowRight from '../../../../components/ArrowRight'
+import imgRectangle15 from '../../../../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
+import imgRectangle21 from '../../../../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
+import imgRectangle22 from '../../../../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
+import imgRectangle23 from '../../../../assets/363360e0eabb614000b96e9e0872777c65463b3a.png'
+import imgRectangle24 from '../../../../assets/0c3090fa51a394a39ced02aa6235d63e1ed6948a.png'
 
 const subcategoryData = {
   construction: {
@@ -138,7 +141,7 @@ function ChevronRightIcon() {
 
 function ProductCard({ id, image, subcategoryTitle, name }) {
   return (
-    <Link to={`/product/${id}`} className="flex flex-col gap-[16px] items-start w-full no-underline">
+    <Link href={`/product/${id}`} className="flex flex-col gap-[16px] items-start w-full no-underline">
       <div className="h-[170px] lg:h-[222px] relative w-full overflow-hidden">
         <div className="absolute bg-[#e8e3da] inset-0" />
         <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
@@ -161,8 +164,8 @@ function ProductCard({ id, image, subcategoryTitle, name }) {
   )
 }
 
-export default function ProductSubcategoryPage() {
-  const { category, subcategory } = useParams()
+export default function ProductSubcategoryPage({ params }) {
+  const { category, subcategory } = use(params)
   const catData = subcategoryData[category]
   const subData = catData?.subcategories[subcategory]
 
@@ -170,7 +173,7 @@ export default function ProductSubcategoryPage() {
     return (
       <div className="max-w-[1212px] mx-auto w-full px-[16px] py-[48px] text-center">
         <p className="font-['IBM_Plex_Sans_Thai'] text-[20px] text-black">ไม่พบหมวดหมู่สินค้านี้</p>
-        <Link to="/products" className="font-['IBM_Plex_Sans_Thai'] text-[16px] text-orange mt-[16px] inline-block">
+        <Link href="/products" className="font-['IBM_Plex_Sans_Thai'] text-[16px] text-orange mt-[16px] inline-block">
           กลับไปหน้าสินค้า
         </Link>
       </div>
@@ -182,20 +185,20 @@ export default function ProductSubcategoryPage() {
       {/* Breadcrumb */}
       <div className="max-w-[1212px] mx-auto w-full py-[8px] px-[16px]">
         <nav className="flex gap-[8px] items-center w-full">
-          <Link to="/" className="flex gap-[4px] items-center no-underline shrink-0">
+          <Link href="/" className="flex gap-[4px] items-center no-underline shrink-0">
             <HomeIcon />
             <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#202124] tracking-[0.06px] leading-[20px]">
               หน้าแรก
             </span>
           </Link>
           <ChevronRightIcon />
-          <Link to="/products" className="no-underline shrink-0">
+          <Link href="/products" className="no-underline shrink-0">
             <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#202124] tracking-[0.06px] leading-[20px]">
               สินค้าของเรา
             </span>
           </Link>
           <ChevronRightIcon />
-          <Link to={`/products/${category}`} className="no-underline shrink-0">
+          <Link href={`/products/${category}`} className="no-underline shrink-0">
             <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#202124] tracking-[0.06px] leading-[20px]">
               {catData.title}
             </span>
