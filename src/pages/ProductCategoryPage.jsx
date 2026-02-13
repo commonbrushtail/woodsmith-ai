@@ -13,11 +13,11 @@ const categoryData = {
   construction: {
     title: 'วัสดุก่อสร้าง',
     subcategories: [
-      { image: imgRectangle15, thaiName: 'ปาร์ติเกิลบอร์ด', engName: 'ParticleBoard', count: 20 },
-      { image: imgRectangle21, thaiName: 'ไม้อัด OSB', engName: 'Oriented Strand Board', count: 20 },
-      { image: imgRectangle22, thaiName: 'แผ่นใยไม้อัด MDF', engName: 'Medium Density Fiberboard', count: 20 },
-      { image: imgRectangle23, thaiName: 'แผ่นใยไม้อัด HDF', engName: 'High Density FiberBoard', count: 20 },
-      { image: imgRectangle24, thaiName: 'ไม้บอร์ดปิดผิว', engName: 'Laminated Board', count: 20 },
+      { slug: 'particleboard', image: imgRectangle15, thaiName: 'ปาร์ติเกิลบอร์ด', engName: 'ParticleBoard', count: 20 },
+      { slug: 'osb', image: imgRectangle21, thaiName: 'ไม้อัด OSB', engName: 'Oriented Strand Board', count: 20 },
+      { slug: 'mdf', image: imgRectangle22, thaiName: 'แผ่นใยไม้อัด MDF', engName: 'Medium Density Fiberboard', count: 20 },
+      { slug: 'hdf', image: imgRectangle23, thaiName: 'แผ่นใยไม้อัด HDF', engName: 'High Density FiberBoard', count: 20 },
+      { slug: 'laminated-board', image: imgRectangle24, thaiName: 'ไม้บอร์ดปิดผิว', engName: 'Laminated Board', count: 20 },
     ],
     filterItems: [
       'ปาร์ติเกิลบอร์ด (20)',
@@ -48,11 +48,11 @@ const categoryData = {
   finished: {
     title: 'ผลิตภัณฑ์สำเร็จ',
     subcategories: [
-      { image: imgRectangle15, thaiName: 'ไม้พื้น', engName: 'Flooring', count: 20 },
-      { image: imgRectangle23, thaiName: 'ไม้บันได', engName: 'Staircase', count: 20 },
-      { image: imgRectangle22, thaiName: 'ไม้ตกแต่งผนัง/ไม้ฝาตกแต่ง', engName: 'Wall Decorative Panel', count: 20 },
-      { image: imgRectangle24, thaiName: 'บัวพื้น/บัวเพดาน', engName: 'Skirt', count: 20 },
-      { image: imgRectangle25, thaiName: 'โต๊ะปิดผิวเมลามีน', engName: 'Melamine Top table/ Multipurpose cabinet', count: 20 },
+      { slug: 'flooring', image: imgRectangle15, thaiName: 'ไม้พื้น', engName: 'Flooring', count: 20 },
+      { slug: 'staircase', image: imgRectangle23, thaiName: 'ไม้บันได', engName: 'Staircase', count: 20 },
+      { slug: 'wall-panel', image: imgRectangle22, thaiName: 'ไม้ตกแต่งผนัง/ไม้ฝาตกแต่ง', engName: 'Wall Decorative Panel', count: 20 },
+      { slug: 'skirt', image: imgRectangle24, thaiName: 'บัวพื้น/บัวเพดาน', engName: 'Skirt', count: 20 },
+      { slug: 'melamine-table', image: imgRectangle25, thaiName: 'โต๊ะปิดผิวเมลามีน', engName: 'Melamine Top table/ Multipurpose cabinet', count: 20 },
     ],
     filterItems: [
       'ไม้พื้น (24)',
@@ -304,9 +304,9 @@ export default function ProductCategoryPage() {
         <div className="w-full overflow-x-auto lg:overflow-visible">
           <div className="flex lg:grid lg:grid-cols-5 gap-[20px] lg:gap-[25px] w-max lg:w-full">
             {data.subcategories.map((sub) => (
-              <div key={sub.engName} className="w-[160px] lg:w-auto shrink-0">
+              <Link key={sub.engName} to={`/products/${category}/${sub.slug}`} className="w-[160px] lg:w-auto shrink-0 no-underline">
                 <SubcategoryCard {...sub} />
-              </div>
+              </Link>
             ))}
           </div>
         </div>

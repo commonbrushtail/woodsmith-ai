@@ -13,6 +13,7 @@ import HighlightPage from './pages/HighlightPage'
 import FaqPage from './pages/FaqPage'
 import ProductPage from './pages/ProductPage'
 import ProductCategoryPage from './pages/ProductCategoryPage'
+import ProductSubcategoryPage from './pages/ProductSubcategoryPage'
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="/faq" element={<FaqPage />} />
           <Route path="/products" element={<ProductPage />} />
           <Route path="/products/:category" element={<ProductCategoryPage />} />
+          <Route path="/products/:category/:subcategory" element={<ProductSubcategoryPage />} />
         </Routes>
         <Footer />
         <LineFAB />
