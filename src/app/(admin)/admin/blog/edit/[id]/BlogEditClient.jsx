@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateBlogPost } from '@/lib/actions/blog'
+import { useFormErrors } from '@/lib/hooks/use-form-errors'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
   return (
@@ -45,6 +46,7 @@ export default function BlogEditClient({ post }) {
   const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const formErrors = useFormErrors()
   const fileInputRef = useRef(null)
 
   const [activeTab, setActiveTab] = useState(post.published ? 'published' : 'draft')
@@ -71,7 +73,13 @@ export default function BlogEditClient({ post }) {
   }
 
   const handleSubmit = (publish) => {
-    if (!title.trim()) { toast.error('กรุณากรอกชื่อบทความ'); return }
+    formErrors.clearAll()
+
+    if (!title.trim()) {
+      formErrors.setFieldErrors({ title: 'กรุณากรอกชื่อบทความ' })
+      toast.error('กรุณากรอกข้อมูลที่จำเป็นให้ครบ')
+      return
+    }
 
     startTransition(async () => {
       const formData = new FormData()
@@ -85,7 +93,10 @@ export default function BlogEditClient({ post }) {
       }
 
       const result = await updateBlogPost(post.id, formData)
-      if (result.error) {
+      if (result.fieldErrors) {
+        formErrors.setFieldErrors(result.fieldErrors)
+        toast.error('กรุณาตรวจสอบข้อมูลอีกครั้ง')
+      } else if (result.error) {
         toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.push('/admin/blog')
@@ -206,11 +217,12 @@ export default function BlogEditClient({ post }) {
               id="blogTitle"
               type="text"
               value={title}
-              onChange={(e) => { if (e.target.value.length <= TITLE_MAX) setTitle(e.target.value) }}
+              onChange={(e) => { if (e.target.value.length <= TITLE_MAX) setTitle(e.target.value); formErrors.clearError('title') }}
               maxLength={TITLE_MAX}
               placeholder="กรอกชื่อบทความ"
-              className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf]"
+              className={`w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border rounded-[8px] px-[14px] py-[10px] outline-none transition-all placeholder:text-[#bfbfbf] ${formErrors.getError('title') ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20' : 'border-[#e8eaef] focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20'}`}
             />
+            {formErrors.getError('title') && <p className="text-red-500 text-[13px] font-['IBM_Plex_Sans_Thai'] mt-[2px]">{formErrors.getError('title')}</p>}
             <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#9ca3af] self-end">
               {title.length}/{TITLE_MAX}
             </span>

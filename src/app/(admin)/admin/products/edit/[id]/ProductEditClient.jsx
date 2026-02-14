@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateProduct } from '@/lib/actions/products'
+import { useFormErrors } from '@/lib/hooks/use-form-errors'
 
 export default function ProductEditClient({ product }) {
   const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const formErrors = useFormErrors()
   const [productName, setProductName] = useState(product.name || '')
   const [productCode, setProductCode] = useState(product.code || '')
   const [sku, setSku] = useState(product.sku || '')
@@ -29,7 +31,14 @@ export default function ProductEditClient({ product }) {
   const removeSizeChip = (id) => setSizeChips((prev) => prev.filter((c) => c.id !== id))
 
   const handleSubmit = (publish) => {
+    formErrors.clearAll()
+
     if (!productName || !productCode || !sku) {
+      const errors = {}
+      if (!productName) errors.name = 'กรุณากรอกชื่อสินค้า'
+      if (!productCode) errors.code = 'กรุณากรอกรหัสสินค้า'
+      if (!sku) errors.sku = 'กรุณากรอก SKU'
+      formErrors.setFieldErrors(errors)
       toast.error('กรุณากรอกข้อมูลที่จำเป็นให้ครบ')
       return
     }
@@ -54,6 +63,11 @@ export default function ProductEditClient({ product }) {
       formData.set('options', JSON.stringify(options))
 
       const result = await updateProduct(product.id, formData)
+      if (result.fieldErrors) {
+        formErrors.setFieldErrors(result.fieldErrors)
+        toast.error('กรุณาตรวจสอบข้อมูลอีกครั้ง')
+        return
+      }
       if (result.error) {
         toast.error('เกิดข้อผิดพลาด: ' + result.error)
         return
@@ -108,9 +122,10 @@ export default function ProductEditClient({ product }) {
             id="productName"
             type="text"
             value={productName}
-            onChange={(e) => setProductName(e.target.value)}
-            className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf]"
+            onChange={(e) => { setProductName(e.target.value); formErrors.clearError('name') }}
+            className={`font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border rounded-[8px] px-[14px] py-[10px] outline-none transition-all placeholder:text-[#bfbfbf] ${formErrors.getError('name') ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20' : 'border-[#e8eaef] focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20'}`}
           />
+          {formErrors.getError('name') && <p className="text-red-500 text-[13px] font-['IBM_Plex_Sans_Thai'] mt-[2px]">{formErrors.getError('name')}</p>}
         </div>
 
         {/* Code + SKU */}
@@ -123,9 +138,10 @@ export default function ProductEditClient({ product }) {
               id="productCode"
               type="text"
               value={productCode}
-              onChange={(e) => setProductCode(e.target.value)}
-              className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf]"
+              onChange={(e) => { setProductCode(e.target.value); formErrors.clearError('code') }}
+              className={`font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border rounded-[8px] px-[14px] py-[10px] outline-none transition-all placeholder:text-[#bfbfbf] ${formErrors.getError('code') ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20' : 'border-[#e8eaef] focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20'}`}
             />
+            {formErrors.getError('code') && <p className="text-red-500 text-[13px] font-['IBM_Plex_Sans_Thai'] mt-[2px]">{formErrors.getError('code')}</p>}
           </div>
           <div className="flex flex-col gap-[8px]">
             <label htmlFor="sku" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
@@ -135,9 +151,10 @@ export default function ProductEditClient({ product }) {
               id="sku"
               type="text"
               value={sku}
-              onChange={(e) => setSku(e.target.value)}
-              className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf]"
+              onChange={(e) => { setSku(e.target.value); formErrors.clearError('sku') }}
+              className={`font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border rounded-[8px] px-[14px] py-[10px] outline-none transition-all placeholder:text-[#bfbfbf] ${formErrors.getError('sku') ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20' : 'border-[#e8eaef] focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20'}`}
             />
+            {formErrors.getError('sku') && <p className="text-red-500 text-[13px] font-['IBM_Plex_Sans_Thai'] mt-[2px]">{formErrors.getError('sku')}</p>}
           </div>
         </div>
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBlogPost } from '@/lib/actions/blog'
 import { useToast } from '@/lib/toast-context'
+import { useFormErrors } from '@/lib/hooks/use-form-errors'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -509,6 +510,7 @@ export default function BlogCreatePage() {
   const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const formErrors = useFormErrors()
 
   /* ---- Form state ---- */
   const [activeTab, setActiveTab] = useState('draft')
@@ -561,8 +563,16 @@ export default function BlogCreatePage() {
   }
 
   const handleSubmit = (publish) => {
-    if (!title.trim()) { toast.error('กรุณากรอกชื่อบทความ'); return }
-    if (!content.trim()) { toast.error('กรุณากรอกเนื้อหาบทความ'); return }
+    formErrors.clearAll()
+
+    const errors = {}
+    if (!title.trim()) errors.title = 'กรุณากรอกชื่อบทความ'
+    if (!content.trim()) errors.content = 'กรุณากรอกเนื้อหาบทความ'
+    if (Object.keys(errors).length > 0) {
+      formErrors.setFieldErrors(errors)
+      toast.error('กรุณากรอกข้อมูลที่จำเป็นให้ครบ')
+      return
+    }
 
     startTransition(async () => {
       const formData = new FormData()
@@ -581,7 +591,10 @@ export default function BlogCreatePage() {
       }
 
       const result = await createBlogPost(formData)
-      if (result.error) {
+      if (result.fieldErrors) {
+        formErrors.setFieldErrors(result.fieldErrors)
+        toast.error('กรุณาตรวจสอบข้อมูลอีกครั้ง')
+      } else if (result.error) {
         toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.push('/admin/blog')
@@ -745,11 +758,13 @@ export default function BlogCreatePage() {
                 value={title}
                 onChange={(e) => {
                   if (e.target.value.length <= TITLE_MAX) setTitle(e.target.value)
+                  formErrors.clearError('title')
                 }}
                 maxLength={TITLE_MAX}
                 placeholder="กรอกชื่อบทความ"
-                className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf]"
+                className={`w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border rounded-[8px] px-[14px] py-[10px] outline-none transition-all placeholder:text-[#bfbfbf] ${formErrors.getError('title') ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20' : 'border-[#e8eaef] focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20'}`}
               />
+              {formErrors.getError('title') && <p className="text-red-500 text-[13px] font-['IBM_Plex_Sans_Thai'] mt-[2px]">{formErrors.getError('title')}</p>}
             </div>
             <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#9ca3af] self-end">
               {title.length}/{TITLE_MAX}
@@ -799,11 +814,12 @@ export default function BlogCreatePage() {
               <textarea
                 id="blogContent"
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => { setContent(e.target.value); formErrors.clearError('content') }}
                 placeholder="พิมพ์เนื้อหาบทความ..."
                 className="w-full min-h-[200px] px-[16px] py-[14px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#494c4f] leading-[1.8] border-0 outline-none resize-y bg-white placeholder:text-[#bfbfbf]"
               />
             </div>
+            {formErrors.getError('content') && <p className="text-red-500 text-[13px] font-['IBM_Plex_Sans_Thai'] mt-[2px]">{formErrors.getError('content')}</p>}
             <div className="flex items-center gap-[16px] self-end">
               <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#9ca3af]">
                 คำ: {wordCount}

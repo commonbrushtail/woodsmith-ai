@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createProduct } from '@/lib/actions/products'
 import { useToast } from '@/lib/toast-context'
+import { useFormErrors } from '@/lib/hooks/use-form-errors'
 
 const tabs = [
   { id: 'general', label: '\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e17\u0e31\u0e48\u0e27\u0e44\u0e1b' },
@@ -178,6 +179,7 @@ export default function ProductCreatePage() {
   const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const formErrors = useFormErrors()
   const [activeTab, setActiveTab] = useState('general')
   const [productName, setProductName] = useState('')
   const [productCode, setProductCode] = useState('')
@@ -206,7 +208,16 @@ export default function ProductCreatePage() {
   }
 
   const handleSubmit = (publish) => {
+    formErrors.clearAll()
+
     if (!productName || !productCode || !sku || !productType || !productCategory) {
+      const errors = {}
+      if (!productName) errors.name = 'กรุณากรอกชื่อสินค้า'
+      if (!productCode) errors.code = 'กรุณากรอกรหัสสินค้า'
+      if (!sku) errors.sku = 'กรุณากรอก SKU'
+      if (!productType) errors.type = 'กรุณาเลือกประเภทสินค้า'
+      if (!productCategory) errors.category = 'กรุณาเลือกหมวดหมู่สินค้า'
+      formErrors.setFieldErrors(errors)
       toast.error('กรุณากรอกข้อมูลที่จำเป็นให้ครบ')
       return
     }
@@ -232,6 +243,11 @@ export default function ProductCreatePage() {
       formData.set('options', JSON.stringify(options))
 
       const result = await createProduct(formData)
+      if (result.fieldErrors) {
+        formErrors.setFieldErrors(result.fieldErrors)
+        toast.error('กรุณาตรวจสอบข้อมูลอีกครั้ง')
+        return
+      }
       if (result.error) {
         toast.error('เกิดข้อผิดพลาด: ' + result.error)
         return
@@ -372,10 +388,11 @@ export default function ProductCreatePage() {
                 id="productName"
                 type="text"
                 value={productName}
-                onChange={(e) => setProductName(e.target.value)}
+                onChange={(e) => { setProductName(e.target.value); formErrors.clearError('name') }}
                 placeholder={'\u0e01\u0e23\u0e2d\u0e01\u0e0a\u0e37\u0e48\u0e2d\u0e2a\u0e34\u0e19\u0e04\u0e49\u0e32'}
-                className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf]"
+                className={`font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border rounded-[8px] px-[14px] py-[10px] outline-none transition-all placeholder:text-[#bfbfbf] ${formErrors.getError('name') ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20' : 'border-[#e8eaef] focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20'}`}
               />
+              {formErrors.getError('name') && <p className="text-red-500 text-[13px] font-['IBM_Plex_Sans_Thai'] mt-[2px]">{formErrors.getError('name')}</p>}
             </div>
 
             {/* Product Code + SKU row */}
@@ -388,10 +405,11 @@ export default function ProductCreatePage() {
                   id="productCode"
                   type="text"
                   value={productCode}
-                  onChange={(e) => setProductCode(e.target.value)}
+                  onChange={(e) => { setProductCode(e.target.value); formErrors.clearError('code') }}
                   placeholder={'\u0e01\u0e23\u0e2d\u0e01\u0e23\u0e2b\u0e31\u0e2a\u0e2a\u0e34\u0e19\u0e04\u0e49\u0e32'}
-                  className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf]"
+                  className={`font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border rounded-[8px] px-[14px] py-[10px] outline-none transition-all placeholder:text-[#bfbfbf] ${formErrors.getError('code') ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20' : 'border-[#e8eaef] focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20'}`}
                 />
+                {formErrors.getError('code') && <p className="text-red-500 text-[13px] font-['IBM_Plex_Sans_Thai'] mt-[2px]">{formErrors.getError('code')}</p>}
               </div>
               <div className="flex flex-col gap-[8px]">
                 <label htmlFor="sku" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
@@ -401,10 +419,11 @@ export default function ProductCreatePage() {
                   id="sku"
                   type="text"
                   value={sku}
-                  onChange={(e) => setSku(e.target.value)}
+                  onChange={(e) => { setSku(e.target.value); formErrors.clearError('sku') }}
                   placeholder={'\u0e01\u0e23\u0e2d\u0e01 SKU'}
-                  className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf]"
+                  className={`font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border rounded-[8px] px-[14px] py-[10px] outline-none transition-all placeholder:text-[#bfbfbf] ${formErrors.getError('sku') ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20' : 'border-[#e8eaef] focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20'}`}
                 />
+                {formErrors.getError('sku') && <p className="text-red-500 text-[13px] font-['IBM_Plex_Sans_Thai'] mt-[2px]">{formErrors.getError('sku')}</p>}
               </div>
             </div>
 
@@ -418,8 +437,8 @@ export default function ProductCreatePage() {
                   <select
                     id="productType"
                     value={productType}
-                    onChange={(e) => setProductType(e.target.value)}
-                    className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none w-full appearance-none bg-white cursor-pointer focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all"
+                    onChange={(e) => { setProductType(e.target.value); formErrors.clearError('type') }}
+                    className={`font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border rounded-[8px] px-[14px] py-[10px] outline-none w-full appearance-none bg-white cursor-pointer transition-all ${formErrors.getError('type') ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20' : 'border-[#e8eaef] focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20'}`}
                   >
                     <option value="" disabled className="text-[#bfbfbf]">{'\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17\u0e2a\u0e34\u0e19\u0e04\u0e49\u0e32'}</option>
                     <option value="door">{'\u0e1b\u0e23\u0e30\u0e15\u0e39'}</option>
@@ -431,6 +450,7 @@ export default function ProductCreatePage() {
                     <path d="M4 6L8 10L12 6" />
                   </svg>
                 </div>
+                {formErrors.getError('type') && <p className="text-red-500 text-[13px] font-['IBM_Plex_Sans_Thai'] mt-[2px]">{formErrors.getError('type')}</p>}
               </div>
               <div className="flex flex-col gap-[8px]">
                 <label htmlFor="productCategory" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
@@ -440,8 +460,8 @@ export default function ProductCreatePage() {
                   <select
                     id="productCategory"
                     value={productCategory}
-                    onChange={(e) => setProductCategory(e.target.value)}
-                    className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none w-full appearance-none bg-white cursor-pointer focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all"
+                    onChange={(e) => { setProductCategory(e.target.value); formErrors.clearError('category') }}
+                    className={`font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border rounded-[8px] px-[14px] py-[10px] outline-none w-full appearance-none bg-white cursor-pointer transition-all ${formErrors.getError('category') ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20' : 'border-[#e8eaef] focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20'}`}
                   >
                     <option value="" disabled className="text-[#bfbfbf]">{'\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e2b\u0e21\u0e27\u0e14\u0e2b\u0e21\u0e39\u0e48\u0e2a\u0e34\u0e19\u0e04\u0e49\u0e32'}</option>
                     <option value="interior">{'\u0e20\u0e32\u0e22\u0e43\u0e19'}</option>
@@ -452,6 +472,7 @@ export default function ProductCreatePage() {
                     <path d="M4 6L8 10L12 6" />
                   </svg>
                 </div>
+                {formErrors.getError('category') && <p className="text-red-500 text-[13px] font-['IBM_Plex_Sans_Thai'] mt-[2px]">{formErrors.getError('category')}</p>}
               </div>
             </div>
           </div>
