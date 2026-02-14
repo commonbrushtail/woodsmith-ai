@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createVideoHighlight } from '@/lib/actions/video-highlights'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -259,13 +261,35 @@ function VideoEmbedPanel({ embedCode, onClose }) {
 /* ------------------------------------------------------------------ */
 
 export default function VideoHighlightCreatePage() {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
   const [activeTab, setActiveTab] = useState('draft')
   const [title, setTitle] = useState('')
+  const [youtubeUrl, setYoutubeUrl] = useState('')
   const [category, setCategory] = useState('')
   const [highlightType, setHighlightType] = useState('')
   const [selectedDay, setSelectedDay] = useState(28)
   const [selectedTime, setSelectedTime] = useState('00:00')
   const [showCalendar, setShowCalendar] = useState(true)
+
+  const handleSubmit = (publish) => {
+    if (!title.trim()) { alert('กรุณากรอกชื่อไฮไลท์'); return }
+
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set('title', title)
+      formData.set('youtube_url', youtubeUrl)
+      formData.set('published', publish ? 'true' : 'false')
+
+      const result = await createVideoHighlight(formData)
+      if (result.error) {
+        alert('เกิดข้อผิดพลาด: ' + result.error)
+      } else {
+        router.push('/admin/video-highlight')
+        router.refresh()
+      }
+    })
+  }
 
   const tabs = [
     { key: 'draft', label: 'DRAFT' },
@@ -277,7 +301,7 @@ export default function VideoHighlightCreatePage() {
   const sampleEmbedCode = '<iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?start=13" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>'
 
   return (
-    <div className="flex flex-col gap-0 h-full min-h-0">
+    <div className={`flex flex-col gap-0 h-full min-h-0 ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
       {/* ── Header ──────────────────────────────────────────────── */}
       <div className="flex items-center justify-between py-[12px]">
         {/* Left: back link + title + badge */}
@@ -548,29 +572,26 @@ export default function VideoHighlightCreatePage() {
               Entry
             </h3>
 
-            {/* Publish button with 3-dot menu */}
+            {/* Publish button */}
             <div className="flex items-center gap-[8px]">
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors"
+                onClick={() => handleSubmit(true)}
+                disabled={isPending}
+                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
               >
-                {'\u0e40\u0e1c\u0e22\u0e41\u0e1e\u0e23\u0e48'}
-              </button>
-              <button
-                type="button"
-                className="size-[36px] flex items-center justify-center rounded-[8px] border border-[#e5e7eb] bg-white cursor-pointer hover:bg-[#f9fafb]"
-                aria-label="Publish options"
-              >
-                <DotsIcon size={16} color="#6b7280" />
+                {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
               </button>
             </div>
 
             {/* Save button */}
             <button
               type="button"
-              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e5e7eb] cursor-pointer hover:bg-[#f9fafb] transition-colors"
+              onClick={() => handleSubmit(false)}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e5e7eb] cursor-pointer hover:bg-[#f9fafb] transition-colors disabled:opacity-50"
             >
-              {'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01'}
+              {'บันทึก'}
             </button>
           </div>
         </aside>
