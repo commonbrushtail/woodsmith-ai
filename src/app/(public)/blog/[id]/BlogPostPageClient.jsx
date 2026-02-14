@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import SafeHtmlContent from '@/components/SafeHtmlContent'
 import imgHero from '../../../../assets/blog_hero.png'
 import imgShareFb from '../../../../assets/icon_share_facebook.svg'
 import imgShareLine from '../../../../assets/icon_share_line.svg'
@@ -160,9 +161,9 @@ export default function BlogPostPageClient({ post = null, relatedPosts: dbRelate
 
             {/* Article Body */}
             {postContent ? (
-              <div
+              <SafeHtmlContent
+                html={postContent}
                 className="font-['IBM_Plex_Sans_Thai'] text-[16px] text-[#35383b] tracking-[0.08px] leading-[1.5] w-full prose prose-headings:font-['IBM_Plex_Sans_Thai'] prose-headings:text-[#35383b]"
-                dangerouslySetInnerHTML={{ __html: postContent }}
               />
             ) : (
               <>
