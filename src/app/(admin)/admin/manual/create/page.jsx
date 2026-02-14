@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createManual } from '@/lib/actions/manuals'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -353,6 +355,9 @@ function PdfUploadDropZone({ onFilesSelected }) {
 /* ------------------------------------------------------------------ */
 
 export default function ManualCreatePage() {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+
   /* ---- Form state ---- */
   const [activeTab, setActiveTab] = useState('draft')
   const [title, setTitle] = useState('')
@@ -388,6 +393,7 @@ export default function ManualCreatePage() {
         id: Date.now() + Math.random(),
         name: f.name,
         url: URL.createObjectURL(f),
+        file: f,
       })
     }
   }
@@ -402,6 +408,7 @@ export default function ManualCreatePage() {
         id: Date.now() + Math.random(),
         name: f.name,
         size: (f.size / 1024).toFixed(1),
+        file: f,
       })
     }
   }
@@ -423,8 +430,31 @@ export default function ManualCreatePage() {
     setShowEndTime(false)
   }
 
+  /* ---- Submit handler ---- */
+  const handleSubmit = (publish) => {
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set('title', title)
+      formData.set('published', publish ? 'true' : 'false')
+      if (pdfFile?.file) {
+        formData.set('file', pdfFile.file)
+      }
+      if (image?.file) {
+        formData.set('cover_image', image.file)
+      }
+
+      const result = await createManual(formData)
+      if (result.error) {
+        alert('เกิดข้อผิดพลาด: ' + result.error)
+      } else {
+        router.push('/admin/manual')
+        router.refresh()
+      }
+    })
+  }
+
   return (
-    <div className="flex flex-col gap-0 h-full min-h-0">
+    <div className={`flex flex-col gap-0 h-full min-h-0 ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
       {/* ================================================================ */}
       {/*  Header                                                          */}
       {/* ================================================================ */}
@@ -812,9 +842,11 @@ export default function ManualCreatePage() {
             <div className="flex items-center gap-[8px]">
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors"
+                onClick={() => handleSubmit(true)}
+                disabled={isPending}
+                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
               >
-                {'\u0e40\u0e1c\u0e22\u0e41\u0e1e\u0e23\u0e48'}
+                {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
               </button>
               <button
                 type="button"
@@ -828,7 +860,9 @@ export default function ManualCreatePage() {
             {/* Save button */}
             <button
               type="button"
-              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors"
+              onClick={() => handleSubmit(false)}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors disabled:opacity-50"
             >
               {'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01'}
             </button>
