@@ -103,14 +103,34 @@ All 26 admin pages wired to Supabase with Server Actions.
 - [x] SearchOverlay wired to real Supabase data (search, popular categories, recent searches in localStorage)
 - [x] `npm run build` passes cleanly
 
+### Session 1 ✅ — Validation UX + Error Boundaries
+
+**Branch:** `ai/phase4-s1-validation-ux`
+
+- [x] AdminInput error prop (red border + error text)
+- [x] useFormErrors hook (`src/lib/hooks/use-form-errors.js`)
+- [x] Inline field-level validation in products + blog create/edit forms
+- [x] ErrorBoundary component (`src/components/ErrorBoundary.jsx`)
+- [x] ErrorBoundary in admin + public layouts
+
+### Session 2 ✅ — Loading States + File Upload Improvements
+
+**Branch:** `ai/phase4-s2-loading-uploads`
+
+- [x] AdminSkeleton components (TableSkeleton, FormSkeleton, CardSkeleton)
+- [x] loading.jsx for 7 admin pages + 2 public pages
+- [x] File upload validation utility (`src/lib/upload-validation.js`)
+- [x] AdminFileInput component with preview, error, remove
+- [x] validateFile wired into 8 admin upload pages
+
 ### Remaining (nice-to-have)
 
-- [ ] Display inline field-level validation errors in admin forms
-- [ ] Error boundaries for admin pages
-- [ ] Loading states (skeletons/spinners) for data-fetching pages
-- [ ] Image preview before upload
+- [x] Display inline field-level validation errors in admin forms
+- [x] Error boundaries for admin pages
+- [x] Loading states (skeletons/spinners) for data-fetching pages
+- [x] Image preview before upload
 - [ ] Upload progress indicators
-- [ ] File type/size validation on upload
+- [x] File type/size validation on upload
 - [ ] Drag-and-drop reordering (banners, gallery, FAQ, etc.)
 - [ ] Persist sort order changes to DB
 
@@ -169,6 +189,8 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `ai/phase3b-session1` | 3 | Public pages wired |
 | `ai/phase3b-session2` | 2 | Auth + customer features |
 | `ai/phase4-polish` | 2 | Toast, Zod, account fix, search |
+| `ai/phase4-s1-validation-ux` | 5 | AdminInput error, useFormErrors, ErrorBoundary |
+| `ai/phase4-s2-loading-uploads` | 5 | Skeletons, loading.jsx, upload validation |
 
 ---
 
@@ -186,3 +208,8 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `src/lib/auth/route-rules.js` | Route protection logic |
 | `src/lib/toast-context.js` | Toast notification context |
 | `middleware.js` | Supabase session refresh + route guard |
+| `src/lib/upload-validation.js` | File type/size validation utility |
+| `src/lib/hooks/use-form-errors.js` | Form field error management hook |
+| `src/components/admin/AdminSkeleton.jsx` | Table, Form, Card skeleton loaders |
+| `src/components/admin/AdminFileInput.jsx` | Enhanced file input with preview/validation |
+| `src/components/ErrorBoundary.jsx` | React error boundary with retry |
