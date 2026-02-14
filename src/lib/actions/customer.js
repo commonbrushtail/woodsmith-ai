@@ -4,19 +4,21 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { quotationCreateSchema } from '@/lib/validations/quotations'
+import { sanitizeObject } from '@/lib/sanitize'
 
 /**
  * Create a customer profile row after registration.
  */
 export async function createCustomerProfile(userId, { displayName, phone, email }) {
+  const sanitized = sanitizeObject({ displayName, phone, email })
   const supabase = createServiceClient()
   const { error } = await supabase
     .from('user_profiles')
     .insert({
       user_id: userId,
-      display_name: displayName,
-      phone,
-      email,
+      display_name: sanitized.displayName,
+      phone: sanitized.phone,
+      email: sanitized.email,
       role: 'customer',
     })
 
@@ -92,13 +94,21 @@ export async function submitQuotation({
   message,
   quantity,
 }) {
+  // Sanitize text inputs before validation
+  const sanitized = sanitizeObject({
+    requesterName,
+    requesterPhone,
+    requesterEmail: requesterEmail || '',
+    message,
+  })
+
   // Validate input
   const validation = quotationCreateSchema.safeParse({
     product_id: productId || null,
-    requester_name: requesterName,
-    requester_phone: requesterPhone,
-    requester_email: requesterEmail || '',
-    message,
+    requester_name: sanitized.requesterName,
+    requester_phone: sanitized.requesterPhone,
+    requester_email: sanitized.requesterEmail,
+    message: sanitized.message,
     quantity: quantity || null,
   })
   if (!validation.success) {

@@ -2,7 +2,9 @@
 
 import { revalidatePath } from 'next/cache'
 import { createServiceClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 import { quotationStatusSchema } from '@/lib/validations/quotations'
+import { logAudit } from '@/lib/audit'
 
 /**
  * List quotations with pagination and optional status filter.
@@ -71,6 +73,11 @@ export async function updateQuotationStatus(id, status) {
   if (error) {
     return { error: error.message }
   }
+
+  // Audit log for status change
+  const authClient = await createClient()
+  const { data: { user } } = await authClient.auth.getUser()
+  logAudit({ userId: user?.id, action: 'quotation.status_change', targetId: id, details: { status } })
 
   revalidatePath('/admin/quotations')
   revalidatePath(`/admin/quotations/${id}`)
