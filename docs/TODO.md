@@ -103,10 +103,19 @@ All 26 admin pages wired to Supabase with Server Actions.
 - [x] SearchOverlay wired to real Supabase data (search, popular categories, recent searches in localStorage)
 - [x] `npm run build` passes cleanly
 
+### Phase 4 Session 1 ✅ — Validation UX + Error Boundaries
+
+**Branch:** `ai/phase4-s1-validation-ux`
+
+- [x] `AdminInput` error prop (red border + error text)
+- [x] `useFormErrors` hook (`setFieldErrors`, `clearError`, `clearAll`, `getError`)
+- [x] Products create/edit + Blog create/edit wired with field-level validation errors
+- [x] `ErrorBoundary` component (class component, retry button, custom fallback)
+- [x] ErrorBoundary added to admin layout and public layout
+- [x] 20 unit tests (9 AdminInput + 7 useFormErrors + 4 ErrorBoundary)
+
 ### Remaining (nice-to-have)
 
-- [ ] Display inline field-level validation errors in admin forms
-- [ ] Error boundaries for admin pages
 - [ ] Loading states (skeletons/spinners) for data-fetching pages
 - [ ] Image preview before upload
 - [ ] Upload progress indicators
@@ -169,6 +178,7 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `ai/phase3b-session1` | 3 | Public pages wired |
 | `ai/phase3b-session2` | 2 | Auth + customer features |
 | `ai/phase4-polish` | 2 | Toast, Zod, account fix, search |
+| `ai/phase4-s1-validation-ux` | 4 | AdminInput error, useFormErrors, ErrorBoundary |
 
 ---
 
@@ -185,4 +195,6 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `src/lib/validations/*.js` | Zod schemas |
 | `src/lib/auth/route-rules.js` | Route protection logic |
 | `src/lib/toast-context.js` | Toast notification context |
+| `src/lib/hooks/use-form-errors.js` | Form field error management hook |
+| `src/components/ErrorBoundary.jsx` | React error boundary (admin + public) |
 | `middleware.js` | Supabase session refresh + route guard |
