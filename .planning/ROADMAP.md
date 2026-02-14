@@ -28,11 +28,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. All 5 affected admin pages (about-us, blog create/edit, products create/edit, banner create) load without errors
   4. All existing 202 tests still pass after fixes (no regressions)
   5. Production build succeeds (`npm run build`) after fixes
-**Plans**: TBD
+**Plans**: 2
 
 Plans:
-- [ ] 01-01: TBD during plan-phase
-- [ ] 01-02: TBD during plan-phase
+- [ ] 01-01: Fix TipTap SSR crash (immediatelyRender: false) — Wave 1, TDD
+- [ ] 01-02: Create missing banner create page — Wave 1, TDD
 
 ### Phase 2: Cosmetic Bug Fixes
 **Goal**: Admin UI displays content correctly without raw HTML or confusing numbering
@@ -44,11 +44,10 @@ Plans:
   3. HTML stripping works correctly for edge cases (nested tags, self-closing tags, entities)
   4. All existing tests still pass after fixes
   5. Production build succeeds after fixes
-**Plans**: TBD
+**Plans**: 1
 
 Plans:
-- [ ] 02-01: TBD during plan-phase
-- [ ] 02-02: TBD during plan-phase
+- [ ] 02-01: Fix profile HTML display + gallery order off-by-one — Wave 1, TDD
 
 ### Phase 3: Hydration Warning Cleanup
 **Goal**: All admin sortable list pages render cleanly without React hydration mismatches
@@ -60,10 +59,11 @@ Plans:
   3. Responsive layouts (mobile/desktop) display correctly after moving DndContext wrappers
   4. All existing tests still pass after dnd-kit component refactoring
   5. Production build succeeds after fixes
-**Plans**: TBD
+**Plans**: 2
 
 Plans:
-- [ ] 03-01: TBD during plan-phase
+- [ ] 03-01: Refactor DndContext out of table structure on 5 list pages — Wave 1, TDD
+- [ ] 03-02: Add hydration test coverage for all 5 ListClient components — Wave 2, TDD (depends: 03-01)
 
 ## Progress
 
@@ -72,9 +72,9 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Critical Bug Fixes | 0/TBD | Not started | - |
-| 2. Cosmetic Bug Fixes | 0/TBD | Not started | - |
-| 3. Hydration Warning Cleanup | 0/TBD | Not started | - |
+| 1. Critical Bug Fixes | 0/2 | Planned | - |
+| 2. Cosmetic Bug Fixes | 0/1 | Planned | - |
+| 3. Hydration Warning Cleanup | 0/2 | Planned | - |
 
 ---
 *Roadmap created: 2026-02-15*
