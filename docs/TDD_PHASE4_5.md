@@ -7,44 +7,47 @@ Each session is scoped for a single ralph-loop run (~50 iterations max).
 
 ## Current State
 
-**Completed:** Phases 1–4 core (infrastructure, admin CMS wiring, public pages,
-customer auth, toast system, Zod validation in server actions, search overlay).
+**Completed:** Phases 1–4 core + Sessions 1–4 of this plan.
 
 **Test Infrastructure:**
-- Vitest (jsdom) — 11 test files, `tests/**/*.test.js`
+- Vitest (jsdom) — 15+ test files, `tests/**/*.test.js`
 - Playwright — 4 E2E specs in `e2e/`
 - `@testing-library/react` + `@testing-library/jest-dom` installed
 - Zod 4, `vitest.config.js` with `@` alias, `.env.local` auto-loaded
 
-**Key Gaps Found:**
-- Server actions return `fieldErrors` but no admin form displays them
-- Zero error boundaries
-- Zero loading skeletons (only basic `loading ? 'กำลังโหลด...' : content`)
-- `AdminInput` has no `error` prop
-- `RichTextToolbar` is a static SVG placeholder (not functional)
-- No sanitization, CSRF, rate-limiting, or audit logging
-- No drag-and-drop library installed
-- File upload has no client-side validation or progress
+**Resolved Gaps (S1–S4):**
+- ~~Server actions return `fieldErrors` but no admin form displays them~~ → S1: `useFormErrors` hook + `AdminInput` error prop
+- ~~Zero error boundaries~~ → S1: `ErrorBoundary` component in admin + public layouts
+- ~~Zero loading skeletons~~ → S2: `AdminSkeleton` components + 9 `loading.jsx` files
+- ~~`AdminInput` has no `error` prop~~ → S1: error prop with red border + message
+- ~~`RichTextToolbar` is a static SVG placeholder~~ → S3: TipTap `RichTextEditor` with full toolbar
+- ~~No drag-and-drop library installed~~ → S4: `@dnd-kit` with `SortableList` wired into 5 pages
+- ~~File upload has no client-side validation or progress~~ → S2: `AdminFileInput` + `upload-validation.js`
+
+**Remaining Gaps (S5–S7):**
+- No sanitization (except rich text), CSRF, rate-limiting, or audit logging
+- LINE Login and forgot-password not wired
+- Test coverage needs expansion
 
 ---
 
 ## Session Overview
 
-| Session | Scope | New Tests | Est. Files |
-|---------|-------|-----------|------------|
-| S1 | Admin Form Validation UX + Error Boundaries | ~20 | 15 |
-| S2 | Loading States + File Upload Improvements | ~12 | 18 |
-| S3 | TipTap Rich Text Editor | ~8 | 8 |
-| S4 | Drag-and-Drop Reordering | ~10 | 12 |
-| S5 | Auth Gaps (LINE, forgot-password) | ~6 | 8 |
-| S6 | Security Hardening | ~15 | 10 |
-| S7 | Test Coverage Expansion | ~30 | 20 |
+| Session | Scope | New Tests | Est. Files | Status |
+|---------|-------|-----------|------------|--------|
+| S1 | Admin Form Validation UX + Error Boundaries | ~20 | 15 | ✅ Done |
+| S2 | Loading States + File Upload Improvements | ~12 | 18 | ✅ Done |
+| S3 | TipTap Rich Text Editor | ~8 | 8 | ✅ Done |
+| S4 | Drag-and-Drop Reordering | ~10 | 12 | ✅ Done |
+| S5 | Auth Gaps (LINE, forgot-password) | ~6 | 8 | Pending |
+| S6 | Security Hardening | ~15 | 10 | Pending |
+| S7 | Test Coverage Expansion | ~30 | 20 | Pending |
 
 ---
 
-## Session 1: Admin Form Validation UX + Error Boundaries
+## Session 1: Admin Form Validation UX + Error Boundaries ✅
 
-**Branch:** `ai/phase4-s1-validation-ux`
+**Branch:** `ai/phase4-s1-validation-ux` (5 commits)
 
 ### Goal
 Display Zod field-level errors inline in admin forms. Add error boundaries.
@@ -211,9 +214,9 @@ describe('ErrorBoundary', () => {
 
 ---
 
-## Session 2: Loading States + File Upload Improvements
+## Session 2: Loading States + File Upload Improvements ✅
 
-**Branch:** `ai/phase4-s2-loading-uploads`
+**Branch:** `ai/phase4-s2-loading-uploads` (4 commits)
 
 ### Goal
 Add loading skeletons for admin pages. Improve file upload UX.
@@ -368,9 +371,9 @@ describe('AdminFileInput', () => {
 
 ---
 
-## Session 3: TipTap Rich Text Editor
+## Session 3: TipTap Rich Text Editor ✅
 
-**Branch:** `ai/phase5-s3-tiptap`
+**Branch:** `ai/phase5-s3-tiptap` (5 commits)
 
 ### Goal
 Replace the static `RichTextToolbar` placeholder with a functional TipTap editor.
@@ -537,9 +540,9 @@ describe('sanitizeHtml', () => {
 
 ---
 
-## Session 4: Drag-and-Drop Reordering
+## Session 4: Drag-and-Drop Reordering ✅
 
-**Branch:** `ai/phase5-s4-drag-drop`
+**Branch:** `ai/phase5-s4-drag-drop` (4 commits, 14 tests)
 
 ### Goal
 Add drag-and-drop reordering for ordered content (banners, gallery, FAQ, etc.).

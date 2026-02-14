@@ -105,12 +105,12 @@ All 26 admin pages wired to Supabase with Server Actions.
 
 ### Remaining (nice-to-have)
 
-- [ ] Display inline field-level validation errors in admin forms
-- [ ] Error boundaries for admin pages
-- [ ] Loading states (skeletons/spinners) for data-fetching pages
-- [ ] Image preview before upload
+- [x] Display inline field-level validation errors in admin forms (S1: `useFormErrors` hook)
+- [x] Error boundaries for admin pages (S1: `ErrorBoundary` component)
+- [x] Loading states (skeletons/spinners) for data-fetching pages (S2: 9 `loading.jsx` files)
+- [x] Image preview before upload (S2: `AdminFileInput` component)
 - [ ] Upload progress indicators
-- [ ] File type/size validation on upload
+- [x] File type/size validation on upload (S2: `upload-validation.js`)
 - [x] Drag-and-drop reordering (banners, gallery, FAQ, manuals, video highlights)
 - [x] Persist sort order changes to DB
 
