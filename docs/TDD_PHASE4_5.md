@@ -426,14 +426,64 @@ describe('RichTextEditor', () => {
 
 #### 3.2 Wire into admin pages
 
-Replace `RichTextToolbar` + static `<div contentEditable>` in:
+**Test first** (`tests/components/rich-text-editor-integration.test.jsx`):
+```js
+import { render, screen } from '@testing-library/react'
+import RichTextEditor from '@/components/admin/RichTextEditor'
+
+describe('RichTextEditor integration', () => {
+  it('receives content prop and renders it', () => {
+    render(<RichTextEditor content="<p>Existing content</p>" onChange={() => {}} />)
+    expect(screen.getByText('Existing content')).toBeInTheDocument()
+  })
+
+  it('onChange returns HTML string', () => {
+    const onChange = vi.fn()
+    render(<RichTextEditor content="" onChange={onChange} />)
+    // Editor should call onChange with HTML when content changes
+    expect(onChange).toBeDefined()
+  })
+})
+```
+
+**Then implement:** Replace `RichTextToolbar` + static `<div contentEditable>` in:
 - `src/app/(admin)/admin/products/create/page.jsx` — description, specs, notes fields
 - `src/app/(admin)/admin/products/edit/[id]/ProductEditClient.jsx`
 - `src/app/(admin)/admin/blog/create/page.jsx` — blog content field
 - `src/app/(admin)/admin/blog/edit/[id]/BlogEditClient.jsx`
 - `src/app/(admin)/admin/about-us/page.jsx` — about content field
 
-#### 3.3 Rich text content display on public pages
+#### 3.3 SafeHtmlContent component for public pages
+
+**Test first** (`tests/components/safe-html-render.test.jsx`):
+```js
+import { render, screen } from '@testing-library/react'
+import SafeHtmlContent from '@/components/SafeHtmlContent'
+
+describe('SafeHtmlContent', () => {
+  it('renders sanitized HTML content', () => {
+    render(<SafeHtmlContent html="<p>Hello <strong>world</strong></p>" />)
+    expect(screen.getByText('Hello')).toBeInTheDocument()
+  })
+
+  it('strips script tags before rendering', () => {
+    const { container } = render(<SafeHtmlContent html='<p>Safe</p><script>alert("xss")</script>' />)
+    expect(container.innerHTML).not.toContain('script')
+    expect(screen.getByText('Safe')).toBeInTheDocument()
+  })
+
+  it('renders empty div for null content', () => {
+    const { container } = render(<SafeHtmlContent html={null} />)
+    expect(container.firstChild).toBeEmptyDOMElement()
+  })
+})
+```
+
+**Then implement** `src/components/SafeHtmlContent.jsx`:
+- Uses `sanitizeHtml` before `dangerouslySetInnerHTML`
+- Wire into blog detail + product detail pages
+
+#### 3.4 HTML sanitization utility
 
 **Test first** (`tests/lib/sanitize-html.test.js`):
 ```js
@@ -473,14 +523,17 @@ describe('sanitizeHtml', () => {
 
 **New:**
 - `tests/components/rich-text-editor.test.jsx`
+- `tests/components/rich-text-editor-integration.test.jsx`
+- `tests/components/safe-html-render.test.jsx`
 - `tests/lib/sanitize-html.test.js`
 - `src/components/admin/RichTextEditor.jsx`
+- `src/components/SafeHtmlContent.jsx`
 - `src/lib/sanitize-html.js`
 
 **Modified:**
 - `package.json` (add TipTap deps)
 - 5 admin pages (replace RichTextToolbar with real editor)
-- Public blog/product detail pages (render HTML content safely)
+- Public blog/product detail pages (use SafeHtmlContent)
 
 ---
 
@@ -1112,25 +1165,45 @@ Write test → confirm fail → implement → confirm pass → commit.
 ## Tasks (in order)
 
 ### 1. Create RichTextEditor component
-- Test: `tests/components/rich-text-editor.test.jsx`
-- Implement: `src/components/admin/RichTextEditor.jsx`
-- TipTap with StarterKit + Image + Link
-- Toolbar: Bold, Italic, H2, H3, BulletList, OrderedList, Link, Image, Undo, Redo
-- Props: `content` (HTML), `onChange(html)`, `minHeight`
+- **Test first:** `tests/components/rich-text-editor.test.jsx`
+  - Renders toolbar with formatting buttons (Bold, Italic, H2, etc.)
+  - Renders with initial HTML content
+  - Calls onChange when content changes
+  - Renders with custom minHeight
+- **Then implement:** `src/components/admin/RichTextEditor.jsx`
+  - TipTap with StarterKit + Image + Link
+  - Toolbar: Bold, Italic, H2, H3, BulletList, OrderedList, Link, Image, Undo, Redo
+  - Props: `content` (HTML), `onChange(html)`, `minHeight`
 
 ### 2. Create sanitizeHtml utility
-- Test: `tests/lib/sanitize-html.test.js`
-- Implement: `src/lib/sanitize-html.js`
-- Allowlist: p, h1-6, strong, em, ul, ol, li, a, img, br, blockquote
-- Strip: script, style, on* handlers, javascript: URLs
+- **Test first:** `tests/lib/sanitize-html.test.js`
+  - Allows safe HTML tags (p, strong, em, h2, ul, li, a, img)
+  - Strips script tags
+  - Strips event handlers (onerror, onclick)
+  - Strips javascript: URLs
+  - Preserves img src and a href
+- **Then implement:** `src/lib/sanitize-html.js`
+  - Allowlist: p, h1-6, strong, em, ul, ol, li, a, img, br, blockquote
+  - Strip: script, style, on* handlers, javascript: URLs
 
 ### 3. Wire into admin pages
-- Replace RichTextToolbar in products/create, products/edit, blog/create, blog/edit, about-us
-- Wire onChange to form state, content prop from DB data
+- **Test first:** `tests/components/rich-text-editor-integration.test.jsx`
+  - RichTextEditor receives content prop and renders it
+  - RichTextEditor onChange returns HTML string
+  - Editor replaces the old static RichTextToolbar
+- **Then implement:** Replace RichTextToolbar in:
+  - products/create, products/edit, blog/create, blog/edit, about-us
+  - Wire onChange to form state, content prop from DB data
 
-### 4. Wire into public pages
-- Blog detail: render content HTML with sanitizeHtml
-- Product detail: render description HTML with sanitizeHtml
+### 4. Wire sanitized HTML into public pages
+- **Test first:** `tests/components/safe-html-render.test.jsx`
+  - Renders sanitized HTML content
+  - Strips dangerous tags before rendering
+  - Returns empty div for null/undefined content
+- **Then implement:** Create `SafeHtmlContent` component
+  - Blog detail: render post.content via SafeHtmlContent
+  - Product detail: render description via SafeHtmlContent
+  - Uses sanitizeHtml before dangerouslySetInnerHTML
 
 ## Rules
 - TDD, `npm run build` must pass, commit after each task
