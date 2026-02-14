@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateBanner } from '@/lib/actions/banners'
+import { validateFile, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 
 function PlusIcon({ size = 18, color = '#ff7e1b' }) {
   return (
@@ -72,6 +73,8 @@ export default function BannerEditClient({ banner }) {
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+    const check = validateFile(file, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
+    if (!check.valid) { toast.error(check.error); e.target.value = ''; return }
     setSelectedFile(file)
     setImagePreview(URL.createObjectURL(file))
   }

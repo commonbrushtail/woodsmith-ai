@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createManual } from '@/lib/actions/manuals'
 import { useToast } from '@/lib/toast-context'
+import { validateFile, ALLOWED_IMAGE_TYPES, ALLOWED_PDF_TYPES, MAX_IMAGE_SIZE, MAX_PDF_SIZE } from '@/lib/upload-validation'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -391,6 +392,8 @@ export default function ManualCreatePage() {
   const handleImageUpload = (files) => {
     if (files.length > 0) {
       const f = files[0]
+      const check = validateFile(f, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
+      if (!check.valid) { toast.error(check.error); return }
       setImage({
         id: Date.now() + Math.random(),
         name: f.name,
@@ -406,6 +409,8 @@ export default function ManualCreatePage() {
   const handlePdfUpload = (files) => {
     if (files.length > 0) {
       const f = files[0]
+      const check = validateFile(f, { allowedTypes: ALLOWED_PDF_TYPES, maxSize: MAX_PDF_SIZE })
+      if (!check.valid) { toast.error(check.error); return }
       setPdfFile({
         id: Date.now() + Math.random(),
         name: f.name,

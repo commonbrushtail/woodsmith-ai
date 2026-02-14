@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateManual } from '@/lib/actions/manuals'
+import { validateFile, ALLOWED_IMAGE_TYPES, ALLOWED_PDF_TYPES, MAX_IMAGE_SIZE, MAX_PDF_SIZE } from '@/lib/upload-validation'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
   return (
@@ -83,6 +84,8 @@ export default function ManualEditClient({ manual }) {
   const handleCoverSelect = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+    const check = validateFile(file, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
+    if (!check.valid) { toast.error(check.error); e.target.value = ''; return }
     setCoverFile(file)
     setCoverPreview(URL.createObjectURL(file))
   }
@@ -90,6 +93,8 @@ export default function ManualEditClient({ manual }) {
   const handlePdfSelect = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+    const check = validateFile(file, { allowedTypes: ALLOWED_PDF_TYPES, maxSize: MAX_PDF_SIZE })
+    if (!check.valid) { toast.error(check.error); e.target.value = ''; return }
     setPdfNewFile(file)
     setPdfFile({ name: file.name, size: (file.size / 1024).toFixed(1) })
   }
