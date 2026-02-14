@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useTransition } from 'react'
+import { getCompanyProfile, updateCompanyProfile } from '@/lib/actions/profile'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -39,11 +40,39 @@ function PlusIcon({ size = 24, color = '#ff7e1b' }) {
 
 export default function ProfilePage() {
   /* ---- Form state ---- */
+  const [isPending, startTransition] = useTransition()
+  const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('draft')
   const [companyName, setCompanyName] = useState('')
   const [setKey, setSetKey] = useState('')
   const [setRecommendedKey, setSetRecommendedKey] = useState('')
   const [setTip, setSetTip] = useState('')
+
+  useEffect(() => {
+    getCompanyProfile().then(({ data }) => {
+      if (data) {
+        setCompanyName(data.companyName || '')
+        setSetKey(data.setKey || '')
+        setSetRecommendedKey(data.setRecommendedKey || '')
+        setSetTip(data.setTip || '')
+      }
+      setLoading(false)
+    })
+  }, [])
+
+  const handleSubmit = (publish) => {
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set('companyName', companyName)
+      formData.set('setKey', setKey)
+      formData.set('setRecommendedKey', setRecommendedKey)
+      formData.set('setTip', setTip)
+      const result = await updateCompanyProfile(formData)
+      if (result.error) {
+        alert('เกิดข้อผิดพลาด: ' + result.error)
+      }
+    })
+  }
 
   const tabs = [
     { key: 'draft', label: 'DRAFT' },
@@ -51,7 +80,7 @@ export default function ProfilePage() {
   ]
 
   return (
-    <div className="flex flex-col gap-0 h-full min-h-0">
+    <div className={`flex flex-col gap-0 h-full min-h-0 ${isPending || loading ? 'opacity-60 pointer-events-none' : ''}`}>
       {/* ================================================================ */}
       {/*  Header                                                          */}
       {/* ================================================================ */}
@@ -224,29 +253,14 @@ export default function ProfilePage() {
               Entry
             </h3>
 
-            {/* Publish button + dots menu */}
-            <div className="flex items-center gap-[8px]">
-              <button
-                type="button"
-                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e86f15] transition-colors"
-              >
-                {'\u0e40\u0e1c\u0e22\u0e41\u0e1e\u0e23\u0e48'}
-              </button>
-              <button
-                type="button"
-                className="size-[36px] flex items-center justify-center rounded-[8px] border border-[#e8eaef] bg-white cursor-pointer hover:bg-[#f9fafb]"
-                aria-label="Publish options"
-              >
-                <DotsIcon size={16} color="#6b7280" />
-              </button>
-            </div>
-
             {/* Save button */}
             <button
               type="button"
-              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors"
+              onClick={() => handleSubmit(false)}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e86f15] transition-colors disabled:opacity-50"
             >
-              {'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01'}
+              {isPending ? 'กำลังบันทึก...' : 'บันทึก'}
             </button>
           </div>
         </aside>
