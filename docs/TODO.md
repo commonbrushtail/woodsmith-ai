@@ -180,6 +180,26 @@ All 26 admin pages wired to Supabase with Server Actions.
 
 ---
 
+## Phase 6 — Bug Fixes (from runtime audit 2026-02-15)
+
+Discovered via Chrome DevTools inspection of all admin pages at runtime.
+
+### Critical
+
+- [ ] **Fix TipTap SSR crash** — `RichTextEditor.jsx` missing `immediatelyRender: false` in `useEditor()`. Crashes 5+ admin pages (about-us, blog create/edit, products create/edit). ErrorBoundary catches it but page is unusable.
+
+### Medium
+
+- [ ] **Fix dnd-kit hydration error** — `SortableList.jsx` renders `<div>` (dnd-kit accessibility text) inside `<table>`, causing hydration mismatch on 5 list pages (banner, video-highlight, gallery, FAQ, manual). Functional but console errors. Fix: move `DndContext`/`SortableContext` outside `<table>`, or restructure sortable rows.
+- [ ] **Create banner create page** — `/admin/banner/create` returns 404. The "Create new entry" link on the banner list page is broken. Need to create `src/app/(admin)/admin/banner/create/page.jsx`.
+
+### Low
+
+- [ ] **Fix profile raw HTML display** — `/admin/profile` company name field shows `<p>` tags in plain text input. Strip HTML tags before displaying, or switch to RichTextEditor.
+- [ ] **Fix gallery order off-by-one** — `/admin/gallery` first item shows order "0" instead of "1". Fix sort_order display indexing.
+
+---
+
 ## Future Enhancements
 
 ### Authentication
@@ -239,7 +259,7 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `src/lib/supabase/client.js` | Browser client (auth) |
 | `src/lib/storage.js` | Upload/delete/getPublicUrl |
 | `src/lib/data/public.js` | Public data-fetching (13 functions) |
-| `src/lib/actions/*.js` | Server Actions (16 action files) |
+| `src/lib/actions/*.js` | Server Actions (18 action files) |
 | `src/lib/validations/*.js` | Zod schemas |
 | `src/lib/auth/route-rules.js` | Route protection logic |
 | `src/lib/auth/line-config.js` | LINE Login OIDC config |
