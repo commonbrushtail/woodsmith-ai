@@ -61,14 +61,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | BUG-01 | Phase 1 | Pending |
 | BUG-02 | Phase 1 | Pending |
-| BUG-03 | Phase 1 | Pending |
-| BUG-04 | Phase 1 | Pending |
-| BUG-05 | Phase 1 | Pending |
-| TEST-01 | Phase 1 | Pending |
-| TEST-02 | Phase 1 | Pending |
-| TEST-03 | Phase 1 | Pending |
-| TEST-04 | Phase 1 | Pending |
-| TEST-05 | Phase 1 | Pending |
+| BUG-04 | Phase 2 | Pending |
+| BUG-05 | Phase 2 | Pending |
+| BUG-03 | Phase 3 | Pending |
+| TEST-01 | All phases | Pending |
+| TEST-02 | All phases | Pending |
+| TEST-03 | All phases | Pending |
+| TEST-04 | All phases | Pending |
+| TEST-05 | All phases | Pending |
 
 **Coverage:**
 - v1 requirements: 10 total
@@ -77,4 +77,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-15*
-*Last updated: 2026-02-15 after initial definition*
+*Last updated: 2026-02-15 after roadmap creation*
