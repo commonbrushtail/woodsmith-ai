@@ -142,12 +142,15 @@ All 26 admin pages wired to Supabase with Server Actions.
 - [ ] Extract hardcoded Thai strings into translation file
 - [ ] Wire language selector in AdminHeader
 
-### Security Hardening
+### Session 6 ✅ — Security Hardening
 
+**Branch:** `ai/phase5-s6-security`
+
+- [x] Rate-limit login attempts (S6: `createRateLimiter`, 5/min via `adminLogin` server action)
+- [x] Input sanitization (S6: `sanitizeInput`/`sanitizeObject` wired into products, blog, customer)
+- [x] Audit logging for admin actions (S6: `logAudit` + `004_audit_logs.sql` migration)
+- [x] Sanitize rich text content (XSS) — SafeHtmlContent + sanitize-html.js (S3)
 - [ ] CSRF protection on mutation endpoints
-- [ ] Rate-limit login attempts
-- [ ] Sanitize rich text content (XSS)
-- [ ] Audit logging for admin actions
 - [ ] CORS review
 
 ### Testing
@@ -169,6 +172,7 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `ai/phase3b-session1` | 3 | Public pages wired |
 | `ai/phase3b-session2` | 2 | Auth + customer features |
 | `ai/phase4-polish` | 2 | Toast, Zod, account fix, search |
+| `ai/phase5-s6-security` | 3 | Rate limiter, sanitization, audit logging |
 
 ---
 
@@ -185,4 +189,7 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `src/lib/validations/*.js` | Zod schemas |
 | `src/lib/auth/route-rules.js` | Route protection logic |
 | `src/lib/toast-context.js` | Toast notification context |
+| `src/lib/rate-limit.js` | In-memory sliding window rate limiter |
+| `src/lib/sanitize.js` | Input sanitization (trim, strip null bytes) |
+| `src/lib/audit.js` | Audit logging (buildAuditEntry, logAudit) |
 | `middleware.js` | Supabase session refresh + route guard |
