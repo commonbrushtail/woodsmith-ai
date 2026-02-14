@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateBlogPost } from '@/lib/actions/blog'
+import RichTextEditor from '@/components/admin/RichTextEditor'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
   return (
@@ -221,12 +222,10 @@ export default function BlogEditClient({ post }) {
             <label htmlFor="blogContent" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
               รายละเอียดบทความ
             </label>
-            <textarea
-              id="blogContent"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="พิมพ์เนื้อหาบทความ..."
-              className="w-full min-h-[200px] px-[14px] py-[10px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#494c4f] leading-[1.8] border border-[#e8eaef] rounded-[8px] outline-none resize-y bg-white placeholder:text-[#bfbfbf] focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all"
+            <RichTextEditor
+              content={content}
+              onChange={setContent}
+              minHeight={200}
             />
             <div className="flex items-center gap-[16px] self-end">
               <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#9ca3af]">คำ: {wordCount}</span>
