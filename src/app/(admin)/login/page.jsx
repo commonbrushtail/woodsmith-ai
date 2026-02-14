@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import { adminLogin } from '@/lib/actions/admin-login'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -19,14 +19,10 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
 
-    const supabase = createClient()
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    const result = await adminLogin(email, password)
 
-    if (authError) {
-      setError(authError.message)
+    if (result.error) {
+      setError(result.error)
       setLoading(false)
       return
     }
