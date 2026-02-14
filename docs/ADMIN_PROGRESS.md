@@ -251,8 +251,8 @@ Page: `/admin/account`
 | Sorting (real) | [ ] Not started | Blog page sorts its mock array in memory. No server-side sort support. |
 | i18n | [ ] Not started | All Thai text is hardcoded as string literals. Language selector dropdown ("Thai (th)") in AdminHeader is non-functional. |
 | Rich text editing | [ ] Not started | Product create page has a `RichTextEditor` component with toolbar buttons but no actual editing capability. Content is rendered as a static `<div>`, not a `contenteditable` or editor library integration. |
-| Environment config | [ ] Not started | No `.env`, `.env.local`, or `.env.example` files exist. |
-| Customer quotation flow | [ ] Not started | Quotation request form on public site needs auth gate (SMS/LINE login before submission). Submitted quotations appear in admin CMS. |
+| Environment config | [x] Done | `.env.local` (gitignored) and `.env.example` created. Contains Supabase, LINE Login, and app vars. |
+| Customer quotation flow | [~] Partial | QuotationModal component built and wired to product detail CTA. Needs auth gate and database submission. |
 | Customer account pages | [ ] Not started | No public `/account/*` routes exist. Customers will need pages to view their quotation history and status. |
 
 ---

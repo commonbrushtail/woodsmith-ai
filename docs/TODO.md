@@ -12,11 +12,11 @@ Goal: establish the foundational layers that every feature depends on.
 
 ### 1.1 Database Setup
 
-- [ ] Create Supabase project (PostgreSQL).
-- [ ] Create `.env.local` with `NEXT_PUBLIC_SUPABASE_URL`,
+- [x] Create Supabase project (PostgreSQL).
+- [x] Create `.env.local` with `NEXT_PUBLIC_SUPABASE_URL`,
       `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`.
       Add `.env.local` to `.gitignore`.
-- [ ] Create an `.env.example` file documenting all required environment
+- [x] Create an `.env.example` file documenting all required environment
       variables (without values).
 - [ ] Design the database schema covering all content types:
   - `users` -- managed by Supabase Auth (`auth.users`), extended with:
@@ -112,10 +112,10 @@ Goal: create server-side data access for every content section.
 
 ### 2.1 Shared Utilities
 
-- [ ] Create `src/lib/db.ts` -- database client singleton.
+- [ ] Create `src/lib/db.js` -- database client singleton.
 - [ ] Create `src/lib/validations/` -- Zod schemas for each entity
       (products, blogs, banners, etc.).
-- [ ] Create `src/lib/errors.ts` -- standardized error response helpers.
+- [ ] Create `src/lib/errors.js` -- standardized error response helpers.
 
 ### 2.2 Server Actions or API Routes per Section
 
@@ -330,6 +330,19 @@ improvements.
 - [ ] Write integration tests for critical API routes (auth, CRUD).
 - [ ] Write end-to-end tests for key user flows (login, create product,
       manage quotation).
+
+---
+
+## Testing Strategy
+
+See `docs/TDD_PLAN.md` for the full test-driven implementation plan.
+Phase 1 follows RED-GREEN-REFACTOR: write failing tests first, then implement.
+
+| Layer | Tool | Scope |
+|-------|------|-------|
+| Unit | Vitest | Validation schemas, error helpers, route rules, Supabase clients |
+| Integration | Vitest | Database tables, RLS policies, storage operations, seed data |
+| E2E | Playwright | Admin login/logout, customer OTP/LINE, route protection |
 
 ---
 

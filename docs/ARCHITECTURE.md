@@ -180,6 +180,10 @@ woodsmith-ai/
 | GallerySection     | `GallerySection.jsx`        | Image gallery carousel section on homepage                      |
 | Footer             | `Footer.jsx`                | Site footer with contact, links, QR code, social icons          |
 | LineFAB            | `LineFAB.jsx`               | Fixed floating action button linking to LINE chat               |
+| SearchOverlay      | `SearchOverlay.jsx`         | Search panel overlaying navbar with recent searches             |
+| LoginModal         | `LoginModal.jsx`            | Customer login modal (phone OTP + LINE Login flows)             |
+| QuotationModal     | `QuotationModal.jsx`        | Quotation request modal on product detail page                  |
+| CookieConsent      | `CookieConsent.jsx`         | Cookie consent bar and policy detail modal                      |
 
 ### Admin Components (`src/components/admin/`)
 
@@ -286,7 +290,7 @@ The entire application currently renders from hardcoded data. There are no API c
 | Next.js App Router    | Done   | Fully structured with route groups `(public)` and `(admin)`    |
 | Layout system         | Done   | Root, public (TopBar/Navbar/Footer), admin (Sidebar) layouts   |
 | Page UI               | Done   | 38 pages rendered with complete visual fidelity                 |
-| Component library     | Done   | 18 components (11 public, 7 admin) with consistent styling     |
+| Component library     | Done   | 22 components (15 public, 7 admin) with consistent styling     |
 | Design tokens         | Done   | Colors defined in `@theme` block, consumed via Tailwind classes |
 | ESLint configuration  | Done   | ESLint 9 with React Hooks plugin                                |
 | Responsive design     | Done   | Mobile-first with `lg:` breakpoint across all pages             |
@@ -299,7 +303,7 @@ The entire application currently renders from hardcoded data. There are no API c
 | API Routes            | Missing   | No `src/app/api/` directory; no server endpoints exist       |
 | Authentication        | Missing   | Login page exists as UI only; no auth provider, session management, or token handling |
 | Middleware             | Missing   | No `middleware.ts/js` for route protection or redirects      |
-| Environment Variables | Missing   | No `.env`, `.env.local`, or `.env.example` files             |
+| Environment Variables | Done      | `.env.local` (gitignored) and `.env.example` created with Supabase, LINE Login, and app vars |
 | `src/lib/`            | Missing   | No utility library, database client, or shared helper functions |
 | Image Optimization    | Disabled  | `next/image` static imports disabled; using raw `<img>` tags with webpack asset URLs |
 | Server Components     | Unused    | Most pages use `'use client'` directive; no server-side data fetching patterns |

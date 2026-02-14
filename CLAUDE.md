@@ -137,3 +137,4 @@ When running in an autonomous loop (e.g. ralph-loop), follow this workflow:
 - `docs/ARCHITECTURE.md` — full system overview, route map, component inventory
 - `docs/ADMIN_PROGRESS.md` — page-by-page CMS status checklist
 - `docs/TODO.md` — phased implementation roadmap
+- `docs/TDD_PLAN.md` — test-driven implementation plan (Phase 1, step-by-step with test code)
