@@ -118,12 +118,17 @@ All 26 admin pages wired to Supabase with Server Actions.
 
 ## Phase 5 — Future Enhancements
 
-### Rich Text Editing (TipTap)
+### Rich Text Editing (TipTap) ✅ COMPLETE
 
-- [ ] Install `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-image`, `@tiptap/extension-link`
-- [ ] Create reusable `RichTextEditor` component
-- [ ] Replace placeholder editor in product/blog create/edit pages
-- [ ] Image embedding via Supabase Storage
+**Branch:** `ai/phase5-s3-tiptap`
+
+- [x] TipTap installed (`@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-image`, `@tiptap/extension-link`)
+- [x] `src/components/admin/RichTextEditor.jsx` — toolbar (Bold, Italic, H2, H3, Lists, Link, Image, Undo/Redo), 6 tests
+- [x] `src/lib/sanitize-html.js` — allowlist-based HTML sanitizer (no DOM dependency), 15 tests
+- [x] `src/components/SafeHtmlContent.jsx` — XSS-safe rendering for public pages, 8 tests
+- [x] Wired into 5 admin pages: products/create (3 editors), products/edit, blog/create, blog/edit, about-us
+- [x] Wired into 2 public pages: blog detail, product detail
+- [ ] Image embedding via Supabase Storage (future)
 
 ### Authentication Gaps
 
@@ -146,7 +151,7 @@ All 26 admin pages wired to Supabase with Server Actions.
 
 - [ ] CSRF protection on mutation endpoints
 - [ ] Rate-limit login attempts
-- [ ] Sanitize rich text content (XSS)
+- [x] Sanitize rich text content (XSS) — `sanitize-html.js` + `SafeHtmlContent`
 - [ ] Audit logging for admin actions
 - [ ] CORS review
 
@@ -169,6 +174,7 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `ai/phase3b-session1` | 3 | Public pages wired |
 | `ai/phase3b-session2` | 2 | Auth + customer features |
 | `ai/phase4-polish` | 2 | Toast, Zod, account fix, search |
+| `ai/phase5-s3-tiptap` | 5 | TipTap editor, sanitizer, SafeHtmlContent |
 
 ---
 
@@ -185,4 +191,7 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `src/lib/validations/*.js` | Zod schemas |
 | `src/lib/auth/route-rules.js` | Route protection logic |
 | `src/lib/toast-context.js` | Toast notification context |
+| `src/components/admin/RichTextEditor.jsx` | TipTap rich text editor |
+| `src/lib/sanitize-html.js` | HTML sanitizer (XSS prevention) |
+| `src/components/SafeHtmlContent.jsx` | Safe HTML renderer for public pages |
 | `middleware.js` | Supabase session refresh + route guard |
