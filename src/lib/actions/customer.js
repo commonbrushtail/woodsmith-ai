@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/admin'
+import { quotationCreateSchema } from '@/lib/validations/quotations'
 
 /**
  * Create a customer profile row after registration.
@@ -91,6 +92,22 @@ export async function submitQuotation({
   message,
   quantity,
 }) {
+  // Validate input
+  const validation = quotationCreateSchema.safeParse({
+    product_id: productId || null,
+    requester_name: requesterName,
+    requester_phone: requesterPhone,
+    requester_email: requesterEmail || '',
+    message,
+    quantity: quantity || null,
+  })
+  if (!validation.success) {
+    const fieldErrors = Object.fromEntries(
+      Object.entries(validation.error.flatten().fieldErrors).map(([k, v]) => [k, v[0]])
+    )
+    return { data: null, error: 'ข้อมูลไม่ถูกต้อง', fieldErrors }
+  }
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 

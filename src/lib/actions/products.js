@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
+import { productCreateSchema, productUpdateSchema } from '@/lib/validations/products'
 
 /**
  * Fetch paginated products with optional search/filter.
@@ -72,6 +73,15 @@ export async function createProduct(formData) {
     publish_end: formData.get('publish_end') || null,
   }
 
+  // Validate required fields
+  const validation = productCreateSchema.safeParse(productData)
+  if (!validation.success) {
+    const fieldErrors = Object.fromEntries(
+      Object.entries(validation.error.flatten().fieldErrors).map(([k, v]) => [k, v[0]])
+    )
+    return { data: null, error: 'ข้อมูลไม่ถูกต้อง', fieldErrors }
+  }
+
   const { data, error } = await supabase
     .from('products')
     .insert(productData)
@@ -132,6 +142,15 @@ export async function updateProduct(id, formData) {
   }
   if (formData.has('publish_end')) {
     updates.publish_end = formData.get('publish_end') || null
+  }
+
+  // Validate update fields
+  const validation = productUpdateSchema.safeParse(updates)
+  if (!validation.success) {
+    const fieldErrors = Object.fromEntries(
+      Object.entries(validation.error.flatten().fieldErrors).map(([k, v]) => [k, v[0]])
+    )
+    return { data: null, error: 'ข้อมูลไม่ถูกต้อง', fieldErrors }
   }
 
   const { data, error } = await supabase

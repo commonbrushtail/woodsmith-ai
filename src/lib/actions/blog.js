@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
+import { blogCreateSchema, blogUpdateSchema } from '@/lib/validations/blog'
 
 /**
  * Fetch paginated blog posts with optional search.
@@ -62,6 +63,22 @@ export async function createBlogPost(formData) {
   const { data: { user } } = await authClient.auth.getUser()
 
   const title = formData.get('title')
+
+  // Validate required fields
+  const validation = blogCreateSchema.safeParse({
+    title,
+    content: formData.get('content') || '',
+    category: formData.get('category') || null,
+    recommended: formData.get('recommended') === 'true',
+    published: formData.get('published') === 'true',
+    publish_date: formData.get('publish_date') || null,
+  })
+  if (!validation.success) {
+    const fieldErrors = Object.fromEntries(
+      Object.entries(validation.error.flatten().fieldErrors).map(([k, v]) => [k, v[0]])
+    )
+    return { data: null, error: 'ข้อมูลไม่ถูกต้อง', fieldErrors }
+  }
 
   // Auto-generate slug from title
   const slug = title
@@ -128,6 +145,15 @@ export async function updateBlogPost(id, formData) {
   }
   if (formData.has('publish_date')) {
     updates.publish_date = formData.get('publish_date') || null
+  }
+
+  // Validate update fields
+  const validation = blogUpdateSchema.safeParse(updates)
+  if (!validation.success) {
+    const fieldErrors = Object.fromEntries(
+      Object.entries(validation.error.flatten().fieldErrors).map(([k, v]) => [k, v[0]])
+    )
+    return { data: null, error: 'ข้อมูลไม่ถูกต้อง', fieldErrors }
   }
 
   // Handle cover image upload

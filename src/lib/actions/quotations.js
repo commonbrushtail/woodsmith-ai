@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createServiceClient } from '@/lib/supabase/admin'
+import { quotationStatusSchema } from '@/lib/validations/quotations'
 
 /**
  * List quotations with pagination and optional status filter.
@@ -56,6 +57,11 @@ export async function getQuotation(id) {
  * Update quotation status.
  */
 export async function updateQuotationStatus(id, status) {
+  const parsed = quotationStatusSchema.safeParse(status)
+  if (!parsed.success) {
+    return { error: 'สถานะไม่ถูกต้อง' }
+  }
+
   const supabase = createServiceClient()
   const { error } = await supabase
     .from('quotations')

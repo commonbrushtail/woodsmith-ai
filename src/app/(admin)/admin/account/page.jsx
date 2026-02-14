@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useTransition } from 'react'
-import { updatePassword, updateEmail } from '@/lib/actions/account'
+import { getAccountInfo, updatePassword, updateEmail } from '@/lib/actions/account'
 import { useToast } from '@/lib/toast-context'
 
 /* ------------------------------------------------------------------ */
@@ -121,15 +121,14 @@ function CustomSelect({ label, value, onChange, options, helperText, id }) {
 export default function AccountPage() {
   const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
+  const [loading, setLoading] = useState(true)
 
   /* Profile fields */
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
+  const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
-  const [username, setUsername] = useState('')
+  const [role, setRole] = useState('')
 
   /* Password fields */
-  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -137,6 +136,19 @@ export default function AccountPage() {
   /* Experience / preferences */
   const [language, setLanguage] = useState('th')
   const [interfaceMode, setInterfaceMode] = useState('system')
+
+  useEffect(() => {
+    async function load() {
+      const { data } = await getAccountInfo()
+      if (data) {
+        setDisplayName(data.displayName)
+        setEmail(data.email || '')
+        setRole(data.role)
+      }
+      setLoading(false)
+    }
+    load()
+  }, [])
 
   const languageOptions = [
     { value: 'th', label: 'ไทย' },
@@ -149,20 +161,57 @@ export default function AccountPage() {
     { value: 'dark', label: 'โหมดมืด' },
   ]
 
+  const handleSaveEmail = () => {
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set('email', email)
+      const result = await updateEmail(formData)
+      if (result.error) {
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
+      } else {
+        toast.success('อัปเดตอีเมลเรียบร้อย')
+      }
+    })
+  }
+
+  const handleChangePassword = () => {
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set('new_password', newPassword)
+      formData.set('confirm_password', confirmPassword)
+      const result = await updatePassword(formData)
+      if (result.error) {
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
+      } else {
+        toast.success('เปลี่ยนรหัสผ่านสำเร็จ')
+        setNewPassword('')
+        setConfirmPassword('')
+      }
+    })
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-[60px]">
+        <p className="font-['IBM_Plex_Sans_Thai'] text-[16px] text-[#9ca3af]">กำลังโหลด...</p>
+      </div>
+    )
+  }
+
   return (
     <div className={`flex flex-col gap-[24px] h-full min-h-0 overflow-y-auto pb-[32px] ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
       {/* ---- Header ---- */}
       <div className="flex items-center justify-between">
-        <h1 className="font-['IBM_Plex_Sans_Thai'] font-bold text-[22px] text-[#1f2937] m-0">
-          {username || 'บัญชีผู้ใช้'}
-        </h1>
-        <button
-          type="button"
-          disabled={isPending}
-          className="px-[24px] py-[8px] bg-[#ff7e1b] text-white rounded-[8px] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-none cursor-pointer hover:bg-[#ff7e1b]/90 transition-colors disabled:opacity-50"
-        >
-          {isPending ? 'กำลังบันทึก...' : 'บันทึก'}
-        </button>
+        <div>
+          <h1 className="font-['IBM_Plex_Sans_Thai'] font-bold text-[22px] text-[#1f2937] m-0">
+            บัญชีผู้ใช้
+          </h1>
+          {role && (
+            <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#9ca3af] m-0 mt-[4px]">
+              บทบาท: {role === 'admin' ? 'ผู้ดูแลระบบ' : role === 'editor' ? 'บรรณาธิการ' : role}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* ---- Section 1: Profile ---- */}
@@ -177,43 +226,25 @@ export default function AccountPage() {
           โปรไฟล์
         </h2>
 
-        {/* Row 1: First name + Last name */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px] mb-[16px]">
           <div className="flex flex-col gap-[6px]">
             <label
-              htmlFor="firstName"
+              htmlFor="displayName"
               className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-[#4b5563]"
             >
-              ชื่อจริง <span className="text-red-500">*</span>
+              ชื่อที่แสดง
             </label>
             <input
-              id="firstName"
+              id="displayName"
               type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              required
-              className="border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] bg-white focus:border-[#ff7e1b] focus:outline-none transition-colors"
+              value={displayName}
+              disabled
+              className="border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#9ca3af] bg-[#f9fafb] focus:outline-none"
             />
+            <p className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#9ca3af] m-0">
+              แก้ไขได้ที่หน้าโปรไฟล์
+            </p>
           </div>
-          <div className="flex flex-col gap-[6px]">
-            <label
-              htmlFor="lastName"
-              className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-[#4b5563]"
-            >
-              นามสกุล
-            </label>
-            <input
-              id="lastName"
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className="border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] bg-white focus:border-[#ff7e1b] focus:outline-none transition-colors"
-            />
-          </div>
-        </div>
-
-        {/* Row 2: Email + Username */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
           <div className="flex flex-col gap-[6px]">
             <label
               htmlFor="email"
@@ -230,22 +261,16 @@ export default function AccountPage() {
               className="border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] bg-white focus:border-[#ff7e1b] focus:outline-none transition-colors"
             />
           </div>
-          <div className="flex flex-col gap-[6px]">
-            <label
-              htmlFor="username"
-              className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-[#4b5563]"
-            >
-              ชื่อผู้ใช้
-            </label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] bg-white focus:border-[#ff7e1b] focus:outline-none transition-colors"
-            />
-          </div>
         </div>
+
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={handleSaveEmail}
+          className="px-[24px] py-[8px] bg-[#ff7e1b] text-white rounded-[8px] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-none cursor-pointer hover:bg-[#ff7e1b]/90 transition-colors disabled:opacity-50"
+        >
+          {isPending ? 'กำลังบันทึก...' : 'บันทึกอีเมล'}
+        </button>
       </section>
 
       {/* ---- Section 2: Change Password ---- */}
@@ -311,22 +336,7 @@ export default function AccountPage() {
         <button
           type="button"
           disabled={isPending}
-          onClick={() => {
-            startTransition(async () => {
-              const formData = new FormData()
-              formData.set('new_password', newPassword)
-              formData.set('confirm_password', confirmPassword)
-              // userId would come from session — using placeholder for now
-              const result = await updatePassword('current-user-id', formData)
-              if (result.error) {
-                toast.error('เกิดข้อผิดพลาด: ' + result.error)
-              } else {
-                toast.success('เปลี่ยนรหัสผ่านสำเร็จ')
-                setNewPassword('')
-                setConfirmPassword('')
-              }
-            })
-          }}
+          onClick={handleChangePassword}
           className="px-[24px] py-[8px] bg-[#ff7e1b] text-white rounded-[8px] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-none cursor-pointer hover:bg-[#ff7e1b]/90 transition-colors disabled:opacity-50"
         >
           {isPending ? 'กำลังดำเนินการ...' : 'ยืนยันเปลี่ยนรหัสผ่าน'}
