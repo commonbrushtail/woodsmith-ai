@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 
 const iconSidebar = [
   { icon: 'book-open', section: 'content', paths: ['/admin/banner', '/admin/profile', '/admin/blog', '/admin/video-highlight', '/admin/gallery', '/admin/manual', '/admin/about-us', '/admin/branch', '/admin/faq', '/admin/products'] },
@@ -83,6 +84,7 @@ const iconComponents = {
 
 export default function AdminSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
 
   const activeSection = iconSidebar.find(s => s.paths.some(p => pathname.startsWith(p)))?.section || 'content'
   const menuItems = sectionMenus[activeSection] || contentMenuItems
@@ -114,6 +116,22 @@ export default function AdminSidebar() {
         </div>
         <div className="flex flex-col items-center gap-[16px]">
           <div className="w-full h-px bg-[#e5e7eb]" />
+          <button
+            onClick={async () => {
+              const supabase = createClient()
+              await supabase.auth.signOut()
+              router.push('/login')
+              router.refresh()
+            }}
+            className="bg-transparent border-none cursor-pointer p-[8px] rounded-[8px] hover:bg-gray-100"
+            title="ออกจากระบบ"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16,17 21,12 16,7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
           <div className="size-[40px] rounded-full bg-orange flex items-center justify-center text-white font-semibold text-[16px]">
             A
           </div>

@@ -1,16 +1,38 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    const supabase = createClient()
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (authError) {
+      setError(authError.message)
+      setLoading(false)
+      return
+    }
+
+    router.push('/admin/dashboard')
+    router.refresh()
   }
 
   return (
@@ -98,12 +120,20 @@ export default function LoginPage() {
                 </span>
               </label>
 
+              {/* Error Message */}
+              {error && (
+                <p className="text-[#d92429] font-['IBM_Plex_Sans_Thai'] text-[14px] m-0" role="alert">
+                  {error}
+                </p>
+              )}
+
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full h-[48px] bg-orange text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[16px] border-none rounded-none cursor-pointer hover:bg-orange/90"
+                disabled={loading}
+                className="w-full h-[48px] bg-orange text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[16px] border-none rounded-none cursor-pointer hover:bg-orange/90 disabled:opacity-50"
               >
-                เข้าสู่ระบบ
+                {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
               </button>
             </div>
           </form>
