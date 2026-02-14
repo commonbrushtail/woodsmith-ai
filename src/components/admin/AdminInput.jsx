@@ -1,4 +1,4 @@
-export default function AdminInput({ type = 'text', label, placeholder, value, onChange, required = false, options = [], className = '' }) {
+export default function AdminInput({ type = 'text', label, placeholder, value, onChange, required = false, options = [], className = '', error }) {
   const labelEl = label && (
     <label className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-[#374151] mb-[4px] block">
       {label}
@@ -6,7 +6,15 @@ export default function AdminInput({ type = 'text', label, placeholder, value, o
     </label>
   )
 
-  const inputClasses = "w-full border border-[#e5e7eb] rounded-[8px] px-[12px] py-[10px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#374151] placeholder:text-[#9ca3af] focus:outline-none focus:border-orange focus:ring-1 focus:ring-orange/30"
+  const baseClasses = "w-full rounded-[8px] px-[12px] py-[10px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#374151] placeholder:text-[#9ca3af] focus:outline-none"
+  const borderClasses = error
+    ? 'border border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/30'
+    : 'border border-[#e5e7eb] focus:border-orange focus:ring-1 focus:ring-orange/30'
+  const inputClasses = `${baseClasses} ${borderClasses}`
+
+  const errorEl = error && (
+    <p className="mt-[4px] text-[13px] text-red-500 font-['IBM_Plex_Sans_Thai']">{error}</p>
+  )
 
   if (type === 'textarea') {
     return (
@@ -20,6 +28,7 @@ export default function AdminInput({ type = 'text', label, placeholder, value, o
           rows={4}
           className={`${inputClasses} resize-y`}
         />
+        {errorEl}
       </div>
     )
   }
@@ -39,6 +48,7 @@ export default function AdminInput({ type = 'text', label, placeholder, value, o
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
+        {errorEl}
       </div>
     )
   }
@@ -58,6 +68,7 @@ export default function AdminInput({ type = 'text', label, placeholder, value, o
           </p>
           <input type="file" onChange={onChange} className="hidden" />
         </div>
+        {errorEl}
       </div>
     )
   }
@@ -73,6 +84,7 @@ export default function AdminInput({ type = 'text', label, placeholder, value, o
         required={required}
         className={inputClasses}
       />
+      {errorEl}
     </div>
   )
 }
