@@ -313,8 +313,7 @@ export default function ProductDetailClient({ product: dbProduct = null }) {
       <QuotationModal
         isOpen={quotationOpen}
         onClose={() => setQuotationOpen(false)}
-        onConfirm={() => { setQuotationOpen(false); alert('ส่งคำขอใบเสนอราคาเรียบร้อยแล้ว') }}
-        product={{ name: product.name, sku: product.sku, image: product.images[0] }}
+        product={{ id: product.id, name: product.name, sku: product.sku, image: product.images[0] }}
       />
     </div>
   )

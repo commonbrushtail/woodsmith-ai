@@ -333,9 +333,35 @@ export default function LoginModal({ isOpen, onClose }) {
     })
   }
 
-  const handleRegister = (formData) => {
-    // TODO: Update user metadata with name/email after OTP verification
-    onClose()
+  const handleRegister = async (formData) => {
+    try {
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.error('No authenticated user found for registration')
+        return
+      }
+
+      const displayName = `${formData.firstName} ${formData.lastName}`.trim()
+
+      // Update user metadata in Supabase Auth
+      await supabase.auth.updateUser({
+        data: { display_name: displayName, email: formData.email },
+      })
+
+      // Create customer profile row via server action
+      const { createCustomerProfile } = await import('@/lib/actions/customer')
+      await createCustomerProfile(user.id, {
+        displayName,
+        phone: phone,
+        email: formData.email,
+      })
+
+      onClose()
+    } catch (err) {
+      console.error('Registration error:', err)
+    }
   }
 
   return (
