@@ -54,9 +54,10 @@ export function getRouteAction(pathname, user) {
   }
 
   // Account routes: require any authenticated user
+  // Redirect to homepage (not /login) — customers use LoginModal on the public site
   if (pathname.startsWith('/account')) {
     if (!user) {
-      return { redirect: '/login' }
+      return { redirect: '/' }
     }
     return 'allow'
   }
