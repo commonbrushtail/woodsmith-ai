@@ -990,7 +990,11 @@ S2–S6 are independent and can run in any order.
 
 ## Ralph-Loop Prompts
 
+All prompts use `--max-iterations 50` and `--completion-promise`.
+
 ### Session 1 Prompt
+
+`/ralph-loop --max-iterations 50`
 
 ```
 You are implementing Phase 4 Session 1 for WoodSmith AI — Admin Form Validation UX + Error Boundaries.
@@ -1045,6 +1049,8 @@ When all 4 tasks done, tests pass, build passes:
 
 ### Session 2 Prompt
 
+`/ralph-loop --max-iterations 50`
+
 ```
 You are implementing Phase 4 Session 2 for WoodSmith AI — Loading States + File Upload Improvements.
 
@@ -1088,6 +1094,8 @@ Write test → confirm fail → implement → confirm pass → commit.
 ```
 
 ### Session 3 Prompt
+
+`/ralph-loop --max-iterations 50`
 
 ```
 You are implementing Phase 5 Session 3 for WoodSmith AI — TipTap Rich Text Editor.
@@ -1134,6 +1142,8 @@ Write test → confirm fail → implement → confirm pass → commit.
 
 ### Session 4 Prompt
 
+`/ralph-loop --max-iterations 50`
+
 ```
 You are implementing Phase 5 Session 4 for WoodSmith AI — Drag-and-Drop Reordering.
 
@@ -1169,6 +1179,8 @@ Write test → confirm fail → implement → confirm pass → commit.
 ```
 
 ### Session 5 Prompt
+
+`/ralph-loop --max-iterations 50`
 
 ```
 You are implementing Phase 5 Session 5 for WoodSmith AI — Auth Gaps.
@@ -1211,6 +1223,8 @@ Write test → confirm fail → implement → confirm pass → commit.
 
 ### Session 6 Prompt
 
+`/ralph-loop --max-iterations 50`
+
 ```
 You are implementing Phase 5 Session 6 for WoodSmith AI — Security Hardening.
 
@@ -1250,6 +1264,8 @@ Write test → confirm fail → implement → confirm pass → commit.
 ```
 
 ### Session 7 Prompt
+
+`/ralph-loop --max-iterations 50`
 
 ```
 You are implementing Phase 5 Session 7 for WoodSmith AI — Test Coverage Expansion.
