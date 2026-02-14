@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useToast } from '@/lib/toast-context'
 import { updateVideoHighlight } from '@/lib/actions/video-highlights'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
@@ -32,6 +33,7 @@ function DotsIcon({ size = 18, color = '#6b7280' }) {
 }
 
 export default function VideoHighlightEditClient({ highlight }) {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -46,7 +48,7 @@ export default function VideoHighlightEditClient({ highlight }) {
   ]
 
   const handleSubmit = (publish) => {
-    if (!title.trim()) { alert('กรุณากรอกชื่อไฮไลท์'); return }
+    if (!title.trim()) { toast.error('กรุณากรอกชื่อไฮไลท์'); return }
 
     startTransition(async () => {
       const formData = new FormData()
@@ -57,7 +59,7 @@ export default function VideoHighlightEditClient({ highlight }) {
 
       const result = await updateVideoHighlight(highlight.id, formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.push('/admin/video-highlight')
         router.refresh()

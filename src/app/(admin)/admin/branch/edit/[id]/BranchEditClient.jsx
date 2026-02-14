@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useToast } from '@/lib/toast-context'
 import { updateBranch } from '@/lib/actions/branches'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
@@ -32,6 +33,7 @@ function DotsIcon({ size = 18, color = '#6b7280' }) {
 }
 
 export default function BranchEditClient({ branch }) {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -57,7 +59,7 @@ export default function BranchEditClient({ branch }) {
 
       const result = await updateBranch(branch.id, formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.push('/admin/branch')
         router.refresh()

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useTransition } from 'react'
 import { getCompanyProfile, updateCompanyProfile } from '@/lib/actions/profile'
+import { useToast } from '@/lib/toast-context'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -40,6 +41,7 @@ function PlusIcon({ size = 24, color = '#ff7e1b' }) {
 
 export default function ProfilePage() {
   /* ---- Form state ---- */
+  const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('draft')
@@ -69,7 +71,7 @@ export default function ProfilePage() {
       formData.set('setTip', setTip)
       const result = await updateCompanyProfile(formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       }
     })
   }

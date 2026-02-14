@@ -4,6 +4,7 @@ import { useState, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createManual } from '@/lib/actions/manuals'
+import { useToast } from '@/lib/toast-context'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -355,6 +356,7 @@ function PdfUploadDropZone({ onFilesSelected }) {
 /* ------------------------------------------------------------------ */
 
 export default function ManualCreatePage() {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -445,7 +447,7 @@ export default function ManualCreatePage() {
 
       const result = await createManual(formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.push('/admin/manual')
         router.refresh()

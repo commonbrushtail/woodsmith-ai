@@ -3,6 +3,7 @@
 import { useState, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useToast } from '@/lib/toast-context'
 import { updateBlogPost } from '@/lib/actions/blog'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
@@ -41,6 +42,7 @@ function DotsIcon({ size = 18, color = '#6b7280' }) {
 }
 
 export default function BlogEditClient({ post }) {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const fileInputRef = useRef(null)
@@ -69,7 +71,7 @@ export default function BlogEditClient({ post }) {
   }
 
   const handleSubmit = (publish) => {
-    if (!title.trim()) { alert('กรุณากรอกชื่อบทความ'); return }
+    if (!title.trim()) { toast.error('กรุณากรอกชื่อบทความ'); return }
 
     startTransition(async () => {
       const formData = new FormData()
@@ -84,7 +86,7 @@ export default function BlogEditClient({ post }) {
 
       const result = await updateBlogPost(post.id, formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.push('/admin/blog')
         router.refresh()

@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createProduct } from '@/lib/actions/products'
+import { useToast } from '@/lib/toast-context'
 
 const tabs = [
   { id: 'general', label: '\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e17\u0e31\u0e48\u0e27\u0e44\u0e1b' },
@@ -174,6 +175,7 @@ function RichTextEditor({ content, minHeight = '200px' }) {
 }
 
 export default function ProductCreatePage() {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [activeTab, setActiveTab] = useState('general')
@@ -205,7 +207,7 @@ export default function ProductCreatePage() {
 
   const handleSubmit = (publish) => {
     if (!productName || !productCode || !sku || !productType || !productCategory) {
-      alert('กรุณากรอกข้อมูลที่จำเป็นให้ครบ')
+      toast.error('กรุณากรอกข้อมูลที่จำเป็นให้ครบ')
       return
     }
 
@@ -231,7 +233,7 @@ export default function ProductCreatePage() {
 
       const result = await createProduct(formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
         return
       }
       router.push('/admin/products')

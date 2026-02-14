@@ -4,6 +4,7 @@ import { useState, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBlogPost } from '@/lib/actions/blog'
+import { useToast } from '@/lib/toast-context'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -505,6 +506,7 @@ function RecommendationSelect({ value, onChange }) {
 /* ------------------------------------------------------------------ */
 
 export default function BlogCreatePage() {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -559,8 +561,8 @@ export default function BlogCreatePage() {
   }
 
   const handleSubmit = (publish) => {
-    if (!title.trim()) { alert('กรุณากรอกชื่อบทความ'); return }
-    if (!content.trim()) { alert('กรุณากรอกเนื้อหาบทความ'); return }
+    if (!title.trim()) { toast.error('กรุณากรอกชื่อบทความ'); return }
+    if (!content.trim()) { toast.error('กรุณากรอกเนื้อหาบทความ'); return }
 
     startTransition(async () => {
       const formData = new FormData()
@@ -580,7 +582,7 @@ export default function BlogCreatePage() {
 
       const result = await createBlogPost(formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.push('/admin/blog')
         router.refresh()

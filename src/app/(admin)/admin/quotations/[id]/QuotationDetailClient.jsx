@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useToast } from '@/lib/toast-context'
 import { updateQuotationStatus, updateAdminNotes } from '@/lib/actions/quotations'
 
 /* ------------------------------------------------------------------ */
@@ -139,6 +140,7 @@ function StatusDropdown({ status, onStatusChange, disabled }) {
 /* ------------------------------------------------------------------ */
 
 export default function QuotationDetailClient({ quotation }) {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [adminNotes, setAdminNotes] = useState(quotation.admin_notes || '')
@@ -171,7 +173,7 @@ export default function QuotationDetailClient({ quotation }) {
     startTransition(async () => {
       const result = await updateAdminNotes(quotation.id, adminNotes)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.refresh()
       }

@@ -3,6 +3,7 @@
 import { useState, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useToast } from '@/lib/toast-context'
 import { updateGalleryItem } from '@/lib/actions/gallery'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
@@ -41,6 +42,7 @@ function DotsIcon({ size = 18, color = '#6b7280' }) {
 }
 
 export default function GalleryEditClient({ item }) {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const fileInputRef = useRef(null)
@@ -73,7 +75,7 @@ export default function GalleryEditClient({ item }) {
 
       const result = await updateGalleryItem(item.id, formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.push('/admin/gallery')
         router.refresh()

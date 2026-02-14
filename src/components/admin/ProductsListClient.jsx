@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/lib/toast-context'
 import { deleteProduct, toggleProductRecommended, toggleProductPublished } from '@/lib/actions/products'
 
 /* ------------------------------------------------------------------ */
@@ -129,6 +130,7 @@ const TYPE_LABELS = {
 /* ------------------------------------------------------------------ */
 export default function ProductsListClient({ products, totalCount }) {
   const router = useRouter()
+  const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRows, setSelectedRows] = useState([])
@@ -160,7 +162,7 @@ export default function ProductsListClient({ products, totalCount }) {
     startTransition(async () => {
       const result = await deleteProduct(id)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       }
       setOpenMenuId(null)
       router.refresh()

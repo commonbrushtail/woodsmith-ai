@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { updateFaq } from '@/lib/actions/faqs'
+import { useToast } from '@/lib/toast-context'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
   return (
@@ -33,6 +34,7 @@ function DotsIcon({ size = 18, color = '#6b7280' }) {
 
 export default function FaqEditClient({ faq }) {
   const router = useRouter()
+  const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
 
   const [activeTab, setActiveTab] = useState(faq.published ? 'published' : 'draft')
@@ -53,7 +55,7 @@ export default function FaqEditClient({ faq }) {
 
       const result = await updateFaq(faq.id, formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.push('/admin/faq')
         router.refresh()

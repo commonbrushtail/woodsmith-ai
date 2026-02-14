@@ -1,4 +1,5 @@
 import './globals.css'
+import Providers from '../components/Providers'
 
 export const metadata = {
   title: 'WoodSmith :: วู้ดสมิตร',
@@ -15,7 +16,9 @@ export default function RootLayout({ children }) {
         <link href="https://fonts.cdnfonts.com/css/circular-std" rel="stylesheet" />
       </head>
       <body>
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   )

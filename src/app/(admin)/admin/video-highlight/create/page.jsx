@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createVideoHighlight } from '@/lib/actions/video-highlights'
+import { useToast } from '@/lib/toast-context'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -261,6 +262,7 @@ function VideoEmbedPanel({ embedCode, onClose }) {
 /* ------------------------------------------------------------------ */
 
 export default function VideoHighlightCreatePage() {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [activeTab, setActiveTab] = useState('draft')
@@ -273,7 +275,7 @@ export default function VideoHighlightCreatePage() {
   const [showCalendar, setShowCalendar] = useState(true)
 
   const handleSubmit = (publish) => {
-    if (!title.trim()) { alert('กรุณากรอกชื่อไฮไลท์'); return }
+    if (!title.trim()) { toast.error('กรุณากรอกชื่อไฮไลท์'); return }
 
     startTransition(async () => {
       const formData = new FormData()
@@ -283,7 +285,7 @@ export default function VideoHighlightCreatePage() {
 
       const result = await createVideoHighlight(formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.push('/admin/video-highlight')
         router.refresh()

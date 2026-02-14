@@ -3,9 +3,11 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useToast } from '@/lib/toast-context'
 import { updateProduct } from '@/lib/actions/products'
 
 export default function ProductEditClient({ product }) {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [productName, setProductName] = useState(product.name || '')
@@ -28,7 +30,7 @@ export default function ProductEditClient({ product }) {
 
   const handleSubmit = (publish) => {
     if (!productName || !productCode || !sku) {
-      alert('กรุณากรอกข้อมูลที่จำเป็นให้ครบ')
+      toast.error('กรุณากรอกข้อมูลที่จำเป็นให้ครบ')
       return
     }
 
@@ -53,7 +55,7 @@ export default function ProductEditClient({ product }) {
 
       const result = await updateProduct(product.id, formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
         return
       }
       router.push('/admin/products')

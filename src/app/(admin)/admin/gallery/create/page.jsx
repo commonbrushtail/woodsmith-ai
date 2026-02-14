@@ -4,6 +4,7 @@ import { useState, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createGalleryItem } from '@/lib/actions/gallery'
+import { useToast } from '@/lib/toast-context'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -305,6 +306,7 @@ function UploadDropZone({ onFilesSelected }) {
 /* ------------------------------------------------------------------ */
 
 export default function GalleryCreatePage() {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   /* ---- Form state ---- */
@@ -361,7 +363,7 @@ export default function GalleryCreatePage() {
 
       const result = await createGalleryItem(formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.push('/admin/gallery')
         router.refresh()

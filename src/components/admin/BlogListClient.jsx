@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useToast } from '@/lib/toast-context'
 import { deleteBlogPost, toggleBlogRecommended, toggleBlogPublished } from '@/lib/actions/blog'
 
 function formatThaiDate(dateStr) {
@@ -112,6 +113,7 @@ function SortArrowIcon({ ascending }) {
 
 export default function BlogListClient({ blogs, totalCount }) {
   const router = useRouter()
+  const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRows, setSelectedRows] = useState([])
@@ -154,7 +156,7 @@ export default function BlogListClient({ blogs, totalCount }) {
     if (!confirm('ต้องการลบบทความนี้หรือไม่?')) return
     startTransition(async () => {
       const result = await deleteBlogPost(id)
-      if (result.error) alert('เกิดข้อผิดพลาด: ' + result.error)
+      if (result.error) toast.error('เกิดข้อผิดพลาด: ' + result.error)
       setOpenMenuId(null)
       router.refresh()
     })

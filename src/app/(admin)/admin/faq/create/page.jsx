@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createFaq } from '@/lib/actions/faqs'
+import { useToast } from '@/lib/toast-context'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -231,6 +232,7 @@ function CategorySection({ category, entries, expandedEntries, onToggleEntry, on
 
 export default function FaqCreatePage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
 
   const [activeTab, setActiveTab] = useState('draft')
@@ -302,7 +304,7 @@ export default function FaqCreatePage() {
     startTransition(async () => {
       const allEntries = Object.values(faqData).flat().filter((e) => e.question.trim())
       if (allEntries.length === 0) {
-        alert('กรุณากรอกคำถามอย่างน้อย 1 รายการ')
+        toast.error('กรุณากรอกคำถามอย่างน้อย 1 รายการ')
         return
       }
 
@@ -313,7 +315,7 @@ export default function FaqCreatePage() {
         formData.set('published', publish ? 'true' : 'false')
         const result = await createFaq(formData)
         if (result.error) {
-          alert('เกิดข้อผิดพลาด: ' + result.error)
+          toast.error('เกิดข้อผิดพลาด: ' + result.error)
           return
         }
       }

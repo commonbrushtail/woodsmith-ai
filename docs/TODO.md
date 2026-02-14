@@ -6,207 +6,194 @@ admin pages with UI built but zero backend infrastructure.
 
 ---
 
-## Phase 1 -- Infrastructure
+## Phase 1 -- Infrastructure ✅ COMPLETE
 
 Goal: establish the foundational layers that every feature depends on.
+
+**Branch:** `ai/phase1-tdd` (11 commits, 57 tests passing)
 
 ### 1.1 Database Setup
 
 - [x] Create Supabase project (PostgreSQL).
 - [x] Create `.env.local` with `NEXT_PUBLIC_SUPABASE_URL`,
       `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`.
-      Add `.env.local` to `.gitignore`.
-- [x] Create an `.env.example` file documenting all required environment
-      variables (without values).
-- [ ] Design the database schema covering all content types:
-  - `users` -- managed by Supabase Auth (`auth.users`), extended with:
-  - `user_profiles` (id, user_id FK->auth.users, display_name, phone, role enum['admin','editor','customer'], auth_provider enum['email','phone','line'], avatar_url, created_at, updated_at)
-  - `products` (id, code, sku, name, type, category, description, characteristics, specifications, recommended, published, publish_start, publish_end, sort_order, created_at, updated_at)
-  - `product_images` (id, product_id, url, is_primary, sort_order)
-  - `product_options` (id, product_id, option_type, label, sort_order)
-  - `banners` (id, image_url, link_url, status, sort_order, created_at, updated_at)
-  - `blog_posts` (id, title, slug, content, cover_image_url, author_id, recommended, published, publish_date, sort_order, created_at, updated_at)
-  - `video_highlights` (id, title, youtube_url, thumbnail_url, published, sort_order, created_at, updated_at)
-  - `gallery_items` (id, image_url, caption, published, sort_order, created_at, updated_at)
-  - `manuals` (id, title, file_url, cover_image_url, published, sort_order, created_at, updated_at)
-  - `about_us` (id, content, updated_at) -- singleton record
-  - `branches` (id, name, address, phone, map_url, published, sort_order, created_at, updated_at)
-  - `faqs` (id, question, answer, published, sort_order, created_at, updated_at)
-  - `quotations` (id, quotation_number, customer_id FK->auth.users, requester_name, requester_phone, requester_email, requester_address, product_id, selected_color, selected_size, status enum['pending','approved','rejected'], admin_notes, created_at, updated_at)
-  - `company_profile` (id, content, social_links, updated_at) -- singleton record
-- [ ] Set up Row Level Security (RLS) policies:
-  - Admin/editor roles: full access to all CMS tables.
-  - Customer role: read-only on published content, read/write own quotations.
-  - Public (unauthenticated): read-only on published content.
-- [ ] Run initial migration to create all tables.
-- [ ] Write a seed script with sample data matching the current mock data
-      so the transition is seamless.
+- [x] Create `.env.example` file.
+- [x] Design and deploy database schema (14 tables, 5 enums).
+      Migrations: `001_initial_schema.sql`, `002_rls_policies.sql`.
+- [x] Set up Row Level Security (RLS) policies.
+- [x] Run initial migration to create all tables.
+- [x] Write seed script (`scripts/seed.js`) with sample data.
 
 ### 1.2 Authentication System
 
-The application has two user types with different auth methods:
-- **Admin users**: email + password (CMS access)
-- **Regular users (customers)**: SMS OTP + LINE Login (browse products, request quotations)
-
-#### 1.2.1 Supabase Auth Setup
-
-- [ ] Install `@supabase/supabase-js` and `@supabase/ssr`.
-- [ ] Create Supabase project and add credentials to `.env.local`
-      (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`).
-- [ ] Create `src/lib/supabase/client.js` (browser client) and
-      `src/lib/supabase/server.js` (server client with cookies).
-
-#### 1.2.2 Admin Auth (Email + Password)
-
-- [ ] Enable Supabase Auth email provider in dashboard.
-- [ ] Wire the login page (`/login`) to `supabase.auth.signInWithPassword()`,
-      redirect to `/admin/dashboard` on success.
-- [ ] Wire the logout action to `supabase.auth.signOut()`.
-- [ ] Implement forgot-password flow: `supabase.auth.resetPasswordForEmail()`
-      wired to `/login/forgot-password` UI.
-- [ ] Add role metadata to admin users (`user_metadata.role = 'admin' | 'editor'`).
-- [ ] Create admin user invite flow in `/admin/users` (create user with email + assigned role).
-
-#### 1.2.3 Customer Auth (SMS OTP)
-
-- [ ] Enable Supabase Auth phone provider in dashboard.
-- [ ] Configure SMS provider (Twilio, MessageBird, or Vonage) in Supabase.
-- [ ] Create public login/signup component with phone number input.
-- [ ] Wire to `supabase.auth.signInWithOtp({ phone })` and OTP verification.
-- [ ] Set `user_metadata.role = 'customer'` on signup.
-
-#### 1.2.4 Customer Auth (LINE Login)
-
-- [ ] Register LINE Login channel at LINE Developers Console.
-- [ ] Configure LINE as custom OIDC provider in Supabase Auth settings
-      (LINE Login supports OpenID Connect).
-- [ ] Create LINE Login button on public site.
-- [ ] Wire to `supabase.auth.signInWithOAuth({ provider: 'line' })` (custom OIDC).
-- [ ] Handle callback and set `user_metadata.role = 'customer'` on first login.
+- [x] Install `@supabase/supabase-js` and `@supabase/ssr`.
+- [x] Create `src/lib/supabase/client.js` (browser client).
+- [x] Create `src/lib/supabase/server.js` (server client with cookies).
+- [x] Create `src/lib/supabase/admin.js` (service role client).
+- [x] Wire login page to `supabase.auth.signInWithPassword()`.
+- [x] Wire logout action to `supabase.auth.signOut()`.
+- [x] Wire customer OTP flow in LoginModal.
+- [ ] LINE Login integration (credentials in `.env.local`, needs OIDC wiring).
+- [ ] Forgot-password flow wiring.
+- [ ] Admin user invite flow.
 
 ### 1.3 Middleware and Route Protection
 
-- [ ] Create `middleware.js` in the project root.
-- [ ] Redirect unauthenticated users from `/admin/*` routes to `/login`.
-- [ ] Redirect authenticated users from `/login` to `/admin/dashboard`.
-- [ ] Add role-based access checks: only `admin`/`editor` roles can
-      access `/admin/*` routes; `customer` role is blocked from CMS.
-- [ ] Protect future `/account/*` routes (customer account pages):
-      require any authenticated user.
-- [ ] Allow public routes (`/`, `/products`, `/blog`, etc.) without auth.
+- [x] Create `middleware.js` with Supabase session refresh.
+- [x] Create `src/lib/auth/route-rules.js` (pure function `getRouteAction`).
+- [x] Route protection: admin, public, account, login redirect.
 
 ### 1.4 File Storage
 
-- [ ] Use Supabase Storage (included with Supabase project).
-- [ ] Create storage buckets: `banners`, `products`, `blog`, `gallery`,
-      `manuals`, `avatars`.
-- [ ] Create `src/lib/storage.js` with upload/delete/get-public-url utilities.
-- [ ] Configure bucket policies (public read for content images,
-      authenticated upload for admin).
+- [x] Create 6 storage buckets (banners, products, blog, gallery, manuals, avatars).
+- [x] Create `src/lib/storage.js` with upload/delete/getPublicUrl.
+
+### 1.5 Testing & Validation
+
+- [x] Vitest + Playwright test infrastructure.
+- [x] `src/lib/errors.js` — AppError class + factory functions.
+- [x] `src/lib/validations/` — Zod schemas (products, blog, quotations).
+- [x] 57 unit/integration tests passing across 11 test files.
+- [x] 4 E2E test specs (admin login/logout, customer OTP/LINE).
 
 ---
 
-## Phase 2 -- API Layer
+## Phase 2+3 -- API Layer + Connect UI to Real Data
 
-Goal: create server-side data access for every content section.
+Goal: build Server Actions and wire every admin page to real database data.
+Phase 2 (API) and Phase 3 (UI wiring) are combined — build each section's
+server actions and immediately connect them to the existing pages.
 
-### 2.1 Shared Utilities
+### Implementation Sessions
 
-- [ ] Create `src/lib/db.js` -- database client singleton.
-- [ ] Create `src/lib/validations/` -- Zod schemas for each entity
-      (products, blogs, banners, etc.).
-- [ ] Create `src/lib/errors.js` -- standardized error response helpers.
-
-### 2.2 Server Actions or API Routes per Section
-
-For each section, implement the following (using Next.js Server Actions
-or API route handlers):
-
-- [ ] **Products**: list (with pagination, search, filter), get by ID,
-      create, update, delete, reorder, toggle publish, toggle recommended,
-      manage images (upload, reorder, set primary, delete), manage options
-      (colors, sizes).
-- [ ] **Banners**: list, get by ID, create, update, delete, reorder,
-      toggle status, image upload.
-- [ ] **Blog**: list (with pagination, search, sort), get by ID, create,
-      update, delete, reorder, toggle publish, toggle recommended, cover
-      image upload.
-- [ ] **Video Highlight**: list, get by ID, create, update, delete,
-      reorder, toggle publish.
-- [ ] **Gallery**: list, get by ID, create, update, delete, reorder,
-      toggle publish, image upload.
-- [ ] **Manual**: list, get by ID, create, update, delete, reorder,
-      toggle publish, file upload (PDF).
-- [ ] **About Us**: get content, update content, image upload within
-      content.
-- [ ] **Branch**: list, get by ID, create, update, delete, reorder,
-      toggle publish.
-- [ ] **FAQ**: list, get by ID, create, update, delete, reorder,
-      toggle publish.
-- [ ] **Quotations**: list (with pagination, search, filter by status),
-      get by ID, update status (pending/approved/rejected), delete.
-- [ ] **Users**: list, get by ID, create (invite), update role, delete,
-      deactivate.
-- [ ] **Profile**: get current user profile, update profile fields.
-- [ ] **Account**: get account settings, update password, update email.
+Split into 3 ralph-loop sessions to manage scope:
 
 ---
 
-## Phase 3 -- Connect UI to Real Data
+### Session 1 — Products, Banners, Blog, Dashboard
 
-Goal: replace all mock data with real database queries and wire up forms.
+Branch: `ai/phase2-session1` (from `ai/phase1-tdd`)
 
-### 3.1 List Pages
+#### S1.1 Products (`/admin/products`)
+- [ ] Create `src/lib/actions/products.js` — Server Actions:
+      list (paginated, searchable, filterable by type/category), getById,
+      create, update, delete, togglePublish, toggleRecommended, reorder.
+- [ ] Create `src/lib/validations/products.js` — extend existing Zod schemas
+      if needed (update schema, filter params).
+- [ ] Wire list page: replace `MOCK_PRODUCTS` with real DB fetch, add
+      pagination/search/filter.
+- [ ] Wire create page: form submit → server action, image upload to
+      `products` bucket.
+- [ ] Create edit page: `/admin/products/edit/[id]/page.jsx`.
+- [ ] Wire delete in list page action menu.
+- [ ] Handle `product_images` sub-table (upload, reorder, set primary, delete).
+- [ ] Handle `product_options` sub-table (colors, sizes CRUD).
 
-- [ ] **Products list**: fetch products from DB with server-side
-      pagination, search, and filtering. Replace `MOCK_PRODUCTS`.
-- [ ] **Banner list**: fetch banners from DB. Replace `mockBanners`.
-- [ ] **Blog list**: fetch blog posts from DB with server-side pagination
-      and sorting. Replace `MOCK_BLOGS`.
-- [ ] **Video Highlight list**: fetch from DB.
-- [ ] **Gallery list**: fetch from DB.
-- [ ] **Manual list**: fetch from DB.
-- [ ] **Branch list**: fetch from DB.
-- [ ] **FAQ list**: fetch from DB.
-- [ ] **Quotations list**: fetch from DB with status filtering.
-- [ ] **Users list**: fetch from DB.
+#### S1.2 Banners (`/admin/banner`)
+- [ ] Create `src/lib/actions/banners.js` — Server Actions:
+      list, getById, create, update, delete, toggleStatus, reorder.
+- [ ] Create `src/lib/validations/banners.js` — Zod schemas.
+- [ ] Wire list page: replace mock data.
+- [ ] Wire create page with image upload to `banners` bucket.
+- [ ] Wire edit page (`/admin/banner/edit/[id]`): load and save real data.
+- [ ] Wire delete in list page action menu.
 
-### 3.2 Create / Edit Forms
+#### S1.3 Blog (`/admin/blog`)
+- [ ] Create `src/lib/actions/blog.js` — Server Actions:
+      list (paginated, searchable), getById, create, update, delete,
+      togglePublish, toggleRecommended.
+- [ ] Extend `src/lib/validations/blog.js` if needed.
+- [ ] Wire list page: replace `MOCK_BLOGS` with real pagination/search.
+- [ ] Wire create page with cover image upload to `blog` bucket.
+- [ ] Create edit page: `/admin/blog/edit/[id]/page.jsx`.
+- [ ] Wire delete in list page action menu.
 
-- [ ] **Product create**: wire form submit to server action, handle image
-      uploads, validate required fields, redirect to list on success.
-- [ ] **Product edit** (new page): create `/admin/products/edit/[id]`,
-      pre-populate form from DB, handle update.
-- [ ] **Banner edit**: wire `/admin/banner/edit/[id]` to load and save
-      real data.
-- [ ] **Blog create**: wire form submit, handle cover image upload.
-- [ ] **Blog edit** (new page): create `/admin/blog/edit/[id]`.
-- [ ] **Video Highlight create / edit**: wire forms.
-- [ ] **Gallery create / edit**: wire forms with image upload.
-- [ ] **Manual create / edit**: wire forms with file upload.
-- [ ] **About Us editor**: wire to load and save singleton content.
-- [ ] **Branch create / edit**: wire forms.
-- [ ] **FAQ create / edit**: wire forms.
+#### S1.4 Dashboard (`/admin/dashboard`)
+- [ ] Fetch aggregate stats from DB: total products, total published,
+      pending quotations count, recent blog posts, etc.
+- [ ] Replace placeholder numbers with real counts.
 
-### 3.3 Detail / Action Pages
+#### S1 Completion
+- [ ] `npm run build` passes.
+- [ ] All existing tests still pass.
+- [ ] Committed with small, frequent commits.
 
-- [ ] **Quotation detail**: load real quotation data by ID, wire status
-      change to update DB, wire publish/save buttons.
-- [ ] **Account page**: load current user data, wire password change
-      and email update forms.
-- [ ] **Profile page**: load and save profile data.
+---
 
-### 3.4 Dashboard
+### Session 2 — Video, Gallery, Manual, About Us, Branch, FAQ
 
-- [ ] Design dashboard with meaningful statistics (total products,
-      pending quotations, recent blog posts, etc.).
-- [ ] Fetch aggregate data from DB.
+Branch: `ai/phase2-session2` (from session 1 branch)
 
-### 3.5 Delete Operations
+#### S2.1 Video Highlights (`/admin/video-highlight`)
+- [ ] Create `src/lib/actions/videos.js` — list, getById, create, update,
+      delete, togglePublish, reorder.
+- [ ] Wire list page, create page.
+- [ ] Create edit page: `/admin/video-highlight/edit/[id]/page.jsx`.
 
-- [ ] Wire delete buttons in all list page action menus to call delete
-      server actions with confirmation modal.
-- [ ] Implement soft delete or hard delete per business requirements.
+#### S2.2 Gallery (`/admin/gallery`)
+- [ ] Create `src/lib/actions/gallery.js` — list, getById, create, update,
+      delete, togglePublish, reorder.
+- [ ] Wire list page, create page with image upload to `gallery` bucket.
+- [ ] Create edit page: `/admin/gallery/edit/[id]/page.jsx`.
+
+#### S2.3 Manuals (`/admin/manual`)
+- [ ] Create `src/lib/actions/manuals.js` — list, getById, create, update,
+      delete, togglePublish, reorder.
+- [ ] Wire list page, create page with PDF upload to `manuals` bucket.
+- [ ] Create edit page: `/admin/manual/edit/[id]/page.jsx`.
+
+#### S2.4 About Us (`/admin/about-us`)
+- [ ] Create `src/lib/actions/about.js` — get, update (singleton).
+- [ ] Wire page: load real content, save on submit.
+
+#### S2.5 Branches (`/admin/branch`)
+- [ ] Create `src/lib/actions/branches.js` — list, getById, create, update,
+      delete, togglePublish, reorder.
+- [ ] Wire list page, create page.
+- [ ] Create edit page: `/admin/branch/edit/[id]/page.jsx`.
+
+#### S2.6 FAQs (`/admin/faq`)
+- [ ] Create `src/lib/actions/faqs.js` — list, getById, create, update,
+      delete, togglePublish, reorder.
+- [ ] Wire list page, create page.
+- [ ] Create edit page: `/admin/faq/edit/[id]/page.jsx`.
+
+#### S2 Completion
+- [ ] `npm run build` passes.
+- [ ] All existing tests still pass.
+
+---
+
+### Session 3 — Users, Quotations, Profile, Account
+
+Branch: `ai/phase2-session3` (from session 2 branch)
+
+#### S3.1 Users (`/admin/users`)
+- [ ] Create `src/lib/actions/users.js` — list, getById, invite (create
+      user with email + role), updateRole, delete/deactivate.
+- [ ] Wire list page: fetch from `user_profiles` + auth.users.
+- [ ] Wire invite flow (create user via admin API).
+
+#### S3.2 Quotations (`/admin/quotations`)
+- [ ] Create `src/lib/actions/quotations.js` — list (paginated, filterable
+      by status), getById, updateStatus, delete.
+- [ ] Create `src/lib/validations/quotations.js` — extend if needed.
+- [ ] Wire list page with status filtering.
+- [ ] Wire detail page (`/admin/quotations/[id]`): load real data,
+      wire status change buttons.
+
+#### S3.3 Profile (`/admin/profile`)
+- [ ] Create `src/lib/actions/profile.js` — getProfile, updateProfile.
+- [ ] Wire profile page: load and save current user data.
+
+#### S3.4 Account (`/admin/account`)
+- [ ] Create `src/lib/actions/account.js` — updatePassword, updateEmail.
+- [ ] Wire account page: password change and email update forms.
+
+#### S3 Completion
+- [ ] `npm run build` passes.
+- [ ] All existing tests still pass.
+- [ ] All admin pages use real DB data (no mock arrays remain).
 
 ---
 
@@ -336,7 +323,6 @@ improvements.
 ## Testing Strategy
 
 See `docs/TDD_PLAN.md` for the full test-driven implementation plan.
-Phase 1 follows RED-GREEN-REFACTOR: write failing tests first, then implement.
 
 | Layer | Tool | Scope |
 |-------|------|-------|
@@ -349,22 +335,182 @@ Phase 1 follows RED-GREEN-REFACTOR: write failing tests first, then implement.
 ## Dependency Summary
 
 ```
-Phase 1 (Infrastructure)
+Phase 1 (Infrastructure)     ✅ COMPLETE
   |
   v
-Phase 2 (API Layer)        -- depends on DB and auth from Phase 1
+Phase 2+3 (API + UI Wiring)  ← YOU ARE HERE
+  |  Session 1: Products, Banners, Blog, Dashboard
+  |  Session 2: Video, Gallery, Manual, About Us, Branch, FAQ
+  |  Session 3: Users, Quotations, Profile, Account
   |
-  +--> Phase 3 (Connect Admin UI)   -- depends on API from Phase 2
-  |
-  +--> Phase 3B (Customer Features)  -- depends on auth from Phase 1, can run parallel with Phase 3
+  +--> Phase 3B (Customer Features)  -- can run parallel
   |
   v
-Phase 4 (Polish)           -- can partially overlap with Phase 3/3B
+Phase 4 (Polish)
 ```
 
-- Phase 3 and Phase 3B can run in parallel once Phase 2 is complete.
-- Phase 3B.1 (customer auth UI) can start as soon as Phase 1.2 (auth setup) is done.
-- Phase 4 items like form validation (4.1) and error handling (4.2) should
-  begin as soon as the first forms are connected in Phase 3.
-- File uploads (4.3) and rich text editing (4.4) may be started in
-  parallel with Phase 3 work.
+---
+
+## Ralph-Loop Prompts
+
+Copy-paste these prompts to run each session via `/ralph-loop`.
+
+### Session 1 Prompt
+
+```
+You are implementing Phase 2+3 of the WoodSmith AI admin CMS — building Server Actions and wiring them to the existing admin pages.
+
+## Context
+- Phase 1 is complete: Supabase DB (14 tables), Auth, RLS, Storage, Middleware all working.
+- All admin pages exist with hardcoded mock data arrays. Your job is to replace mocks with real DB queries.
+- Branch: create `ai/phase2-session1` from `ai/phase1-tdd`.
+- Commit after each completed section. Never batch.
+
+## Pattern for Each Section
+
+1. Create `src/lib/actions/<section>.js` with Server Actions using `'use server'`
+2. Use `createClient` from `@/lib/supabase/server` for authenticated queries
+3. Use `createServiceClient` from `@/lib/supabase/admin` only when bypassing RLS is needed
+4. Wire the admin list page: replace mock array with real DB fetch (server component)
+5. Wire the create form: replace console.log/alert with server action call
+6. Create edit page if missing (`/admin/<section>/edit/[id]/page.jsx`)
+7. Wire delete action in list page action menu
+8. Add reorder/toggle-publish where applicable
+
+## Sections to Implement (in order)
+
+### 1. Products (`/admin/products`)
+- Server Actions: list (paginated, searchable, filterable by type/category), getById, create, update, delete, togglePublish, toggleRecommended, reorder
+- Wire list page: replace MOCK_PRODUCTS, add real pagination/search/filter
+- Wire create page: form submit → server action, handle image upload to 'products' bucket
+- Create edit page: `/admin/products/edit/[id]/page.jsx`
+- Handle product_images and product_options sub-tables
+
+### 2. Banners (`/admin/banner`)
+- Server Actions: list, getById, create, update, delete, toggleStatus, reorder
+- Wire list page, create page, edit page
+- Handle image upload to 'banners' bucket
+
+### 3. Blog (`/admin/blog`)
+- Server Actions: list (paginated, searchable), getById, create, update, delete, togglePublish, toggleRecommended
+- Wire list page: replace MOCK_BLOGS with real pagination/search
+- Wire create page with cover image upload to 'blog' bucket
+- Create edit page: `/admin/blog/edit/[id]/page.jsx`
+
+### 4. Dashboard (`/admin/dashboard`)
+- Fetch aggregate stats: total products, total published, pending quotations, recent blog posts, etc.
+- Replace placeholder numbers with real counts
+
+## Rules
+- Use `revalidatePath()` after mutations to refresh the page
+- Return `{ success, data?, error? }` from all server actions
+- Use existing Zod schemas from `src/lib/validations/` for input validation
+- Add new Zod schemas in the same directory as needed
+- Keep Thai language for all UI text
+- Do NOT modify the existing component styles/layout — only replace data sources and wire up form handlers
+- Read each existing page BEFORE modifying it to understand the current mock data structure
+- Ensure `npm run build` passes after each section
+
+## Completion
+When all 4 sections are wired with real data and build passes, output:
+<promise>PHASE 2 SESSION 1 COMPLETE</promise>
+```
+
+### Session 2 Prompt
+
+```
+You are continuing Phase 2+3 of WoodSmith AI — Session 2: remaining content sections.
+
+## Context
+- Phase 1 is complete. Session 1 (Products, Banners, Blog, Dashboard) is complete.
+- Branch: create `ai/phase2-session2` from the session 1 branch.
+- Follow the same pattern as Session 1 (Server Actions in `src/lib/actions/`, wire pages, create edit pages).
+- Commit after each completed section.
+
+## Sections to Implement (in order)
+
+### 1. Video Highlights (`/admin/video-highlight`)
+- Server Actions: list, getById, create, update, delete, togglePublish, reorder
+- Wire list page, create page
+- Create edit page: `/admin/video-highlight/edit/[id]/page.jsx`
+
+### 2. Gallery (`/admin/gallery`)
+- Server Actions: list, getById, create, update, delete, togglePublish, reorder
+- Wire list page, create page with image upload to 'gallery' bucket
+- Create edit page: `/admin/gallery/edit/[id]/page.jsx`
+
+### 3. Manuals (`/admin/manual`)
+- Server Actions: list, getById, create, update, delete, togglePublish, reorder
+- Wire list page, create page with PDF upload to 'manuals' bucket
+- Create edit page: `/admin/manual/edit/[id]/page.jsx`
+
+### 4. About Us (`/admin/about-us`)
+- Server Actions: get, update (singleton record)
+- Wire page: load real content, save on submit
+
+### 5. Branches (`/admin/branch`)
+- Server Actions: list, getById, create, update, delete, togglePublish, reorder
+- Wire list page, create page
+- Create edit page: `/admin/branch/edit/[id]/page.jsx`
+
+### 6. FAQs (`/admin/faq`)
+- Server Actions: list, getById, create, update, delete, togglePublish, reorder
+- Wire list page, create page
+- Create edit page: `/admin/faq/edit/[id]/page.jsx`
+
+## Rules
+- Same pattern as Session 1: `'use server'` actions, `revalidatePath()`, `{ success, data?, error? }` return shape
+- Read each existing page BEFORE modifying it
+- Do NOT change styles/layout — only replace data sources
+- `npm run build` must pass after each section
+
+## Completion
+When all 6 sections are wired and build passes, output:
+<promise>PHASE 2 SESSION 2 COMPLETE</promise>
+```
+
+### Session 3 Prompt
+
+```
+You are continuing Phase 2+3 of WoodSmith AI — Session 3: user management and account.
+
+## Context
+- Phase 1 is complete. Sessions 1+2 (all content sections) are complete.
+- Branch: create `ai/phase2-session3` from the session 2 branch.
+- Commit after each completed section.
+
+## Sections to Implement (in order)
+
+### 1. Users (`/admin/users`)
+- Server Actions in `src/lib/actions/users.js`:
+  list (from user_profiles + auth.users), getById, invite (create user via admin API with email + role), updateRole, delete/deactivate
+- Wire list page: fetch real user data
+- Wire invite flow: create user with `supabase.auth.admin.createUser()` and insert user_profiles row
+
+### 2. Quotations (`/admin/quotations`)
+- Server Actions in `src/lib/actions/quotations.js`:
+  list (paginated, filterable by status), getById, updateStatus (pending/approved/rejected), addAdminNotes, delete
+- Wire list page with status filter tabs
+- Wire detail page (`/admin/quotations/[id]`): load real data, wire status change and notes
+
+### 3. Profile (`/admin/profile`)
+- Server Actions in `src/lib/actions/profile.js`:
+  getProfile, updateProfile (display_name, avatar_url, phone)
+- Wire profile page: load and save current user data
+- Handle avatar upload to 'avatars' bucket
+
+### 4. Account (`/admin/account`)
+- Server Actions in `src/lib/actions/account.js`:
+  updatePassword (via supabase.auth.updateUser), updateEmail
+- Wire account page: password change and email update forms
+
+## Rules
+- Same pattern as Sessions 1+2
+- For user management, use `createServiceClient` (admin API) since it requires admin.auth access
+- Read each existing page BEFORE modifying it
+- `npm run build` must pass after each section
+
+## Completion
+When all 4 sections are wired, build passes, and NO mock data arrays remain in any admin page, output:
+<promise>PHASE 2 SESSION 3 COMPLETE</promise>
+```

@@ -4,6 +4,7 @@ import { useState, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBranch } from '@/lib/actions/branches'
+import { useToast } from '@/lib/toast-context'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -509,6 +510,7 @@ function WorkingHoursField({ workDate, workStartTime, workEndTime, onDateChange,
 /* ------------------------------------------------------------------ */
 
 export default function BranchCreatePage() {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -583,7 +585,7 @@ export default function BranchCreatePage() {
 
       const result = await createBranch(formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.push('/admin/branch')
         router.refresh()

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useTransition } from 'react'
 import { updatePassword, updateEmail } from '@/lib/actions/account'
+import { useToast } from '@/lib/toast-context'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -118,6 +119,7 @@ function CustomSelect({ label, value, onChange, options, helperText, id }) {
 /* ------------------------------------------------------------------ */
 
 export default function AccountPage() {
+  const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
 
   /* Profile fields */
@@ -317,9 +319,9 @@ export default function AccountPage() {
               // userId would come from session — using placeholder for now
               const result = await updatePassword('current-user-id', formData)
               if (result.error) {
-                alert('เกิดข้อผิดพลาด: ' + result.error)
+                toast.error('เกิดข้อผิดพลาด: ' + result.error)
               } else {
-                alert('เปลี่ยนรหัสผ่านสำเร็จ')
+                toast.success('เปลี่ยนรหัสผ่านสำเร็จ')
                 setNewPassword('')
                 setConfirmPassword('')
               }

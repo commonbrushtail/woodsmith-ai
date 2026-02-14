@@ -3,6 +3,7 @@
 import { useState, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useToast } from '@/lib/toast-context'
 import { updateManual } from '@/lib/actions/manuals'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
@@ -59,6 +60,7 @@ function TrashIcon({ size = 14, color = '#ef4444' }) {
 }
 
 export default function ManualEditClient({ manual }) {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const coverInputRef = useRef(null)
@@ -106,7 +108,7 @@ export default function ManualEditClient({ manual }) {
 
       const result = await updateManual(manual.id, formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.push('/admin/manual')
         router.refresh()

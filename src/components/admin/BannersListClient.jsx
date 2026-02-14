@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useToast } from '@/lib/toast-context'
 import { deleteBanner, toggleBannerStatus } from '@/lib/actions/banners'
 
 function formatThaiDate(dateStr) {
@@ -23,6 +24,7 @@ function formatThaiDate(dateStr) {
 
 export default function BannersListClient({ banners }) {
   const router = useRouter()
+  const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [selectedRows, setSelectedRows] = useState([])
   const [sortAsc, setSortAsc] = useState(true)
@@ -52,7 +54,7 @@ export default function BannersListClient({ banners }) {
     if (!confirm('ต้องการลบแบนเนอร์นี้หรือไม่?')) return
     startTransition(async () => {
       const result = await deleteBanner(id)
-      if (result.error) alert('เกิดข้อผิดพลาด: ' + result.error)
+      if (result.error) toast.error('เกิดข้อผิดพลาด: ' + result.error)
       setOpenMenuId(null)
       router.refresh()
     })

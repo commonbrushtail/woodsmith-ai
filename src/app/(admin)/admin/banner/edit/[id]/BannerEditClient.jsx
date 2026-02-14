@@ -3,6 +3,7 @@
 import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useToast } from '@/lib/toast-context'
 import { updateBanner } from '@/lib/actions/banners'
 
 function PlusIcon({ size = 18, color = '#ff7e1b' }) {
@@ -51,6 +52,7 @@ function DotsIcon({ size = 18, color = '#6b7280' }) {
 }
 
 export default function BannerEditClient({ banner }) {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [linkUrl, setLinkUrl] = useState(banner.link_url || '')
@@ -90,7 +92,7 @@ export default function BannerEditClient({ banner }) {
       }
       const result = await updateBanner(banner.id, formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.push('/admin/banner')
         router.refresh()

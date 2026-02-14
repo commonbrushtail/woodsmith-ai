@@ -3,6 +3,7 @@
 import { useState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { getAboutUs, updateAboutUs } from '@/lib/actions/about-us'
+import { useToast } from '@/lib/toast-context'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -184,6 +185,7 @@ function RichTextToolbar() {
 
 export default function AboutUsPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
 
   /* ---- Form state ---- */
@@ -215,10 +217,10 @@ export default function AboutUsPage() {
 
       const result = await updateAboutUs(formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         router.refresh()
-        alert('บันทึกสำเร็จ')
+        toast.success('บันทึกสำเร็จ')
       }
     })
   }

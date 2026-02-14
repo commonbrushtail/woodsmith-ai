@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useToast } from '@/lib/toast-context'
 
 export default function AccountProfilePage() {
+  const { toast } = useToast()
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -46,7 +48,7 @@ export default function AccountProfilePage() {
         phone: form.phone.trim(),
       })
       if (error) {
-        alert('เกิดข้อผิดพลาด: ' + error)
+        toast.error('เกิดข้อผิดพลาด: ' + error)
       } else {
         // Also update auth user metadata
         const { createClient } = await import('@/lib/supabase/client')
@@ -54,7 +56,7 @@ export default function AccountProfilePage() {
         await supabase.auth.updateUser({
           data: { display_name: form.displayName.trim() },
         })
-        alert('บันทึกข้อมูลเรียบร้อยแล้ว')
+        toast.success('บันทึกข้อมูลเรียบร้อยแล้ว')
       }
     } catch (err) {
       console.error('Save error:', err)

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/lib/toast-context'
 import { inviteUser, updateUserRole, deleteUser } from '@/lib/actions/users'
 
 function DotsIcon({ size = 18, color = '#6b7280' }) {
@@ -37,6 +38,7 @@ const ROLE_STYLES = {
 
 export default function UserListClient({ users, totalCount }) {
   const router = useRouter()
+  const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [openMenuId, setOpenMenuId] = useState(null)
   const [search, setSearch] = useState('')
@@ -61,7 +63,7 @@ export default function UserListClient({ users, totalCount }) {
       formData.set('role', inviteRole)
       const result = await inviteUser(formData)
       if (result.error) {
-        alert('เกิดข้อผิดพลาด: ' + result.error)
+        toast.error('เกิดข้อผิดพลาด: ' + result.error)
       } else {
         setShowInvite(false)
         setInviteEmail('')
