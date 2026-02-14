@@ -10,12 +10,16 @@ import imgRectangle38 from '../assets/a95471a3a128e488d696bd58ef944e6616e0e70f.p
 import imgVector2 from '../assets/111a70dead0aec3d9b930f8886d84779617edefa.svg'
 import imgVector3 from '../assets/ca8a43b8ab750b34b816e40ae620fcfb9b449dfd.svg'
 
-export default function HeroSection() {
-  const slides = [
+export default function HeroSection({ banners = [] }) {
+  const fallbackSlides = [
     { src: imgRectangle38 },
     { src: imgRectangle36 },
     { src: imgRectangle37 },
   ]
+
+  const slides = banners.length > 0
+    ? banners.map(b => ({ src: b.image_url, link: b.link_url }))
+    : fallbackSlides
 
   return (
     <div className="relative h-[224px] lg:h-[664px] w-full overflow-hidden">

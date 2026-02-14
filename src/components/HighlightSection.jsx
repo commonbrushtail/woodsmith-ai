@@ -41,7 +41,23 @@ function YoutubeCard({ image, duration, channelName, title }) {
   )
 }
 
-export default function HighlightSection() {
+export default function HighlightSection({ highlights = [] }) {
+  const fallbackCards = [
+    { image: imgImage, duration: '0:42', channelName: 'WoodSmith Learning Center', title: 'WoodSmith Learning Center' },
+    { image: imgImage1, duration: '0:50', channelName: 'WoodSmith Art Collaboration Interview Artist', title: 'WoodSmith Art Collaboration Interview Artist' },
+    { image: imgImage2, duration: '1:29', channelName: 'Woodsmith Art Collaboration', title: 'Woodsmith Art Collaboration' },
+    { image: imgImage3, duration: '0:51', channelName: 'WoodSmith Guest Interview คุณหนุ่ย รติวัฒน์ สุวรรณไตรย์', title: 'WoodSmith Guest Interview คุณหนุ่ย รติวัฒน์ สุวรรณไตรย์' },
+  ]
+
+  const cards = highlights.length > 0
+    ? highlights.map(h => ({
+        image: h.thumbnail_url || imgImage,
+        duration: h.duration || '',
+        channelName: h.channel_name || 'WoodSmith',
+        title: h.title,
+      }))
+    : fallbackCards
+
   return (
     <div className="relative py-[40px] w-full">
       <div className="absolute inset-0 overflow-hidden">
@@ -69,10 +85,9 @@ export default function HighlightSection() {
             </button>
           </div>
           <div className="flex flex-col lg:flex-row lg:flex-wrap gap-[25px] items-start justify-center w-full lg:w-[800px]">
-            <YoutubeCard image={imgImage} duration="0:42" channelName="WoodSmith Learning Center" title="WoodSmith Learning Center" />
-            <YoutubeCard image={imgImage1} duration="0:50" channelName="WoodSmith Art Collaboration Interview Artist" title="WoodSmith Art Collaboration Interview Artist" />
-            <YoutubeCard image={imgImage2} duration="1:29" channelName="Woodsmith Art Collaboration" title="Woodsmith Art Collaboration" />
-            <YoutubeCard image={imgImage3} duration="0:51" channelName="WoodSmith Guest Interview คุณหนุ่ย รติวัฒน์ สุวรรณไตรย์" title="WoodSmith Guest Interview คุณหนุ่ย รติวัฒน์ สุวรรณไตรย์" />
+            {cards.map((card, i) => (
+              <YoutubeCard key={i} {...card} />
+            ))}
           </div>
           {/* Mobile-only button */}
           <button className="lg:hidden border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full">

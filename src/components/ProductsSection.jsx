@@ -34,10 +34,10 @@ function CardProduct({ image, thaiName, engName }) {
   )
 }
 
-export default function ProductsSection() {
+export default function ProductsSection({ products: dbProducts = [] }) {
   const [activeTab, setActiveTab] = useState('construction')
 
-  const constructionProducts = [
+  const fallbackConstruction = [
     { image: imgRectangle15, thaiName: 'ปาร์ติเกิลบอร์ด', engName: 'PB : ParticleBoard' },
     { image: imgRectangle21, thaiName: 'ไม้อัด OSB', engName: 'OSB : Oriented Strand Board' },
     { image: imgRectangle22, thaiName: 'แผ่นใยไม้อัดความหนาแน่นปานกลาง', engName: 'MDF : Medium Density Fiberboard' },
@@ -46,7 +46,7 @@ export default function ProductsSection() {
     { image: imgRectangle25, thaiName: 'แผ่นใยไม้เชิงวิศวกรรม', engName: 'Shuttering Board' },
   ]
 
-  const finishedProducts = [
+  const fallbackFinished = [
     { image: imgRectangle22, thaiName: 'ประตูเมลามีน', engName: 'Melamine Door' },
     { image: imgRectangle23, thaiName: 'วงกบประตู', engName: 'Door Frame' },
     { image: imgRectangle24, thaiName: 'บานประตู PVC', engName: 'PVC Door' },
@@ -54,6 +54,25 @@ export default function ProductsSection() {
     { image: imgRectangle15, thaiName: 'ไม้ฝาเฌอร่า', engName: 'Shera Plank' },
     { image: imgRectangle21, thaiName: 'ไม้พื้นสำเร็จรูป', engName: 'Engineered Wood Flooring' },
   ]
+
+  // Map DB products to card format, split by type
+  const mapProduct = (p) => {
+    const primaryImg = p.product_images?.find(img => img.is_primary)
+    return {
+      id: p.id,
+      image: primaryImg?.url || p.product_images?.[0]?.url || imgRectangle15,
+      thaiName: p.category || '',
+      engName: p.name,
+    }
+  }
+
+  const constructionProducts = dbProducts.length > 0
+    ? dbProducts.filter(p => p.type === 'construction').map(mapProduct)
+    : fallbackConstruction
+
+  const finishedProducts = dbProducts.length > 0
+    ? dbProducts.filter(p => p.type !== 'construction').map(mapProduct)
+    : fallbackFinished
 
   const products = activeTab === 'construction' ? constructionProducts : finishedProducts
 

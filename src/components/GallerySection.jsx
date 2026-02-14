@@ -9,8 +9,8 @@ import imgImg7 from '../assets/a4724391249df304e6ab4631cb27c6e7a1cebd2c.png'
 import imgVector2 from '../assets/111a70dead0aec3d9b930f8886d84779617edefa.svg'
 import imgVector3 from '../assets/ca8a43b8ab750b34b816e40ae620fcfb9b449dfd.svg'
 
-export default function GallerySection() {
-  const galleryImages = [
+export default function GallerySection({ items = [] }) {
+  const fallbackImages = [
     { src: imgImg4, imgClass: 'absolute h-[118.94%] left-[-12.04%] max-w-none top-[-9.87%] w-[191.42%]' },
     { src: imgImg5, imgClass: 'absolute h-[179.78%] left-[-18.45%] max-w-none top-[-6.25%] w-[192.89%]' },
     { src: imgImg6, imgClass: 'absolute max-w-none object-cover size-full' },
@@ -18,6 +18,10 @@ export default function GallerySection() {
     { src: imgImg4, imgClass: 'absolute h-[118.94%] left-[-12.04%] max-w-none top-[-9.87%] w-[191.42%]' },
     { src: imgImg5, imgClass: 'absolute h-[179.78%] left-[-18.45%] max-w-none top-[-6.25%] w-[192.89%]' },
   ]
+
+  const galleryImages = items.length > 0
+    ? items.map(item => ({ src: item.image_url, imgClass: 'absolute max-w-none object-cover size-full' }))
+    : fallbackImages
 
   return (
     <div className="relative w-full overflow-hidden">
