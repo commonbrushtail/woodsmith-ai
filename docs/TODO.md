@@ -88,13 +88,13 @@ All 26 admin pages wired to Supabase with Server Actions.
 
 ---
 
-## Phase 4 — Polish ✅ CORE COMPLETE
+## Phase 4 — Polish ✅ COMPLETE
+
+### Session 0 ✅ — Toast, Validation, Search
 
 **Branch:** `ai/phase4-polish`
 
-### Done
-
-- [x] Toast notification system (`src/components/Toast.jsx` + `src/lib/toast-context.js`)
+- [x] Toast notification system (`src/components/Toast.jsx` + `src/lib/toast-context.jsx`)
 - [x] ToastProvider in admin layout
 - [x] All `alert()` calls replaced with `toast.success()` / `toast.error()` across all admin pages
 - [x] Zod validation wired into server actions (products, blog, quotations, customer)
@@ -103,32 +103,72 @@ All 26 admin pages wired to Supabase with Server Actions.
 - [x] SearchOverlay wired to real Supabase data (search, popular categories, recent searches in localStorage)
 - [x] `npm run build` passes cleanly
 
+### Session 1 ✅ — Inline Validation UX + Error Boundaries
+
+**Branch:** `ai/phase4-s1-validation-ux` (4 commits)
+
+- [x] `src/lib/hooks/use-form-errors.js` — useFormErrors hook with TDD
+- [x] `src/components/admin/AdminInput.jsx` — error prop support with TDD
+- [x] Wired useFormErrors into admin product and blog forms
+- [x] `src/components/ErrorBoundary.jsx` — error boundary component with TDD
+
+### Session 2 ✅ — Loading States + Upload Validation
+
+**Branch:** `ai/phase4-s2-loading-uploads` (5 commits)
+
+- [x] `src/components/admin/AdminSkeleton.jsx` — TableSkeleton, FormSkeleton, CardSkeleton with TDD
+- [x] `loading.jsx` skeletons for 7 admin pages and 2 public pages
+- [x] `src/lib/upload-validation.js` — validateFile, formatFileSize with TDD
+- [x] `src/components/admin/AdminFileInput.jsx` — file input with validation, wired into 8 admin upload pages
+
 ### Remaining (nice-to-have)
 
-- [ ] Display inline field-level validation errors in admin forms
-- [ ] Error boundaries for admin pages
-- [ ] Loading states (skeletons/spinners) for data-fetching pages
 - [ ] Image preview before upload
 - [ ] Upload progress indicators
-- [ ] File type/size validation on upload
-- [x] Drag-and-drop reordering (banners, gallery, FAQ, etc.) — Phase 5 Session 3-4
-- [x] Persist sort order changes to DB — Phase 5 Session 3-4
 
 ---
 
-## Phase 5 — Enhancements
+## Phase 5 — Enhancements ✅ CORE COMPLETE
 
-### Session 3-4 ✅ — Drag-and-Drop Reordering
+### Session 3 ✅ — Rich Text Editing (TipTap)
 
-**Branch:** `ai/phase5-s4-drag-drop`
+**Branch:** `ai/phase5-s3-tiptap` (5 commits)
+
+- [x] `src/components/admin/RichTextEditor.jsx` — TipTap editor component with TDD (6 tests)
+- [x] `src/lib/sanitize-html.js` — HTML sanitizer utility with TDD (15 tests)
+- [x] `src/components/SafeHtmlContent.jsx` — XSS-safe rendering component with TDD
+- [x] Wired RichTextEditor into 5 admin pages (products create/edit, blog create/edit, about-us)
+- [x] SafeHtmlContent used on public blog + product detail pages
+
+### Session 4 ✅ — Drag-and-Drop Reordering
+
+**Branch:** `ai/phase5-s4-drag-drop` (5 commits)
 
 - [x] `src/lib/utils/reorder.js` — reorder utility with TDD (9 tests)
-- [x] `src/components/admin/SortableList.jsx` — dnd-kit sortable component (5 tests)
+- [x] `src/components/admin/SortableList.jsx` — dnd-kit sortable component with TDD (5 tests)
 - [x] Drag-and-drop wired into 5 admin list pages (banners, gallery, videos, manuals, FAQ)
+
+### Session 5 ✅ — Authentication Gaps
+
+**Branch:** `ai/phase5-s5-auth` (4 commits)
+
+- [x] `src/lib/actions/auth.js` — forgotPassword + updatePassword server actions with TDD (8 tests)
+- [x] Forgot-password flow: form page, sent confirmation, reset callback route, set-new-password page
+- [x] `src/lib/auth/line-config.js` — LINE Login OIDC config with TDD (12 tests)
+- [x] LINE Login wired into LoginModal + LINE callback route (`/auth/callback/line`)
+
+### Session 6 ✅ — Security Hardening
+
+**Branch:** `ai/phase5-s6-security` (4 commits)
+
+- [x] `src/lib/rate-limit.js` — rate limiter with TDD (9 tests), wired into admin login
+- [x] `src/lib/sanitize.js` — input sanitization with TDD (12 tests), wired into server actions
+- [x] `src/lib/audit.js` — audit logger with TDD (8 tests), wired into critical actions
+- [x] `supabase/migrations/004_audit_logs.sql` — audit_logs table migration
 
 ### Session 7 ✅ — Test Coverage Expansion
 
-**Branch:** `ai/phase5-s7-tests` (4 commits, 199 tests passing)
+**Branch:** `ai/phase5-s7-tests` (5 commits, 199 tests passing)
 
 - [x] Server action tests — products (20), blog (13), quotations (13), customer (13), account (12), search (10) = **81 tests**
 - [x] Public data layer tests — all 12 public data functions = **26 tests**
@@ -138,17 +178,12 @@ All 26 admin pages wired to Supabase with Server Actions.
 - [x] Renamed `toast-context.js` → `toast-context.jsx` (contains JSX)
 - [x] Total suite: 202 tests (199 pass, 3 pre-existing validation failures)
 
-### Rich Text Editing (TipTap)
+---
 
-- [ ] Install `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-image`, `@tiptap/extension-link`
-- [ ] Create reusable `RichTextEditor` component
-- [ ] Replace placeholder editor in product/blog create/edit pages
-- [ ] Image embedding via Supabase Storage
+## Future Enhancements
 
-### Authentication Gaps
+### Authentication
 
-- [ ] LINE Login OIDC integration (needs LINE credentials)
-- [ ] Forgot-password flow wiring
 - [ ] Admin user invite email flow
 
 ### Search & Filtering
@@ -162,20 +197,13 @@ All 26 admin pages wired to Supabase with Server Actions.
 - [ ] Extract hardcoded Thai strings into translation file
 - [ ] Wire language selector in AdminHeader
 
-### Security Hardening
+### Security
 
 - [ ] CSRF protection on mutation endpoints
-- [ ] Rate-limit login attempts
-- [ ] Sanitize rich text content (XSS)
-- [ ] Audit logging for admin actions
 - [ ] CORS review
 
 ### Testing
 
-- [x] Unit tests for validation schemas and utilities (Session 7)
-- [x] Unit tests for CRUD server actions (Session 7)
-- [x] Component tests for Toast, SearchOverlay (Session 7)
-- [x] Middleware route protection tests expanded (Session 7)
 - [ ] Integration tests with real Supabase (Vitest + env)
 - [ ] E2E tests for key user flows (Playwright)
 
@@ -185,15 +213,20 @@ All 26 admin pages wired to Supabase with Server Actions.
 
 | Branch | Commits | Status |
 |--------|---------|--------|
-| `ai/phase1-tdd` | 11 | Merged into session branches |
-| `ai/phase2-session1` | 4 | Products, Banners, Blog, Dashboard |
-| `ai/phase2-session2` | 6 | Video, Gallery, Manual, About, Branch, FAQ |
-| `ai/phase2-session3` | 4 | Users, Quotations, Profile, Account |
-| `ai/phase3b-session1` | 3 | Public pages wired |
-| `ai/phase3b-session2` | 2 | Auth + customer features |
+| `ai/phase1-tdd` | 11 | Merged — infrastructure, auth, middleware |
+| `ai/phase2-session1` | 4 | Merged — Products, Banners, Blog, Dashboard |
+| `ai/phase2-session2` | 6 | Merged — Video, Gallery, Manual, About, Branch, FAQ |
+| `ai/phase2-session3` | 4 | Merged — Users, Quotations, Profile, Account |
+| `ai/phase3b-session1` | 3 | Merged — Public pages wired |
+| `ai/phase3b-session2` | 2 | Merged — Auth + customer features |
 | `ai/phase4-polish` | 2 | Toast, Zod, account fix, search |
-| `ai/phase5-s4-drag-drop` | 3 | Drag-and-drop reordering |
-| `ai/phase5-s7-tests` | 4 | Test coverage expansion (159 new tests) |
+| `ai/phase4-s1-validation-ux` | 4 | Inline validation, useFormErrors, ErrorBoundary |
+| `ai/phase4-s2-loading-uploads` | 5 | Loading skeletons, file upload validation |
+| `ai/phase5-s3-tiptap` | 5 | TipTap RichTextEditor, SafeHtmlContent |
+| `ai/phase5-s4-drag-drop` | 5 | Drag-and-drop reordering (dnd-kit) |
+| `ai/phase5-s5-auth` | 4 | LINE Login, forgot-password flow |
+| `ai/phase5-s6-security` | 4 | Rate limiter, sanitization, audit logger |
+| `ai/phase5-s7-tests` | 5 | Test coverage expansion (159 new tests) |
 
 ---
 
@@ -206,8 +239,22 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `src/lib/supabase/client.js` | Browser client (auth) |
 | `src/lib/storage.js` | Upload/delete/getPublicUrl |
 | `src/lib/data/public.js` | Public data-fetching (13 functions) |
-| `src/lib/actions/*.js` | Server Actions (12 action files) |
+| `src/lib/actions/*.js` | Server Actions (16 action files) |
 | `src/lib/validations/*.js` | Zod schemas |
 | `src/lib/auth/route-rules.js` | Route protection logic |
+| `src/lib/auth/line-config.js` | LINE Login OIDC config |
 | `src/lib/toast-context.jsx` | Toast notification context |
+| `src/lib/hooks/use-form-errors.js` | Form error handling hook |
+| `src/lib/upload-validation.js` | File type/size validation |
+| `src/lib/sanitize-html.js` | HTML sanitizer (TipTap output) |
+| `src/lib/sanitize.js` | Input sanitization (XSS) |
+| `src/lib/rate-limit.js` | Rate limiter (login attempts) |
+| `src/lib/audit.js` | Audit logger (admin actions) |
+| `src/lib/utils/reorder.js` | Drag-and-drop reorder utility |
+| `src/components/admin/RichTextEditor.jsx` | TipTap rich text editor |
+| `src/components/admin/SortableList.jsx` | dnd-kit sortable list |
+| `src/components/admin/AdminSkeleton.jsx` | Loading skeleton components |
+| `src/components/admin/AdminFileInput.jsx` | File input with validation |
+| `src/components/SafeHtmlContent.jsx` | XSS-safe HTML rendering |
+| `src/components/ErrorBoundary.jsx` | React error boundary |
 | `middleware.js` | Supabase session refresh + route guard |
