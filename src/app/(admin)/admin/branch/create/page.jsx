@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createBranch } from '@/lib/actions/branches'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -507,6 +509,9 @@ function WorkingHoursField({ workDate, workStartTime, workEndTime, onDateChange,
 /* ------------------------------------------------------------------ */
 
 export default function BranchCreatePage() {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+
   /* ---- Form state ---- */
   const [activeTab, setActiveTab] = useState('draft')
   const [image, setImage] = useState(null)
@@ -562,8 +567,32 @@ export default function BranchCreatePage() {
 
   const removeImage = () => setImage(null)
 
+  /* ---- Submit handler ---- */
+  const handleSubmit = (publish) => {
+    startTransition(async () => {
+      const fullAddress = [address, subDistrict, district, province, postalCode]
+        .filter(Boolean)
+        .join(', ')
+
+      const formData = new FormData()
+      formData.set('name', branchName)
+      formData.set('address', fullAddress)
+      formData.set('phone', phone)
+      formData.set('map_url', googleMapUrl)
+      formData.set('published', publish ? 'true' : 'false')
+
+      const result = await createBranch(formData)
+      if (result.error) {
+        alert('เกิดข้อผิดพลาด: ' + result.error)
+      } else {
+        router.push('/admin/branch')
+        router.refresh()
+      }
+    })
+  }
+
   return (
-    <div className="flex flex-col gap-0 h-full min-h-0">
+    <div className={`flex flex-col gap-0 h-full min-h-0 ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
       {/* ================================================================ */}
       {/*  Header                                                          */}
       {/* ================================================================ */}
@@ -971,9 +1000,11 @@ export default function BranchCreatePage() {
             <div className="flex items-center gap-[8px]">
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors"
+                onClick={() => handleSubmit(true)}
+                disabled={isPending}
+                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
               >
-                {'\u0e40\u0e1c\u0e22\u0e41\u0e1e\u0e23\u0e48'}
+                {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
               </button>
               <button
                 type="button"
@@ -987,7 +1018,9 @@ export default function BranchCreatePage() {
             {/* Save button */}
             <button
               type="button"
-              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors"
+              onClick={() => handleSubmit(false)}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors disabled:opacity-50"
             >
               {'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01'}
             </button>
