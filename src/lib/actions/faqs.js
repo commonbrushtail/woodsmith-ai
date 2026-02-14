@@ -135,6 +135,28 @@ export async function deleteFaq(id) {
 /**
  * Toggle FAQ published status.
  */
+/**
+ * Batch update sort_order for FAQs.
+ * @param {Array<{id: string, sort_order: number}>} updates
+ */
+export async function reorderFaqs(updates) {
+  const supabase = createServiceClient()
+
+  for (const { id, sort_order } of updates) {
+    const { error } = await supabase
+      .from('faqs')
+      .update({ sort_order })
+      .eq('id', id)
+
+    if (error) {
+      return { error: error.message }
+    }
+  }
+
+  revalidatePath('/admin/faq')
+  return { error: null }
+}
+
 export async function toggleFaqPublished(id, published) {
   const supabase = createServiceClient()
 

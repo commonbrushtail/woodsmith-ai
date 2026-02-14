@@ -142,6 +142,28 @@ export async function deleteVideoHighlight(id) {
 /**
  * Toggle video highlight published status.
  */
+/**
+ * Batch update sort_order for video highlights.
+ * @param {Array<{id: string, sort_order: number}>} updates
+ */
+export async function reorderVideoHighlights(updates) {
+  const supabase = createServiceClient()
+
+  for (const { id, sort_order } of updates) {
+    const { error } = await supabase
+      .from('video_highlights')
+      .update({ sort_order })
+      .eq('id', id)
+
+    if (error) {
+      return { error: error.message }
+    }
+  }
+
+  revalidatePath('/admin/video-highlight')
+  return { error: null }
+}
+
 export async function toggleVideoHighlightPublished(id, published) {
   const supabase = createServiceClient()
 

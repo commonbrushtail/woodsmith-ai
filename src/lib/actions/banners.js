@@ -158,6 +158,28 @@ export async function deleteBanner(id) {
 /**
  * Toggle banner status (active/inactive).
  */
+/**
+ * Batch update sort_order for banners.
+ * @param {Array<{id: string, sort_order: number}>} updates
+ */
+export async function reorderBanners(updates) {
+  const supabase = createServiceClient()
+
+  for (const { id, sort_order } of updates) {
+    const { error } = await supabase
+      .from('banners')
+      .update({ sort_order })
+      .eq('id', id)
+
+    if (error) {
+      return { error: error.message }
+    }
+  }
+
+  revalidatePath('/admin/banner')
+  return { error: null }
+}
+
 export async function toggleBannerStatus(id, status) {
   const supabase = createServiceClient()
 

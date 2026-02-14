@@ -198,6 +198,28 @@ export async function deleteManual(id) {
 /**
  * Toggle manual published status.
  */
+/**
+ * Batch update sort_order for manuals.
+ * @param {Array<{id: string, sort_order: number}>} updates
+ */
+export async function reorderManuals(updates) {
+  const supabase = createServiceClient()
+
+  for (const { id, sort_order } of updates) {
+    const { error } = await supabase
+      .from('manuals')
+      .update({ sort_order })
+      .eq('id', id)
+
+    if (error) {
+      return { error: error.message }
+    }
+  }
+
+  revalidatePath('/admin/manual')
+  return { error: null }
+}
+
 export async function toggleManualPublished(id, published) {
   const supabase = createServiceClient()
 
