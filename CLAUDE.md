@@ -1,14 +1,18 @@
 # WoodSmith AI
 
-Thai woodworking and construction materials company website with an admin CMS.
+Thai woodworking and construction materials website with admin CMS, customer auth, and public storefront. All pages wired to Supabase.
 
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router) with `--webpack` flag
 - **UI**: React 19, JavaScript (JSX, no TypeScript)
 - **Styling**: Tailwind CSS v4 — tokens in `@theme` block in `src/app/globals.css`, no `tailwind.config.js`
+- **Backend**: Supabase (PostgreSQL 14 tables + Auth + Storage 6 buckets)
+- **Rich Text**: TipTap 3 (`@tiptap/react`, `@tiptap/starter-kit`, image + link extensions)
+- **Drag & Drop**: dnd-kit (`@dnd-kit/core`, `@dnd-kit/sortable`)
 - **Carousel**: Swiper 12
-- **Backend (planned)**: Supabase (PostgreSQL + Auth + Storage)
+- **Validation**: Zod 4
+- **Testing**: Vitest 4 + Testing Library + jsdom (202 tests), Playwright (E2E)
 - **Fonts**: IBM Plex Sans Thai (primary), Circular Std (display) — loaded via `<link>` in root layout
 
 ## Project Structure
@@ -16,25 +20,51 @@ Thai woodworking and construction materials company website with an admin CMS.
 ```
 src/
   app/
-    layout.jsx              # Root layout: <html>, <head>, <body>, fonts only
-    globals.css             # Tailwind + @theme design tokens
-    (public)/               # Public site route group
-      layout.jsx            # TopBar + Navbar + Footer + LineFAB wrapper
-      page.jsx              # Homepage
-      about/, blog/, branches/, faq/, highlight/, manual/
-      products/, product/   # Product listing and detail pages
-    (admin)/                # Admin CMS route group
-      layout.jsx            # Metadata only, passes through children
-      login/                # Login + forgot-password pages
+    layout.jsx                # Root layout: <html>, <head>, <body>, fonts only
+    globals.css               # Tailwind + @theme design tokens
+    (public)/                 # Public site route group (12 pages)
+      layout.jsx              # TopBar + Navbar + Footer + LineFAB
+      page.jsx                # Homepage
+      about/, blog/, blog/[id]/, branches/, faq/, highlight/, manual/
+      products/, product/[id]/
+      account/, account/quotations/
+    (admin)/                  # Admin CMS route group (34 pages)
+      layout.jsx              # Metadata only
+      login/                  # Login, forgot-password, set-new-password
       admin/
-        layout.jsx          # Sidebar + main content wrapper
+        layout.jsx            # Sidebar + main content wrapper
         dashboard/, products/, banner/, blog/, video-highlight/
         gallery/, manual/, about-us/, branch/, faq/
         quotations/, users/, profile/, account/
+        # Each section has list + create + edit/[id] pages
+    auth/
+      callback/route.js       # OAuth callback
+      callback/line/route.js  # LINE Login callback
+      reset-password/route.js # Password reset callback
   components/
-    admin/                  # AdminSidebar, AdminTable, AdminButton, AdminInput, AdminModal, AdminEmptyState, AdminHeader
-    *.jsx                   # Public components (TopBar, Navbar, Footer, HeroSection, etc.)
-  assets/                   # Images and SVGs (imported as hashed URLs via webpack)
+    admin/                    # Admin shared + ListClient components (21 files)
+    *.jsx                     # Public components (19 files)
+  assets/                     # Images and SVGs (webpack asset/resource)
+  lib/
+    supabase/                 # client.js, server.js, admin.js
+    actions/                  # 18 Server Action files (CRUD for all entities)
+    data/public.js            # 13 public data-fetching functions (RLS-filtered)
+    validations/              # Zod schemas (products, blog, quotations)
+    auth/                     # route-rules.js, line-config.js
+    hooks/                    # use-form-errors.js
+    storage.js                # Upload/delete/getPublicUrl (6 buckets)
+    toast-context.jsx         # Toast notification context
+    upload-validation.js      # File type/size validation
+    sanitize-html.js          # HTML sanitizer (TipTap output)
+    sanitize.js               # Input sanitization (XSS prevention)
+    rate-limit.js             # Rate limiter (login attempts)
+    audit.js                  # Audit logger (admin actions)
+    reorder.js                # Drag-and-drop reorder utility
+    errors.js                 # AppError class
+middleware.js                 # Supabase session refresh + route guard
+supabase/migrations/          # 4 SQL migrations (schema, RLS, columns, audit)
+tests/                        # 34 test files, 202 tests
+docs/                         # TODO.md, ADMIN_PROGRESS.md
 ```
 
 ## Key Architecture Rules
@@ -42,6 +72,9 @@ src/
 - **Route groups**: `(public)` has TopBar/Navbar/Footer; `(admin)` does not. Root layout is minimal (html/head/body only). Never add `<html>`, `<head>`, or `<body>` to route group layouts — this causes hydration errors.
 - **Images**: `next/image` is disabled. Images use webpack `asset/resource` rule. Import images directly: `import img from '../assets/file.png'` and use `<img src={img} />`.
 - **No `tailwind.config.js`**: Tailwind v4 uses `@theme` block in `globals.css`. Design tokens are defined there.
+- **Server Actions**: All mutations use `'use server'` actions in `src/lib/actions/`. No API routes for data mutation.
+- **Data fetching**: Public pages use `src/lib/data/public.js` (server-side, RLS-filtered). Admin pages fetch directly via Supabase server client.
+- **Auth flow**: Admin uses email/password. Customers use SMS OTP + LINE Login. Middleware protects `/admin/*` and `/account/*` routes.
 
 ## Design System
 
@@ -61,9 +94,11 @@ Layout: `max-w-[1212px]` containers, mobile-first with `lg:` breakpoint.
 
 ## Current State
 
-- **Frontend**: Complete. 38 pages (12 public + 26 admin) with full UI.
-- **Backend**: None. All data is hardcoded mock arrays. No database, no API routes, no auth, no middleware, no `.env` files.
-- **Next milestone**: Phase 1 Infrastructure — Supabase setup (DB + Auth + Storage). See `docs/TODO.md`.
+- **Frontend + Backend**: 46 pages (12 public + 34 admin), all wired to Supabase
+- **Auth**: Admin email/password login, customer SMS OTP + LINE Login, forgot-password flow
+- **Testing**: 202 tests (199 pass, 3 pre-existing validation failures)
+- **Known bugs**: 5 runtime bugs tracked in `.planning/PROJECT.md` (TipTap SSR crash, dnd-kit hydration, missing banner create page, profile HTML display, gallery order off-by-one)
+- **Next milestone**: Bug Fixes. See `.planning/ROADMAP.md`.
 
 ## User Model
 
@@ -78,6 +113,9 @@ npm run dev          # Start dev server (uses --webpack flag)
 npm run build        # Production build
 npm run start        # Start production server
 npm run lint         # ESLint
+npm test             # Vitest (run once)
+npm run test:watch   # Vitest (watch mode)
+npm run test:e2e     # Playwright E2E tests
 ```
 
 ## MCP Servers
@@ -105,7 +143,7 @@ When running in an autonomous loop (e.g. ralph-loop), follow this workflow:
 
 1. **Always create a feature branch before starting work:**
    ```bash
-   git checkout -b ai/<task-name>    # e.g. ai/phase1-supabase-auth
+   git checkout -b ai/<task-name>    # e.g. ai/phase6-bugfixes
    ```
 
 2. **Commit after each completed sub-task** — small, frequent commits. Never batch everything into one commit at the end.
@@ -134,7 +172,6 @@ When running in an autonomous loop (e.g. ralph-loop), follow this workflow:
 
 ## Documentation
 
-- `docs/ARCHITECTURE.md` — full system overview, route map, component inventory
-- `docs/ADMIN_PROGRESS.md` — page-by-page CMS status checklist
-- `docs/TODO.md` — phased implementation roadmap
-- `docs/TDD_PLAN.md` — test-driven implementation plan (Phase 1, step-by-step with test code)
+- `.planning/PROJECT.md` — project context and requirements
+- `.planning/ROADMAP.md` — phased implementation roadmap
+- `.planning/codebase/` — 7 codebase analysis documents
