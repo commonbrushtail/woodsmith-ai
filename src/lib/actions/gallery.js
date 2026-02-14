@@ -169,6 +169,28 @@ export async function deleteGalleryItem(id) {
 /**
  * Toggle gallery item published status.
  */
+/**
+ * Batch update sort_order for gallery items.
+ * @param {Array<{id: string, sort_order: number}>} updates
+ */
+export async function reorderGalleryItems(updates) {
+  const supabase = createServiceClient()
+
+  for (const { id, sort_order } of updates) {
+    const { error } = await supabase
+      .from('gallery_items')
+      .update({ sort_order })
+      .eq('id', id)
+
+    if (error) {
+      return { error: error.message }
+    }
+  }
+
+  revalidatePath('/admin/gallery')
+  return { error: null }
+}
+
 export async function toggleGalleryPublished(id, published) {
   const supabase = createServiceClient()
 

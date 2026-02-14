@@ -4,7 +4,73 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
-import { deleteBanner, toggleBannerStatus } from '@/lib/actions/banners'
+import { deleteBanner, toggleBannerStatus, reorderBanners } from '@/lib/actions/banners'
+import { buildSortOrderUpdates } from '@/lib/reorder'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+function GripIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="#9ca3af">
+      <circle cx="6" cy="4" r="1.5" />
+      <circle cx="10" cy="4" r="1.5" />
+      <circle cx="6" cy="8" r="1.5" />
+      <circle cx="10" cy="8" r="1.5" />
+      <circle cx="6" cy="12" r="1.5" />
+      <circle cx="10" cy="12" r="1.5" />
+    </svg>
+  )
+}
+
+function SortableRow({ id, children }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id })
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    position: 'relative',
+    zIndex: isDragging ? 10 : 'auto',
+  }
+
+  return (
+    <tr ref={setNodeRef} style={style} className="border-b border-[#f3f4f6] hover:bg-[#f9fafb] transition-colors">
+      <td className="px-[8px] py-[16px] w-[40px]">
+        <button
+          type="button"
+          className="flex items-center justify-center size-[28px] cursor-grab active:cursor-grabbing rounded-[4px] hover:bg-[#f3f4f6] border-0 bg-transparent touch-none"
+          aria-label="ลากเพื่อจัดเรียง"
+          {...attributes}
+          {...listeners}
+        >
+          <GripIcon />
+        </button>
+      </td>
+      {children}
+    </tr>
+  )
+}
 
 function formatThaiDate(dateStr) {
   if (!dateStr) return '-'
@@ -29,6 +95,12 @@ export default function BannersListClient({ banners }) {
   const [selectedRows, setSelectedRows] = useState([])
   const [sortAsc, setSortAsc] = useState(true)
   const [openMenuId, setOpenMenuId] = useState(null)
+  const [orderedBanners, setOrderedBanners] = useState(banners)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
 
   const handleSelectAll = () => {
     if (selectedRows.length === banners.length) {
@@ -46,9 +118,29 @@ export default function BannersListClient({ banners }) {
 
   const toggleSort = () => setSortAsc((prev) => !prev)
 
-  const sortedBanners = [...banners].sort((a, b) =>
+  const sortedBanners = [...orderedBanners].sort((a, b) =>
     sortAsc ? a.sort_order - b.sort_order : b.sort_order - a.sort_order
   )
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = sortedBanners.findIndex((b) => b.id === active.id)
+    const newIndex = sortedBanners.findIndex((b) => b.id === over.id)
+    const reordered = arrayMove(sortedBanners, oldIndex, newIndex)
+    const withUpdatedOrder = reordered.map((item, i) => ({ ...item, sort_order: i }))
+    setOrderedBanners(withUpdatedOrder)
+
+    startTransition(async () => {
+      const result = await reorderBanners(buildSortOrderUpdates(withUpdatedOrder))
+      if (result.error) {
+        toast.error('เกิดข้อผิดพลาดในการจัดเรียง: ' + result.error)
+        setOrderedBanners(banners)
+      }
+      router.refresh()
+    })
+  }
 
   const handleDelete = (id) => {
     if (!confirm('ต้องการลบแบนเนอร์นี้หรือไม่?')) return
@@ -135,6 +227,7 @@ export default function BannersListClient({ banners }) {
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-[#e5e7eb] bg-[#f9fafb]">
+                <th className="w-[40px] px-[8px] py-[12px]" />
                 <th className="w-[56px] px-[20px] py-[12px] text-left">
                   <input
                     type="checkbox"
@@ -168,100 +261,104 @@ export default function BannersListClient({ banners }) {
                 </th>
               </tr>
             </thead>
-            <tbody>
-              {sortedBanners.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-[20px] py-[40px] text-center text-[14px] text-[#9ca3af] font-['IBM_Plex_Sans_Thai']">
-                    ไม่พบข้อมูลแบนเนอร์
-                  </td>
-                </tr>
-              ) : (
-                sortedBanners.map((banner) => (
-                  <tr key={banner.id} className="border-b border-[#f3f4f6] hover:bg-[#f9fafb] transition-colors">
-                    <td className="px-[20px] py-[16px]">
-                      <input
-                        type="checkbox"
-                        className="size-[16px] accent-orange cursor-pointer"
-                        checked={selectedRows.includes(banner.id)}
-                        onChange={() => handleSelectRow(banner.id)}
-                      />
-                    </td>
-                    <td className="px-[12px] py-[16px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#374151]">
-                      {banner.sort_order}
-                    </td>
-                    <td className="px-[12px] py-[16px]">
-                      {banner.image_url ? (
-                        <img src={banner.image_url} alt={`Banner ${banner.sort_order}`} className="w-[80px] h-[48px] rounded-[6px] object-cover" />
-                      ) : (
-                        <div className="w-[80px] h-[48px] bg-[#d4a574] rounded-[6px]" />
-                      )}
-                    </td>
-                    <td className="px-[12px] py-[16px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#374151]">
-                      {formatThaiDate(banner.created_at)}
-                    </td>
-                    <td className="px-[12px] py-[16px]">
-                      <button
-                        onClick={() => handleToggleStatus(banner.id, banner.status)}
-                        className="cursor-pointer"
-                      >
-                        {banner.status === 'active' ? (
-                          <span className="inline-flex items-center px-[10px] py-[3px] rounded-full border border-orange text-orange font-['IBM_Plex_Sans_Thai'] text-[12px] font-medium">
-                            Showing
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-[10px] py-[3px] rounded-full border border-[#d1d5db] text-[#6b7280] font-['IBM_Plex_Sans_Thai'] text-[12px] font-medium">
-                            No Show
-                          </span>
-                        )}
-                      </button>
-                    </td>
-                    <td className="px-[12px] py-[16px] text-center">
-                      <div className="relative inline-block">
-                        <button
-                          onClick={() => setOpenMenuId(openMenuId === banner.id ? null : banner.id)}
-                          className="size-[32px] flex items-center justify-center rounded-[6px] hover:bg-[#f3f4f6] transition-colors cursor-pointer bg-transparent border-none"
-                          aria-label={`Actions for banner ${banner.sort_order}`}
-                        >
-                          <svg width="16" height="16" viewBox="0 0 16 16" fill="#6b7280">
-                            <circle cx="8" cy="3" r="1.5" />
-                            <circle cx="8" cy="8" r="1.5" />
-                            <circle cx="8" cy="13" r="1.5" />
-                          </svg>
-                        </button>
-                        {openMenuId === banner.id && (
-                          <>
-                            <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
-                            <div className="absolute right-0 top-[36px] z-20 bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[140px]">
-                              <Link
-                                href={`/admin/banner/edit/${banner.id}`}
-                                className="flex items-center gap-[8px] px-[12px] py-[8px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
-                                onClick={() => setOpenMenuId(null)}
-                              >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                </svg>
-                                {'แก้ไข'}
-                              </Link>
-                              <button
-                                className="flex items-center gap-[8px] w-full px-[12px] py-[8px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#ef4444] hover:bg-[#fef2f2] border-none bg-transparent cursor-pointer transition-colors"
-                                onClick={() => handleDelete(banner.id)}
-                              >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <polyline points="3 6 5 6 21 6" />
-                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                </svg>
-                                {'ลบ'}
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={sortedBanners.map((b) => b.id)} strategy={verticalListSortingStrategy}>
+                <tbody>
+                  {sortedBanners.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-[20px] py-[40px] text-center text-[14px] text-[#9ca3af] font-['IBM_Plex_Sans_Thai']">
+                        ไม่พบข้อมูลแบนเนอร์
+                      </td>
+                    </tr>
+                  ) : (
+                    sortedBanners.map((banner) => (
+                      <SortableRow key={banner.id} id={banner.id}>
+                        <td className="px-[20px] py-[16px]">
+                          <input
+                            type="checkbox"
+                            className="size-[16px] accent-orange cursor-pointer"
+                            checked={selectedRows.includes(banner.id)}
+                            onChange={() => handleSelectRow(banner.id)}
+                          />
+                        </td>
+                        <td className="px-[12px] py-[16px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#374151]">
+                          {banner.sort_order}
+                        </td>
+                        <td className="px-[12px] py-[16px]">
+                          {banner.image_url ? (
+                            <img src={banner.image_url} alt={`Banner ${banner.sort_order}`} className="w-[80px] h-[48px] rounded-[6px] object-cover" />
+                          ) : (
+                            <div className="w-[80px] h-[48px] bg-[#d4a574] rounded-[6px]" />
+                          )}
+                        </td>
+                        <td className="px-[12px] py-[16px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#374151]">
+                          {formatThaiDate(banner.created_at)}
+                        </td>
+                        <td className="px-[12px] py-[16px]">
+                          <button
+                            onClick={() => handleToggleStatus(banner.id, banner.status)}
+                            className="cursor-pointer"
+                          >
+                            {banner.status === 'active' ? (
+                              <span className="inline-flex items-center px-[10px] py-[3px] rounded-full border border-orange text-orange font-['IBM_Plex_Sans_Thai'] text-[12px] font-medium">
+                                Showing
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-[10px] py-[3px] rounded-full border border-[#d1d5db] text-[#6b7280] font-['IBM_Plex_Sans_Thai'] text-[12px] font-medium">
+                                No Show
+                              </span>
+                            )}
+                          </button>
+                        </td>
+                        <td className="px-[12px] py-[16px] text-center">
+                          <div className="relative inline-block">
+                            <button
+                              onClick={() => setOpenMenuId(openMenuId === banner.id ? null : banner.id)}
+                              className="size-[32px] flex items-center justify-center rounded-[6px] hover:bg-[#f3f4f6] transition-colors cursor-pointer bg-transparent border-none"
+                              aria-label={`Actions for banner ${banner.sort_order}`}
+                            >
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="#6b7280">
+                                <circle cx="8" cy="3" r="1.5" />
+                                <circle cx="8" cy="8" r="1.5" />
+                                <circle cx="8" cy="13" r="1.5" />
+                              </svg>
+                            </button>
+                            {openMenuId === banner.id && (
+                              <>
+                                <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
+                                <div className="absolute right-0 top-[36px] z-20 bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[140px]">
+                                  <Link
+                                    href={`/admin/banner/edit/${banner.id}`}
+                                    className="flex items-center gap-[8px] px-[12px] py-[8px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
+                                    onClick={() => setOpenMenuId(null)}
+                                  >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
+                                    {'แก้ไข'}
+                                  </Link>
+                                  <button
+                                    className="flex items-center gap-[8px] w-full px-[12px] py-[8px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#ef4444] hover:bg-[#fef2f2] border-none bg-transparent cursor-pointer transition-colors"
+                                    onClick={() => handleDelete(banner.id)}
+                                  >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <polyline points="3 6 5 6 21 6" />
+                                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
+                                    {'ลบ'}
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </SortableRow>
+                    ))
+                  )}
+                </tbody>
+              </SortableContext>
+            </DndContext>
           </table>
         </div>
       </div>

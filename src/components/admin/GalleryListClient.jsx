@@ -4,7 +4,24 @@ import { useState, useRef, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
-import { deleteGalleryItem, toggleGalleryPublished } from '@/lib/actions/gallery'
+import { deleteGalleryItem, toggleGalleryPublished, reorderGalleryItems } from '@/lib/actions/gallery'
+import { buildSortOrderUpdates } from '@/lib/reorder'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 function formatThaiDate(dateStr) {
   if (!dateStr) return '-'
@@ -111,6 +128,40 @@ function SortArrowIcon({ ascending }) {
   )
 }
 
+function GripIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="#9ca3af">
+      <circle cx="6" cy="4" r="1.5" />
+      <circle cx="10" cy="4" r="1.5" />
+      <circle cx="6" cy="8" r="1.5" />
+      <circle cx="10" cy="8" r="1.5" />
+      <circle cx="6" cy="12" r="1.5" />
+      <circle cx="10" cy="12" r="1.5" />
+    </svg>
+  )
+}
+
+function SortableRow({ id, children }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    position: 'relative',
+    zIndex: isDragging ? 10 : 'auto',
+  }
+  return (
+    <tr ref={setNodeRef} style={style} className="border-t border-[#f3f4f6] hover:bg-[#fafafa] transition-colors">
+      <td className="px-[8px] py-[10px] w-[40px]">
+        <button type="button" className="flex items-center justify-center size-[28px] cursor-grab active:cursor-grabbing rounded-[4px] hover:bg-[#f3f4f6] border-0 bg-transparent touch-none" aria-label="ลากเพื่อจัดเรียง" {...attributes} {...listeners}>
+          <GripIcon />
+        </button>
+      </td>
+      {children}
+    </tr>
+  )
+}
+
 export default function GalleryListClient({ galleries, totalCount }) {
   const router = useRouter()
   const { toast } = useToast()
@@ -119,7 +170,13 @@ export default function GalleryListClient({ galleries, totalCount }) {
   const [selectedRows, setSelectedRows] = useState([])
   const [sortAsc, setSortAsc] = useState(true)
   const [openMenuId, setOpenMenuId] = useState(null)
+  const [orderedGalleries, setOrderedGalleries] = useState(galleries)
   const menuRef = useRef(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -146,11 +203,29 @@ export default function GalleryListClient({ galleries, totalCount }) {
     )
   }
 
-  const sortedGalleries = [...galleries].sort((a, b) =>
+  const sortedGalleries = [...orderedGalleries].sort((a, b) =>
     sortAsc
       ? (a.sort_order ?? 0) - (b.sort_order ?? 0)
       : (b.sort_order ?? 0) - (a.sort_order ?? 0)
   )
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = sortedGalleries.findIndex((g) => g.id === active.id)
+    const newIndex = sortedGalleries.findIndex((g) => g.id === over.id)
+    const reordered = arrayMove(sortedGalleries, oldIndex, newIndex)
+    const withUpdatedOrder = reordered.map((item, i) => ({ ...item, sort_order: i }))
+    setOrderedGalleries(withUpdatedOrder)
+    startTransition(async () => {
+      const result = await reorderGalleryItems(buildSortOrderUpdates(withUpdatedOrder))
+      if (result.error) {
+        toast.error('เกิดข้อผิดพลาดในการจัดเรียง: ' + result.error)
+        setOrderedGalleries(galleries)
+      }
+      router.refresh()
+    })
+  }
 
   const handleDelete = (id) => {
     if (!confirm('ต้องการลบรายการนี้หรือไม่?')) return
@@ -242,6 +317,7 @@ export default function GalleryListClient({ galleries, totalCount }) {
           <table className="w-full border-collapse min-w-[1100px]">
             <thead>
               <tr className="bg-[#f9fafb]">
+                <th className="w-[40px] px-[8px] py-[10px]" />
                 <th className="w-[44px] px-[12px] py-[10px] text-left">
                   <input
                     type="checkbox"
@@ -284,82 +360,86 @@ export default function GalleryListClient({ galleries, totalCount }) {
                 </th>
               </tr>
             </thead>
-            <tbody>
-              {sortedGalleries.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-[20px] py-[40px] text-center text-[14px] text-[#9ca3af] font-['IBM_Plex_Sans_Thai']">
-                    ไม่พบข้อมูลแกลลอรี่
-                  </td>
-                </tr>
-              ) : (
-                sortedGalleries.map((gallery) => (
-                  <tr key={gallery.id} className="border-t border-[#f3f4f6] hover:bg-[#fafafa] transition-colors">
-                    <td className="px-[12px] py-[10px]">
-                      <input
-                        type="checkbox"
-                        checked={selectedRows.includes(gallery.id)}
-                        onChange={() => toggleSelectRow(gallery.id)}
-                        className="size-[16px] accent-[#ff7e1b] cursor-pointer rounded"
-                        aria-label={`Select gallery ${gallery.sort_order}`}
-                      />
-                    </td>
-                    <td className="px-[10px] py-[10px] text-[13px] text-[#374151]">
-                      {gallery.sort_order ?? '-'}
-                    </td>
-                    <td className="px-[10px] py-[10px]">
-                      {gallery.image_url ? (
-                        <img src={gallery.image_url} alt={gallery.caption || 'Gallery'} className="w-[64px] h-[64px] rounded-[6px] object-cover" />
-                      ) : (
-                        <div className="w-[64px] h-[64px] rounded-[6px] bg-[#c4956b]" role="img" aria-label="Gallery placeholder" />
-                      )}
-                    </td>
-                    <td className="px-[10px] py-[10px] text-[13px] text-[#374151]">
-                      {gallery.caption || '-'}
-                    </td>
-                    <td className="px-[10px] py-[10px] text-[12px] text-[#6b7280] min-w-[220px]">
-                      <div className="leading-[1.5]">{formatThaiDate(gallery.created_at)}</div>
-                    </td>
-                    <td className="px-[10px] py-[10px]">
-                      {renderPublishBadge(gallery)}
-                    </td>
-                    <td className="px-[10px] py-[10px] text-center">
-                      <div className="relative inline-block" ref={openMenuId === gallery.id ? menuRef : null}>
-                        <button
-                          onClick={() => setOpenMenuId(openMenuId === gallery.id ? null : gallery.id)}
-                          className="size-[32px] inline-flex items-center justify-center rounded-[6px] hover:bg-[#f3f4f6] transition-colors cursor-pointer bg-transparent border-none"
-                          aria-label={`Actions for gallery ${gallery.sort_order}`}
-                          aria-haspopup="true"
-                          aria-expanded={openMenuId === gallery.id}
-                        >
-                          <DotsIcon />
-                        </button>
-                        {openMenuId === gallery.id && (
-                          <div className="absolute right-0 top-[36px] z-20 bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[140px]" role="menu">
-                            <Link
-                              href={`/admin/gallery/edit/${gallery.id}`}
-                              className="flex items-center gap-[8px] px-[12px] py-[8px] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
-                              onClick={() => setOpenMenuId(null)}
-                              role="menuitem"
-                            >
-                              <EditIcon />
-                              {'แก้ไข'}
-                            </Link>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={sortedGalleries.map((g) => g.id)} strategy={verticalListSortingStrategy}>
+                <tbody>
+                  {sortedGalleries.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="px-[20px] py-[40px] text-center text-[14px] text-[#9ca3af] font-['IBM_Plex_Sans_Thai']">
+                        ไม่พบข้อมูลแกลลอรี่
+                      </td>
+                    </tr>
+                  ) : (
+                    sortedGalleries.map((gallery) => (
+                      <SortableRow key={gallery.id} id={gallery.id}>
+                        <td className="px-[12px] py-[10px]">
+                          <input
+                            type="checkbox"
+                            checked={selectedRows.includes(gallery.id)}
+                            onChange={() => toggleSelectRow(gallery.id)}
+                            className="size-[16px] accent-[#ff7e1b] cursor-pointer rounded"
+                            aria-label={`Select gallery ${gallery.sort_order}`}
+                          />
+                        </td>
+                        <td className="px-[10px] py-[10px] text-[13px] text-[#374151]">
+                          {gallery.sort_order ?? '-'}
+                        </td>
+                        <td className="px-[10px] py-[10px]">
+                          {gallery.image_url ? (
+                            <img src={gallery.image_url} alt={gallery.caption || 'Gallery'} className="w-[64px] h-[64px] rounded-[6px] object-cover" />
+                          ) : (
+                            <div className="w-[64px] h-[64px] rounded-[6px] bg-[#c4956b]" role="img" aria-label="Gallery placeholder" />
+                          )}
+                        </td>
+                        <td className="px-[10px] py-[10px] text-[13px] text-[#374151]">
+                          {gallery.caption || '-'}
+                        </td>
+                        <td className="px-[10px] py-[10px] text-[12px] text-[#6b7280] min-w-[220px]">
+                          <div className="leading-[1.5]">{formatThaiDate(gallery.created_at)}</div>
+                        </td>
+                        <td className="px-[10px] py-[10px]">
+                          {renderPublishBadge(gallery)}
+                        </td>
+                        <td className="px-[10px] py-[10px] text-center">
+                          <div className="relative inline-block" ref={openMenuId === gallery.id ? menuRef : null}>
                             <button
-                              className="flex items-center gap-[8px] w-full px-[12px] py-[8px] text-[13px] text-[#ef4444] hover:bg-[#fef2f2] border-none bg-transparent cursor-pointer transition-colors"
-                              onClick={() => handleDelete(gallery.id)}
-                              role="menuitem"
+                              onClick={() => setOpenMenuId(openMenuId === gallery.id ? null : gallery.id)}
+                              className="size-[32px] inline-flex items-center justify-center rounded-[6px] hover:bg-[#f3f4f6] transition-colors cursor-pointer bg-transparent border-none"
+                              aria-label={`Actions for gallery ${gallery.sort_order}`}
+                              aria-haspopup="true"
+                              aria-expanded={openMenuId === gallery.id}
                             >
-                              <TrashIcon />
-                              {'ลบ'}
+                              <DotsIcon />
                             </button>
+                            {openMenuId === gallery.id && (
+                              <div className="absolute right-0 top-[36px] z-20 bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[140px]" role="menu">
+                                <Link
+                                  href={`/admin/gallery/edit/${gallery.id}`}
+                                  className="flex items-center gap-[8px] px-[12px] py-[8px] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
+                                  onClick={() => setOpenMenuId(null)}
+                                  role="menuitem"
+                                >
+                                  <EditIcon />
+                                  {'แก้ไข'}
+                                </Link>
+                                <button
+                                  className="flex items-center gap-[8px] w-full px-[12px] py-[8px] text-[13px] text-[#ef4444] hover:bg-[#fef2f2] border-none bg-transparent cursor-pointer transition-colors"
+                                  onClick={() => handleDelete(gallery.id)}
+                                  role="menuitem"
+                                >
+                                  <TrashIcon />
+                                  {'ลบ'}
+                                </button>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
+                        </td>
+                      </SortableRow>
+                    ))
+                  )}
+                </tbody>
+              </SortableContext>
+            </DndContext>
           </table>
         </div>
       </div>
