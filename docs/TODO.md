@@ -111,12 +111,32 @@ All 26 admin pages wired to Supabase with Server Actions.
 - [ ] Image preview before upload
 - [ ] Upload progress indicators
 - [ ] File type/size validation on upload
-- [ ] Drag-and-drop reordering (banners, gallery, FAQ, etc.)
-- [ ] Persist sort order changes to DB
+- [x] Drag-and-drop reordering (banners, gallery, FAQ, etc.) — Phase 5 Session 3-4
+- [x] Persist sort order changes to DB — Phase 5 Session 3-4
 
 ---
 
-## Phase 5 — Future Enhancements
+## Phase 5 — Enhancements
+
+### Session 3-4 ✅ — Drag-and-Drop Reordering
+
+**Branch:** `ai/phase5-s4-drag-drop`
+
+- [x] `src/lib/utils/reorder.js` — reorder utility with TDD (9 tests)
+- [x] `src/components/admin/SortableList.jsx` — dnd-kit sortable component (5 tests)
+- [x] Drag-and-drop wired into 5 admin list pages (banners, gallery, videos, manuals, FAQ)
+
+### Session 7 ✅ — Test Coverage Expansion
+
+**Branch:** `ai/phase5-s7-tests` (4 commits, 199 tests passing)
+
+- [x] Server action tests — products (20), blog (13), quotations (13), customer (13), account (12), search (10) = **81 tests**
+- [x] Public data layer tests — all 12 public data functions = **26 tests**
+- [x] Component tests — Toast (7), SearchOverlay (10) = **17 tests**
+- [x] Expanded middleware route protection tests — 14 → **35 tests**
+- [x] Vitest config updated: `@vitejs/plugin-react` for JSX component testing
+- [x] Renamed `toast-context.js` → `toast-context.jsx` (contains JSX)
+- [x] Total suite: 202 tests (199 pass, 3 pre-existing validation failures)
 
 ### Rich Text Editing (TipTap)
 
@@ -152,9 +172,12 @@ All 26 admin pages wired to Supabase with Server Actions.
 
 ### Testing
 
-- [ ] Unit tests for validation schemas and utilities
-- [ ] Integration tests for CRUD server actions
-- [ ] E2E tests for key user flows (login, product CRUD, quotation)
+- [x] Unit tests for validation schemas and utilities (Session 7)
+- [x] Unit tests for CRUD server actions (Session 7)
+- [x] Component tests for Toast, SearchOverlay (Session 7)
+- [x] Middleware route protection tests expanded (Session 7)
+- [ ] Integration tests with real Supabase (Vitest + env)
+- [ ] E2E tests for key user flows (Playwright)
 
 ---
 
@@ -169,6 +192,8 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `ai/phase3b-session1` | 3 | Public pages wired |
 | `ai/phase3b-session2` | 2 | Auth + customer features |
 | `ai/phase4-polish` | 2 | Toast, Zod, account fix, search |
+| `ai/phase5-s4-drag-drop` | 3 | Drag-and-drop reordering |
+| `ai/phase5-s7-tests` | 4 | Test coverage expansion (159 new tests) |
 
 ---
 
@@ -184,5 +209,5 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `src/lib/actions/*.js` | Server Actions (12 action files) |
 | `src/lib/validations/*.js` | Zod schemas |
 | `src/lib/auth/route-rules.js` | Route protection logic |
-| `src/lib/toast-context.js` | Toast notification context |
+| `src/lib/toast-context.jsx` | Toast notification context |
 | `middleware.js` | Supabase session refresh + route guard |
