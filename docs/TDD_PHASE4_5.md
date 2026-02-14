@@ -1094,6 +1094,7 @@ You are implementing Phase 4 Session 1 for WoodSmith AI — Admin Form Validatio
 - `npm run build` must pass after each section
 - Commit after each completed task
 - Branch: `ai/phase4-s1-validation-ux`
+- When done, update `docs/TODO.md`: check off completed items under Phase 4 Remaining
 
 ## Completion
 When all 4 tasks done, tests pass, build passes:
@@ -1141,6 +1142,7 @@ Write test → confirm fail → implement → confirm pass → commit.
 ## Rules
 - TDD, `npm run build` must pass, commit after each task
 - Branch: `ai/phase4-s2-loading-uploads`
+- When done, update `docs/TODO.md`: check off completed items under Phase 4 Remaining
 
 ## Completion
 <promise>PHASE4 S2 LOADING UPLOADS COMPLETE</promise>
@@ -1208,6 +1210,7 @@ Write test → confirm fail → implement → confirm pass → commit.
 ## Rules
 - TDD, `npm run build` must pass, commit after each task
 - Branch: `ai/phase5-s3-tiptap`
+- When done, update `docs/TODO.md`: check off TipTap items under Phase 5
 
 ## Completion
 <promise>PHASE5 S3 TIPTAP COMPLETE</promise>
@@ -1246,6 +1249,7 @@ Write test → confirm fail → implement → confirm pass → commit.
 ## Rules
 - TDD, `npm run build` must pass, commit after each task
 - Branch: `ai/phase5-s4-drag-drop`
+- When done, update `docs/TODO.md`: check off drag-and-drop items under Phase 4 Remaining
 
 ## Completion
 <promise>PHASE5 S4 DRAG DROP COMPLETE</promise>
@@ -1289,6 +1293,7 @@ Write test → confirm fail → implement → confirm pass → commit.
 ## Rules
 - TDD, `npm run build` must pass, commit after each task
 - Branch: `ai/phase5-s5-auth`
+- When done, update `docs/TODO.md`: check off auth items under Phase 5
 
 ## Completion
 <promise>PHASE5 S5 AUTH COMPLETE</promise>
@@ -1331,6 +1336,7 @@ Write test → confirm fail → implement → confirm pass → commit.
 ## Rules
 - TDD, `npm run build` must pass, commit after each task
 - Branch: `ai/phase5-s6-security`
+- When done, update `docs/TODO.md`: check off security items under Phase 5
 
 ## Completion
 <promise>PHASE5 S6 SECURITY COMPLETE</promise>
@@ -1383,6 +1389,7 @@ Add comprehensive test coverage. Target: all server action validation paths, pub
 - Run `npm run test:e2e` for Playwright tests
 - Commit after each test file passes
 - Branch: `ai/phase5-s7-tests`
+- When done, update `docs/TODO.md`: check off testing items under Phase 5
 
 ## Completion
 <promise>PHASE5 S7 TESTS COMPLETE</promise>
