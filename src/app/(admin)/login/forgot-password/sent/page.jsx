@@ -1,6 +1,13 @@
-import Link from 'next/link'
+'use client'
 
-export default function ForgotPasswordSentPage() {
+import { Suspense } from 'react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+
+function SentContent() {
+  const searchParams = useSearchParams()
+  const email = searchParams.get('email')
+
   return (
     <div className="min-h-screen bg-[#f6f6f9] flex flex-col items-center justify-center px-[16px]">
       <div className="flex flex-col items-center gap-[17px] w-full max-w-[540px]">
@@ -21,6 +28,9 @@ export default function ForgotPasswordSentPage() {
 
             {/* Message */}
             <div className="text-center font-['IBM_Plex_Sans_Thai'] text-[16px] text-black leading-[28px]">
+              {email && (
+                <p className="m-0">เราได้ส่งลิงค์กู้คืนรหัสผ่านไปยัง <strong>{email}</strong></p>
+              )}
               <p className="m-0">อาจใช้เวลาสักครู่ในการรับลิงค์การกู้คืนรหัสผ่าน</p>
               <p className="m-0">หากคุณไม่ได้รับลิงค์นี้ โปรดติดต่อผู้ดูแลระบบของคุณ</p>
             </div>
@@ -36,5 +46,13 @@ export default function ForgotPasswordSentPage() {
         </Link>
       </div>
     </div>
+  )
+}
+
+export default function ForgotPasswordSentPage() {
+  return (
+    <Suspense>
+      <SentContent />
+    </Suspense>
   )
 }

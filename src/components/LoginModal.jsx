@@ -323,14 +323,12 @@ export default function LoginModal({ isOpen, onClose }) {
   }
 
   const handleLineLogin = async () => {
-    const { createClient } = await import('@/lib/supabase/client')
-    const supabase = createClient()
-    await supabase.auth.signInWithOAuth({
-      provider: 'kakao', // LINE uses custom OIDC — placeholder until configured
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
+    const { getLineLoginUrl } = await import('@/lib/auth/line-config')
+    // Generate a random state for CSRF protection
+    const state = crypto.randomUUID()
+    sessionStorage.setItem('line_oauth_state', state)
+    const url = getLineLoginUrl(state)
+    window.location.href = url
   }
 
   const handleRegister = async (formData) => {
