@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createProduct } from '@/lib/actions/products'
 
 const tabs = [
   { id: 'general', label: '\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e17\u0e31\u0e48\u0e27\u0e44\u0e1b' },
@@ -172,6 +174,8 @@ function RichTextEditor({ content, minHeight = '200px' }) {
 }
 
 export default function ProductCreatePage() {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
   const [activeTab, setActiveTab] = useState('general')
   const [productName, setProductName] = useState('')
   const [productCode, setProductCode] = useState('')
@@ -180,6 +184,9 @@ export default function ProductCreatePage() {
   const [productCategory, setProductCategory] = useState('')
   const [colorChips, setColorChips] = useState(initialColorChips)
   const [sizeChips, setSizeChips] = useState(initialSizeChips)
+  const [description, setDescription] = useState('')
+  const [characteristics, setCharacteristics] = useState('')
+  const [specifications, setSpecifications] = useState('')
 
   const placeholderImages = [
     { id: 1, main: true },
@@ -194,6 +201,41 @@ export default function ProductCreatePage() {
 
   const removeSizeChip = (id) => {
     setSizeChips((prev) => prev.filter((c) => c.id !== id))
+  }
+
+  const handleSubmit = (publish) => {
+    if (!productName || !productCode || !sku || !productType || !productCategory) {
+      alert('กรุณากรอกข้อมูลที่จำเป็นให้ครบ')
+      return
+    }
+
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set('name', productName)
+      formData.set('code', productCode)
+      formData.set('sku', sku)
+      formData.set('type', productType)
+      formData.set('category', productCategory)
+      formData.set('description', description)
+      formData.set('characteristics', characteristics)
+      formData.set('specifications', specifications)
+      formData.set('published', String(publish))
+      formData.set('recommended', 'false')
+
+      // Collect options
+      const options = [
+        ...colorChips.map((c) => ({ type: 'color', label: c.label })),
+        ...sizeChips.map((s) => ({ type: 'size', label: s.label })),
+      ]
+      formData.set('options', JSON.stringify(options))
+
+      const result = await createProduct(formData)
+      if (result.error) {
+        alert('เกิดข้อผิดพลาด: ' + result.error)
+        return
+      }
+      router.push('/admin/products')
+    })
   }
 
   return (
@@ -221,8 +263,12 @@ export default function ProductCreatePage() {
           >
             {'\u0e22\u0e01\u0e40\u0e25\u0e34\u0e01'}
           </Link>
-          <button className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-white bg-[#ff7e1b] border-0 rounded-[8px] px-[20px] py-[8px] cursor-pointer hover:bg-[#e56f15] transition-colors">
-            {'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e41\u0e25\u0e30\u0e40\u0e1c\u0e22\u0e41\u0e1e\u0e23\u0e48'}
+          <button
+            onClick={() => handleSubmit(true)}
+            disabled={isPending}
+            className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-white bg-[#ff7e1b] border-0 rounded-[8px] px-[20px] py-[8px] cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
+          >
+            {isPending ? 'กำลังบันทึก...' : 'บันทึกและเผยแพร่'}
           </button>
         </div>
       </div>
