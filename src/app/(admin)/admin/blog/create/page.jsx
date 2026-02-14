@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createBlogPost } from '@/lib/actions/blog'
 import { useToast } from '@/lib/toast-context'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
+import { validateFile, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -544,7 +545,13 @@ export default function BlogCreatePage() {
 
   const handleImageUpload = (files) => {
     if (images.length + files.length > 5) return
-    const newImages = files.map((f) => ({
+    const validFiles = files.filter((f) => {
+      const check = validateFile(f, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
+      if (!check.valid) { toast.error(`${f.name}: ${check.error}`); return false }
+      return true
+    })
+    if (validFiles.length === 0) return
+    const newImages = validFiles.map((f) => ({
       id: Date.now() + Math.random(),
       name: f.name,
       url: URL.createObjectURL(f),

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBranch } from '@/lib/actions/branches'
 import { useToast } from '@/lib/toast-context'
+import { validateFile, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -559,6 +560,8 @@ export default function BranchCreatePage() {
   const handleImageUpload = (files) => {
     if (files.length > 0) {
       const f = files[0]
+      const check = validateFile(f, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
+      if (!check.valid) { toast.error(check.error); return }
       setImage({
         id: Date.now() + Math.random(),
         name: f.name,

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateBlogPost } from '@/lib/actions/blog'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
+import { validateFile, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
   return (
@@ -68,6 +69,8 @@ export default function BlogEditClient({ post }) {
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+    const check = validateFile(file, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
+    if (!check.valid) { toast.error(check.error); e.target.value = ''; return }
     setCoverFile(file)
     setCoverPreview(URL.createObjectURL(file))
   }

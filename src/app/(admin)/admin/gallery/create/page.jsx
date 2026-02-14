@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createGalleryItem } from '@/lib/actions/gallery'
 import { useToast } from '@/lib/toast-context'
+import { validateFile, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -334,14 +335,20 @@ export default function GalleryCreatePage() {
 
   /* ---- Handlers ---- */
   const handleImageUpload = (files) => {
-    const newImages = files.map((f) => ({
+    const validFiles = files.filter((f) => {
+      const check = validateFile(f, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
+      if (!check.valid) { toast.error(`${f.name}: ${check.error}`); return false }
+      return true
+    })
+    if (validFiles.length === 0) return
+    const newImages = validFiles.map((f) => ({
       id: Date.now() + Math.random(),
       name: f.name,
       url: URL.createObjectURL(f),
       file: f,
     }))
     setImages((prev) => [...prev, ...newImages])
-    setImageFiles((prev) => [...prev, ...files])
+    setImageFiles((prev) => [...prev, ...validFiles])
   }
 
   const removeImage = (id) => {

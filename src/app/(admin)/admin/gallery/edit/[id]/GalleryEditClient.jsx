@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateGalleryItem } from '@/lib/actions/gallery'
+import { validateFile, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
   return (
@@ -60,6 +61,8 @@ export default function GalleryEditClient({ item }) {
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+    const check = validateFile(file, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
+    if (!check.valid) { toast.error(check.error); e.target.value = ''; return }
     setImageFile(file)
     setImagePreview(URL.createObjectURL(file))
   }
