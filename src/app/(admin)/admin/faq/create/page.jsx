@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { createFaq } from '@/lib/actions/faqs'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -228,6 +230,9 @@ function CategorySection({ category, entries, expandedEntries, onToggleEntry, on
 /* ------------------------------------------------------------------ */
 
 export default function FaqCreatePage() {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+
   const [activeTab, setActiveTab] = useState('draft')
   const [showLocalePicker, setShowLocalePicker] = useState(false)
 
@@ -292,8 +297,34 @@ export default function FaqCreatePage() {
     }))
   }
 
+  /* ---- Submit handler: create each FAQ entry as a separate record ---- */
+  const handleSubmit = (publish) => {
+    startTransition(async () => {
+      const allEntries = Object.values(faqData).flat().filter((e) => e.question.trim())
+      if (allEntries.length === 0) {
+        alert('กรุณากรอกคำถามอย่างน้อย 1 รายการ')
+        return
+      }
+
+      for (const entry of allEntries) {
+        const formData = new FormData()
+        formData.set('question', entry.question)
+        formData.set('answer', entry.answer)
+        formData.set('published', publish ? 'true' : 'false')
+        const result = await createFaq(formData)
+        if (result.error) {
+          alert('เกิดข้อผิดพลาด: ' + result.error)
+          return
+        }
+      }
+
+      router.push('/admin/faq')
+      router.refresh()
+    })
+  }
+
   return (
-    <div className="flex flex-col gap-0 h-full min-h-0">
+    <div className={`flex flex-col gap-0 h-full min-h-0 ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
       {/* ================================================================ */}
       {/*  Header                                                          */}
       {/* ================================================================ */}
@@ -412,9 +443,11 @@ export default function FaqCreatePage() {
             <div className="flex items-center gap-[8px]">
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors"
+                onClick={() => handleSubmit(true)}
+                disabled={isPending}
+                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
               >
-                {'\u0e40\u0e1c\u0e22\u0e41\u0e1e\u0e23\u0e48'}
+                {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
               </button>
               <button
                 type="button"
@@ -428,7 +461,9 @@ export default function FaqCreatePage() {
             {/* Save button */}
             <button
               type="button"
-              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#ff7e1b] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#ff7e1b] cursor-pointer hover:bg-[#fff8f3] transition-colors"
+              onClick={() => handleSubmit(false)}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#ff7e1b] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#ff7e1b] cursor-pointer hover:bg-[#fff8f3] transition-colors disabled:opacity-50"
             >
               {'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01'}
             </button>
