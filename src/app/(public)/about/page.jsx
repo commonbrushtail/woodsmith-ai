@@ -1,7 +1,9 @@
+import { getPublishedGalleryItems } from '../../../lib/data/public'
 import GallerySection from '../../../components/GallerySection'
 import imgBannerAbout from '../../../assets/image_banner_about.png'
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const galleryRes = await getPublishedGalleryItems()
   return (
     <>
       {/* Banner */}
@@ -53,7 +55,7 @@ export default function AboutPage() {
       </div>
 
       {/* Gallery - reuse homepage gallery */}
-      <GallerySection />
+      <GallerySection items={galleryRes.data} />
     </>
   )
 }
