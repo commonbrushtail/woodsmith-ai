@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createBlogPost } from '@/lib/actions/blog'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -503,6 +505,9 @@ function RecommendationSelect({ value, onChange }) {
 /* ------------------------------------------------------------------ */
 
 export default function BlogCreatePage() {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+
   /* ---- Form state ---- */
   const [activeTab, setActiveTab] = useState('draft')
   const [title, setTitle] = useState('')
@@ -514,6 +519,7 @@ export default function BlogCreatePage() {
   const [endDate, setEndDate] = useState('')
   const [endTime, setEndTime] = useState('')
   const [images, setImages] = useState([])
+  const [coverFile, setCoverFile] = useState(null)
 
   /* ---- Picker visibility ---- */
   const [showStartCal, setShowStartCal] = useState(false)
@@ -538,12 +544,48 @@ export default function BlogCreatePage() {
       id: Date.now() + Math.random(),
       name: f.name,
       url: URL.createObjectURL(f),
+      file: f,
     }))
     setImages((prev) => [...prev, ...newImages])
+    if (!coverFile && files.length > 0) setCoverFile(files[0])
   }
 
   const removeImage = (id) => {
-    setImages((prev) => prev.filter((img) => img.id !== id))
+    setImages((prev) => {
+      const remaining = prev.filter((img) => img.id !== id)
+      if (remaining.length === 0) setCoverFile(null)
+      return remaining
+    })
+  }
+
+  const handleSubmit = (publish) => {
+    if (!title.trim()) { alert('กรุณากรอกชื่อบทความ'); return }
+    if (!content.trim()) { alert('กรุณากรอกเนื้อหาบทความ'); return }
+
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set('title', title)
+      formData.set('content', content)
+      formData.set('recommended', recommendation === 'yes' ? 'true' : 'false')
+      formData.set('published', publish ? 'true' : 'false')
+
+      if (startDate) {
+        const publishDate = startTime ? `${startDate}T${startTime}:00` : `${startDate}T00:00:00`
+        formData.set('publish_date', publishDate)
+      }
+
+      if (coverFile) {
+        formData.set('cover_image', coverFile)
+      }
+
+      const result = await createBlogPost(formData)
+      if (result.error) {
+        alert('เกิดข้อผิดพลาด: ' + result.error)
+      } else {
+        router.push('/admin/blog')
+        router.refresh()
+      }
+    })
   }
 
   const formatDateDisplay = (dateStr) => {
@@ -930,27 +972,24 @@ export default function BlogCreatePage() {
               Entry
             </h3>
 
-            {/* Publish button + dots menu */}
+            {/* Publish button */}
             <div className="flex items-center gap-[8px]">
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors"
+                onClick={() => handleSubmit(true)}
+                disabled={isPending}
+                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
               >
-                เผยแพร่
-              </button>
-              <button
-                type="button"
-                className="size-[36px] flex items-center justify-center rounded-[8px] border border-[#e8eaef] bg-white cursor-pointer hover:bg-[#f9fafb]"
-                aria-label="Publish options"
-              >
-                <DotsIcon size={16} color="#6b7280" />
+                {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
               </button>
             </div>
 
-            {/* Save button */}
+            {/* Save as draft button */}
             <button
               type="button"
-              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors"
+              onClick={() => handleSubmit(false)}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors disabled:opacity-50"
             >
               บันทึก
             </button>
