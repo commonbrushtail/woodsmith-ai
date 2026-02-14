@@ -1,7 +1,9 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/admin'
+import { logAudit } from '@/lib/audit'
 
 /**
  * List users from user_profiles joined with auth.users email.
@@ -107,6 +109,11 @@ export async function inviteUser(formData) {
   if (error) {
     return { data: null, error: error.message }
   }
+
+  // Audit log for user invite
+  const authClient = await createClient()
+  const { data: { user: currentUser } } = await authClient.auth.getUser()
+  logAudit({ userId: currentUser?.id, action: 'user.invite', targetId: authData.user.id, details: { email, role } })
 
   revalidatePath('/admin/users')
   return { data, error: null }

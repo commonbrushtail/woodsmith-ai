@@ -6,6 +6,7 @@ import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
 import { productCreateSchema, productUpdateSchema } from '@/lib/validations/products'
 import { sanitizeObject } from '@/lib/sanitize'
+import { logAudit } from '@/lib/audit'
 
 /**
  * Fetch paginated products with optional search/filter.
@@ -225,6 +226,11 @@ export async function deleteProduct(id) {
   if (error) {
     return { error: error.message }
   }
+
+  // Get current user for audit
+  const authClient = await createClient()
+  const { data: { user } } = await authClient.auth.getUser()
+  logAudit({ userId: user?.id, action: 'product.delete', targetId: id })
 
   revalidatePath('/admin/products')
   return { error: null }

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { loginLimiter } from '@/lib/rate-limit'
+import { logAudit } from '@/lib/audit'
 import { headers } from 'next/headers'
 
 /**
@@ -26,11 +27,13 @@ export async function adminLogin(email, password) {
   }
 
   const supabase = await createClient()
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
+    logAudit({ userId: 'anonymous', action: 'login.failed', ip, details: { email } })
     return { error: error.message }
   }
 
+  logAudit({ userId: data.user?.id, action: 'login.success', ip, details: { email } })
   return { error: null }
 }
