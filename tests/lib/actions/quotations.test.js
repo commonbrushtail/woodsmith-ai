@@ -19,6 +19,18 @@ vi.mock('@/lib/supabase/admin', () => ({
   createServiceClient: vi.fn(() => mockAdmin),
 }))
 
+// Mock server client (used by audit logging in updateQuotationStatus)
+const mockServerClient = {
+  auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'admin-1' } } }) },
+}
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn(async () => mockServerClient),
+}))
+
+vi.mock('@/lib/audit', () => ({
+  logAudit: vi.fn(),
+}))
+
 beforeEach(() => {
   vi.clearAllMocks()
   mockAdmin = createChain()

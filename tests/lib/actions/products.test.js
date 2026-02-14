@@ -21,6 +21,18 @@ vi.mock('@/lib/supabase/admin', () => ({
   createServiceClient: vi.fn(() => mockAdmin),
 }))
 
+// Mock server client (used by audit logging in deleteProduct)
+const mockServerClient = {
+  auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'admin-1' } } }) },
+}
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn(async () => mockServerClient),
+}))
+
+vi.mock('@/lib/audit', () => ({
+  logAudit: vi.fn(),
+}))
+
 const mockUploadFile = vi.fn()
 const mockDeleteFile = vi.fn()
 const mockGetPublicUrl = vi.fn()
