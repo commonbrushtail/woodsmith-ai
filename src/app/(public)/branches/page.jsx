@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import imgHqPhoto from '../../assets/branch_hq_photo.png'
-import imgWsmLogo from '../../assets/logo_wsm_express.svg'
-import imgSearch from '../../assets/icon_search.svg'
-import imgLineLogo from '../../assets/line_logo_green.svg'
+import imgHqPhoto from '../../../assets/branch_hq_photo.png'
+import imgWsmLogo from '../../../assets/logo_wsm_express.svg'
+import imgSearch from '../../../assets/icon_search.svg'
+import imgLineLogo from '../../../assets/line_logo_green.svg'
 
 const regionTabs = [
   { key: 'all', label: 'ทุกภูมิภาค' },

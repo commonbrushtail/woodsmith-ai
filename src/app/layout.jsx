@@ -1,8 +1,4 @@
 import './globals.css'
-import TopBar from '../components/TopBar'
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
-import LineFAB from '../components/LineFAB'
 
 export const metadata = {
   title: 'WoodSmith :: วู้ดสมิตร',
@@ -19,13 +15,7 @@ export default function RootLayout({ children }) {
         <link href="https://fonts.cdnfonts.com/css/circular-std" rel="stylesheet" />
       </head>
       <body>
-        <div className="bg-white w-full min-h-screen">
-          <TopBar />
-          <Navbar />
-          {children}
-          <Footer />
-          <LineFAB />
-        </div>
+        {children}
       </body>
     </html>
   )

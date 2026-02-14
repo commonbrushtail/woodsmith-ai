@@ -2,12 +2,12 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import ArrowRight from '../../components/ArrowRight'
-import imgBanner from '../../assets/blog_banner.png'
-import imgCard1 from '../../assets/blog_card_1.png'
-import imgCard2 from '../../assets/blog_card_2.png'
-import imgCard3 from '../../assets/blog_card_3.png'
-import imgCard4 from '../../assets/blog_card_4.png'
+import ArrowRight from '../../../components/ArrowRight'
+import imgBanner from '../../../assets/blog_banner.png'
+import imgCard1 from '../../../assets/blog_card_1.png'
+import imgCard2 from '../../../assets/blog_card_2.png'
+import imgCard3 from '../../../assets/blog_card_3.png'
+import imgCard4 from '../../../assets/blog_card_4.png'
 
 const categoryTabs = [
   { key: 'all', label: 'ทั้งหมด' },

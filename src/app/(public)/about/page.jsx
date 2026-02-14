@@ -1,5 +1,5 @@
-import GallerySection from '../../components/GallerySection'
-import imgBannerAbout from '../../assets/image_banner_about.png'
+import GallerySection from '../../../components/GallerySection'
+import imgBannerAbout from '../../../assets/image_banner_about.png'
 
 export default function AboutPage() {
   return (

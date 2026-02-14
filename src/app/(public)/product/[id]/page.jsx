@@ -4,12 +4,12 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css'
-import ArrowRight from '../../../components/ArrowRight'
-import imgRectangle15 from '../../../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
-import imgRectangle21 from '../../../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
-import imgRectangle22 from '../../../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
-import imgRectangle23 from '../../../assets/363360e0eabb614000b96e9e0872777c65463b3a.png'
-import imgRectangle24 from '../../../assets/0c3090fa51a394a39ced02aa6235d63e1ed6948a.png'
+import ArrowRight from '../../../../components/ArrowRight'
+import imgRectangle15 from '../../../../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
+import imgRectangle21 from '../../../../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
+import imgRectangle22 from '../../../../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
+import imgRectangle23 from '../../../../assets/363360e0eabb614000b96e9e0872777c65463b3a.png'
+import imgRectangle24 from '../../../../assets/0c3090fa51a394a39ced02aa6235d63e1ed6948a.png'
 
 const productData = {
   name: 'ไม้พื้นไส้ HDF ปิดวีเนียร์',

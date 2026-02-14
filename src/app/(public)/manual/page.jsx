@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import imgBanner from '../../assets/manual_banner.png'
-import imgCard1 from '../../assets/manual_card_1.png'
-import imgCard2 from '../../assets/manual_card_2.png'
-import imgYoutube from '../../assets/youtube_1.svg'
+import imgBanner from '../../../assets/manual_banner.png'
+import imgCard1 from '../../../assets/manual_card_1.png'
+import imgCard2 from '../../../assets/manual_card_2.png'
+import imgYoutube from '../../../assets/youtube_1.svg'
 
 const baseManuals = [
   { image: imgCard1, title: 'คู่มือแนะนำการติดตั้งวงกบห่อ PVC', date: '25 ตุลาคม 2568', pdfUrl: '#', youtubeUrl: 'https://youtube.com' },

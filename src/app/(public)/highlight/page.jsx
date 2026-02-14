@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import imgBanner from '../../assets/highlight_banner.png'
-import imgFavicon from '../../assets/6727cae5f32ea2c35a94792ae9603addc6300612.png'
-import imgImage from '../../assets/54bb27c92ce5121ca3747b98cc83fa4f3592b6be.png'
-import imgImage1 from '../../assets/4938668eb297d2d732709691026edba0d197c105.png'
-import imgImage2 from '../../assets/2296f896c40b1a9eeafb180cb7eee843d61329da.png'
-import imgImage3 from '../../assets/7a62d7c4116b57486dfe6f273dca7933f5b6f214.png'
-import imgYoutube1 from '../../assets/966cb7fb2d9240d9b332a342696019cb196e1a46.svg'
+import imgBanner from '../../../assets/highlight_banner.png'
+import imgFavicon from '../../../assets/6727cae5f32ea2c35a94792ae9603addc6300612.png'
+import imgImage from '../../../assets/54bb27c92ce5121ca3747b98cc83fa4f3592b6be.png'
+import imgImage1 from '../../../assets/4938668eb297d2d732709691026edba0d197c105.png'
+import imgImage2 from '../../../assets/2296f896c40b1a9eeafb180cb7eee843d61329da.png'
+import imgImage3 from '../../../assets/7a62d7c4116b57486dfe6f273dca7933f5b6f214.png'
+import imgYoutube1 from '../../../assets/966cb7fb2d9240d9b332a342696019cb196e1a46.svg'
 
 const baseHighlights = [
   {

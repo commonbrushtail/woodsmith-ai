@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import imgBanner from '../../assets/highlight_banner.png'
-import imgFaqIcon1 from '../../assets/faq_icon_1.svg'
-import imgFaqIcon2 from '../../assets/faq_icon_2.svg'
-import imgFaqIcon3 from '../../assets/faq_icon_3.svg'
+import imgBanner from '../../../assets/highlight_banner.png'
+import imgFaqIcon1 from '../../../assets/faq_icon_1.svg'
+import imgFaqIcon2 from '../../../assets/faq_icon_2.svg'
+import imgFaqIcon3 from '../../../assets/faq_icon_3.svg'
 
 const faqIcons = [imgFaqIcon1, imgFaqIcon2, imgFaqIcon3]
 
