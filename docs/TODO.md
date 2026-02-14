@@ -111,19 +111,36 @@ All 26 admin pages wired to Supabase with Server Actions.
 - [ ] Image preview before upload
 - [ ] Upload progress indicators
 - [ ] File type/size validation on upload
-- [ ] Drag-and-drop reordering (banners, gallery, FAQ, etc.)
-- [ ] Persist sort order changes to DB
+- [x] Drag-and-drop reordering (banners, gallery, FAQ, manuals, video highlights)
+- [x] Persist sort order changes to DB
 
 ---
 
-## Phase 5 — Future Enhancements
+## Phase 5 — Feature Enhancements
 
-### Rich Text Editing (TipTap)
+### Session 3 ✅ — TipTap Rich Text Editor
 
-- [ ] Install `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-image`, `@tiptap/extension-link`
-- [ ] Create reusable `RichTextEditor` component
-- [ ] Replace placeholder editor in product/blog create/edit pages
-- [ ] Image embedding via Supabase Storage
+**Branch:** `ai/phase5-s3-tiptap`
+
+- [x] Install `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-image`, `@tiptap/extension-link`
+- [x] Reusable `RichTextEditor` component with toolbar (bold, italic, lists, headings, links, images)
+- [x] Wired into 5 admin pages (products create/edit, blog create/edit, about-us)
+- [x] `SafeHtmlContent` component with XSS sanitization for public pages
+- [x] Image embedding via Supabase Storage URL
+
+### Session 4 ✅ — Drag-and-Drop Reordering
+
+**Branch:** `ai/phase5-s4-drag-drop`
+
+- [x] `src/lib/reorder.js` — pure utility functions (reorderItems, buildSortOrderUpdates)
+- [x] `src/components/admin/SortableList.jsx` — reusable div-based DndContext wrapper
+- [x] SortableRow table-row drag-and-drop (CSS.Translate for table compatibility)
+- [x] Wired into 5 admin list pages (banners, gallery, FAQ, manuals, video highlights)
+- [x] Reorder server actions persist sort_order to DB
+- [x] Optimistic UI updates with rollback on error
+- [x] 14 tests passing (9 reorder utility + 5 SortableList component)
+
+### Rich Text Editing (remaining)
 
 ### Authentication Gaps
 
@@ -146,7 +163,7 @@ All 26 admin pages wired to Supabase with Server Actions.
 
 - [ ] CSRF protection on mutation endpoints
 - [ ] Rate-limit login attempts
-- [ ] Sanitize rich text content (XSS)
+- [x] Sanitize rich text content (XSS) — SafeHtmlContent + sanitize-html.js
 - [ ] Audit logging for admin actions
 - [ ] CORS review
 
@@ -169,6 +186,8 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `ai/phase3b-session1` | 3 | Public pages wired |
 | `ai/phase3b-session2` | 2 | Auth + customer features |
 | `ai/phase4-polish` | 2 | Toast, Zod, account fix, search |
+| `ai/phase5-s3-tiptap` | 5 | TipTap editor, SafeHtmlContent |
+| `ai/phase5-s4-drag-drop` | 4 | Drag-and-drop reordering (5 pages) |
 
 ---
 
@@ -186,3 +205,7 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `src/lib/auth/route-rules.js` | Route protection logic |
 | `src/lib/toast-context.js` | Toast notification context |
 | `middleware.js` | Supabase session refresh + route guard |
+| `src/lib/reorder.js` | Array reorder + sort_order update utils |
+| `src/components/admin/SortableList.jsx` | Div-based drag-and-drop wrapper |
+| `src/components/admin/RichTextEditor.jsx` | TipTap rich text editor |
+| `src/components/SafeHtmlContent.jsx` | XSS-safe HTML rendering |
