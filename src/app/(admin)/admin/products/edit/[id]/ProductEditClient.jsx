@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateProduct } from '@/lib/actions/products'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
+import RichTextEditor from '@/components/admin/RichTextEditor'
 
 export default function ProductEditClient({ product }) {
   const { toast } = useToast()
@@ -202,11 +203,10 @@ export default function ProductEditClient({ product }) {
           <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
             {'รายละเอียดสินค้า'}
           </label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={5}
-            className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all resize-y placeholder:text-[#bfbfbf]"
+          <RichTextEditor
+            content={description}
+            onChange={setDescription}
+            minHeight={150}
           />
         </div>
 

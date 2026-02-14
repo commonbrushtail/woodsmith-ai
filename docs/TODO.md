@@ -131,12 +131,17 @@ All 26 admin pages wired to Supabase with Server Actions.
 
 ## Phase 5 — Future Enhancements
 
-### Rich Text Editing (TipTap)
+### Rich Text Editing (TipTap) ✅ COMPLETE
 
-- [ ] Install `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-image`, `@tiptap/extension-link`
-- [ ] Create reusable `RichTextEditor` component
-- [ ] Replace placeholder editor in product/blog create/edit pages
-- [ ] Image embedding via Supabase Storage
+**Branch:** `ai/phase5-s3-tiptap`
+
+- [x] TipTap installed (`@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-image`, `@tiptap/extension-link`)
+- [x] `src/components/admin/RichTextEditor.jsx` — toolbar (Bold, Italic, H2, H3, Lists, Link, Image, Undo/Redo), 6 tests
+- [x] `src/lib/sanitize-html.js` — allowlist-based HTML sanitizer (no DOM dependency), 15 tests
+- [x] `src/components/SafeHtmlContent.jsx` — XSS-safe rendering for public pages, 8 tests
+- [x] Wired into 5 admin pages: products/create (3 editors), products/edit, blog/create, blog/edit, about-us
+- [x] Wired into 2 public pages: blog detail, product detail
+- [ ] Image embedding via Supabase Storage (future)
 
 ### Authentication Gaps
 
@@ -159,7 +164,7 @@ All 26 admin pages wired to Supabase with Server Actions.
 
 - [ ] CSRF protection on mutation endpoints
 - [ ] Rate-limit login attempts
-- [ ] Sanitize rich text content (XSS)
+- [x] Sanitize rich text content (XSS) — `sanitize-html.js` + `SafeHtmlContent`
 - [ ] Audit logging for admin actions
 - [ ] CORS review
 
@@ -184,6 +189,7 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `ai/phase4-polish` | 2 | Toast, Zod, account fix, search |
 | `ai/phase4-s1-validation-ux` | 4 | AdminInput error, useFormErrors, ErrorBoundary |
 | `ai/phase4-s2-loading-uploads` | 5 | Skeletons, loading.jsx, upload validation |
+| `ai/phase5-s3-tiptap` | 5 | TipTap editor, sanitizer, SafeHtmlContent |
 
 ---
 
@@ -202,9 +208,10 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `src/lib/toast-context.js` | Toast notification context |
 | `src/lib/hooks/use-form-errors.js` | Form field error management hook |
 | `src/components/ErrorBoundary.jsx` | React error boundary (admin + public) |
+| `src/components/admin/RichTextEditor.jsx` | TipTap rich text editor |
+| `src/lib/sanitize-html.js` | HTML sanitizer (XSS prevention) |
+| `src/components/SafeHtmlContent.jsx` | Safe HTML renderer for public pages |
 | `middleware.js` | Supabase session refresh + route guard |
 | `src/lib/upload-validation.js` | File type/size validation utility |
-| `src/lib/hooks/use-form-errors.js` | Form field error management hook |
 | `src/components/admin/AdminSkeleton.jsx` | Table, Form, Card skeleton loaders |
 | `src/components/admin/AdminFileInput.jsx` | Enhanced file input with preview/validation |
-| `src/components/ErrorBoundary.jsx` | React error boundary with retry |

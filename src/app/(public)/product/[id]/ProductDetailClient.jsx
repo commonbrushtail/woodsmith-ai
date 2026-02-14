@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import SafeHtmlContent from '@/components/SafeHtmlContent'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css'
 import ArrowRight from '../../../../components/ArrowRight'
@@ -35,9 +36,7 @@ const fallbackProduct = {
     { id: '19', name: '19 มม.', status: 'choice' },
     { id: '24', name: '24 มม.', status: 'choice' },
   ],
-  description: [
-    'ไม้พื้นไส้ HDF ปิดวีเนียร์ ทางเลือกของคนที่ชื่นชอบพื้นไม้อารมณ์ใกล้ชิดธรรมชาติ เพราะผลิตโดยใช้วีเนียร์ ไม้จริงที่ให้ลายเสี้ยนไม้สวยงามปิดทับบนแผ่นไม้ HDF ความหนา 12 มิลลิเมตร พร้อมเคลือบ UV coating เพิ่มความทนทาน และปลอดภัยด้วยระดับฟอร์มัลดีไฮด์ E1',
-  ],
+  description: '<p>ไม้พื้นไส้ HDF ปิดวีเนียร์ ทางเลือกของคนที่ชื่นชอบพื้นไม้อารมณ์ใกล้ชิดธรรมชาติ เพราะผลิตโดยใช้วีเนียร์ ไม้จริงที่ให้ลายเสี้ยนไม้สวยงามปิดทับบนแผ่นไม้ HDF ความหนา 12 มิลลิเมตร พร้อมเคลือบ UV coating เพิ่มความทนทาน และปลอดภัยด้วยระดับฟอร์มัลดีไฮด์ E1</p>',
   specs: [
     { label: 'ผลิตภัณฑ์', value: 'ไม้พื้นลามิเนตแบบยาว\n(Long Plank)' },
     { label: 'วัสดุ', value: 'HDF 12 มม.\nปิดผิวเมลามีน' },
@@ -200,7 +199,7 @@ export default function ProductDetailClient({ product: dbProduct = null }) {
     colors: (dbProduct.product_options || []).filter(o => o.option_type === 'color').map(o => ({ id: o.id, name: o.label, swatch: imgRectangle15 })),
     surfaces: (dbProduct.product_options || []).filter(o => o.option_type === 'surface').map(o => ({ id: o.id, name: o.label })),
     sizes: (dbProduct.product_options || []).filter(o => o.option_type === 'size').map(o => ({ id: o.id, name: o.label, status: 'choice' })),
-    description: dbProduct.description ? [dbProduct.description] : [],
+    description: dbProduct.description || '',
     specs: dbProduct.specifications ? Object.entries(dbProduct.specifications).map(([label, value]) => ({ label, value: String(value) })) : [],
     relatedProducts: (dbProduct.relatedProducts || []).map(rp => {
       const img = rp.product_images?.find(i => i.is_primary)?.url || rp.product_images?.[0]?.url || imgRectangle15
@@ -282,14 +281,13 @@ export default function ProductDetailClient({ product: dbProduct = null }) {
       {/* Description + Specs */}
       <div className="max-w-[1212px] mx-auto w-full px-[16px] py-[16px] lg:py-[24px]">
         <div className="w-full lg:w-[680px] flex flex-col gap-[32px]">
-          {product.description.length > 0 && (
+          {product.description && (
             <div className="flex flex-col gap-[16px]">
               <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-black leading-[1.2]">รายละเอียดสินค้า</p>
-              <div className="flex flex-col gap-[12px]">
-                {product.description.map((paragraph, i) => (
-                  <p key={i} className="font-['IBM_Plex_Sans_Thai'] text-[16px] text-black leading-[1.5]">{paragraph}</p>
-                ))}
-              </div>
+              <SafeHtmlContent
+                html={product.description}
+                className="font-['IBM_Plex_Sans_Thai'] text-[16px] text-black leading-[1.5] prose prose-sm max-w-none"
+              />
             </div>
           )}
           {product.specs.length > 0 && <SpecTable specs={product.specs} />}

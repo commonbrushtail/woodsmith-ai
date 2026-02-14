@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createProduct } from '@/lib/actions/products'
 import { useToast } from '@/lib/toast-context'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
+import RichTextEditor from '@/components/admin/RichTextEditor'
 
 const tabs = [
   { id: 'general', label: '\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e17\u0e31\u0e48\u0e27\u0e44\u0e1b' },
@@ -25,155 +26,6 @@ const initialSizeChips = [
   { id: 2, label: '80x200 cm.' },
   { id: 3, label: '90 x 200 cm.' },
 ]
-
-function RichTextToolbar() {
-  return (
-    <div className="flex items-center gap-[2px] border-b border-[#e8eaef] px-[12px] py-[8px] flex-wrap">
-      {/* Text style dropdown */}
-      <div className="flex items-center gap-[4px] border border-[#e8eaef] rounded-[4px] px-[8px] py-[4px] mr-[8px] cursor-pointer">
-        <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#494c4f]">Normal</span>
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 4.5L6 7.5L9 4.5" />
-        </svg>
-      </div>
-
-      {/* Bold */}
-      <button className="size-[32px] flex items-center justify-center rounded-[4px] hover:bg-[#f3f4f6]" aria-label="Bold">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#494c4f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
-          <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
-        </svg>
-      </button>
-
-      {/* Italic */}
-      <button className="size-[32px] flex items-center justify-center rounded-[4px] hover:bg-[#f3f4f6]" aria-label="Italic">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#494c4f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="19" y1="4" x2="10" y2="4" />
-          <line x1="14" y1="20" x2="5" y2="20" />
-          <line x1="15" y1="4" x2="9" y2="20" />
-        </svg>
-      </button>
-
-      {/* Underline */}
-      <button className="size-[32px] flex items-center justify-center rounded-[4px] hover:bg-[#f3f4f6]" aria-label="Underline">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#494c4f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3" />
-          <line x1="4" y1="21" x2="20" y2="21" />
-        </svg>
-      </button>
-
-      {/* Strikethrough */}
-      <button className="size-[32px] flex items-center justify-center rounded-[4px] hover:bg-[#f3f4f6]" aria-label="Strikethrough">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#494c4f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="4" y1="12" x2="20" y2="12" />
-          <path d="M17.5 7.5C17.5 5.01 15.49 3 13 3H11C8.51 3 6.5 5.01 6.5 7.5S8.51 12 11 12h2c2.49 0 4.5 2.01 4.5 4.5S15.49 21 13 21h-2c-2.49 0-4.5-2.01-4.5-4.5" />
-        </svg>
-      </button>
-
-      <div className="w-px h-[20px] bg-[#e8eaef] mx-[6px]" />
-
-      {/* Align left */}
-      <button className="size-[32px] flex items-center justify-center rounded-[4px] hover:bg-[#f3f4f6]" aria-label="Align left">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#494c4f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="17" y1="10" x2="3" y2="10" />
-          <line x1="21" y1="6" x2="3" y2="6" />
-          <line x1="21" y1="14" x2="3" y2="14" />
-          <line x1="17" y1="18" x2="3" y2="18" />
-        </svg>
-      </button>
-
-      {/* Align center */}
-      <button className="size-[32px] flex items-center justify-center rounded-[4px] hover:bg-[#f3f4f6]" aria-label="Align center">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#494c4f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="18" y1="10" x2="6" y2="10" />
-          <line x1="21" y1="6" x2="3" y2="6" />
-          <line x1="21" y1="14" x2="3" y2="14" />
-          <line x1="18" y1="18" x2="6" y2="18" />
-        </svg>
-      </button>
-
-      {/* Align right */}
-      <button className="size-[32px] flex items-center justify-center rounded-[4px] hover:bg-[#f3f4f6]" aria-label="Align right">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#494c4f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="21" y1="10" x2="7" y2="10" />
-          <line x1="21" y1="6" x2="3" y2="6" />
-          <line x1="21" y1="14" x2="3" y2="14" />
-          <line x1="21" y1="18" x2="7" y2="18" />
-        </svg>
-      </button>
-
-      <div className="w-px h-[20px] bg-[#e8eaef] mx-[6px]" />
-
-      {/* Bullet list */}
-      <button className="size-[32px] flex items-center justify-center rounded-[4px] hover:bg-[#f3f4f6]" aria-label="Bullet list">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#494c4f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="8" y1="6" x2="21" y2="6" />
-          <line x1="8" y1="12" x2="21" y2="12" />
-          <line x1="8" y1="18" x2="21" y2="18" />
-          <circle cx="4" cy="6" r="1" fill="#494c4f" />
-          <circle cx="4" cy="12" r="1" fill="#494c4f" />
-          <circle cx="4" cy="18" r="1" fill="#494c4f" />
-        </svg>
-      </button>
-
-      {/* Numbered list */}
-      <button className="size-[32px] flex items-center justify-center rounded-[4px] hover:bg-[#f3f4f6]" aria-label="Numbered list">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#494c4f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="10" y1="6" x2="21" y2="6" />
-          <line x1="10" y1="12" x2="21" y2="12" />
-          <line x1="10" y1="18" x2="21" y2="18" />
-          <text x="2" y="8" fill="#494c4f" stroke="none" fontSize="8" fontWeight="bold">1</text>
-          <text x="2" y="14" fill="#494c4f" stroke="none" fontSize="8" fontWeight="bold">2</text>
-          <text x="2" y="20" fill="#494c4f" stroke="none" fontSize="8" fontWeight="bold">3</text>
-        </svg>
-      </button>
-
-      <div className="w-px h-[20px] bg-[#e8eaef] mx-[6px]" />
-
-      {/* Link */}
-      <button className="size-[32px] flex items-center justify-center rounded-[4px] hover:bg-[#f3f4f6]" aria-label="Insert link">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#494c4f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-        </svg>
-      </button>
-
-      {/* Image */}
-      <button className="size-[32px] flex items-center justify-center rounded-[4px] hover:bg-[#f3f4f6]" aria-label="Insert image">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#494c4f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-          <circle cx="8.5" cy="8.5" r="1.5" />
-          <polyline points="21 15 16 10 5 21" />
-        </svg>
-      </button>
-
-      {/* Table */}
-      <button className="size-[32px] flex items-center justify-center rounded-[4px] hover:bg-[#f3f4f6]" aria-label="Insert table">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#494c4f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <line x1="3" y1="9" x2="21" y2="9" />
-          <line x1="3" y1="15" x2="21" y2="15" />
-          <line x1="9" y1="3" x2="9" y2="21" />
-          <line x1="15" y1="3" x2="15" y2="21" />
-        </svg>
-      </button>
-    </div>
-  )
-}
-
-function RichTextEditor({ content, minHeight = '200px' }) {
-  return (
-    <div className="border border-[#e8eaef] rounded-[8px] overflow-hidden bg-white">
-      <RichTextToolbar />
-      <div
-        className="px-[16px] py-[14px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#494c4f] leading-[1.8] whitespace-pre-line"
-        style={{ minHeight }}
-      >
-        {content}
-      </div>
-    </div>
-  )
-}
 
 export default function ProductCreatePage() {
   const { toast } = useToast()
@@ -561,8 +413,9 @@ export default function ProductCreatePage() {
             {'\u0e23\u0e32\u0e22\u0e25\u0e30\u0e40\u0e2d\u0e35\u0e22\u0e14\u0e2a\u0e34\u0e19\u0e04\u0e49\u0e32'}
           </h2>
           <RichTextEditor
-            content={'\u0e1b\u0e23\u0e30\u0e15\u0e39\u0e44\u0e21\u0e49\u0e2a\u0e31\u0e01 WPC (Wood Plastic Composite) \u0e1c\u0e25\u0e34\u0e15\u0e08\u0e32\u0e01\u0e27\u0e31\u0e2a\u0e14\u0e38\u0e04\u0e2d\u0e21\u0e42\u0e1e\u0e2a\u0e34\u0e15 \u0e17\u0e35\u0e48\u0e1c\u0e2a\u0e21\u0e1c\u0e2a\u0e32\u0e19\u0e23\u0e30\u0e2b\u0e27\u0e48\u0e32\u0e07\u0e44\u0e21\u0e49\u0e41\u0e25\u0e30\u0e1e\u0e25\u0e32\u0e2a\u0e15\u0e34\u0e01 \u0e21\u0e35\u0e04\u0e38\u0e13\u0e2a\u0e21\u0e1a\u0e31\u0e15\u0e34\u0e17\u0e19\u0e17\u0e32\u0e19\u0e15\u0e48\u0e2d\u0e04\u0e27\u0e32\u0e21\u0e0a\u0e37\u0e49\u0e19 \u0e1b\u0e25\u0e27\u0e01 \u0e41\u0e25\u0e30\u0e41\u0e21\u0e25\u0e07\u0e44\u0e14\u0e49\u0e14\u0e35 \u0e21\u0e35\u0e25\u0e32\u0e22\u0e44\u0e21\u0e49\u0e2a\u0e27\u0e22\u0e07\u0e32\u0e21 \u0e40\u0e2b\u0e21\u0e32\u0e30\u0e01\u0e31\u0e1a\u0e01\u0e32\u0e23\u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19\u0e17\u0e31\u0e49\u0e07\u0e20\u0e32\u0e22\u0e43\u0e19\u0e41\u0e25\u0e30\u0e20\u0e32\u0e22\u0e19\u0e2d\u0e01\u0e2d\u0e32\u0e04\u0e32\u0e23'}
-            minHeight="120px"
+            content={description}
+            onChange={setDescription}
+            minHeight={120}
           />
         </section>
 
@@ -575,12 +428,9 @@ export default function ProductCreatePage() {
             {'\u0e04\u0e38\u0e13\u0e25\u0e31\u0e01\u0e29\u0e13\u0e30/\u0e04\u0e38\u0e13\u0e2a\u0e21\u0e1a\u0e31\u0e15\u0e34\u0e02\u0e2d\u0e07\u0e2a\u0e34\u0e19\u0e04\u0e49\u0e32'}
           </h2>
           <RichTextEditor
-            content={`- \u0e17\u0e19\u0e15\u0e48\u0e2d\u0e04\u0e27\u0e32\u0e21\u0e0a\u0e37\u0e49\u0e19\u0e41\u0e25\u0e30\u0e1b\u0e25\u0e27\u0e01\u0e44\u0e14\u0e49\u0e14\u0e35
-- \u0e44\u0e21\u0e48\u0e1a\u0e27\u0e21 \u0e44\u0e21\u0e48\u0e2b\u0e14 \u0e44\u0e21\u0e48\u0e22\u0e38\u0e1a\u0e15\u0e31\u0e27
-- \u0e01\u0e31\u0e19\u0e19\u0e49\u0e33 \u0e01\u0e31\u0e19\u0e0a\u0e37\u0e49\u0e19\u0e23\u0e32
-- \u0e25\u0e32\u0e22\u0e44\u0e21\u0e49\u0e2a\u0e27\u0e22\u0e07\u0e32\u0e21\u0e40\u0e2b\u0e21\u0e37\u0e2d\u0e19\u0e08\u0e23\u0e34\u0e07
-- \u0e44\u0e21\u0e48\u0e15\u0e49\u0e2d\u0e07\u0e17\u0e32\u0e2a\u0e35\u0e17\u0e31\u0e1a\u0e2b\u0e23\u0e37\u0e2d\u0e40\u0e04\u0e25\u0e37\u0e2d\u0e1a`}
-            minHeight="160px"
+            content={characteristics}
+            onChange={setCharacteristics}
+            minHeight={160}
           />
         </section>
 
@@ -593,10 +443,9 @@ export default function ProductCreatePage() {
             {'\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e08\u0e33\u0e40\u0e1e\u0e32\u0e30'}
           </h2>
           <RichTextEditor
-            content={`\u0e04\u0e27\u0e32\u0e21\u0e01\u0e27\u0e49\u0e32\u0e07 : 70, 80, 90 cm.
-\u0e04\u0e27\u0e32\u0e21\u0e2a\u0e39\u0e07 : 200 cm.
-\u0e04\u0e27\u0e32\u0e21\u0e2b\u0e19\u0e32 : \u0e42\u0e14\u0e22\u0e1b\u0e23\u0e30\u0e21\u0e32\u0e13 3.5 cm.`}
-            minHeight="120px"
+            content={specifications}
+            onChange={setSpecifications}
+            minHeight={120}
           />
         </section>
       </div>
