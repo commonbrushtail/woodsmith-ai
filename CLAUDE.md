@@ -99,6 +99,30 @@ Both are configured as Claude Code plugins (enabled in `~/.claude/settings.json`
 - **Tools**: `navigate_page`, `take_snapshot`, `take_screenshot`, `list_console_messages`, `click`, `fill`, `evaluate_script`, `performance_start_trace`
 - **Usage**: Debug hydration errors, check console messages, automate browser interactions. Run `npm run dev` first, then navigate to `http://localhost:3000`.
 
+## Git Workflow for Autonomous Loop Sessions
+
+When running in an autonomous loop (e.g. ralph-loop), follow this workflow:
+
+1. **Always create a feature branch before starting work:**
+   ```bash
+   git checkout -b ai/<task-name>    # e.g. ai/phase1-supabase-auth
+   ```
+
+2. **Commit after each completed sub-task** — small, frequent commits. Never batch everything into one commit at the end.
+
+3. **Never force push, amend commits, or run destructive git commands** during a loop.
+
+4. **Never commit `.env.local` or credentials.**
+
+5. **If a build fails, fix it before moving on** — don't accumulate broken commits.
+
+6. **When the loop finishes**, the user will review the full diff against main:
+   ```bash
+   git diff main...HEAD
+   git log --oneline main..HEAD
+   ```
+   Then decide to merge or discard the branch.
+
 ## Conventions
 
 - One component per file in `src/components/`
