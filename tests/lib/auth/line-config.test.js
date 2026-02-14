@@ -38,7 +38,7 @@ describe('getLineLoginUrl', () => {
     const { getLineLoginUrl } = await import('@/lib/auth/line-config')
     const url = getLineLoginUrl('test-state')
     expect(url).toContain('redirect_uri=')
-    expect(url).toContain(encodeURIComponent('https://woodsmith.co.th/auth/callback'))
+    expect(url).toContain(encodeURIComponent('https://woodsmith.co.th/auth/callback/line'))
   })
 
   it('requests openid and profile scopes', async () => {

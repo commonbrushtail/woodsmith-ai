@@ -21,7 +21,7 @@ export const LINE_CONFIG = {
 export function getLineLoginUrl(state) {
   const channelId = process.env.LINE_CHANNEL_ID
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-  const redirectUri = `${siteUrl}/auth/callback`
+  const redirectUri = `${siteUrl}/auth/callback/line`
 
   const params = new URLSearchParams({
     response_type: 'code',
