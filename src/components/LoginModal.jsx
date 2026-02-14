@@ -286,29 +286,55 @@ export default function LoginModal({ isOpen, onClose }) {
 
   if (!isOpen) return null
 
-  const handleSendOtp = (phoneNumber) => {
+  const handleSendOtp = async (phoneNumber) => {
     setPhone(phoneNumber)
-    // In production, check if account exists to determine flow
-    // For now, go to OTP-new (new account flow)
+    const { createClient } = await import('@/lib/supabase/client')
+    const supabase = createClient()
+    const formatted = phoneNumber.startsWith('0')
+      ? '+66' + phoneNumber.slice(1)
+      : phoneNumber
+    const { error } = await supabase.auth.signInWithOtp({ phone: formatted })
+    if (error) {
+      console.error('OTP send error:', error.message)
+    }
     setScreen('otp-new')
   }
 
-  const handleVerifyOtp = (otpCode) => {
+  const handleVerifyOtp = async (otpCode) => {
+    const { createClient } = await import('@/lib/supabase/client')
+    const supabase = createClient()
+    const formatted = phone.startsWith('0')
+      ? '+66' + phone.slice(1)
+      : phone
+    const { error } = await supabase.auth.verifyOtp({
+      phone: formatted,
+      token: otpCode,
+      type: 'sms',
+    })
+    if (error) {
+      console.error('OTP verify error:', error.message)
+      return
+    }
     if (screen === 'otp-new') {
       setScreen('register')
     } else {
-      // Existing user - close modal (logged in)
       onClose()
     }
   }
 
-  const handleLineLogin = () => {
-    // In production: redirect to LINE OIDC
-    alert('LINE Login - will redirect to LINE authorization')
+  const handleLineLogin = async () => {
+    const { createClient } = await import('@/lib/supabase/client')
+    const supabase = createClient()
+    await supabase.auth.signInWithOAuth({
+      provider: 'kakao', // LINE uses custom OIDC — placeholder until configured
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
   }
 
   const handleRegister = (formData) => {
-    // In production: POST to API
+    // TODO: Update user metadata with name/email after OTP verification
     onClose()
   }
 
