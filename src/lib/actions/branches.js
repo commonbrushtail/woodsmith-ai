@@ -68,6 +68,9 @@ export async function createBranch(formData) {
     address: formData.get('address') || '',
     phone: formData.get('phone') || '',
     map_url: formData.get('map_url') || '',
+    region: formData.get('region') || null,
+    hours: formData.get('hours') || null,
+    line_url: formData.get('line_url') || null,
     published: formData.get('published') === 'true',
     sort_order: nextOrder,
   }
@@ -98,6 +101,9 @@ export async function updateBranch(id, formData) {
   if (formData.has('address')) updates.address = formData.get('address')
   if (formData.has('phone')) updates.phone = formData.get('phone')
   if (formData.has('map_url')) updates.map_url = formData.get('map_url')
+  if (formData.has('region')) updates.region = formData.get('region')
+  if (formData.has('hours')) updates.hours = formData.get('hours')
+  if (formData.has('line_url')) updates.line_url = formData.get('line_url')
   if (formData.has('published')) updates.published = formData.get('published') === 'true'
 
   const { data, error } = await supabase

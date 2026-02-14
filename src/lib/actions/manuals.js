@@ -69,6 +69,7 @@ export async function createManual(formData) {
     title: formData.get('title') || '',
     file_url: '',
     cover_image_url: null,
+    youtube_url: formData.get('youtube_url') || null,
     published: formData.get('published') === 'true',
     sort_order: nextOrder,
   }
@@ -117,6 +118,9 @@ export async function updateManual(id, formData) {
 
   if (formData.has('title')) {
     updates.title = formData.get('title')
+  }
+  if (formData.has('youtube_url')) {
+    updates.youtube_url = formData.get('youtube_url')
   }
   if (formData.has('published')) {
     updates.published = formData.get('published') === 'true'

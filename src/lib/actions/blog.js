@@ -75,6 +75,7 @@ export async function createBlogPost(formData) {
     title,
     slug,
     content: formData.get('content') || '',
+    category: formData.get('category') || null,
     cover_image_url: formData.get('cover_image_url') || null,
     author_id: user?.id || null,
     recommended: formData.get('recommended') === 'true',
@@ -113,7 +114,7 @@ export async function updateBlogPost(id, formData) {
   const supabase = createServiceClient()
 
   const updates = {}
-  const fields = ['title', 'content']
+  const fields = ['title', 'content', 'category']
   for (const field of fields) {
     const val = formData.get(field)
     if (val !== null) updates[field] = val

@@ -68,6 +68,8 @@ export async function createVideoHighlight(formData) {
     title: formData.get('title'),
     youtube_url: formData.get('youtube_url') || '',
     thumbnail_url: formData.get('thumbnail_url') || null,
+    duration: formData.get('duration') || null,
+    channel_name: formData.get('channel_name') || null,
     published: formData.get('published') === 'true',
     sort_order: nextOrder,
   }
@@ -93,7 +95,7 @@ export async function updateVideoHighlight(id, formData) {
   const supabase = createServiceClient()
 
   const updates = {}
-  const fields = ['title', 'youtube_url', 'thumbnail_url']
+  const fields = ['title', 'youtube_url', 'thumbnail_url', 'duration', 'channel_name']
   for (const field of fields) {
     const val = formData.get(field)
     if (val !== null && val !== undefined) updates[field] = val

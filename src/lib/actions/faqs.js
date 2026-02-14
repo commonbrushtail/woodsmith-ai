@@ -66,6 +66,7 @@ export async function createFaq(formData) {
   const faqData = {
     question: formData.get('question') || '',
     answer: formData.get('answer') || '',
+    group_title: formData.get('group_title') || null,
     published: formData.get('published') === 'true',
     sort_order: nextOrder,
   }
@@ -94,6 +95,7 @@ export async function updateFaq(id, formData) {
 
   if (formData.has('question')) updates.question = formData.get('question')
   if (formData.has('answer')) updates.answer = formData.get('answer')
+  if (formData.has('group_title')) updates.group_title = formData.get('group_title')
   if (formData.has('published')) updates.published = formData.get('published') === 'true'
 
   const { data, error } = await supabase
