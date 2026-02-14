@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useTransition } from 'react'
+import { updatePassword, updateEmail } from '@/lib/actions/account'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -117,14 +118,18 @@ function CustomSelect({ label, value, onChange, options, helperText, id }) {
 /* ------------------------------------------------------------------ */
 
 export default function AccountPage() {
+  const [isPending, startTransition] = useTransition()
+
   /* Profile fields */
-  const [firstName, setFirstName] = useState('John')
-  const [lastName, setLastName] = useState('Smith')
-  const [email, setEmail] = useState('admin@woodsmith.co.th')
-  const [username, setUsername] = useState('Admin A')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
 
   /* Password fields */
   const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
   /* Experience / preferences */
@@ -143,17 +148,18 @@ export default function AccountPage() {
   ]
 
   return (
-    <div className="flex flex-col gap-[24px] h-full min-h-0 overflow-y-auto pb-[32px]">
+    <div className={`flex flex-col gap-[24px] h-full min-h-0 overflow-y-auto pb-[32px] ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
       {/* ---- Header ---- */}
       <div className="flex items-center justify-between">
         <h1 className="font-['IBM_Plex_Sans_Thai'] font-bold text-[22px] text-[#1f2937] m-0">
-          Admin A
+          {username || 'บัญชีผู้ใช้'}
         </h1>
         <button
           type="button"
-          className="px-[24px] py-[8px] bg-[#ff7e1b] text-white rounded-[8px] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-none cursor-pointer hover:bg-[#ff7e1b]/90 transition-colors"
+          disabled={isPending}
+          className="px-[24px] py-[8px] bg-[#ff7e1b] text-white rounded-[8px] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-none cursor-pointer hover:bg-[#ff7e1b]/90 transition-colors disabled:opacity-50"
         >
-          บันทึก
+          {isPending ? 'กำลังบันทึก...' : 'บันทึก'}
         </button>
       </div>
 
@@ -252,39 +258,76 @@ export default function AccountPage() {
           เปลี่ยนรหัสผ่าน
         </h2>
 
-        <div className="flex flex-col gap-[6px] max-w-[480px] mb-[20px]">
-          <label
-            htmlFor="currentPassword"
-            className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-[#4b5563]"
-          >
-            รหัสผ่านปัจจุบัน <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <input
-              id="currentPassword"
-              type={showPassword ? 'text' : 'password'}
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              required
-              placeholder="กรอกรหัสผ่านปัจจุบัน"
-              className="w-full border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] pr-[44px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] bg-white focus:border-[#ff7e1b] focus:outline-none transition-colors"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-[12px] top-1/2 -translate-y-1/2 flex items-center justify-center border-none bg-transparent cursor-pointer p-0"
-              aria-label={showPassword ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}
+        <div className="flex flex-col gap-[16px] max-w-[480px] mb-[20px]">
+          <div className="flex flex-col gap-[6px]">
+            <label
+              htmlFor="newPassword"
+              className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-[#4b5563]"
             >
-              {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-            </button>
+              รหัสผ่านใหม่ <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                id="newPassword"
+                type={showPassword ? 'text' : 'password'}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                placeholder="กรอกรหัสผ่านใหม่ (อย่างน้อย 8 ตัวอักษร)"
+                className="w-full border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] pr-[44px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] bg-white focus:border-[#ff7e1b] focus:outline-none transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-[12px] top-1/2 -translate-y-1/2 flex items-center justify-center border-none bg-transparent cursor-pointer p-0"
+                aria-label={showPassword ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}
+              >
+                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-[6px]">
+            <label
+              htmlFor="confirmPassword"
+              className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-[#4b5563]"
+            >
+              ยืนยันรหัสผ่านใหม่ <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="confirmPassword"
+              type={showPassword ? 'text' : 'password'}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              placeholder="กรอกรหัสผ่านใหม่อีกครั้ง"
+              className="w-full border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] bg-white focus:border-[#ff7e1b] focus:outline-none transition-colors"
+            />
           </div>
         </div>
 
         <button
           type="button"
-          className="px-[24px] py-[8px] bg-[#ff7e1b] text-white rounded-[8px] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-none cursor-pointer hover:bg-[#ff7e1b]/90 transition-colors"
+          disabled={isPending}
+          onClick={() => {
+            startTransition(async () => {
+              const formData = new FormData()
+              formData.set('new_password', newPassword)
+              formData.set('confirm_password', confirmPassword)
+              // userId would come from session — using placeholder for now
+              const result = await updatePassword('current-user-id', formData)
+              if (result.error) {
+                alert('เกิดข้อผิดพลาด: ' + result.error)
+              } else {
+                alert('เปลี่ยนรหัสผ่านสำเร็จ')
+                setNewPassword('')
+                setConfirmPassword('')
+              }
+            })
+          }}
+          className="px-[24px] py-[8px] bg-[#ff7e1b] text-white rounded-[8px] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-none cursor-pointer hover:bg-[#ff7e1b]/90 transition-colors disabled:opacity-50"
         >
-          ยืนยันเปลี่ยนรหัสผ่าน
+          {isPending ? 'กำลังดำเนินการ...' : 'ยืนยันเปลี่ยนรหัสผ่าน'}
         </button>
       </section>
 
