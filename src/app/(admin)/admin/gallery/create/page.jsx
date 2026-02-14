@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createGalleryItem } from '@/lib/actions/gallery'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -303,11 +305,14 @@ function UploadDropZone({ onFilesSelected }) {
 /* ------------------------------------------------------------------ */
 
 export default function GalleryCreatePage() {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
   /* ---- Form state ---- */
   const [activeTab, setActiveTab] = useState('draft')
   const [title, setTitle] = useState('')
   const [linkCategory, setLinkCategory] = useState('')
   const [images, setImages] = useState([])
+  const [imageFiles, setImageFiles] = useState([])
   const [startDate, setStartDate] = useState('')
   const [startTime, setStartTime] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -331,12 +336,37 @@ export default function GalleryCreatePage() {
       id: Date.now() + Math.random(),
       name: f.name,
       url: URL.createObjectURL(f),
+      file: f,
     }))
     setImages((prev) => [...prev, ...newImages])
+    setImageFiles((prev) => [...prev, ...files])
   }
 
   const removeImage = (id) => {
-    setImages((prev) => prev.filter((img) => img.id !== id))
+    const img = images.find((i) => i.id === id)
+    setImages((prev) => prev.filter((i) => i.id !== id))
+    if (img?.file) {
+      setImageFiles((prev) => prev.filter((f) => f !== img.file))
+    }
+  }
+
+  const handleSubmit = (publish) => {
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set('caption', title)
+      formData.set('published', publish ? 'true' : 'false')
+      if (imageFiles.length > 0) {
+        formData.set('image', imageFiles[0])
+      }
+
+      const result = await createGalleryItem(formData)
+      if (result.error) {
+        alert('เกิดข้อผิดพลาด: ' + result.error)
+      } else {
+        router.push('/admin/gallery')
+        router.refresh()
+      }
+    })
   }
 
   const formatDateDisplay = (dateStr) => {
@@ -353,7 +383,7 @@ export default function GalleryCreatePage() {
   }
 
   return (
-    <div className="flex flex-col gap-0 h-full min-h-0">
+    <div className={`flex flex-col gap-0 h-full min-h-0 ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
       {/* ================================================================ */}
       {/*  Header                                                          */}
       {/* ================================================================ */}
@@ -699,29 +729,26 @@ export default function GalleryCreatePage() {
               Entry
             </h3>
 
-            {/* Publish button + dots menu */}
+            {/* Publish button */}
             <div className="flex items-center gap-[8px]">
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors"
+                onClick={() => handleSubmit(true)}
+                disabled={isPending}
+                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
               >
-                {'\u0e40\u0e1c\u0e22\u0e41\u0e1e\u0e23\u0e48'}
-              </button>
-              <button
-                type="button"
-                className="size-[36px] flex items-center justify-center rounded-[8px] border border-[#e8eaef] bg-white cursor-pointer hover:bg-[#f9fafb]"
-                aria-label="Publish options"
-              >
-                <DotsIcon size={16} color="#6b7280" />
+                {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
               </button>
             </div>
 
             {/* Save button */}
             <button
               type="button"
-              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors"
+              onClick={() => handleSubmit(false)}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors disabled:opacity-50"
             >
-              {'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01'}
+              {'บันทึก'}
             </button>
           </div>
         </aside>
