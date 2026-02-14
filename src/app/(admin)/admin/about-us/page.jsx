@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { getAboutUs, updateAboutUs } from '@/lib/actions/about-us'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -181,11 +183,45 @@ function RichTextToolbar() {
 /* ------------------------------------------------------------------ */
 
 export default function AboutUsPage() {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+
   /* ---- Form state ---- */
-  const [activeTab, setActiveTab] = useState('draft')
+  const [activeTab, setActiveTab] = useState('published')
   const [companyName, setCompanyName] = useState('')
   const [companySlogan, setCompanySlogan] = useState('')
   const [companyDetail, setCompanyDetail] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  /* ---- Load existing data ---- */
+  useEffect(() => {
+    getAboutUs().then(({ data }) => {
+      if (data) {
+        setCompanyName(data.companyName || '')
+        setCompanySlogan(data.companySlogan || '')
+        setCompanyDetail(data.companyDetail || '')
+      }
+      setLoading(false)
+    })
+  }, [])
+
+  /* ---- Submit handler ---- */
+  const handleSubmit = () => {
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set('companyName', companyName)
+      formData.set('companySlogan', companySlogan)
+      formData.set('companyDetail', companyDetail)
+
+      const result = await updateAboutUs(formData)
+      if (result.error) {
+        alert('เกิดข้อผิดพลาด: ' + result.error)
+      } else {
+        router.refresh()
+        alert('บันทึกสำเร็จ')
+      }
+    })
+  }
 
   /* ---- Derived values ---- */
   const wordCount = companyDetail.trim() ? companyDetail.trim().split(/\s+/).length : 0
@@ -196,8 +232,16 @@ export default function AboutUsPage() {
     { key: 'published', label: 'PUBLISHED' },
   ]
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#9ca3af]">กำลังโหลด...</span>
+      </div>
+    )
+  }
+
   return (
-    <div className="flex flex-col gap-0 h-full min-h-0">
+    <div className={`flex flex-col gap-0 h-full min-h-0 ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
       {/* ================================================================ */}
       {/*  Header                                                          */}
       {/* ================================================================ */}
@@ -339,9 +383,11 @@ export default function AboutUsPage() {
             <div className="flex items-center gap-[8px]">
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors"
+                onClick={handleSubmit}
+                disabled={isPending}
+                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
               >
-                {'\u0e40\u0e1c\u0e22\u0e41\u0e1e\u0e23\u0e48'}
+                {isPending ? 'กำลังบันทึก...' : 'บันทึก'}
               </button>
               <button
                 type="button"
@@ -351,14 +397,6 @@ export default function AboutUsPage() {
                 <DotsIcon size={16} color="#6b7280" />
               </button>
             </div>
-
-            {/* Save button */}
-            <button
-              type="button"
-              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors"
-            >
-              {'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01'}
-            </button>
           </div>
         </aside>
       </div>
