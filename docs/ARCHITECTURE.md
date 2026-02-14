@@ -14,6 +14,7 @@ Last updated: 2026-02-14
 | PostCSS      | @tailwindcss/postcss             | ^4.1.18   |                                                          |
 | Carousel     | Swiper                           | ^12.1.0   | Used in hero, gallery, product detail image viewer       |
 | Prop Types   | prop-types                       | ^15.8.1   | Runtime prop validation                                  |
+| Rich Text    | TipTap (free core)               | --        | `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-image`, `@tiptap/extension-link`. For blog/product editors. |
 | Linting      | ESLint 9 + eslint-plugin-react-hooks | ^9.39.1 |                                                        |
 | Language     | JavaScript (JSX)                 | --        | No TypeScript source files; TS types installed as devDeps|
 | Node runtime | Next.js built-in                 | --        | `next dev`, `next build`, `next start`                   |

@@ -2,6 +2,7 @@ import TopBar from '../../components/TopBar'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import LineFAB from '../../components/LineFAB'
+import CookieConsent from '../../components/CookieConsent'
 
 export default function PublicLayout({ children }) {
   return (
@@ -11,6 +12,7 @@ export default function PublicLayout({ children }) {
       {children}
       <Footer />
       <LineFAB />
+      <CookieConsent />
     </div>
   )
 }

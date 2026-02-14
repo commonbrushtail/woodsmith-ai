@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css'
 import ArrowRight from '../../../../components/ArrowRight'
+import QuotationModal from '../../../../components/QuotationModal'
 import imgRectangle15 from '../../../../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
 import imgRectangle21 from '../../../../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
 import imgRectangle22 from '../../../../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
@@ -346,6 +347,7 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState(product.colors[0].id)
   const [selectedSurface, setSelectedSurface] = useState(product.surfaces[0].id)
   const [selectedSize, setSelectedSize] = useState('12')
+  const [quotationOpen, setQuotationOpen] = useState(false)
 
   return (
     <div className="flex flex-col items-center w-full">
@@ -419,7 +421,7 @@ export default function ProductDetailPage() {
           </div>
 
           {/* CTA Button */}
-          <button className="w-full h-[48px] bg-orange flex items-center justify-center cursor-pointer border-none mt-[8px]">
+          <button className="w-full h-[48px] bg-orange flex items-center justify-center cursor-pointer border-none mt-[8px]" onClick={() => setQuotationOpen(true)}>
             <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[16px] text-white leading-[1.5]">
               ขอใบเสนอราคา
             </span>
@@ -481,6 +483,16 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      <QuotationModal
+        isOpen={quotationOpen}
+        onClose={() => setQuotationOpen(false)}
+        onConfirm={() => {
+          setQuotationOpen(false)
+          alert('ส่งคำขอใบเสนอราคาเรียบร้อยแล้ว')
+        }}
+        product={{ name: product.name, sku: product.sku, image: product.images[0] }}
+      />
     </div>
   )
 }

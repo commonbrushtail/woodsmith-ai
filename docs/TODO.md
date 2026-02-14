@@ -276,13 +276,16 @@ improvements.
 - [ ] Validate file types (images: jpg/png/webp; documents: pdf).
 - [ ] Set and enforce file size limits.
 
-### 4.4 Rich Text Editing
+### 4.4 Rich Text Editing (TipTap)
 
-- [ ] Integrate a real rich text editor library (TipTap, Lexical, or
-      similar) to replace the static `RichTextEditor` component in the
-      product create page and blog create page.
-- [ ] Support image embedding within rich text content.
-- [ ] Store rich text as HTML or JSON in the database.
+- [ ] Install `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-image`,
+      `@tiptap/extension-link` (all MIT, free core).
+- [ ] Create a reusable `RichTextEditor` component wrapping TipTap with a
+      toolbar (bold, italic, headings, lists, links, images).
+- [ ] Replace the static `RichTextEditor` placeholder in the product create
+      page and blog create page.
+- [ ] Support image embedding within rich text content (via Supabase Storage upload).
+- [ ] Store rich text as HTML in the database (TipTap outputs HTML by default).
 
 ### 4.5 Search and Filtering
 
