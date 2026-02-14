@@ -52,7 +52,7 @@ Plans:
 ### Phase 3: Hydration Warning Cleanup
 **Goal**: All admin sortable list pages render cleanly without React hydration mismatches
 **Depends on**: Phase 2
-**Requirements**: BUG-03, TEST-01, TEST-02, TEST-03, TEST-04, TEST-05
+**Requirements**: BUG-03, TEST-01, TEST-02, TEST-04, TEST-05
 **Success Criteria** (what must be TRUE):
   1. All 5 sortable list pages (banner, video-highlight, gallery, FAQ, manual) load without console hydration warnings
   2. Drag-and-drop reordering still works correctly on all 5 pages after restructure
