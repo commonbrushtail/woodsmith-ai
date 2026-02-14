@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
 import { productCreateSchema, productUpdateSchema } from '@/lib/validations/products'
+import { sanitizeObject } from '@/lib/sanitize'
 
 /**
  * Fetch paginated products with optional search/filter.
@@ -58,7 +59,7 @@ export async function getProduct(id) {
 export async function createProduct(formData) {
   const supabase = createServiceClient()
 
-  const productData = {
+  const rawData = {
     name: formData.get('name'),
     code: formData.get('code'),
     sku: formData.get('sku'),
@@ -72,6 +73,9 @@ export async function createProduct(formData) {
     publish_start: formData.get('publish_start') || null,
     publish_end: formData.get('publish_end') || null,
   }
+
+  // Sanitize text inputs before validation
+  const productData = sanitizeObject(rawData)
 
   // Validate required fields
   const validation = productCreateSchema.safeParse(productData)
@@ -144,8 +148,11 @@ export async function updateProduct(id, formData) {
     updates.publish_end = formData.get('publish_end') || null
   }
 
+  // Sanitize text inputs before validation
+  const sanitizedUpdates = sanitizeObject(updates)
+
   // Validate update fields
-  const validation = productUpdateSchema.safeParse(updates)
+  const validation = productUpdateSchema.safeParse(sanitizedUpdates)
   if (!validation.success) {
     const fieldErrors = Object.fromEntries(
       Object.entries(validation.error.flatten().fieldErrors).map(([k, v]) => [k, v[0]])
@@ -155,7 +162,7 @@ export async function updateProduct(id, formData) {
 
   const { data, error } = await supabase
     .from('products')
-    .update(updates)
+    .update(sanitizedUpdates)
     .eq('id', id)
     .select()
     .single()

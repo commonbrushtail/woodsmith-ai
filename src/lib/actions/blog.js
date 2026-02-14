@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
 import { blogCreateSchema, blogUpdateSchema } from '@/lib/validations/blog'
+import { sanitizeObject } from '@/lib/sanitize'
 
 /**
  * Fetch paginated blog posts with optional search.
@@ -62,17 +63,20 @@ export async function createBlogPost(formData) {
   const authClient = await createClient()
   const { data: { user } } = await authClient.auth.getUser()
 
-  const title = formData.get('title')
-
-  // Validate required fields
-  const validation = blogCreateSchema.safeParse({
-    title,
+  // Sanitize text inputs before validation
+  const blogData = sanitizeObject({
+    title: formData.get('title'),
     content: formData.get('content') || '',
     category: formData.get('category') || null,
     recommended: formData.get('recommended') === 'true',
     published: formData.get('published') === 'true',
     publish_date: formData.get('publish_date') || null,
   })
+
+  const title = blogData.title
+
+  // Validate required fields
+  const validation = blogCreateSchema.safeParse(blogData)
   if (!validation.success) {
     const fieldErrors = Object.fromEntries(
       Object.entries(validation.error.flatten().fieldErrors).map(([k, v]) => [k, v[0]])
