@@ -116,7 +116,21 @@ All 26 admin pages wired to Supabase with Server Actions.
 
 ---
 
-## Phase 5 — Future Enhancements
+## Phase 5 — Feature Enhancements
+
+### Session 5 ✅ — Auth Gaps
+
+**Branch:** `ai/phase5-s5-auth`
+
+- [x] `src/lib/actions/auth.js` — requestPasswordReset, updatePassword server actions
+- [x] Forgot-password form wired to server action with error handling
+- [x] Sent page shows email, wrapped in Suspense for useSearchParams
+- [x] `src/app/auth/reset-password/route.js` — exchanges code for session, redirects to set-new-password
+- [x] `src/app/(admin)/login/set-new-password/page.jsx` — set new password after reset link
+- [x] `src/lib/auth/line-config.js` — LINE OAuth URL builder + callback validator
+- [x] `src/app/auth/callback/line/route.js` — LINE token exchange + profile fetch
+- [x] LoginModal LINE button redirects to LINE authorization URL
+- [x] 20 tests passing (8 auth actions + 12 LINE config)
 
 ### Rich Text Editing (TipTap)
 
@@ -127,8 +141,8 @@ All 26 admin pages wired to Supabase with Server Actions.
 
 ### Authentication Gaps
 
-- [ ] LINE Login OIDC integration (needs LINE credentials)
-- [ ] Forgot-password flow wiring
+- [x] LINE Login OIDC integration (S5: LINE callback route + LoginModal wiring)
+- [x] Forgot-password flow wiring (S5: server action + reset callback + set-new-password page)
 - [ ] Admin user invite email flow
 
 ### Search & Filtering
@@ -169,6 +183,7 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `ai/phase3b-session1` | 3 | Public pages wired |
 | `ai/phase3b-session2` | 2 | Auth + customer features |
 | `ai/phase4-polish` | 2 | Toast, Zod, account fix, search |
+| `ai/phase5-s5-auth` | 4 | Auth gaps: forgot-password, LINE Login |
 
 ---
 
@@ -184,5 +199,7 @@ All 26 admin pages wired to Supabase with Server Actions.
 | `src/lib/actions/*.js` | Server Actions (12 action files) |
 | `src/lib/validations/*.js` | Zod schemas |
 | `src/lib/auth/route-rules.js` | Route protection logic |
+| `src/lib/auth/line-config.js` | LINE Login OAuth config + URL builder |
+| `src/lib/actions/auth.js` | Password reset + update server actions |
 | `src/lib/toast-context.js` | Toast notification context |
 | `middleware.js` | Supabase session refresh + route guard |
