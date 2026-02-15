@@ -378,11 +378,11 @@ export default function GalleryListClient({ galleries, totalCount }) {
                             checked={selectedRows.includes(gallery.id)}
                             onChange={() => toggleSelectRow(gallery.id)}
                             className="size-[16px] accent-[#ff7e1b] cursor-pointer rounded"
-                            aria-label={`Select gallery ${gallery.sort_order}`}
+                            aria-label={`Select gallery ${gallery.sort_order != null ? gallery.sort_order + 1 : '-'}`}
                           />
                         </td>
                         <td className="px-[10px] py-[10px] text-[13px] text-[#374151]">
-                          {gallery.sort_order ?? '-'}
+                          {gallery.sort_order != null ? gallery.sort_order + 1 : '-'}
                         </td>
                         <td className="px-[10px] py-[10px]">
                           {gallery.image_url ? (
@@ -405,7 +405,7 @@ export default function GalleryListClient({ galleries, totalCount }) {
                             <button
                               onClick={() => setOpenMenuId(openMenuId === gallery.id ? null : gallery.id)}
                               className="size-[32px] inline-flex items-center justify-center rounded-[6px] hover:bg-[#f3f4f6] transition-colors cursor-pointer bg-transparent border-none"
-                              aria-label={`Actions for gallery ${gallery.sort_order}`}
+                              aria-label={`Actions for gallery ${gallery.sort_order != null ? gallery.sort_order + 1 : '-'}`}
                               aria-haspopup="true"
                               aria-expanded={openMenuId === gallery.id}
                             >

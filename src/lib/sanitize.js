@@ -30,3 +30,32 @@ export function sanitizeObject(obj) {
   }
   return result
 }
+
+/**
+ * Strip all HTML tags from a string, returning only text content.
+ * Handles nested tags, self-closing tags, and HTML entities.
+ * Uses browser DOMParser in client environment for robust parsing.
+ *
+ * @param {*} html - HTML string to strip
+ * @returns {string} Plain text without HTML tags
+ */
+export function stripHtmlTags(html) {
+  if (!html) return ''
+  if (typeof html !== 'string') return ''
+
+  // Use browser DOMParser for robust HTML parsing (client-side)
+  if (typeof window !== 'undefined' && window.DOMParser) {
+    try {
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(html, 'text/html')
+      return doc.body.textContent || ''
+    } catch (err) {
+      // Fallback to regex if DOMParser fails
+      console.warn('DOMParser failed, using regex fallback:', err)
+    }
+  }
+
+  // Server-side or fallback: use regex (handles most cases)
+  // This regex removes all tags: <tag>, </tag>, <tag/>
+  return html.replace(/<[^>]*>/g, '').trim()
+}

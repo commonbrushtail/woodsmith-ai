@@ -18,8 +18,8 @@ vi.mock('@/lib/actions/gallery', () => ({
 }))
 
 describe('GalleryListClient - Sort Order Display', () => {
-  it('displays sort_order as 1-indexed (first item shows 1, not 0)', () => {
-    const GalleryListClient = require('@/components/admin/GalleryListClient').default
+  it('displays sort_order as 1-indexed (first item shows 1, not 0)', async () => {
+    const GalleryListClient = (await import('@/components/admin/GalleryListClient')).default
     const galleries = [
       { id: '1', sort_order: 0, caption: 'First', image_url: '/img1.jpg', published: true, created_at: '2024-01-01' },
       { id: '2', sort_order: 1, caption: 'Second', image_url: '/img2.jpg', published: true, created_at: '2024-01-02' },
@@ -45,15 +45,15 @@ describe('GalleryListClient - Sort Order Display', () => {
     expect(orderCells).not.toBeInTheDocument()
   })
 
-  it('handles empty gallery list without errors', () => {
-    const GalleryListClient = require('@/components/admin/GalleryListClient').default
+  it('handles empty gallery list without errors', async () => {
+    const GalleryListClient = (await import('@/components/admin/GalleryListClient')).default
     render(createElement(GalleryListClient, { galleries: [], totalCount: 0 }))
 
     expect(screen.getByText(/ไม่พบข้อมูลแกลลอรี่/)).toBeInTheDocument()
   })
 
-  it('handles single gallery item (displays order as 1)', () => {
-    const GalleryListClient = require('@/components/admin/GalleryListClient').default
+  it('handles single gallery item (displays order as 1)', async () => {
+    const GalleryListClient = (await import('@/components/admin/GalleryListClient')).default
     const galleries = [
       { id: '1', sort_order: 0, caption: 'Only', image_url: '/img.jpg', published: true, created_at: '2024-01-01' },
     ]

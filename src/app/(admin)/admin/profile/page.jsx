@@ -3,6 +3,7 @@
 import { useState, useEffect, useTransition } from 'react'
 import { getCompanyProfile, updateCompanyProfile } from '@/lib/actions/profile'
 import { useToast } from '@/lib/toast-context'
+import { stripHtmlTags } from '@/lib/sanitize'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -53,7 +54,7 @@ export default function ProfilePage() {
   useEffect(() => {
     getCompanyProfile().then(({ data }) => {
       if (data) {
-        setCompanyName(data.companyName || '')
+        setCompanyName(stripHtmlTags(data.companyName || ''))
         setSetKey(data.setKey || '')
         setSetRecommendedKey(data.setRecommendedKey || '')
         setSetTip(data.setTip || '')
