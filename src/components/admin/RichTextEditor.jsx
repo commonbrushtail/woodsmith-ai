@@ -176,6 +176,7 @@ export default function RichTextEditor({ content = '', onChange, minHeight = 200
     onUpdate: ({ editor }) => {
       onChange?.(editor.getHTML())
     },
+    immediatelyRender: false,
   })
 
   return (
