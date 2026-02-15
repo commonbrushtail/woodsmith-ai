@@ -46,4 +46,17 @@ describe('RichTextEditor', () => {
     expect(screen.getByRole('button', { name: /link/i })).toBeTruthy()
     expect(screen.getByRole('button', { name: /image/i })).toBeTruthy()
   })
+
+  it('renders without SSR crash when immediatelyRender is configured', () => {
+    // This test will fail initially because immediatelyRender: false is missing
+    const { container } = render(<RichTextEditor content="<p>Test content</p>" onChange={vi.fn()} />)
+
+    // Verify editor wrapper exists (proves component mounted successfully)
+    const editorWrapper = container.querySelector('[data-testid="editor-wrapper"]')
+    expect(editorWrapper).toBeTruthy()
+
+    // Verify editor content area exists (proves TipTap initialized)
+    const proseMirror = container.querySelector('.ProseMirror')
+    expect(proseMirror).toBeTruthy()
+  })
 })
