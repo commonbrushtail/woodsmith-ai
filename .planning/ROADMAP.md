@@ -98,10 +98,11 @@ Plans:
 4. When admin edits a variation group's entries, changes automatically appear on all linked products (no manual sync needed)
 5. Admin can add custom variation entries on-the-fly during product create/edit (ad-hoc entries saved to database)
 
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 07-01: TBD
+- [ ] 07-01-PLAN.md — Server actions for link sync + VariationLinker UI component
+- [ ] 07-02-PLAN.md — Integrate VariationLinker into product create and edit forms
 
 ## Progress
 
@@ -116,7 +117,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Database Infrastructure | v1.1 | 1/1 | ✓ Complete | 2026-02-15 |
 | 5. Variation CRUD Operations | v1.1 | 1/1 | ✓ Complete | 2026-02-15 |
 | 6. Variation Admin UI | v1.1 | 2/2 | ✓ Complete | 2026-02-15 |
-| 7. Product Integration | v1.1 | 0/TBD | Not started | - |
+| 7. Product Integration | v1.1 | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-15*
