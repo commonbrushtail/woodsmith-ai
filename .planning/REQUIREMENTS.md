@@ -9,11 +9,11 @@ Requirements for v1.1 Variations Management milestone.
 
 ### Variation Group Management
 
-- [ ] **VAR-01**: Admin can create a variation group with a name (e.g., สี, ขนาด, พื้นผิว)
-- [ ] **VAR-02**: Admin can add entries to a variation group (label + optional swatch image)
-- [ ] **VAR-03**: Admin can edit a variation group's name and entries
-- [ ] **VAR-04**: Admin can delete a variation group (with confirmation, warns if linked to products)
-- [ ] **VAR-05**: Admin can reorder entries within a variation group
+- [x] **VAR-01**: Admin can create a variation group with a name (e.g., สี, ขนาด, พื้นผิว)
+- [x] **VAR-02**: Admin can add entries to a variation group (label + optional swatch image)
+- [x] **VAR-03**: Admin can edit a variation group's name and entries
+- [x] **VAR-04**: Admin can delete a variation group (with confirmation, warns if linked to products)
+- [x] **VAR-05**: Admin can reorder entries within a variation group
 - [ ] **VAR-06**: Admin can view a list of all variation groups with entry count
 
 ### Product-Variation Linking
@@ -62,11 +62,11 @@ Requirements for v1.1 Variations Management milestone.
 | DB-02 | Phase 4 | ✓ Complete |
 | DB-03 | Phase 4 | ✓ Complete |
 | DB-04 | Phase 4 | ✓ Complete |
-| VAR-01 | Phase 5 | Pending |
-| VAR-02 | Phase 5 | Pending |
-| VAR-03 | Phase 5 | Pending |
-| VAR-04 | Phase 5 | Pending |
-| VAR-05 | Phase 5 | Pending |
+| VAR-01 | Phase 5 | ✓ Complete |
+| VAR-02 | Phase 5 | ✓ Complete |
+| VAR-03 | Phase 5 | ✓ Complete |
+| VAR-04 | Phase 5 | ✓ Complete |
+| VAR-05 | Phase 5 | ✓ Complete |
 | VAR-06 | Phase 6 | Pending |
 | PAGE-01 | Phase 6 | Pending |
 | PAGE-02 | Phase 6 | Pending |

@@ -60,7 +60,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 05-01-PLAN.md — Zod validation schemas + 10 server actions for variation group/entry CRUD
+- [x] 05-01-PLAN.md — Zod validation schemas + 10 server actions for variation group/entry CRUD ✓
 
 #### Phase 6: Variation Admin UI
 
@@ -113,7 +113,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 2. Cosmetic Bug Fixes | v1.0 | 1/1 | ✓ Complete | 2026-02-15 |
 | 3. Hydration Warning Cleanup | v1.0 | 2/2 | ✓ Complete | 2026-02-15 |
 | 4. Database Infrastructure | v1.1 | 1/1 | ✓ Complete | 2026-02-15 |
-| 5. Variation CRUD Operations | v1.1 | 0/1 | Not started | - |
+| 5. Variation CRUD Operations | v1.1 | 1/1 | ✓ Complete | 2026-02-15 |
 | 6. Variation Admin UI | v1.1 | 0/TBD | Not started | - |
 | 7. Product Integration | v1.1 | 0/TBD | Not started | - |
 
