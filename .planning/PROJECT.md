@@ -35,7 +35,15 @@ Customers can browse products and submit quotation requests seamlessly — the q
 
 ### Active
 
-(None — next milestone not yet defined)
+#### Current Milestone: v1.1 Variations Management
+
+**Goal:** Reusable product variation groups managed centrally, linked to products with per-product entry selection.
+
+- [ ] Admin can create/edit/delete variation groups (e.g., สี, ขนาด, พื้นผิว) with entries (label + optional image)
+- [ ] Admin can link variation groups to products with per-product entry selection
+- [ ] Admin can add custom variation entries on-the-fly in product create/edit
+- [ ] Variation group changes sync to all linked products
+- [ ] Dedicated admin pages: variation list, create, edit
 
 ### Out of Scope
 
@@ -75,5 +83,8 @@ Customers can browse products and submit quotation requests seamlessly — the q
 | DOMParser + regex fallback for HTML stripping | Robust entity handling client-side, works server-side too | ✓ Good — handles all edge cases |
 | Display-layer sort_order + 1 | No database migration needed, simple and safe | ✓ Good — user-friendly numbering |
 
+| Linked variation groups with per-product entry selection | Flexible: shared groups reduce repetitive data entry, per-product picks allow product-specific customization | — Pending |
+| Start fresh for variations (keep existing product_options) | Avoids risky data migration, existing products unaffected | — Pending |
+
 ---
-*Last updated: 2026-02-15 after v1.0 milestone*
+*Last updated: 2026-02-15 after v1.1 milestone start*

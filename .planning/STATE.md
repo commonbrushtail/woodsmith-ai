@@ -5,15 +5,15 @@
 See: .planning/PROJECT.md (updated 2026-02-15)
 
 **Core value:** Customers can browse products and submit quotation requests seamlessly
-**Current focus:** Planning next milestone
+**Current focus:** v1.1 Variations Management
 
 ## Current Position
 
-Milestone: v1.0 Bug Fix Milestone — SHIPPED 2026-02-15
-Status: Milestone complete, awaiting next milestone definition
-Last activity: 2026-02-15 - Completed quick task 4: Fix branch edit save button to preserve publish status
+Milestone: v1.1 Variations Management
+Status: Defining requirements
+Last activity: 2026-02-15 — Milestone v1.1 started
 
-Progress: [██████████] 100% (v1.0)
+Progress: [░░░░░░░░░░] 0% (v1.1)
 
 ## Milestone History
 
@@ -53,7 +53,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed quick task 4: Fix branch edit save button to preserve publish status
+Stopped at: Milestone v1.1 started — defining requirements
 Resume file: None
 
 ### Recent Quick Tasks
