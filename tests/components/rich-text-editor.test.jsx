@@ -59,4 +59,18 @@ describe('RichTextEditor', () => {
     const proseMirror = container.querySelector('.ProseMirror')
     expect(proseMirror).toBeTruthy()
   })
+
+  it('handles null/undefined content gracefully without SSR errors', () => {
+    // Test with null content
+    const { container: container1 } = render(<RichTextEditor content={null} onChange={vi.fn()} />)
+    expect(container1.querySelector('.ProseMirror')).toBeTruthy()
+
+    // Test with undefined content
+    const { container: container2 } = render(<RichTextEditor onChange={vi.fn()} />)
+    expect(container2.querySelector('.ProseMirror')).toBeTruthy()
+
+    // Test with empty string
+    const { container: container3 } = render(<RichTextEditor content="" onChange={vi.fn()} />)
+    expect(container3.querySelector('.ProseMirror')).toBeTruthy()
+  })
 })
