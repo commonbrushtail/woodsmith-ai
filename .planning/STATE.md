@@ -12,11 +12,11 @@ See: .planning/PROJECT.md (updated 2026-02-15)
 
 Milestone: v1.1 Variations Management
 Phase: 6 of 7 (Variation Admin UI)
-Current Plan: 2 of 3
+Current Plan: 3 of 3
 Status: In progress
-Last activity: 2026-02-15 — Phase 6 Plan 01 complete (variations list page)
+Last activity: 2026-02-15 — Phase 6 Plan 02 complete (variation form pages)
 
-Progress: [█████░░░░░] 50% (across all milestones: 5 of 10 phases complete, Phase 6: 1 of 3 plans done)
+Progress: [█████░░░░░] 50% (across all milestones: 5 of 10 phases complete, Phase 6: 2 of 3 plans done)
 
 ## Milestone History
 
@@ -42,9 +42,9 @@ Progress: [█████░░░░░] 50% (across all milestones: 5 of 10 p
 | 4. Database Infrastructure | 1 | 1 min | 1 min |
 
 **v1.1 Velocity (so far):**
-- Total plans completed: 3
-- Average duration: 2 min
-- Total execution time: 0.1 hours
+- Total plans completed: 4
+- Average duration: 3 min
+- Total execution time: 0.17 hours
 
 **By Phase:**
 
@@ -52,7 +52,7 @@ Progress: [█████░░░░░] 50% (across all milestones: 5 of 10 p
 |-------|-------|-------|----------|
 | 4. Database Infrastructure | 1 | 1 min | 1 min |
 | 5. Variation CRUD Operations | 1 | 2 min | 2 min |
-| 6. Variation Admin UI | 1 | 3 min | 3 min |
+| 6. Variation Admin UI | 2 | 7 min | 3.5 min |
 
 ## Accumulated Context
 
@@ -73,6 +73,8 @@ Recent decisions affecting v1.1:
 - All variation mutations use createServiceClient (service role bypasses RLS for admin writes)
 - Follow FaqListClient pattern for variations list (no pagination needed for small group count)
 - Implement two-step delete flow with force confirmation for linked variation groups
+- [Phase 06]: Two-phase create flow for variation groups (group first, then entries)
+- [Phase 06]: Immediate delete for variation entries (not batched with save)
 
 ### Pending Todos
 
@@ -85,7 +87,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Phase 6 Plan 01 complete — variations list page created
+Stopped at: Completed 06-02-PLAN.md — variation form pages complete
 Resume file: None
 
 ### Recent Activity
@@ -98,6 +100,7 @@ Resume file: None
 | 2026-02-15 | Phase 04 Plan 01 executed | Variation tables + RLS (2 migrations, 2 tasks, 1 min) |
 | 2026-02-15 | Phase 05 Plan 01 executed | Variation CRUD server actions (10 actions, 4 schemas, 2 tasks, 2 min) |
 | 2026-02-15 | Phase 06 Plan 01 executed | Variation list page (sidebar nav, search, force-delete, 1 task, 3 min) |
+| 2026-02-15 | Phase 06 Plan 02 executed | Variation form pages (create/edit with CRUD, drag-drop, 2 tasks, 4 min) |
 
 ---
 *Last updated: 2026-02-15*
