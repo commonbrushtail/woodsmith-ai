@@ -86,6 +86,7 @@ Recent decisions affecting v1.1:
 | # | Task | Date | Result |
 |---|------|------|--------|
 | 5 | Check if pagination of admin really work | 2026-02-15 | VERIFIED — all pagination working correctly, no changes needed |
+| 6 | Fix pagination active page display past page 3 | 2026-02-16 | FIXED — shared getPageNumbers utility, 4 components fixed (2 min) |
 
 ### Pending Todos
 
@@ -97,8 +98,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-15
-Stopped at: Completed 07-02-PLAN.md (v1.1 Variations Management milestone complete)
+Last session: 2026-02-16
+Stopped at: Completed quick task 6 (pagination fix)
 Resume file: None
 
 ### Recent Activity
@@ -115,6 +116,7 @@ Resume file: None
 | 2026-02-15 | Phase 07 Plan 01 executed | Product-variation data layer (syncProductVariationLinks action, VariationLinker component, 2 tasks, 3 min) |
 | 2026-02-15 | Phase 07 Plan 02 executed | Product admin integration (VariationLinker in create/edit forms, 2 tasks, 3 min) |
 | 2026-02-15 | v1.1 shipped | Variations Management complete (6 plans, 15 min total) |
+| 2026-02-16 | Quick task 6 executed | Pagination active page fix (shared utility + 4 components, 2 min) |
 
 ---
-*Last updated: 2026-02-15*
+*Last updated: 2026-02-16*
