@@ -32,10 +32,10 @@ Requirements for v1.1 Variations Management milestone.
 
 ### Database & Infrastructure
 
-- [ ] **DB-01**: New `variation_groups` table (id, name, created_at, updated_at)
-- [ ] **DB-02**: New `variation_entries` table (id, group_id, label, image_url, sort_order)
-- [ ] **DB-03**: New `product_variation_links` junction table (product_id, group_id, entry_id)
-- [ ] **DB-04**: RLS policies for variation tables (admin-only write, public read)
+- [x] **DB-01**: New `variation_groups` table (id, name, created_at, updated_at)
+- [x] **DB-02**: New `variation_entries` table (id, group_id, label, image_url, sort_order)
+- [x] **DB-03**: New `product_variation_links` junction table (product_id, group_id, entry_id)
+- [x] **DB-04**: RLS policies for variation tables (admin-only write, public read)
 
 ## Future Requirements
 
@@ -58,10 +58,10 @@ Requirements for v1.1 Variations Management milestone.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DB-01 | Phase 4 | Pending |
-| DB-02 | Phase 4 | Pending |
-| DB-03 | Phase 4 | Pending |
-| DB-04 | Phase 4 | Pending |
+| DB-01 | Phase 4 | ✓ Complete |
+| DB-02 | Phase 4 | ✓ Complete |
+| DB-03 | Phase 4 | ✓ Complete |
+| DB-04 | Phase 4 | ✓ Complete |
 | VAR-01 | Phase 5 | Pending |
 | VAR-02 | Phase 5 | Pending |
 | VAR-03 | Phase 5 | Pending |
