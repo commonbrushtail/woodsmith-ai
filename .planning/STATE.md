@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-02-15)
 
 Milestone: v1.0 Bug Fix Milestone — SHIPPED 2026-02-15
 Status: Milestone complete, awaiting next milestone definition
-Last activity: 2026-02-15 - Completed quick task 3: Make admin table rows clickable to navigate to edit pages
+Last activity: 2026-02-15 - Completed quick task 4: Fix branch edit save button to preserve publish status
 
 Progress: [██████████] 100% (v1.0)
 
@@ -53,7 +53,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed quick task 3: Make admin table rows clickable to navigate to edit pages
+Stopped at: Completed quick task 4: Fix branch edit save button to preserve publish status
 Resume file: None
 
 ### Recent Quick Tasks
@@ -63,3 +63,4 @@ Resume file: None
 | quick-1-1 | Disable SSR for admin route group to fix hydration errors | ✓ Complete | 2026-02-15 |
 | quick-2 | Show product type background image on public products page | ✓ Complete | 2026-02-15 |
 | quick-3 | Make admin table rows clickable to navigate to edit pages | ✓ Complete | 2026-02-15 |
+| quick-4 | Fix branch edit save button to preserve publish status | ✓ Complete | 2026-02-15 |
