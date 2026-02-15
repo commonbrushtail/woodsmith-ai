@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import ArrowRight from '../../../../components/ArrowRight'
 import { getProductUrl } from '@/lib/product-url'
+import { getPageNumbers } from '@/lib/pagination'
 import imgSearch from '../../../../assets/icon_search.svg'
 
 const DESKTOP_PAGE_SIZE = 16
@@ -144,16 +145,7 @@ function FilterSection({ title, items, isOpen, onToggle, selectedCategories, onC
 }
 
 function Pagination({ currentPage, totalPages, onPageChange }) {
-  const pages = []
-  for (let i = 1; i <= Math.min(3, totalPages); i++) {
-    pages.push(i)
-  }
-  if (totalPages > 4) {
-    pages.push('...')
-    pages.push(totalPages)
-  } else if (totalPages === 4) {
-    pages.push(4)
-  }
+  const pages = getPageNumbers(currentPage, totalPages)
 
   return (
     <div className="flex items-center justify-center w-full gap-[4px]">

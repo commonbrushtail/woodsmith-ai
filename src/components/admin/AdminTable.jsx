@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { getPageNumbers } from '@/lib/pagination'
 
 export default function AdminTable({ columns = [], data = [], onPageChange, itemsPerPage = 10 }) {
   const [currentPage, setCurrentPage] = useState(1)
@@ -100,18 +101,10 @@ export default function AdminTable({ columns = [], data = [], onPageChange, item
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#374151" strokeWidth="1.5"><path d="M8.5 3.5L5 7L8.5 10.5" /></svg>
             </button>
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-              let page
-              if (totalPages <= 5) {
-                page = i + 1
-              } else if (currentPage <= 3) {
-                page = i + 1
-              } else if (currentPage >= totalPages - 2) {
-                page = totalPages - 4 + i
-              } else {
-                page = currentPage - 2 + i
-              }
-              return (
+            {getPageNumbers(currentPage, totalPages).map((page, i) =>
+              page === '...' ? (
+                <span key={`dots-${i}`} className="text-[#6b7280] text-[13px]">...</span>
+              ) : (
                 <button
                   key={page}
                   onClick={() => goToPage(page)}
@@ -124,19 +117,6 @@ export default function AdminTable({ columns = [], data = [], onPageChange, item
                   {page}
                 </button>
               )
-            })}
-            {totalPages > 5 && (
-              <>
-                <span className="text-[#6b7280] text-[13px]">...</span>
-                <button
-                  onClick={() => goToPage(totalPages)}
-                  className={`size-[32px] flex items-center justify-center rounded-[6px] font-['IBM_Plex_Sans_Thai'] text-[13px] ${
-                    currentPage === totalPages ? 'bg-orange text-white' : 'text-[#374151] hover:bg-gray-100'
-                  }`}
-                >
-                  {totalPages}
-                </button>
-              </>
             )}
             <button
               onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}

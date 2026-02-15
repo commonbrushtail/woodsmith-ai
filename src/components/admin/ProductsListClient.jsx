@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/lib/toast-context'
 import { deleteProduct, toggleProductRecommended, toggleProductPublished } from '@/lib/actions/products'
+import { getPageNumbers } from '@/lib/pagination'
 
 /* ------------------------------------------------------------------ */
 /*  Inline SVG icon helpers                                            */
@@ -251,10 +252,7 @@ export default function ProductsListClient({ products, totalCount, currentPage =
       </button>
     )
 
-    const visiblePages = []
-    for (let i = 1; i <= Math.min(3, totalPages); i++) visiblePages.push(i)
-    if (totalPages > 6) visiblePages.push('...')
-    for (let i = Math.max(totalPages - 2, 4); i <= totalPages; i++) visiblePages.push(i)
+    const visiblePages = getPageNumbers(currentPage, totalPages)
 
     for (const p of visiblePages) {
       if (p === '...') {

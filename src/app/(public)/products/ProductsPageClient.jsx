@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import ArrowRight from '../../../components/ArrowRight'
 import { getProductUrl } from '@/lib/product-url'
+import { getPageNumbers } from '@/lib/pagination'
 import imgCategoryBg from '../../../assets/product_category_bg.png'
 import imgSearch from '../../../assets/icon_search.svg'
 import imgRectangle15 from '../../../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
@@ -130,16 +131,7 @@ function FilterSection({ title, count, items, isOpen, onToggle, selectedCategori
 }
 
 function Pagination({ currentPage, totalPages, onPageChange }) {
-  const pages = []
-  for (let i = 1; i <= Math.min(3, totalPages); i++) {
-    pages.push(i)
-  }
-  if (totalPages > 4) {
-    pages.push('...')
-    pages.push(totalPages)
-  } else if (totalPages === 4) {
-    pages.push(4)
-  }
+  const pages = getPageNumbers(currentPage, totalPages)
 
   return (
     <div className="flex items-center justify-center w-full gap-[4px]">
