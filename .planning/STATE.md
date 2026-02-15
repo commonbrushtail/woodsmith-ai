@@ -12,17 +12,17 @@ See: .planning/PROJECT.md (updated 2026-02-15)
 
 Milestone: v1.1 Variations Management
 Phase: 5 of 7 (Variation CRUD Operations)
-Status: Ready to plan
-Last activity: 2026-02-15 — Phase 4 complete (verification passed)
+Status: Complete
+Last activity: 2026-02-15 — Phase 5 Plan 01 complete (variation CRUD server actions)
 
-Progress: [████░░░░░░] 40% (across all milestones: 4 of 10 phases complete)
+Progress: [█████░░░░░] 50% (across all milestones: 5 of 10 phases complete)
 
 ## Milestone History
 
 | Milestone | Phases | Plans | Status | Shipped |
 |-----------|--------|-------|--------|---------|
 | v1.0 Bug Fix | 1-3 | 5 | ✓ Complete | 2026-02-15 |
-| v1.1 Variations Management | 4-7 | 1 (1 complete) | 🚧 In progress | - |
+| v1.1 Variations Management | 4-7 | 2 (2 complete) | 🚧 In progress | - |
 
 ## Performance Metrics
 
@@ -41,9 +41,16 @@ Progress: [████░░░░░░] 40% (across all milestones: 4 of 10 p
 | 4. Database Infrastructure | 1 | 1 min | 1 min |
 
 **v1.1 Velocity (so far):**
-- Total plans completed: 1
-- Average duration: 1 min
-- Total execution time: 0.02 hours
+- Total plans completed: 2
+- Average duration: 1.5 min
+- Total execution time: 0.05 hours
+
+**By Phase:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 4. Database Infrastructure | 1 | 1 min | 1 min |
+| 5. Variation CRUD Operations | 1 | 2 min | 2 min |
 
 ## Accumulated Context
 
@@ -58,6 +65,10 @@ Recent decisions affecting v1.1:
 - UNIQUE constraint on (product_id, entry_id) prevents duplicate variation links
 - variation_groups and variation_entries allow unrestricted public read (shared catalog)
 - product_variation_links filter by products.published for public read (matches product_images/product_options pattern)
+- variationEntryUpdateSchema omits group_id (entries cannot be moved between groups after creation)
+- deleteVariationGroup returns warning if products linked (requires force flag to proceed)
+- Swatch images stored in products bucket at variations/{groupId}/ path (no new bucket needed)
+- All variation mutations use createServiceClient (service role bypasses RLS for admin writes)
 
 ### Pending Todos
 
@@ -70,7 +81,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Phase 4 complete — ready to plan Phase 5
+Stopped at: Phase 5 Plan 01 complete — ready to plan Phase 6
 Resume file: None
 
 ### Recent Activity
@@ -81,6 +92,7 @@ Resume file: None
 | 2026-02-15 | v1.1 started | Requirements defined (18 total) |
 | 2026-02-15 | v1.1 roadmap created | 4 phases, 100% requirement coverage |
 | 2026-02-15 | Phase 04 Plan 01 executed | Variation tables + RLS (2 migrations, 2 tasks, 1 min) |
+| 2026-02-15 | Phase 05 Plan 01 executed | Variation CRUD server actions (10 actions, 4 schemas, 2 tasks, 2 min) |
 
 ---
 *Last updated: 2026-02-15*
