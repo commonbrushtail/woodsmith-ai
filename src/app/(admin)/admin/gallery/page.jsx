@@ -1,8 +1,16 @@
 import { getGalleryItems } from '@/lib/actions/gallery'
-import GalleryListClient from '@/components/admin/GalleryListClient'
+import GalleryPageClient from '@/components/admin/GalleryPageClient'
 
 export default async function GalleryPage() {
-  const { data: galleries, count } = await getGalleryItems({ page: 1, perPage: 50 })
+  const [homepageRes, aboutRes] = await Promise.all([
+    getGalleryItems({ section: 'homepage', perPage: 1000 }),
+    getGalleryItems({ section: 'about', perPage: 1000 }),
+  ])
 
-  return <GalleryListClient galleries={galleries} totalCount={count} />
+  return (
+    <GalleryPageClient
+      homepageItems={homepageRes.data}
+      aboutItems={aboutRes.data}
+    />
+  )
 }
