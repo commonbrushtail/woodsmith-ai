@@ -12,17 +12,18 @@ See: .planning/PROJECT.md (updated 2026-02-15)
 
 Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
-Status: Ready to plan
-Last activity: 2026-02-15 — Phase 6 complete (verification passed)
+Current Plan: 1 of 2
+Status: In progress
+Last activity: 2026-02-15 — Phase 07 Plan 01 complete (variation link data layer)
 
-Progress: [█████░░░░░] 50% (across all milestones: 5 of 10 phases complete, Phase 6: 2 of 3 plans done)
+Progress: [██████░░░░] 60% (across all milestones: 6 of 10 phases complete, Phase 7: 1 of 2 plans done)
 
 ## Milestone History
 
 | Milestone | Phases | Plans | Status | Shipped |
 |-----------|--------|-------|--------|---------|
 | v1.0 Bug Fix | 1-3 | 5 | ✓ Complete | 2026-02-15 |
-| v1.1 Variations Management | 4-7 | 3 (3 complete) | 🚧 In progress | - |
+| v1.1 Variations Management | 4-7 | 5 (4 complete) | 🚧 In progress | - |
 
 ## Performance Metrics
 
@@ -41,9 +42,9 @@ Progress: [█████░░░░░] 50% (across all milestones: 5 of 10 p
 | 4. Database Infrastructure | 1 | 1 min | 1 min |
 
 **v1.1 Velocity (so far):**
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: 3 min
-- Total execution time: 0.17 hours
+- Total execution time: 0.22 hours
 
 **By Phase:**
 
@@ -52,6 +53,7 @@ Progress: [█████░░░░░] 50% (across all milestones: 5 of 10 p
 | 4. Database Infrastructure | 1 | 1 min | 1 min |
 | 5. Variation CRUD Operations | 1 | 2 min | 2 min |
 | 6. Variation Admin UI | 2 | 7 min | 3.5 min |
+| 7. Product Integration | 1 | 3 min | 3 min |
 
 ## Accumulated Context
 
@@ -74,6 +76,8 @@ Recent decisions affecting v1.1:
 - Implement two-step delete flow with force confirmation for linked variation groups
 - [Phase 06]: Two-phase create flow for variation groups (group first, then entries)
 - [Phase 06]: Immediate delete for variation entries (not batched with save)
+- [Phase 07]: Bulk replace pattern for product-variation link sync (delete-all-then-insert ensures consistency)
+- [Phase 07]: Auto-select all entries when adding variation group (user-friendly default)
 
 ### Pending Todos
 
@@ -86,7 +90,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Phase 6 complete — ready to plan Phase 7
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None
 
 ### Recent Activity
@@ -100,6 +104,7 @@ Resume file: None
 | 2026-02-15 | Phase 05 Plan 01 executed | Variation CRUD server actions (10 actions, 4 schemas, 2 tasks, 2 min) |
 | 2026-02-15 | Phase 06 Plan 01 executed | Variation list page (sidebar nav, search, force-delete, 1 task, 3 min) |
 | 2026-02-15 | Phase 06 Plan 02 executed | Variation form pages (create/edit with CRUD, drag-drop, 2 tasks, 4 min) |
+| 2026-02-15 | Phase 07 Plan 01 executed | Product-variation data layer (syncProductVariationLinks action, VariationLinker component, 2 tasks, 3 min) |
 
 ---
 *Last updated: 2026-02-15*
