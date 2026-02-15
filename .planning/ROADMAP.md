@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v1.0 Bug Fix Milestone** — Phases 1-3 (shipped 2026-02-15)
-- 🚧 **v1.1 Variations Management** — Phases 4-7 (in progress)
+- ✅ **v1.1 Variations Management** — Phases 4-7 (shipped 2026-02-15)
 
 ## Phases
 
@@ -101,8 +101,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — Server actions for link sync + VariationLinker UI component
-- [ ] 07-02-PLAN.md — Integrate VariationLinker into product create and edit forms
+- [x] 07-01-PLAN.md — Server actions for link sync + VariationLinker UI component ✓
+- [x] 07-02-PLAN.md — Integrate VariationLinker into product create and edit forms ✓
 
 ## Progress
 
@@ -117,7 +117,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Database Infrastructure | v1.1 | 1/1 | ✓ Complete | 2026-02-15 |
 | 5. Variation CRUD Operations | v1.1 | 1/1 | ✓ Complete | 2026-02-15 |
 | 6. Variation Admin UI | v1.1 | 2/2 | ✓ Complete | 2026-02-15 |
-| 7. Product Integration | v1.1 | 0/2 | Not started | - |
+| 7. Product Integration | v1.1 | 2/2 | ✓ Complete | 2026-02-15 |
 
 ---
 *Roadmap created: 2026-02-15*

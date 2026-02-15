@@ -18,11 +18,11 @@ Requirements for v1.1 Variations Management milestone.
 
 ### Product-Variation Linking
 
-- [ ] **LINK-01**: Admin can link one or more variation groups to a product
-- [ ] **LINK-02**: Admin can select which specific entries from a linked group apply to a product
-- [ ] **LINK-03**: Admin can unlink a variation group from a product
-- [ ] **LINK-04**: Changes to a variation group's entries automatically reflect on all linked products
-- [ ] **LINK-05**: Admin can add custom (ad-hoc) variation entries on the fly during product create/edit
+- [x] **LINK-01**: Admin can link one or more variation groups to a product
+- [x] **LINK-02**: Admin can select which specific entries from a linked group apply to a product
+- [x] **LINK-03**: Admin can unlink a variation group from a product
+- [x] **LINK-04**: Changes to a variation group's entries automatically reflect on all linked products
+- [x] **LINK-05**: Admin can add custom (ad-hoc) variation entries on the fly during product create/edit
 
 ### Admin Pages
 
@@ -71,11 +71,11 @@ Requirements for v1.1 Variations Management milestone.
 | PAGE-01 | Phase 6 | ✓ Complete |
 | PAGE-02 | Phase 6 | ✓ Complete |
 | PAGE-03 | Phase 6 | ✓ Complete |
-| LINK-01 | Phase 7 | Pending |
-| LINK-02 | Phase 7 | Pending |
-| LINK-03 | Phase 7 | Pending |
-| LINK-04 | Phase 7 | Pending |
-| LINK-05 | Phase 7 | Pending |
+| LINK-01 | Phase 7 | ✓ Complete |
+| LINK-02 | Phase 7 | ✓ Complete |
+| LINK-03 | Phase 7 | ✓ Complete |
+| LINK-04 | Phase 7 | ✓ Complete |
+| LINK-05 | Phase 7 | ✓ Complete |
 
 **Coverage:**
 - v1.1 requirements: 18 total
