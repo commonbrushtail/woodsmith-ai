@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { sanitizeInput, sanitizeObject } from '@/lib/sanitize'
+import { sanitizeInput, sanitizeObject, stripHtmlTags } from '@/lib/sanitize'
 
 describe('sanitizeInput', () => {
   it('trims whitespace', () => {
@@ -64,5 +64,49 @@ describe('sanitizeObject', () => {
     expect(result.name).toBe('nested')
     // Nested objects are not recursively sanitized
     expect(result.sub.deep).toBe('  keep  ')
+  })
+})
+
+describe('stripHtmlTags', () => {
+  it('strips simple HTML tags from text', () => {
+    expect(stripHtmlTags('<p>Hello World</p>')).toBe('Hello World')
+    expect(stripHtmlTags('<b>Bold</b> text')).toBe('Bold text')
+  })
+
+  it('strips nested HTML tags', () => {
+    expect(stripHtmlTags('<p><b>Nested</b> tags</p>')).toBe('Nested tags')
+    expect(stripHtmlTags('<div><span><em>Deep</em></span></div>')).toBe('Deep')
+  })
+
+  it('strips self-closing tags', () => {
+    expect(stripHtmlTags('Line 1<br/>Line 2')).toBe('Line 1Line 2')
+    expect(stripHtmlTags('Image here: <img src="test.jpg" />')).toBe('Image here: ')
+  })
+
+  it('handles HTML entities correctly', () => {
+    expect(stripHtmlTags('&lt;p&gt;Text&lt;/p&gt;')).toBe('<p>Text</p>')
+    expect(stripHtmlTags('A &amp; B')).toBe('A & B')
+    expect(stripHtmlTags('&quot;Quoted&quot;')).toBe('"Quoted"')
+  })
+
+  it('preserves whitespace between block elements', () => {
+    expect(stripHtmlTags('<p>Para 1</p><p>Para 2</p>')).toBe('Para 1Para 2')
+    expect(stripHtmlTags('<h1>Title</h1><p>Content</p>')).toBe('TitleContent')
+  })
+
+  it('handles empty input', () => {
+    expect(stripHtmlTags('')).toBe('')
+    expect(stripHtmlTags(null)).toBe('')
+    expect(stripHtmlTags(undefined)).toBe('')
+  })
+
+  it('handles plain text (no tags)', () => {
+    expect(stripHtmlTags('Plain text')).toBe('Plain text')
+    expect(stripHtmlTags('Thai text: สวัสดี')).toBe('Thai text: สวัสดี')
+  })
+
+  it('strips TipTap default paragraph wrapper', () => {
+    expect(stripHtmlTags('<p>Company Name</p>')).toBe('Company Name')
+    expect(stripHtmlTags('<p><strong>Bold Company</strong></p>')).toBe('Bold Company')
   })
 })
