@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A Thai woodworking and construction materials website combining corporate branding with an ecommerce-style product catalog. Instead of a shopping cart, customers submit quotation requests. Includes a full admin CMS for managing products, content, and quotations, plus customer authentication via SMS OTP and LINE Login.
+A Thai woodworking and construction materials website combining corporate branding with an ecommerce-style product catalog. Instead of a shopping cart, customers submit quotation requests. Includes a full admin CMS for managing products, content, and quotations, plus customer authentication via SMS OTP and LINE Login. All runtime bugs from initial development have been resolved with comprehensive test coverage.
 
 ## Core Value
 
@@ -11,8 +11,6 @@ Customers can browse products and submit quotation requests seamlessly — the q
 ## Requirements
 
 ### Validated
-
-<!-- Shipped and confirmed valuable. Inferred from existing codebase (46 pages, 202 tests). -->
 
 - ✓ Public storefront with product catalog, blog, gallery, FAQ, branches, manuals — existing
 - ✓ Admin CMS with CRUD for all content types (products, blog, banners, gallery, video highlights, manuals, FAQ, about, branches) — existing
@@ -28,32 +26,31 @@ Customers can browse products and submit quotation requests seamlessly — the q
 - ✓ Rate limiting on login attempts — existing
 - ✓ Middleware route protection with RLS database policies — existing
 - ✓ Responsive design with Tailwind CSS v4 design tokens — existing
-- ✓ 202 unit/integration tests (Vitest + Testing Library) — existing
+- ✓ TipTap SSR-safe rendering on all admin pages — v1.0
+- ✓ Banner create page with file upload — v1.0
+- ✓ dnd-kit hydration-safe sortable lists (DndContext outside table) — v1.0
+- ✓ Admin profile displays clean plain text (HTML stripping) — v1.0
+- ✓ Gallery 1-based sort order display — v1.0
+- ✓ 396 unit/integration tests with TDD methodology — v1.0
 
 ### Active
 
-<!-- Current scope: Bug fix milestone. -->
-
-- [ ] Fix TipTap SSR crash on 5+ admin pages
-- [ ] Fix dnd-kit hydration mismatch on 5 sortable list pages
-- [ ] Create missing banner create page (`/admin/banner/create`)
-- [ ] Fix profile page raw HTML display
-- [ ] Fix gallery order off-by-one error
-- [ ] Add test coverage for all 5 bug fixes
+(None — next milestone not yet defined)
 
 ### Out of Scope
 
-- New features — stabilize existing code first
 - Performance optimization — not blocking usage
 - SEO improvements — deferred to future milestone
 - Mobile app — web-first approach
 - Shopping cart / payment system — quotation-based business model
+- TypeScript migration — working codebase in JS, not worth the disruption now
+- i18n / English translation — Thai-only for now
 
 ## Context
 
 - **Brownfield project**: 46 pages (12 public + 34 admin), all wired to Supabase
-- **Testing**: 202 tests exist (199 pass, 3 pre-existing validation failures)
-- **Known bugs**: 5 runtime bugs documented in `docs/TODO.md` Phase 6
+- **Testing**: 396 tests (393 pass, 3 pre-existing validation failures in quotations.test.js)
+- **v1.0 shipped**: 5 runtime bugs fixed with TDD, test suite nearly doubled
 - **Codebase map**: `.planning/codebase/` contains 7 analysis documents
 - **Thai language**: All UI text is hardcoded in Thai
 - **Design system**: Tailwind v4 tokens in `@theme` block — `text-orange`, `bg-beige`, etc.
@@ -61,8 +58,6 @@ Customers can browse products and submit quotation requests seamlessly — the q
 ## Constraints
 
 - **Tech stack**: Next.js 16 App Router, React 19, JavaScript (no TypeScript), Tailwind CSS v4, Supabase
-- **Methodology**: Test-Driven Development — write failing tests first, then implement fixes
-- **Execution**: Plans executed via Ralph Loop (autonomous AI loop) — plans must be detailed and self-contained
 - **Images**: `next/image` disabled; use webpack `asset/resource` imports
 - **No tailwind.config.js**: Design tokens live in `@theme` block in `src/app/globals.css`
 - **Server Actions only**: No API routes for mutations — all CRUD via `'use server'` actions
@@ -71,10 +66,14 @@ Customers can browse products and submit quotation requests seamlessly — the q
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Bug fixes before new features | Stabilize existing code, prevent compounding issues | — Pending |
-| TDD methodology | Ensure fixes don't regress, build confidence in codebase | — Pending |
-| Ralph Loop for execution | Autonomous implementation after thorough planning | — Pending |
-| GSD workflow for planning | Structured approach to organize AI-assisted development | — Pending |
+| Bug fixes before new features | Stabilize existing code, prevent compounding issues | ✓ Good — all 5 bugs fixed, codebase stable |
+| TDD methodology | Ensure fixes don't regress, build confidence in codebase | ✓ Good — 194 new tests, caught edge cases early |
+| Ralph Loop for execution | Autonomous implementation after thorough planning | ✓ Good — 5 plans executed autonomously |
+| GSD workflow for planning | Structured approach to organize AI-assisted development | ✓ Good — clear phases, verifiable milestones |
+| `immediatelyRender: false` for TipTap | SSR-safe config, official TipTap recommendation | ✓ Good — zero SSR crashes |
+| DndContext outside table boundary | HTML5 spec compliance, eliminates hydration warnings | ✓ Good — zero console warnings |
+| DOMParser + regex fallback for HTML stripping | Robust entity handling client-side, works server-side too | ✓ Good — handles all edge cases |
+| Display-layer sort_order + 1 | No database migration needed, simple and safe | ✓ Good — user-friendly numbering |
 
 ---
-*Last updated: 2026-02-15 after initialization*
+*Last updated: 2026-02-15 after v1.0 milestone*
