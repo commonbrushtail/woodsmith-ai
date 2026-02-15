@@ -415,7 +415,11 @@ export default function ProductsListClient({ products, totalCount }) {
                   return (
                     <tr
                       key={product.id}
-                      className="border-t border-[#f3f4f6] hover:bg-[#fafafa] transition-colors"
+                      onClick={(e) => {
+                        if (e.target.closest('button, a, input, select')) return
+                        router.push('/admin/products/edit/' + product.id)
+                      }}
+                      className="border-t border-[#f3f4f6] hover:bg-[#fafafa] transition-colors cursor-pointer"
                     >
                       <td className="px-[12px] py-[10px]">
                         <input

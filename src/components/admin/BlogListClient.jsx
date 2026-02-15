@@ -314,7 +314,14 @@ export default function BlogListClient({ blogs, totalCount }) {
                 </tr>
               ) : (
                 sortedBlogs.map((blog) => (
-                  <tr key={blog.id} className="border-t border-[#f3f4f6] hover:bg-[#fafafa] transition-colors">
+                  <tr
+                    key={blog.id}
+                    onClick={(e) => {
+                      if (e.target.closest('button, a, input, select')) return
+                      router.push('/admin/blog/edit/' + blog.id)
+                    }}
+                    className="border-t border-[#f3f4f6] hover:bg-[#fafafa] transition-colors cursor-pointer"
+                  >
                     <td className="px-[12px] py-[10px]">
                       <input
                         type="checkbox"

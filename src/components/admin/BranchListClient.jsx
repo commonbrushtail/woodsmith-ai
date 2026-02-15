@@ -103,7 +103,14 @@ export default function BranchListClient({ branches, totalCount }) {
               </tr>
             ) : (
               filtered.map((branch, idx) => (
-                <tr key={branch.id} className="border-b border-[#f3f4f6] hover:bg-[#f9fafb] transition-colors">
+                <tr
+                  key={branch.id}
+                  onClick={(e) => {
+                    if (e.target.closest('button, a, input, select')) return
+                    router.push('/admin/branch/edit/' + branch.id)
+                  }}
+                  className="border-b border-[#f3f4f6] hover:bg-[#f9fafb] transition-colors cursor-pointer"
+                >
                   <td className="px-[16px] py-[14px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#9ca3af]">
                     {branch.sort_order || idx + 1}
                   </td>
