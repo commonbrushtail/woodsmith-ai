@@ -14,7 +14,7 @@ Requirements for v1.1 Variations Management milestone.
 - [x] **VAR-03**: Admin can edit a variation group's name and entries
 - [x] **VAR-04**: Admin can delete a variation group (with confirmation, warns if linked to products)
 - [x] **VAR-05**: Admin can reorder entries within a variation group
-- [ ] **VAR-06**: Admin can view a list of all variation groups with entry count
+- [x] **VAR-06**: Admin can view a list of all variation groups with entry count
 
 ### Product-Variation Linking
 
@@ -26,9 +26,9 @@ Requirements for v1.1 Variations Management milestone.
 
 ### Admin Pages
 
-- [ ] **PAGE-01**: Variation groups list page (table with name, entry count, linked product count)
-- [ ] **PAGE-02**: Variation group create page (name input, entry management with image upload)
-- [ ] **PAGE-03**: Variation group edit page (same as create, pre-populated)
+- [x] **PAGE-01**: Variation groups list page (table with name, entry count, linked product count)
+- [x] **PAGE-02**: Variation group create page (name input, entry management with image upload)
+- [x] **PAGE-03**: Variation group edit page (same as create, pre-populated)
 
 ### Database & Infrastructure
 
@@ -67,10 +67,10 @@ Requirements for v1.1 Variations Management milestone.
 | VAR-03 | Phase 5 | ✓ Complete |
 | VAR-04 | Phase 5 | ✓ Complete |
 | VAR-05 | Phase 5 | ✓ Complete |
-| VAR-06 | Phase 6 | Pending |
-| PAGE-01 | Phase 6 | Pending |
-| PAGE-02 | Phase 6 | Pending |
-| PAGE-03 | Phase 6 | Pending |
+| VAR-06 | Phase 6 | ✓ Complete |
+| PAGE-01 | Phase 6 | ✓ Complete |
+| PAGE-02 | Phase 6 | ✓ Complete |
+| PAGE-03 | Phase 6 | ✓ Complete |
 | LINK-01 | Phase 7 | Pending |
 | LINK-02 | Phase 7 | Pending |
 | LINK-03 | Phase 7 | Pending |
