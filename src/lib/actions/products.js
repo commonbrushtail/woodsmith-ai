@@ -43,7 +43,7 @@ export async function getProduct(id) {
 
   const { data, error } = await supabase
     .from('products')
-    .select('*, product_images(id, url, is_primary, sort_order), product_options(id, option_type, label, sort_order)')
+    .select('*, product_images(id, url, is_primary, sort_order), product_options(id, option_type, label, image_url, sort_order), product_variation_links(id, group_id, entry_id, variation_groups(id, name), variation_entries(id, label, image_url, sort_order))')
     .eq('id', id)
     .single()
 
@@ -108,6 +108,7 @@ export async function createProduct(formData) {
           product_id: data.id,
           option_type: opt.type,
           label: opt.label,
+          image_url: opt.image_url || null,
           sort_order: i,
         }))
         await supabase.from('product_options').insert(optionRows)
@@ -184,6 +185,7 @@ export async function updateProduct(id, formData) {
           product_id: id,
           option_type: opt.type,
           label: opt.label,
+          image_url: opt.image_url || null,
           sort_order: i,
         }))
         await supabase.from('product_options').insert(optionRows)
@@ -338,5 +340,64 @@ export async function deleteProductImage(imageId) {
   if (error) return { error: error.message }
 
   revalidatePath('/admin/products')
+  return { error: null }
+}
+
+/**
+ * Upload an option swatch/thumbnail image.
+ * Returns the public URL for the uploaded image.
+ */
+export async function uploadOptionImage(productId, formData) {
+  const file = formData.get('file')
+  if (!file) return { url: null, error: 'No file provided' }
+
+  const ext = file.name.split('.').pop()
+  const filePath = `${productId}/options/${Date.now()}.${ext}`
+
+  const { path, error: uploadError } = await uploadFile('products', file, filePath)
+  if (uploadError) return { url: null, error: uploadError.message }
+
+  const url = getPublicUrl('products', path)
+  return { url, error: null }
+}
+
+/**
+ * Sync product-variation links (bulk replace).
+ * @param {string} productId - Product ID
+ * @param {Array<{group_id: string, entry_id: string}>} links - Array of variation links
+ */
+export async function syncProductVariationLinks(productId, links) {
+  const supabase = createServiceClient()
+
+  // Delete all existing links for this product
+  const { error: deleteError } = await supabase
+    .from('product_variation_links')
+    .delete()
+    .eq('product_id', productId)
+
+  if (deleteError) return { error: deleteError.message }
+
+  // Insert new links if any
+  if (links && links.length > 0) {
+    const rows = links.map(link => ({
+      product_id: productId,
+      group_id: link.group_id,
+      entry_id: link.entry_id,
+    }))
+
+    const { error: insertError } = await supabase
+      .from('product_variation_links')
+      .insert(rows)
+
+    if (insertError) return { error: insertError.message }
+  }
+
+  // Get current user for audit
+  const authClient = await createClient()
+  const { data: { user } } = await authClient.auth.getUser()
+  logAudit({ userId: user?.id, action: 'product.sync_variation_links', targetId: productId })
+
+  revalidatePath('/admin/products')
+  revalidatePath(`/admin/products/edit/${productId}`)
   return { error: null }
 }
