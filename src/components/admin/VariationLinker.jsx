@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
-import { createVariationEntry } from '@/lib/actions/variations'
+import { useState, useEffect, useTransition, useRef } from 'react'
+import { createVariationEntry, createVariationGroup } from '@/lib/actions/variations'
 import { useToast } from '@/lib/toast-context'
+import { validateFile } from '@/lib/upload-validation'
 
 function ChevronDownIcon({ size = 12, className = '' }) {
   return (
@@ -39,18 +40,26 @@ function PlusIcon({ size = 12, color = '#ff7e1b' }) {
 }
 
 export default function VariationLinker({ allGroups, initialLinks, onChange }) {
+  // Local copy of groups that includes ad-hoc created groups (survives parent re-renders)
+  const [localGroups, setLocalGroups] = useState(allGroups)
   const [linkedGroups, setLinkedGroups] = useState([])
   const [selectedEntries, setSelectedEntries] = useState({})
   const [expandedGroups, setExpandedGroups] = useState(new Set())
   const [searchQuery, setSearchQuery] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [newEntryLabels, setNewEntryLabels] = useState({})
+  const [newEntryImages, setNewEntryImages] = useState({})
   const [isPending, startTransition] = useTransition()
-  const { addToast } = useToast()
+  const { toast } = useToast()
+  const fileInputRefs = useRef({})
+  const hasInitialized = useRef(false)
 
-  // Initialize state from initialLinks
+  // Initialize state from initialLinks (once on mount only)
+  // Must not re-run when Next.js RSC refresh creates new initialLinks reference
   useEffect(() => {
+    if (hasInitialized.current) return
     if (!initialLinks || initialLinks.length === 0) return
+    hasInitialized.current = true
 
     const groupIds = new Set()
     const entries = {}
@@ -83,7 +92,7 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
   }, [linkedGroups, selectedEntries, onChange])
 
   const handleAddGroup = (groupId) => {
-    const group = allGroups.find(g => g.id === groupId)
+    const group = localGroups.find(g => g.id === groupId)
     if (!group) return
 
     // Add group to linked
@@ -144,6 +153,19 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
     })
   }
 
+  const handleImageSelect = (groupId, file) => {
+    if (!file) {
+      setNewEntryImages(prev => ({ ...prev, [groupId]: null }))
+      return
+    }
+    const validation = validateFile(file)
+    if (!validation.valid) {
+      toast.error(validation.error)
+      return
+    }
+    setNewEntryImages(prev => ({ ...prev, [groupId]: file }))
+  }
+
   const handleAddEntry = (groupId) => {
     const label = newEntryLabels[groupId]?.trim()
     if (!label) return
@@ -153,21 +175,25 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
       formData.set('group_id', groupId)
       formData.set('label', label)
 
+      const imageFile = newEntryImages[groupId]
+      if (imageFile) {
+        formData.set('file', imageFile)
+      }
+
       const result = await createVariationEntry(formData)
 
       if (result.error || result.fieldErrors) {
-        addToast(result.error || 'เกิดข้อผิดพลาดในการเพิ่มตัวเลือก', 'error')
+        toast.error(result.error || 'เกิดข้อผิดพลาดในการเพิ่มตัวเลือก')
         return
       }
 
-      // Add new entry to the group's entries in local state
-      const group = allGroups.find(g => g.id === groupId)
-      if (group && result.data) {
-        // Add to the group's variation_entries array
-        if (!group.variation_entries) {
-          group.variation_entries = []
-        }
-        group.variation_entries.push(result.data)
+      if (result.data) {
+        // Add new entry to localGroups state (immutable update)
+        setLocalGroups(prev => prev.map(g =>
+          g.id === groupId
+            ? { ...g, variation_entries: [...(g.variation_entries || []), result.data] }
+            : g
+        ))
 
         // Auto-select the new entry
         setSelectedEntries(prev => {
@@ -179,18 +205,55 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
           return updated
         })
 
-        // Clear input
+        // Clear inputs
         setNewEntryLabels(prev => ({ ...prev, [groupId]: '' }))
+        setNewEntryImages(prev => ({ ...prev, [groupId]: null }))
+        if (fileInputRefs.current[groupId]) {
+          fileInputRefs.current[groupId].value = ''
+        }
 
-        addToast('เพิ่มตัวเลือกสำเร็จ', 'success')
+        toast.success('เพิ่มตัวเลือกสำเร็จ')
       }
     })
   }
 
-  const availableGroups = allGroups.filter(g => !linkedGroups.includes(g.id))
+  const handleCreateGroup = () => {
+    const name = searchQuery.trim()
+    if (!name) return
+
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set('name', name)
+
+      const result = await createVariationGroup(formData)
+
+      if (result.error || result.fieldErrors) {
+        toast.error(result.error || 'เกิดข้อผิดพลาดในการสร้างกลุ่ม')
+        return
+      }
+
+      if (result.data) {
+        const newGroup = { ...result.data, variation_entries: [] }
+        // Add to localGroups state (immutable update)
+        setLocalGroups(prev => [...prev, newGroup])
+
+        // Link it immediately
+        setLinkedGroups(prev => [...prev, newGroup.id])
+        setSelectedEntries(prev => ({ ...prev, [newGroup.id]: new Set() }))
+        setExpandedGroups(prev => new Set([...prev, newGroup.id]))
+
+        setSearchQuery('')
+        setDropdownOpen(false)
+        toast.success(`สร้างกลุ่ม "${name}" สำเร็จ`)
+      }
+    })
+  }
+
+  const availableGroups = localGroups.filter(g => !linkedGroups.includes(g.id))
   const filteredGroups = availableGroups.filter(g =>
     g.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
+  const showCreateOption = searchQuery.trim().length > 0 && !localGroups.some(g => g.name.toLowerCase() === searchQuery.trim().toLowerCase())
 
   return (
     <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[16px]">
@@ -215,7 +278,7 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
           <SearchIcon size={16} className="absolute left-[14px] top-1/2 -translate-y-1/2 text-[#6b7280]" />
         </div>
 
-        {dropdownOpen && filteredGroups.length > 0 && (
+        {dropdownOpen && (filteredGroups.length > 0 || showCreateOption) && (
           <div className="absolute z-10 w-full mt-[4px] bg-white border border-[#e8eaef] rounded-[8px] shadow-lg max-h-[200px] overflow-y-auto">
             {filteredGroups.map(group => (
               <div
@@ -226,6 +289,15 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
                 {group.name}
               </div>
             ))}
+            {showCreateOption && (
+              <div
+                onClick={handleCreateGroup}
+                className="px-[14px] py-[10px] cursor-pointer hover:bg-orange/5 font-['IBM_Plex_Sans_Thai'] text-[14px] text-orange transition-colors flex items-center gap-[8px] border-t border-[#e8eaef]"
+              >
+                <PlusIcon size={12} color="#ff7e1b" />
+                <span>สร้างกลุ่ม &quot;{searchQuery.trim()}&quot;</span>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -234,7 +306,7 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
       {linkedGroups.length > 0 && (
         <div className="flex flex-col gap-[12px]">
           {linkedGroups.map(groupId => {
-            const group = allGroups.find(g => g.id === groupId)
+            const group = localGroups.find(g => g.id === groupId)
             if (!group) return null
 
             const entries = group.variation_entries || []
@@ -306,6 +378,35 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
 
                     {/* Ad-hoc entry creation */}
                     <div className="flex items-center gap-[8px] mt-[8px]">
+                      {/* Swatch image picker */}
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        ref={el => { fileInputRefs.current[groupId] = el }}
+                        onChange={(e) => handleImageSelect(groupId, e.target.files?.[0])}
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRefs.current[groupId]?.click()}
+                        className="shrink-0 w-[32px] h-[32px] rounded-[6px] border border-dashed border-[#e8eaef] hover:border-orange bg-white cursor-pointer flex items-center justify-center overflow-hidden transition-colors"
+                        title="เพิ่มรูปภาพ"
+                      >
+                        {newEntryImages[groupId] ? (
+                          <img
+                            src={URL.createObjectURL(newEntryImages[groupId])}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bfbfbf" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <path d="m21 15-5-5L5 21" />
+                          </svg>
+                        )}
+                      </button>
+
                       <input
                         type="text"
                         value={newEntryLabels[groupId] || ''}

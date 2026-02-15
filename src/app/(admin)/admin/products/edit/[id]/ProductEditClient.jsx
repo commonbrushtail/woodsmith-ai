@@ -3,12 +3,11 @@
 import { useState, useTransition, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { updateProduct, uploadOptionImage, syncProductVariationLinks } from '@/lib/actions/products'
+import { updateProduct, syncProductVariationLinks } from '@/lib/actions/products'
 import { useToast } from '@/lib/toast-context'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import ProductImageUploader from '@/components/admin/ProductImageUploader'
-import OptionsAccordion, { flattenOptionGroups, buildGroupsFromOptions } from '@/components/admin/OptionsAccordion'
 import VariationLinker from '@/components/admin/VariationLinker'
 import CalendarPicker from '@/components/admin/CalendarPicker'
 import TimePickerDropdown from '@/components/admin/TimePickerDropdown'
@@ -125,15 +124,6 @@ export default function ProductEditClient({ product, categories = [], variationG
       .map(img => ({ id: img.id, url: img.url, is_primary: img.is_primary, sort_order: img.sort_order }))
   )
 
-  // Options accordion — build from existing product_options
-  const [optionGroups, setOptionGroups] = useState(() => {
-    const opts = product.product_options || []
-    if (opts.length > 0) {
-      return buildGroupsFromOptions(opts)
-    }
-    return []
-  })
-
   // Variation links — initialize from existing product links
   const [variationLinks, setVariationLinks] = useState(() => {
     const links = product.product_variation_links || []
@@ -205,32 +195,6 @@ export default function ProductEditClient({ product, categories = [], variationG
       if (endDate) {
         formData.set('publish_end', endTime ? `${endDate}T${endTime}:00` : `${endDate}T23:59:59`)
       }
-
-      // Upload any pending option images first
-      const imageUrlMap = {}
-      const pendingEntries = optionGroups.flatMap(g =>
-        g.entries.filter(e => e.imageFile).map(e => ({ groupId: g.id, entryId: e.id, file: e.imageFile }))
-      )
-      for (const { groupId, entryId, file } of pendingEntries) {
-        const fd = new FormData()
-        fd.set('file', file)
-        const res = await uploadOptionImage(product.id, fd)
-        if (res.url) imageUrlMap[`${groupId}_${entryId}`] = res.url
-      }
-
-      // Flatten options with uploaded image URLs
-      const options = optionGroups
-        .filter(g => g.label.trim())
-        .flatMap(g =>
-          g.entries
-            .filter(e => e.value.trim())
-            .map(e => ({
-              type: g.label,
-              label: e.value,
-              image_url: imageUrlMap[`${g.id}_${e.id}`] || e.imageUrl || null,
-            }))
-        )
-      formData.set('options', JSON.stringify(options))
 
       const result = await updateProduct(product.id, formData)
       if (result.fieldErrors) {
@@ -544,10 +508,7 @@ export default function ProductEditClient({ product, categories = [], variationG
             </div>
           </section>
 
-          {/* 8. Product Options */}
-          <OptionsAccordion groups={optionGroups} setGroups={setOptionGroups} />
-
-          {/* 8.5 Variations */}
+          {/* 8. Variations */}
           <VariationLinker
             allGroups={variationGroups}
             initialLinks={product.product_variation_links || []}

@@ -3,12 +3,11 @@
 import { useState, useTransition, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createProduct, uploadProductImage, uploadOptionImage, updateProduct, syncProductVariationLinks } from '@/lib/actions/products'
+import { createProduct, uploadProductImage, syncProductVariationLinks } from '@/lib/actions/products'
 import { useToast } from '@/lib/toast-context'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import ProductImageUploader from '@/components/admin/ProductImageUploader'
-import OptionsAccordion, { flattenOptionGroups } from '@/components/admin/OptionsAccordion'
 import VariationLinker from '@/components/admin/VariationLinker'
 import CalendarPicker from '@/components/admin/CalendarPicker'
 import TimePickerDropdown from '@/components/admin/TimePickerDropdown'
@@ -107,9 +106,6 @@ export default function ProductCreateClient({ categories = [], variationGroups =
   // Images (held as File objects until product is created)
   const [pendingFiles, setPendingFiles] = useState([])
 
-  // Options accordion
-  const [optionGroups, setOptionGroups] = useState([])
-
   // Variation links
   const [variationLinks, setVariationLinks] = useState([])
 
@@ -179,10 +175,6 @@ export default function ProductCreateClient({ categories = [], variationGroups =
         formData.set('publish_end', endTime ? `${endDate}T${endTime}:00` : `${endDate}T23:59:59`)
       }
 
-      // Flatten options (pending image files not yet uploaded — image_url will be null)
-      const options = flattenOptionGroups(optionGroups)
-      formData.set('options', JSON.stringify(options))
-
       const result = await createProduct(formData)
       if (result.fieldErrors) {
         formErrors.setFieldErrors(result.fieldErrors)
@@ -207,33 +199,6 @@ export default function ProductCreateClient({ categories = [], variationGroups =
         }
         if (uploadErrors > 0) {
           toast.error(`อัปโหลดรูปภาพไม่สำเร็จ ${uploadErrors} ไฟล์`)
-        }
-      }
-
-      // Upload pending option images, then update options with URLs
-      if (newId) {
-        const entriesWithFiles = optionGroups.flatMap(g =>
-          g.entries.filter(e => e.imageFile && e.value.trim())
-        )
-        if (entriesWithFiles.length > 0) {
-          const urlMap = {}
-          for (const entry of entriesWithFiles) {
-            const fd = new FormData()
-            fd.set('file', entry.imageFile)
-            const res = await uploadOptionImage(newId, fd)
-            if (!res.error) urlMap[entry.id] = res.url
-          }
-          // Rebuild options with uploaded image URLs
-          const updatedOptions = optionGroups
-            .filter(g => g.label.trim())
-            .flatMap(g =>
-              g.entries
-                .filter(e => e.value.trim())
-                .map(e => ({ type: g.label, label: e.value, image_url: urlMap[e.id] || e.imageUrl || null }))
-            )
-          const optFormData = new FormData()
-          optFormData.set('options', JSON.stringify(updatedOptions))
-          await updateProduct(newId, optFormData)
         }
       }
 
@@ -529,10 +494,7 @@ export default function ProductCreateClient({ categories = [], variationGroups =
             </div>
           </section>
 
-          {/* 8. Product Options */}
-          <OptionsAccordion groups={optionGroups} setGroups={setOptionGroups} />
-
-          {/* 8.5 Variations */}
+          {/* 8. Variations */}
           <VariationLinker
             allGroups={variationGroups}
             initialLinks={[]}
