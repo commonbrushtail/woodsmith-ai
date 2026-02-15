@@ -128,15 +128,20 @@ const TYPE_LABELS = {
 /* ------------------------------------------------------------------ */
 /*  Page component                                                     */
 /* ------------------------------------------------------------------ */
-export default function ProductsListClient({ products, totalCount }) {
+export default function ProductsListClient({ products, totalCount, currentPage = 1, rowsPerPage = 10 }) {
   const router = useRouter()
   const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRows, setSelectedRows] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
   const [openMenuId, setOpenMenuId] = useState(null)
+
+  function navigateToPage(page, perPage = rowsPerPage) {
+    const params = new URLSearchParams()
+    params.set('page', String(page))
+    params.set('perPage', String(perPage))
+    router.replace(`/admin/products?${params.toString()}`)
+  }
 
   const totalPages = Math.max(1, Math.ceil(totalCount / rowsPerPage))
 
@@ -237,7 +242,7 @@ export default function ProductsListClient({ products, totalCount }) {
     pages.push(
       <button
         key="prev"
-        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+        onClick={() => navigateToPage(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
         className="size-[32px] flex items-center justify-center rounded-[6px] border border-[#e5e7eb] bg-white text-[#6b7280] hover:bg-[#f9fafb] disabled:opacity-40 disabled:cursor-not-allowed"
         aria-label="Previous page"
@@ -262,7 +267,7 @@ export default function ProductsListClient({ products, totalCount }) {
         pages.push(
           <button
             key={p}
-            onClick={() => setCurrentPage(p)}
+            onClick={() => navigateToPage(p)}
             className={`size-[32px] flex items-center justify-center rounded-[6px] text-[13px] font-medium ${
               currentPage === p
                 ? 'bg-[#ff7e1b] text-white border border-[#ff7e1b]'
@@ -278,7 +283,7 @@ export default function ProductsListClient({ products, totalCount }) {
     pages.push(
       <button
         key="next"
-        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+        onClick={() => navigateToPage(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
         className="size-[32px] flex items-center justify-center rounded-[6px] border border-[#e5e7eb] bg-white text-[#6b7280] hover:bg-[#f9fafb] disabled:opacity-40 disabled:cursor-not-allowed"
         aria-label="Next page"
@@ -431,7 +436,7 @@ export default function ProductsListClient({ products, totalCount }) {
                         />
                       </td>
                       <td className="px-[10px] py-[10px] text-[13px] text-[#374151]">
-                        {index + 1}
+                        {(currentPage - 1) * rowsPerPage + index + 1}
                       </td>
                       <td className="px-[10px] py-[10px] text-[13px] text-[#374151] font-mono">
                         {product.code}
@@ -516,7 +521,7 @@ export default function ProductsListClient({ products, totalCount }) {
           <div className="relative">
             <select
               value={rowsPerPage}
-              onChange={(e) => setRowsPerPage(Number(e.target.value))}
+              onChange={(e) => navigateToPage(1, Number(e.target.value))}
               className="appearance-none h-[34px] pl-[10px] pr-[28px] border border-[#e5e7eb] rounded-[6px] bg-white text-[13px] text-[#374151] cursor-pointer focus:outline-none focus:border-[#ff7e1b]"
               aria-label="Rows per page"
             >
