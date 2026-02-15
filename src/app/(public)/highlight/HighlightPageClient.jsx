@@ -19,29 +19,52 @@ const fallbackHighlights = [
 const MOBILE_PAGE_SIZE = 10
 const DESKTOP_PAGE_SIZE = 18
 
-function YoutubeCard({ image, duration, channelName, title }) {
+function getYoutubeVideoId(url) {
+  if (!url) return null
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/)
+  return match ? match[1] : null
+}
+
+function YoutubeCard({ image, duration, channelName, title, youtubeUrl }) {
+  const videoId = getYoutubeVideoId(youtubeUrl)
+  const hasThumbnail = !!image
+
   return (
     <div className="flex flex-col gap-[10px] items-start w-full">
       <div className="relative w-full aspect-video overflow-hidden">
-        <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
-        <div className="absolute bg-gradient-to-b from-[rgba(0,0,0,0.77)] inset-0 to-[60.195%] to-[rgba(0,0,0,0)]" />
-        <div className="absolute bottom-[5px] right-[5px] bg-[rgba(3,3,3,0.44)] px-[7px] py-[2px] rounded-[5.5px]">
-          <p className="font-['Avenir_Next'] font-medium text-[10px] lg:text-[11px] text-white text-center tracking-[0.2px]">
-            {duration}
-          </p>
-        </div>
-        <div className="absolute top-[6px] left-[10px] flex gap-[8px] items-center right-[10px]">
-          <div className="rounded-full shrink-0 size-[29px] lg:size-[32px] relative overflow-hidden">
-            <div className="absolute bg-white inset-0 rounded-full" />
-            <img alt="" className="absolute h-[75.9%] left-[19.5%] max-w-none top-[12.88%] w-[59.89%]" src={imgFavicon} />
-          </div>
-          <p className="flex-1 font-['Arial'] text-[13px] lg:text-[14px] text-[rgba(255,255,255,0.86)] overflow-hidden text-ellipsis whitespace-nowrap tracking-[0.47px]">
-            {channelName}
-          </p>
-        </div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[43px] lg:size-[48px]">
-          <img alt="Play" className="block max-w-none size-full" src={imgYoutube1} />
-        </div>
+        {!hasThumbnail && videoId ? (
+          <iframe
+            src={`https://www.youtube.com/embed/${videoId}`}
+            title={title}
+            className="absolute w-full h-full border-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        ) : (
+          <a href={youtubeUrl || '#'} target="_blank" rel="noopener noreferrer" className="block size-full">
+            <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
+            <div className="absolute bg-gradient-to-b from-[rgba(0,0,0,0.77)] inset-0 to-[60.195%] to-[rgba(0,0,0,0)]" />
+            {duration && (
+              <div className="absolute bottom-[5px] right-[5px] bg-[rgba(3,3,3,0.44)] px-[7px] py-[2px] rounded-[5.5px]">
+                <p className="font-['Avenir_Next'] font-medium text-[10px] lg:text-[11px] text-white text-center tracking-[0.2px]">
+                  {duration}
+                </p>
+              </div>
+            )}
+            <div className="absolute top-[6px] left-[10px] flex gap-[8px] items-center right-[10px]">
+              <div className="rounded-full shrink-0 size-[29px] lg:size-[32px] relative overflow-hidden">
+                <div className="absolute bg-white inset-0 rounded-full" />
+                <img alt="" className="absolute h-[75.9%] left-[19.5%] max-w-none top-[12.88%] w-[59.89%]" src={imgFavicon} />
+              </div>
+              <p className="flex-1 font-['Arial'] text-[13px] lg:text-[14px] text-[rgba(255,255,255,0.86)] overflow-hidden text-ellipsis whitespace-nowrap tracking-[0.47px]">
+                {channelName}
+              </p>
+            </div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[43px] lg:size-[48px]">
+              <img alt="Play" className="block max-w-none size-full" src={imgYoutube1} />
+            </div>
+          </a>
+        )}
       </div>
       <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] lg:text-[16px] text-black overflow-hidden text-ellipsis leading-[20px] lg:leading-[22px] w-full">
         {title}
@@ -113,10 +136,11 @@ export default function HighlightPageClient({ highlights: dbHighlights = [] }) {
   const allHighlights = dbHighlights.length > 0
     ? dbHighlights.map(h => ({
         id: h.id,
-        image: h.thumbnail_url || imgImage,
+        image: h.thumbnail_url || null,
         duration: h.duration || '',
         channelName: h.channel_name || 'WoodSmith',
         title: h.title,
+        youtubeUrl: h.youtube_url || '',
       }))
     : fallbackHighlights
 

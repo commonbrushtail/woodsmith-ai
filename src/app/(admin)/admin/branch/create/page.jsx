@@ -525,9 +525,11 @@ export default function BranchCreatePage() {
   const [province, setProvince] = useState('')
   const [postalCode, setPostalCode] = useState('')
   const [phone, setPhone] = useState('')
+  const [region, setRegion] = useState('')
   const [workDate, setWorkDate] = useState('')
   const [workStartTime, setWorkStartTime] = useState('')
   const [workEndTime, setWorkEndTime] = useState('')
+  const [hours, setHours] = useState('')
   const [googleMapUrl, setGoogleMapUrl] = useState('')
   const [lineOaUrl, setLineOaUrl] = useState('')
 
@@ -584,6 +586,9 @@ export default function BranchCreatePage() {
       formData.set('address', fullAddress)
       formData.set('phone', phone)
       formData.set('map_url', googleMapUrl)
+      formData.set('region', region)
+      if (workStartTime && workEndTime) formData.set('hours', `ทุกวัน ${workStartTime} น. - ${workEndTime} น.`)
+      formData.set('line_url', lineOaUrl)
       formData.set('published', publish ? 'true' : 'false')
 
       const result = await createBranch(formData)
@@ -870,15 +875,47 @@ export default function BranchCreatePage() {
                   />
                 </div>
 
-                {/* 7. Working hours */}
-                <WorkingHoursField
-                  workDate={workDate}
-                  workStartTime={workStartTime}
-                  workEndTime={workEndTime}
-                  onDateChange={setWorkDate}
-                  onStartTimeChange={setWorkStartTime}
-                  onEndTimeChange={setWorkEndTime}
-                />
+                {/* 7. Region select */}
+                <div className="flex flex-col gap-[8px]">
+                  <label htmlFor="region" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
+                    ภูมิภาค
+                  </label>
+                  <select
+                    id="region"
+                    value={region}
+                    onChange={(e) => setRegion(e.target.value)}
+                    className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all bg-white cursor-pointer"
+                  >
+                    <option value="">เลือกภูมิภาค</option>
+                    <option value="ภาคกลาง">ภาคกลาง</option>
+                    <option value="ภาคตะวันออก">ภาคตะวันออก</option>
+                    <option value="ภาคเหนือ">ภาคเหนือ</option>
+                    <option value="ภาคตะวันออกเฉียงเหนือ">ภาคตะวันออกเฉียงเหนือ</option>
+                    <option value="ภาคใต้">ภาคใต้</option>
+                  </select>
+                </div>
+
+                {/* 8. เวลาทำการ */}
+                <div className="flex flex-col gap-[8px]">
+                  <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
+                    เวลาทำการ
+                  </label>
+                  <div className="flex items-center gap-[12px]">
+                    <input
+                      type="time"
+                      value={workStartTime}
+                      onChange={(e) => setWorkStartTime(e.target.value)}
+                      className="flex-1 font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all bg-white"
+                    />
+                    <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#9ca3af]">ถึง</span>
+                    <input
+                      type="time"
+                      value={workEndTime}
+                      onChange={(e) => setWorkEndTime(e.target.value)}
+                      className="flex-1 font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all bg-white"
+                    />
+                  </div>
+                </div>
 
                 {/* 8. Google Map URL */}
                 <div className="flex flex-col gap-[8px]">

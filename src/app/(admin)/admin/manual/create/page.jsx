@@ -450,6 +450,8 @@ export default function ManualCreatePage() {
         formData.set('cover_image', image.file)
       }
 
+      if (youtubeUrl) formData.set('youtube_url', youtubeUrl)
+
       const result = await createManual(formData)
       if (result.error) {
         toast.error('เกิดข้อผิดพลาด: ' + result.error)

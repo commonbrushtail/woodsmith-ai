@@ -73,6 +73,7 @@ export default function ManualEditClient({ manual }) {
   const [coverFile, setCoverFile] = useState(null)
   const [pdfFile, setPdfFile] = useState(manual.file_url ? { name: manual.file_url.split('/').pop(), url: manual.file_url } : null)
   const [pdfNewFile, setPdfNewFile] = useState(null)
+  const [youtubeUrl, setYoutubeUrl] = useState(manual.youtube_url || '')
 
   const tabs = [
     { key: 'draft', label: 'DRAFT' },
@@ -110,6 +111,8 @@ export default function ManualEditClient({ manual }) {
       if (coverFile) {
         formData.set('cover_image', coverFile)
       }
+
+      if (youtubeUrl) formData.set('youtube_url', youtubeUrl)
 
       const result = await updateManual(manual.id, formData)
       if (result.error) {
@@ -288,6 +291,37 @@ export default function ManualEditClient({ manual }) {
               </div>
             )}
             <input ref={pdfInputRef} type="file" accept=".pdf,application/pdf" className="hidden" onChange={handlePdfSelect} />
+          </section>
+
+          {/* YouTube URL */}
+          <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
+            <label htmlFor="youtubeUrl" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
+              แนบลิงก์วิดีโอ YouTube
+            </label>
+            <input
+              id="youtubeUrl"
+              type="url"
+              value={youtubeUrl}
+              onChange={(e) => setYoutubeUrl(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf]"
+            />
+            {youtubeUrl && (() => {
+              const match = youtubeUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/)
+              const videoId = match ? match[1] : null
+              if (!videoId) return null
+              return (
+                <div className="mt-[8px] w-full max-w-[480px] aspect-video rounded-[8px] overflow-hidden bg-[#000] border border-[#e8eaef]">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${videoId}`}
+                    title="YouTube video preview"
+                    className="w-full h-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              )
+            })()}
           </section>
         </div>
 

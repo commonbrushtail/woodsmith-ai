@@ -94,13 +94,15 @@ function CardBranch({ region, name, address, phone, hours, line_url }) {
           <BranchInfo label="เวลาทำการ" value={hours} />
         </div>
         <div className="flex gap-[8px] h-[42px] items-center w-full">
-          <button className="bg-orange flex flex-1 h-full items-center justify-center">
+          <button className="bg-orange flex w-1/2 h-full items-center justify-center">
             <p className="font-['Circular_Std'] font-medium text-[16px] text-white leading-[1.5]">เปิดดูแผนที่</p>
           </button>
-          <button className="bg-white border border-grey flex flex-1 gap-[6px] h-full items-center justify-center">
-            <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[15px] text-black leading-[24px]">แอดไลน์</p>
-            <img alt="LINE" className="size-[24px]" src={imgLineLogo} />
-          </button>
+          {line_url && (
+            <a href={line_url} target="_blank" rel="noopener noreferrer" className="bg-white border border-grey flex flex-1 gap-[6px] h-full items-center justify-center no-underline">
+              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[15px] text-black leading-[24px]">แอดไลน์</p>
+              <img alt="LINE" className="size-[24px]" src={imgLineLogo} />
+            </a>
+          )}
         </div>
       </div>
     </div>
@@ -109,12 +111,17 @@ function CardBranch({ region, name, address, phone, hours, line_url }) {
 
 export default function BranchesPageClient({ branches: dbBranches = [] }) {
   const [activeTab, setActiveTab] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
   const branches = dbBranches.length > 0 ? dbBranches : fallbackBranches
 
-  const filteredBranches = activeTab === 'all'
-    ? branches
-    : branches.filter(b => b.region === regionTabs.find(t => t.key === activeTab)?.label)
+  const filteredBranches = branches.filter(b => {
+    const matchesRegion = activeTab === 'all' || b.region === regionTabs.find(t => t.key === activeTab)?.label
+    if (!matchesRegion) return false
+    if (!searchQuery.trim()) return true
+    const q = searchQuery.trim().toLowerCase()
+    return [b.name, b.address, b.phone, b.region].some(field => field && field.toLowerCase().includes(q))
+  })
 
   return (
     <div className="flex flex-col items-start lg:items-center w-full">
@@ -127,6 +134,8 @@ export default function BranchesPageClient({ branches: dbBranches = [] }) {
           <img alt="" className="size-[20px] shrink-0" src={imgSearch} />
           <input
             type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="ค้นหาชื่อสาขา จังหวัด หรือ รหัสไปรษณีย์..."
             className="font-['IBM_Plex_Sans_Thai'] font-medium text-[15px] lg:text-[18px] tracking-[0.075px] lg:tracking-[0.09px] leading-[20px] text-black placeholder:text-[#c3c3c3] outline-none border-none bg-transparent w-full"
           />
@@ -150,7 +159,7 @@ export default function BranchesPageClient({ branches: dbBranches = [] }) {
         </p>
       </div>
 
-      <div className="flex flex-col gap-[36px] lg:gap-[32px] items-start w-full lg:max-w-[882px] lg:mx-auto">
+      <div className="flex flex-col gap-[36px] lg:gap-[32px] items-start w-full lg:max-w-[882px] lg:mx-auto mb-[100px]">
         {filteredBranches.map((branch, i) => (
           <CardBranch key={branch.id || i} {...branch} />
         ))}
