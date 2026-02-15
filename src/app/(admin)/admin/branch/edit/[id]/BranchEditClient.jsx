@@ -42,6 +42,16 @@ export default function BranchEditClient({ branch }) {
   const [address, setAddress] = useState(branch.address || '')
   const [phone, setPhone] = useState(branch.phone || '')
   const [mapUrl, setMapUrl] = useState(branch.map_url || '')
+  const [region, setRegion] = useState(branch.region || '')
+  const [openTime, setOpenTime] = useState(() => {
+    const m = (branch.hours || '').match(/(\d{1,2}:\d{2})/)
+    return m ? m[1] : '08:00'
+  })
+  const [closeTime, setCloseTime] = useState(() => {
+    const m = (branch.hours || '').match(/(\d{1,2}:\d{2})\s*น\.\s*$/u) || (branch.hours || '').match(/-\s*(\d{1,2}:\d{2})/)
+    return m ? m[1] : '19:00'
+  })
+  const [lineUrl, setLineUrl] = useState(branch.line_url || '')
 
   const tabs = [
     { key: 'draft', label: 'DRAFT' },
@@ -55,6 +65,9 @@ export default function BranchEditClient({ branch }) {
       formData.set('address', address)
       formData.set('phone', phone)
       formData.set('map_url', mapUrl)
+      formData.set('region', region)
+      formData.set('hours', `ทุกวัน ${openTime} น. - ${closeTime} น.`)
+      formData.set('line_url', lineUrl)
       formData.set('published', publish ? 'true' : 'false')
 
       const result = await updateBranch(branch.id, formData)
@@ -180,6 +193,48 @@ export default function BranchEditClient({ branch }) {
             />
           </section>
 
+          {/* Region */}
+          <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
+            <label htmlFor="branchRegion" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
+              ภูมิภาค
+            </label>
+            <select
+              id="branchRegion"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all bg-white cursor-pointer"
+            >
+              <option value="">เลือกภูมิภาค</option>
+              <option value="ภาคกลาง">ภาคกลาง</option>
+              <option value="ภาคตะวันออก">ภาคตะวันออก</option>
+              <option value="ภาคเหนือ">ภาคเหนือ</option>
+              <option value="ภาคตะวันออกเฉียงเหนือ">ภาคตะวันออกเฉียงเหนือ</option>
+              <option value="ภาคใต้">ภาคใต้</option>
+            </select>
+          </section>
+
+          {/* Hours */}
+          <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
+            <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
+              เวลาทำการ
+            </label>
+            <div className="flex items-center gap-[12px]">
+              <input
+                type="time"
+                value={openTime}
+                onChange={(e) => setOpenTime(e.target.value)}
+                className="flex-1 font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all"
+              />
+              <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#9ca3af]">ถึง</span>
+              <input
+                type="time"
+                value={closeTime}
+                onChange={(e) => setCloseTime(e.target.value)}
+                className="flex-1 font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all"
+              />
+            </div>
+          </section>
+
           {/* Map URL */}
           <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
             <label htmlFor="branchMapUrl" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
@@ -191,6 +246,21 @@ export default function BranchEditClient({ branch }) {
               value={mapUrl}
               onChange={(e) => setMapUrl(e.target.value)}
               placeholder="https://maps.google.com/..."
+              className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf]"
+            />
+          </section>
+
+          {/* LINE OA URL */}
+          <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
+            <label htmlFor="branchLineUrl" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
+              LINE OA URL
+            </label>
+            <input
+              id="branchLineUrl"
+              type="url"
+              value={lineUrl}
+              onChange={(e) => setLineUrl(e.target.value)}
+              placeholder="https://line.me/..."
               className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf]"
             />
           </section>
@@ -216,7 +286,7 @@ export default function BranchEditClient({ branch }) {
 
             <button
               type="button"
-              onClick={() => handleSubmit(false)}
+              onClick={() => handleSubmit(activeTab === 'published')}
               disabled={isPending}
               className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors disabled:opacity-50"
             >
