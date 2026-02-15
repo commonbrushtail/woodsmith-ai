@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 const iconSidebar = [
-  { icon: 'book-open', section: 'content', paths: ['/admin/banner', '/admin/profile', '/admin/blog', '/admin/video-highlight', '/admin/gallery', '/admin/manual', '/admin/about-us', '/admin/branch', '/admin/faq', '/admin/product-types', '/admin/categories', '/admin/products'] },
+  { icon: 'book-open', section: 'content', paths: ['/admin/banner', '/admin/profile', '/admin/blog', '/admin/video-highlight', '/admin/gallery', '/admin/manual', '/admin/about-us', '/admin/branch', '/admin/faq', '/admin/product-types', '/admin/categories', '/admin/products', '/admin/variations'] },
   { icon: 'file-text', section: 'quotation', paths: ['/admin/quotations'] },
   { icon: 'users', section: 'users', paths: ['/admin/users', '/admin/account'] },
 ]
@@ -23,6 +23,7 @@ const contentMenuItems = [
   { label: 'ประเภทสินค้า (Product Type)', path: '/admin/product-types' },
   { label: 'หมวดหมู่สินค้า (Category)', path: '/admin/categories' },
   { label: 'สินค้า (Product)', path: '/admin/products' },
+  { label: 'ตัวเลือกสินค้า (Variations)', path: '/admin/variations' },
 ]
 
 const quotationMenuItems = [
