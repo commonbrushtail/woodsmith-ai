@@ -12,18 +12,18 @@ See: .planning/PROJECT.md (updated 2026-02-15)
 
 Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
-Current Plan: 1 of 2
-Status: In progress
-Last activity: 2026-02-15 — Phase 07 Plan 01 complete (variation link data layer)
+Current Plan: 2 of 2
+Status: Complete
+Last activity: 2026-02-15 — Phase 07 Plan 02 complete (product admin integration)
 
-Progress: [██████░░░░] 60% (across all milestones: 6 of 10 phases complete, Phase 7: 1 of 2 plans done)
+Progress: [███████░░░] 70% (across all milestones: 7 of 10 phases complete, Phase 7: 2 of 2 plans done)
 
 ## Milestone History
 
 | Milestone | Phases | Plans | Status | Shipped |
 |-----------|--------|-------|--------|---------|
 | v1.0 Bug Fix | 1-3 | 5 | ✓ Complete | 2026-02-15 |
-| v1.1 Variations Management | 4-7 | 5 (4 complete) | 🚧 In progress | - |
+| v1.1 Variations Management | 4-7 | 5 | ✓ Complete | 2026-02-15 |
 
 ## Performance Metrics
 
@@ -41,10 +41,10 @@ Progress: [██████░░░░] 60% (across all milestones: 6 of 10 p
 | 3. Hydration Warning Cleanup | 2 | 10 min | 5 min |
 | 4. Database Infrastructure | 1 | 1 min | 1 min |
 
-**v1.1 Velocity (so far):**
-- Total plans completed: 5
+**v1.1 Velocity:**
+- Total plans completed: 6
 - Average duration: 3 min
-- Total execution time: 0.22 hours
+- Total execution time: 0.25 hours
 
 **By Phase:**
 
@@ -53,7 +53,7 @@ Progress: [██████░░░░] 60% (across all milestones: 6 of 10 p
 | 4. Database Infrastructure | 1 | 1 min | 1 min |
 | 5. Variation CRUD Operations | 1 | 2 min | 2 min |
 | 6. Variation Admin UI | 2 | 7 min | 3.5 min |
-| 7. Product Integration | 1 | 3 min | 3 min |
+| 7. Product Integration | 2 | 6 min | 3 min |
 
 ## Accumulated Context
 
@@ -78,6 +78,8 @@ Recent decisions affecting v1.1:
 - [Phase 06]: Immediate delete for variation entries (not batched with save)
 - [Phase 07]: Bulk replace pattern for product-variation link sync (delete-all-then-insert ensures consistency)
 - [Phase 07]: Auto-select all entries when adding variation group (user-friendly default)
+- [Phase 07]: Place VariationLinker after OptionsAccordion (section 8.5) to keep variations separate from legacy product_options
+- [Phase 07]: Sync variation links AFTER product mutation succeeds to prevent orphaned links
 
 ### Pending Todos
 
@@ -90,7 +92,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 07-01-PLAN.md
+Stopped at: Completed 07-02-PLAN.md (v1.1 Variations Management milestone complete)
 Resume file: None
 
 ### Recent Activity
@@ -105,6 +107,8 @@ Resume file: None
 | 2026-02-15 | Phase 06 Plan 01 executed | Variation list page (sidebar nav, search, force-delete, 1 task, 3 min) |
 | 2026-02-15 | Phase 06 Plan 02 executed | Variation form pages (create/edit with CRUD, drag-drop, 2 tasks, 4 min) |
 | 2026-02-15 | Phase 07 Plan 01 executed | Product-variation data layer (syncProductVariationLinks action, VariationLinker component, 2 tasks, 3 min) |
+| 2026-02-15 | Phase 07 Plan 02 executed | Product admin integration (VariationLinker in create/edit forms, 2 tasks, 3 min) |
+| 2026-02-15 | v1.1 shipped | Variations Management complete (6 plans, 15 min total) |
 
 ---
 *Last updated: 2026-02-15*
