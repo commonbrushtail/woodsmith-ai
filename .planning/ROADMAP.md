@@ -77,10 +77,11 @@ Plans:
 4. Admin can upload swatch images for variation entries (stored in Supabase Storage)
 5. Admin can delete variation groups from edit page with confirmation dialog
 
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 06-01: TBD
+- [ ] 06-01-PLAN.md — Sidebar nav + variation list page with group table
+- [ ] 06-02-PLAN.md — Create and edit pages with entry management, swatch upload, and drag-drop reorder
 
 #### Phase 7: Product Integration
 
@@ -114,7 +115,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. Hydration Warning Cleanup | v1.0 | 2/2 | ✓ Complete | 2026-02-15 |
 | 4. Database Infrastructure | v1.1 | 1/1 | ✓ Complete | 2026-02-15 |
 | 5. Variation CRUD Operations | v1.1 | 1/1 | ✓ Complete | 2026-02-15 |
-| 6. Variation Admin UI | v1.1 | 0/TBD | Not started | - |
+| 6. Variation Admin UI | v1.1 | 0/2 | Not started | - |
 | 7. Product Integration | v1.1 | 0/TBD | Not started | - |
 
 ---
