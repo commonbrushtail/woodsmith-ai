@@ -36,7 +36,7 @@ function GripIcon() {
   )
 }
 
-function SortableRow({ id, children }) {
+function SortableRow({ id, children, onClick }) {
   const {
     attributes,
     listeners,
@@ -55,7 +55,7 @@ function SortableRow({ id, children }) {
   }
 
   return (
-    <tr ref={setNodeRef} style={style} className="border-b border-[#f3f4f6] hover:bg-[#f9fafb] transition-colors">
+    <tr ref={setNodeRef} style={style} onClick={onClick} className="border-b border-[#f3f4f6] hover:bg-[#f9fafb] transition-colors cursor-pointer">
       <td className="px-[8px] py-[16px] w-[40px]">
         <button
           type="button"
@@ -272,7 +272,14 @@ export default function BannersListClient({ banners }) {
                     </tr>
                   ) : (
                     sortedBanners.map((banner) => (
-                      <SortableRow key={banner.id} id={banner.id}>
+                      <SortableRow
+                        key={banner.id}
+                        id={banner.id}
+                        onClick={(e) => {
+                          if (e.target.closest('button, a, input, select')) return
+                          router.push('/admin/banner/edit/' + banner.id)
+                        }}
+                      >
                         <td className="px-[20px] py-[16px]">
                           <input
                             type="checkbox"

@@ -54,7 +54,7 @@ function GripIcon() {
   )
 }
 
-function SortableRow({ id, children }) {
+function SortableRow({ id, children, onClick }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -64,7 +64,7 @@ function SortableRow({ id, children }) {
     zIndex: isDragging ? 10 : 'auto',
   }
   return (
-    <tr ref={setNodeRef} style={style} className="border-b border-[#f3f4f6] hover:bg-[#f9fafb] transition-colors">
+    <tr ref={setNodeRef} style={style} onClick={onClick} className="border-b border-[#f3f4f6] hover:bg-[#f9fafb] transition-colors cursor-pointer">
       <td className="px-[8px] py-[14px] w-[40px]">
         <button type="button" className="flex items-center justify-center size-[28px] cursor-grab active:cursor-grabbing rounded-[4px] hover:bg-[#f3f4f6] border-0 bg-transparent touch-none" aria-label="ลากเพื่อจัดเรียง" {...attributes} {...listeners}>
           <GripIcon />
@@ -179,7 +179,14 @@ export default function FaqListClient({ faqs, totalCount }) {
                   </tr>
                 ) : (
                   filtered.map((faq, idx) => (
-                    <SortableRow key={faq.id} id={faq.id}>
+                    <SortableRow
+                      key={faq.id}
+                      id={faq.id}
+                      onClick={(e) => {
+                        if (e.target.closest('button, a, input, select')) return
+                        router.push('/admin/faq/edit/' + faq.id)
+                      }}
+                    >
                       <td className="px-[16px] py-[14px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#9ca3af]">
                         {faq.sort_order || idx + 1}
                       </td>

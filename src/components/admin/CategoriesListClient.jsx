@@ -48,7 +48,7 @@ const typeBadgeColors = {
   tool: 'border-purple-400 text-purple-600 bg-purple-50',
 }
 
-function SortableRow({ id, children }) {
+function SortableRow({ id, children, onClick }) {
   const {
     attributes,
     listeners,
@@ -67,7 +67,7 @@ function SortableRow({ id, children }) {
   }
 
   return (
-    <tr ref={setNodeRef} style={style} className="border-b border-[#f3f4f6] hover:bg-[#f9fafb] transition-colors">
+    <tr ref={setNodeRef} style={style} onClick={onClick} className="border-b border-[#f3f4f6] hover:bg-[#f9fafb] transition-colors cursor-pointer">
       <td className="px-[8px] py-[16px] w-[40px]">
         <button
           type="button"
@@ -315,7 +315,14 @@ export default function CategoriesListClient({ categories, parentCategories = []
                     </tr>
                   ) : (
                     filtered.map((cat) => (
-                      <SortableRow key={cat.id} id={cat.id}>
+                      <SortableRow
+                        key={cat.id}
+                        id={cat.id}
+                        onClick={(e) => {
+                          if (e.target.closest('button, a, input, select')) return
+                          router.push('/admin/categories/edit/' + cat.id)
+                        }}
+                      >
                         <td className="px-[12px] py-[16px]">
                           {cat.image_url ? (
                             <img src={cat.image_url} alt={cat.name} className="w-[48px] h-[48px] rounded-[6px] object-cover" />

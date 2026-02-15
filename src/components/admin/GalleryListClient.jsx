@@ -141,7 +141,7 @@ function GripIcon() {
   )
 }
 
-function SortableRow({ id, children }) {
+function SortableRow({ id, children, onClick }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -151,7 +151,7 @@ function SortableRow({ id, children }) {
     zIndex: isDragging ? 10 : 'auto',
   }
   return (
-    <tr ref={setNodeRef} style={style} className="border-t border-[#f3f4f6] hover:bg-[#fafafa] transition-colors">
+    <tr ref={setNodeRef} style={style} onClick={onClick} className="border-t border-[#f3f4f6] hover:bg-[#fafafa] transition-colors cursor-pointer">
       <td className="px-[8px] py-[10px] w-[40px]">
         <button type="button" className="flex items-center justify-center size-[28px] cursor-grab active:cursor-grabbing rounded-[4px] hover:bg-[#f3f4f6] border-0 bg-transparent touch-none" aria-label="ลากเพื่อจัดเรียง" {...attributes} {...listeners}>
           <GripIcon />
@@ -371,7 +371,14 @@ export default function GalleryListClient({ galleries, totalCount }) {
                     </tr>
                   ) : (
                     sortedGalleries.map((gallery) => (
-                      <SortableRow key={gallery.id} id={gallery.id}>
+                      <SortableRow
+                        key={gallery.id}
+                        id={gallery.id}
+                        onClick={(e) => {
+                          if (e.target.closest('button, a, input, select')) return
+                          router.push('/admin/gallery/edit/' + gallery.id)
+                        }}
+                      >
                         <td className="px-[12px] py-[10px]">
                           <input
                             type="checkbox"
