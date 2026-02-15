@@ -4,7 +4,7 @@ import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
-import { deleteCategory, toggleCategoryPublished, toggleCategoryFeatured, reorderCategories } from '@/lib/actions/categories'
+import { deleteCategory, toggleCategoryPublished, reorderCategories } from '@/lib/actions/categories'
 import { buildSortOrderUpdates } from '@/lib/reorder'
 import {
   DndContext,
@@ -122,7 +122,7 @@ function ActionMenu({ id, openMenuId, setOpenMenuId, handleDelete }) {
             style={{ top: menuPos.top, left: menuPos.left, transform: 'translateX(-100%)' }}
           >
             <Link
-              href={`/admin/categories/edit/${id}`}
+              href={`/admin/product-types/edit/${id}`}
               className="flex items-center gap-[8px] px-[12px] py-[8px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
               onClick={() => setOpenMenuId(null)}
             >
@@ -149,12 +149,12 @@ function ActionMenu({ id, openMenuId, setOpenMenuId, handleDelete }) {
   )
 }
 
-export default function CategoriesListClient({ categories, parentCategories = [] }) {
+export default function ProductTypesListClient({ productTypes, childCounts = {} }) {
   const router = useRouter()
   const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [openMenuId, setOpenMenuId] = useState(null)
-  const [orderedCategories, setOrderedCategories] = useState(categories)
+  const [orderedTypes, setOrderedTypes] = useState(productTypes)
   const [searchQuery, setSearchQuery] = useState('')
 
   const sensors = useSensors(
@@ -162,44 +162,39 @@ export default function CategoriesListClient({ categories, parentCategories = []
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
-  // Build parent name lookup
-  const parentNameMap = {}
-  for (const p of parentCategories) {
-    parentNameMap[p.id] = p.name
-  }
-
   const filtered = searchQuery
-    ? orderedCategories.filter(c =>
-        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (parentNameMap[c.parent_id] || '').toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : orderedCategories
+    ? orderedTypes.filter(t => t.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : orderedTypes
 
   const handleDragEnd = (event) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
 
-    const oldIndex = orderedCategories.findIndex(c => c.id === active.id)
-    const newIndex = orderedCategories.findIndex(c => c.id === over.id)
+    const oldIndex = orderedTypes.findIndex(t => t.id === active.id)
+    const newIndex = orderedTypes.findIndex(t => t.id === over.id)
     if (oldIndex === -1 || newIndex === -1) return
 
-    const reordered = arrayMove(orderedCategories, oldIndex, newIndex)
+    const reordered = arrayMove(orderedTypes, oldIndex, newIndex)
     const withUpdatedOrder = reordered.map((item, i) => ({ ...item, sort_order: i }))
-    setOrderedCategories(withUpdatedOrder)
+    setOrderedTypes(withUpdatedOrder)
 
     startTransition(async () => {
       const result = await reorderCategories(buildSortOrderUpdates(withUpdatedOrder))
       if (result.error) {
         toast.error('เกิดข้อผิดพลาดในการจัดเรียง: ' + result.error)
-        setOrderedCategories(categories)
+        setOrderedTypes(productTypes)
       }
       router.refresh()
     })
   }
 
   const handleDelete = (id) => {
-    const cat = orderedCategories.find(c => c.id === id)
-    if (!confirm(`ต้องการลบหมวดหมู่สินค้า "${cat?.name}" หรือไม่?`)) return
+    const item = orderedTypes.find(t => t.id === id)
+    const count = childCounts[id] || 0
+    const msg = count > 0
+      ? `ลบประเภทสินค้า "${item?.name}" และหมวดหมู่สินค้า ${count} รายการ?`
+      : `ต้องการลบประเภทสินค้า "${item?.name}" หรือไม่?`
+    if (!confirm(msg)) return
     startTransition(async () => {
       const result = await deleteCategory(id)
       if (result.error) toast.error('เกิดข้อผิดพลาด: ' + result.error)
@@ -209,30 +204,13 @@ export default function CategoriesListClient({ categories, parentCategories = []
   }
 
   const handleTogglePublished = (id, currentPublished) => {
-    setOrderedCategories(prev => prev.map(c => c.id === id ? { ...c, published: !currentPublished } : c))
     startTransition(async () => {
-      const result = await toggleCategoryPublished(id, !currentPublished)
-      if (result.error) {
-        toast.error('เกิดข้อผิดพลาด: ' + result.error)
-        setOrderedCategories(prev => prev.map(c => c.id === id ? { ...c, published: currentPublished } : c))
-      }
+      await toggleCategoryPublished(id, !currentPublished)
       router.refresh()
     })
   }
 
-  const handleToggleFeatured = (id, currentFeatured) => {
-    setOrderedCategories(prev => prev.map(c => c.id === id ? { ...c, is_featured: !currentFeatured } : c))
-    startTransition(async () => {
-      const result = await toggleCategoryFeatured(id, !currentFeatured)
-      if (result.error) {
-        toast.error('เกิดข้อผิดพลาด: ' + result.error)
-        setOrderedCategories(prev => prev.map(c => c.id === id ? { ...c, is_featured: currentFeatured } : c))
-      }
-      router.refresh()
-    })
-  }
-
-  const sortableIds = filtered.map(c => c.id)
+  const sortableIds = filtered.map(t => t.id)
 
   return (
     <div className={isPending ? 'opacity-60 pointer-events-none' : ''}>
@@ -240,14 +218,14 @@ export default function CategoriesListClient({ categories, parentCategories = []
       <div className="flex items-center justify-between py-[12px]">
         <div className="flex flex-col gap-[4px]">
           <h1 className="font-['IBM_Plex_Sans_Thai'] font-bold text-[22px] text-[#1f2937] m-0">
-            หมวดหมู่สินค้า (Category)
+            ประเภทสินค้า (Product Type)
           </h1>
           <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280] m-0">
-            {categories.length} entries found
+            {productTypes.length} entries found
           </p>
         </div>
         <Link
-          href="/admin/categories/create"
+          href="/admin/product-types/create"
           className="flex items-center gap-[8px] bg-orange text-white px-[16px] py-[8px] rounded-[8px] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] hover:bg-orange/90 transition-colors no-underline"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -268,7 +246,7 @@ export default function CategoriesListClient({ categories, parentCategories = []
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ค้นหาหมวดหมู่สินค้า..."
+            placeholder="ค้นหาประเภทสินค้า..."
             className="w-[280px] pl-[34px] pr-[12px] py-[7px] border border-[#e5e7eb] rounded-[8px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#374151] outline-none focus:border-orange transition-colors placeholder:text-[#9ca3af]"
           />
         </div>
@@ -287,16 +265,13 @@ export default function CategoriesListClient({ categories, parentCategories = []
                       รูปภาพ
                     </th>
                     <th className="px-[12px] py-[12px] text-left font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap">
-                      ชื่อหมวดหมู่สินค้า
-                    </th>
-                    <th className="px-[12px] py-[12px] text-left font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap">
-                      ประเภทสินค้า
+                      ชื่อประเภทสินค้า
                     </th>
                     <th className="px-[12px] py-[12px] text-left font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap">
                       กลุ่ม
                     </th>
                     <th className="px-[12px] py-[12px] text-left font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap">
-                      แนะนำ
+                      หมวดหมู่สินค้า
                     </th>
                     <th className="px-[12px] py-[12px] text-left font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap">
                       STATUS
@@ -309,16 +284,16 @@ export default function CategoriesListClient({ categories, parentCategories = []
                 <tbody>
                   {filtered.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-[20px] py-[40px] text-center text-[14px] text-[#9ca3af] font-['IBM_Plex_Sans_Thai']">
-                        {searchQuery ? 'ไม่พบรายการที่ค้นหา' : 'ยังไม่มีหมวดหมู่สินค้า'}
+                      <td colSpan={7} className="px-[20px] py-[40px] text-center text-[14px] text-[#9ca3af] font-['IBM_Plex_Sans_Thai']">
+                        {searchQuery ? 'ไม่พบรายการที่ค้นหา' : 'ยังไม่มีประเภทสินค้า'}
                       </td>
                     </tr>
                   ) : (
-                    filtered.map((cat) => (
-                      <SortableRow key={cat.id} id={cat.id}>
+                    filtered.map((item) => (
+                      <SortableRow key={item.id} id={item.id}>
                         <td className="px-[12px] py-[16px]">
-                          {cat.image_url ? (
-                            <img src={cat.image_url} alt={cat.name} className="w-[48px] h-[48px] rounded-[6px] object-cover" />
+                          {item.image_url ? (
+                            <img src={item.image_url} alt={item.name} className="w-[48px] h-[48px] rounded-[6px] object-cover" />
                           ) : (
                             <div className="w-[48px] h-[48px] bg-[#e8e3da] rounded-[6px] flex items-center justify-center">
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
@@ -330,41 +305,24 @@ export default function CategoriesListClient({ categories, parentCategories = []
                           )}
                         </td>
                         <td className="px-[12px] py-[16px]">
-                          <Link href={`/admin/categories/edit/${cat.id}`} className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-semibold text-[#1f2937] no-underline hover:text-orange transition-colors">
-                            {cat.name}
-                          </Link>
-                        </td>
-                        <td className="px-[12px] py-[16px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#374151]">
-                          {parentNameMap[cat.parent_id] || '—'}
-                        </td>
-                        <td className="px-[12px] py-[16px]">
-                          <span className={`inline-flex items-center px-[8px] py-[2px] rounded-full border text-[11px] font-medium ${typeBadgeColors[cat.type] || 'border-gray-300 text-gray-500'}`}>
-                            {typeLabels[cat.type] || cat.type}
+                          <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-semibold text-[#1f2937]">
+                            {item.name}
                           </span>
                         </td>
                         <td className="px-[12px] py-[16px]">
-                          <button
-                            onClick={() => handleToggleFeatured(cat.id, cat.is_featured)}
-                            className="cursor-pointer bg-transparent border-none p-0"
-                          >
-                            {cat.is_featured ? (
-                              <span className="inline-flex items-center gap-[4px] px-[10px] py-[3px] rounded-full border border-amber-400 text-amber-600 bg-amber-50 font-['IBM_Plex_Sans_Thai'] text-[12px] font-medium">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                แนะนำ
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center px-[10px] py-[3px] rounded-full border border-[#e5e7eb] text-[#9ca3af] font-['IBM_Plex_Sans_Thai'] text-[12px] font-medium">
-                                —
-                              </span>
-                            )}
-                          </button>
+                          <span className={`inline-flex items-center px-[8px] py-[2px] rounded-full border text-[11px] font-medium ${typeBadgeColors[item.type] || 'border-gray-300 text-gray-500'}`}>
+                            {typeLabels[item.type] || item.type}
+                          </span>
+                        </td>
+                        <td className="px-[12px] py-[16px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#374151]">
+                          {childCounts[item.id] || 0} รายการ
                         </td>
                         <td className="px-[12px] py-[16px]">
                           <button
-                            onClick={() => handleTogglePublished(cat.id, cat.published)}
-                            className="cursor-pointer bg-transparent border-none p-0"
+                            onClick={() => handleTogglePublished(item.id, item.published)}
+                            className="cursor-pointer"
                           >
-                            {cat.published ? (
+                            {item.published ? (
                               <span className="inline-flex items-center px-[10px] py-[3px] rounded-full border border-orange text-orange font-['IBM_Plex_Sans_Thai'] text-[12px] font-medium">
                                 เผยแพร่
                               </span>
@@ -377,7 +335,7 @@ export default function CategoriesListClient({ categories, parentCategories = []
                         </td>
                         <td className="px-[12px] py-[16px] text-center">
                           <ActionMenu
-                            id={cat.id}
+                            id={item.id}
                             openMenuId={openMenuId}
                             setOpenMenuId={setOpenMenuId}
                             handleDelete={handleDelete}

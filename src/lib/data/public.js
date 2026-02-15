@@ -8,17 +8,20 @@ import { createClient } from '@/lib/supabase/server'
 /**
  * Fetch published products with optional category/search filter.
  */
-export async function getPublishedProducts({ page = 1, perPage = 16, category = '', search = '' } = {}) {
+export async function getPublishedProducts({ page = 1, perPage = 16, type = '', category = '', search = '' } = {}) {
   const supabase = await createClient()
   const from = (page - 1) * perPage
   const to = from + perPage - 1
 
   let query = supabase
     .from('products')
-    .select('id, code, sku, name, type, category, product_images(url, is_primary)', { count: 'exact' })
+    .select('id, code, sku, name, slug, type, category, product_images(url, is_primary)', { count: 'exact' })
     .order('sort_order', { ascending: true })
     .range(from, to)
 
+  if (type) {
+    query = query.eq('type', type)
+  }
   if (category) {
     query = query.eq('category', category)
   }
@@ -48,9 +51,34 @@ export async function getPublishedProduct(id) {
   // Fetch related products (same category, excluding current)
   const { data: related } = await supabase
     .from('products')
-    .select('id, name, category, product_images(url, is_primary)')
+    .select('id, name, slug, type, category, product_images(url, is_primary)')
     .eq('category', data.category)
     .neq('id', id)
+    .limit(4)
+
+  return { data: { ...data, relatedProducts: related || [] }, error: null }
+}
+
+/**
+ * Fetch a single published product by slug with images + options.
+ */
+export async function getPublishedProductBySlug(slug) {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, product_images(id, url, is_primary, sort_order), product_options(id, option_type, label, sort_order)')
+    .eq('slug', slug)
+    .single()
+
+  if (error) return { data: null, error: error.message }
+
+  // Fetch related products (same category, excluding current)
+  const { data: related } = await supabase
+    .from('products')
+    .select('id, name, slug, type, category, product_images(url, is_primary)')
+    .eq('category', data.category)
+    .neq('id', data.id)
     .limit(4)
 
   return { data: { ...data, relatedProducts: related || [] }, error: null }
@@ -265,6 +293,53 @@ export async function getProductCategories() {
   }
 
   return { data: Object.values(categoryMap), error: null }
+}
+
+/**
+ * Fetch published categories from product_categories table (with images).
+ */
+export async function getPublishedCategories({ type = '' } = {}) {
+  const supabase = await createClient()
+
+  let query = supabase
+    .from('product_categories')
+    .select('*')
+    .is('parent_id', null)
+    .order('sort_order', { ascending: true })
+
+  if (type) {
+    query = query.eq('type', type)
+  }
+
+  const { data, error } = await query
+  if (error) return { data: [], error: error.message }
+  return { data: data || [], error: null }
+}
+
+/**
+ * Fetch published subcategories (child categories where parent_id IS NOT NULL).
+ * When featured=true, only returns categories marked as is_featured.
+ * RLS automatically filters to published = true.
+ */
+export async function getPublishedSubcategories({ type = '', featured = false } = {}) {
+  const supabase = await createClient()
+
+  let query = supabase
+    .from('product_categories')
+    .select('*')
+    .not('parent_id', 'is', null)
+    .order('sort_order', { ascending: true })
+
+  if (type) {
+    query = query.eq('type', type)
+  }
+  if (featured) {
+    query = query.eq('is_featured', true)
+  }
+
+  const { data, error } = await query
+  if (error) return { data: [], error: error.message }
+  return { data: data || [], error: null }
 }
 
 /**

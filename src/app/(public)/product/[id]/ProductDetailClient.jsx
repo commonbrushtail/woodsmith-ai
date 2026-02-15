@@ -6,6 +6,7 @@ import SafeHtmlContent from '@/components/SafeHtmlContent'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css'
 import ArrowRight from '../../../../components/ArrowRight'
+import { getProductUrl } from '@/lib/product-url'
 import QuotationModal from '../../../../components/QuotationModal'
 import imgRectangle15 from '../../../../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
 import imgRectangle21 from '../../../../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
@@ -169,9 +170,9 @@ function SpecTable({ specs }) {
   )
 }
 
-function RelatedProductCard({ id, image, category, engName }) {
+function RelatedProductCard({ href, image, category, engName }) {
   return (
-    <Link href={id ? `/product/${id}` : '#'} className="flex flex-col gap-[16px] items-start w-full no-underline">
+    <Link href={href || '#'} className="flex flex-col gap-[16px] items-start w-full no-underline">
       <div className="h-[170px] lg:h-[268px] relative w-full overflow-hidden">
         <div className="absolute bg-[#e8e3da] inset-0" />
         <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
@@ -203,7 +204,7 @@ export default function ProductDetailClient({ product: dbProduct = null }) {
     specs: dbProduct.specifications ? Object.entries(dbProduct.specifications).map(([label, value]) => ({ label, value: String(value) })) : [],
     relatedProducts: (dbProduct.relatedProducts || []).map(rp => {
       const img = rp.product_images?.find(i => i.is_primary)?.url || rp.product_images?.[0]?.url || imgRectangle15
-      return { id: rp.id, image: img, category: rp.category || '', engName: rp.name }
+      return { href: getProductUrl(rp), image: img, category: rp.category || '', engName: rp.name }
     }),
   } : fallbackProduct
 

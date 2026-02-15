@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import ArrowRight from '../../../components/ArrowRight'
+import { getProductUrl } from '@/lib/product-url'
 import imgCategoryBg from '../../../assets/product_category_bg.png'
 import imgSearch from '../../../assets/icon_search.svg'
 import imgRectangle15 from '../../../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
@@ -36,25 +37,25 @@ const fallbackFilterCategories = [
     title: 'วัสดุก่อสร้าง',
     count: 250,
     items: [
-      'ปาร์ติเกิลบอร์ด',
-      'ไม้ OSB',
-      'แผ่นไฟเบอร์ซีเมนต์และบอร์ดและ ประตูเมลามีน',
-      'ไม้อัดเฌอร่า',
-      'ไม้อัดยิปซั่มบอร์ด',
-      'แผ่นไม้แผ่นรีไซเคิล',
+      { name: 'ปาร์ติเกิลบอร์ด', label: 'ปาร์ติเกิลบอร์ด' },
+      { name: 'ไม้ OSB', label: 'ไม้ OSB' },
+      { name: 'แผ่นไฟเบอร์ซีเมนต์และบอร์ดและ ประตูเมลามีน', label: 'แผ่นไฟเบอร์ซีเมนต์และบอร์ดและ ประตูเมลามีน' },
+      { name: 'ไม้อัดเฌอร่า', label: 'ไม้อัดเฌอร่า' },
+      { name: 'ไม้อัดยิปซั่มบอร์ด', label: 'ไม้อัดยิปซั่มบอร์ด' },
+      { name: 'แผ่นไม้แผ่นรีไซเคิล', label: 'แผ่นไม้แผ่นรีไซเคิล' },
     ],
   },
   {
     title: 'ผลิตภัณฑ์สำเร็จ',
     count: 250,
     items: [
-      'ไม้พื้น (24)',
-      'ไม้พื้นลามิเนต (11)',
-      'ประตูเมลามีน (12)',
-      'ไม้ฝา (10)',
-      'สำเร็จรูปเมลามีน (12)',
-      'บานประตู',
-      'บานหน้าต่าง',
+      { name: 'ไม้พื้น', label: 'ไม้พื้น (24)' },
+      { name: 'ไม้พื้นลามิเนต', label: 'ไม้พื้นลามิเนต (11)' },
+      { name: 'ประตูเมลามีน', label: 'ประตูเมลามีน (12)' },
+      { name: 'ไม้ฝา', label: 'ไม้ฝา (10)' },
+      { name: 'สำเร็จรูปเมลามีน', label: 'สำเร็จรูปเมลามีน (12)' },
+      { name: 'บานประตู', label: 'บานประตู' },
+      { name: 'บานหน้าต่าง', label: 'บานหน้าต่าง' },
     ],
   },
 ]
@@ -62,9 +63,9 @@ const fallbackFilterCategories = [
 const DESKTOP_PAGE_SIZE = 16
 const MOBILE_PAGE_SIZE = 6
 
-function ProductCard({ id, image, category, name }) {
+function ProductCard({ href, image, category, name }) {
   return (
-    <Link href={`/product/${id}`} className="flex flex-col gap-[16px] items-start w-full no-underline">
+    <Link href={href} className="flex flex-col gap-[16px] items-start w-full no-underline">
       <div className="h-[170px] lg:h-[222px] relative w-full overflow-hidden">
         <div className="absolute bg-[#e8e3da] inset-0" />
         <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
@@ -87,7 +88,7 @@ function ProductCard({ id, image, category, name }) {
   )
 }
 
-function FilterSection({ title, count, items, isOpen, onToggle }) {
+function FilterSection({ title, count, items, isOpen, onToggle, selectedCategories, onCategoryToggle }) {
   return (
     <div className="border border-[#e5e7eb] bg-white px-[12px] py-[8px] w-full">
       <button
@@ -110,13 +111,15 @@ function FilterSection({ title, count, items, isOpen, onToggle }) {
       {isOpen && (
         <div className="flex flex-col mt-[4px]">
           {items.map((item) => (
-            <label key={item} className="flex gap-[16px] items-start py-[6px] cursor-pointer">
+            <label key={item.name} className="flex gap-[16px] items-start py-[6px] cursor-pointer">
               <input
                 type="checkbox"
                 className="shrink-0 size-[16px] mt-[4px] accent-orange"
+                checked={selectedCategories.has(item.name)}
+                onChange={() => onCategoryToggle(item.name)}
               />
               <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[15px] text-black leading-[1.6]">
-                {item}
+                {item.label}
               </span>
             </label>
           ))}
@@ -190,12 +193,28 @@ export default function ProductsPageClient({ products: dbProducts = [], categori
   const [currentPage, setCurrentPage] = useState(1)
   const [mobileVisible, setMobileVisible] = useState(MOBILE_PAGE_SIZE)
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategories, setSelectedCategories] = useState(new Set())
 
-  const allProducts = dbProducts.length > 0
+  const toggleCategory = (categoryName) => {
+    setSelectedCategories(prev => {
+      const next = new Set(prev)
+      if (next.has(categoryName)) {
+        next.delete(categoryName)
+      } else {
+        next.add(categoryName)
+      }
+      return next
+    })
+    setCurrentPage(1)
+    setMobileVisible(MOBILE_PAGE_SIZE)
+  }
+
+  const mappedProducts = dbProducts.length > 0
     ? dbProducts.map(p => {
         const primaryImg = p.product_images?.find(img => img.is_primary)
         return {
           id: p.id,
+          href: getProductUrl(p),
           image: primaryImg?.url || p.product_images?.[0]?.url || imgRectangle15,
           category: p.category || '',
           name: p.name,
@@ -203,17 +222,30 @@ export default function ProductsPageClient({ products: dbProducts = [], categori
       })
     : fallbackProducts
 
+  let allProducts = mappedProducts
+
+  if (selectedCategories.size > 0) {
+    allProducts = allProducts.filter(p => selectedCategories.has(p.category))
+  }
+
+  if (searchQuery.trim()) {
+    const q = searchQuery.trim().toLowerCase()
+    allProducts = allProducts.filter(p =>
+      p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)
+    )
+  }
+
   const filterCategories = dbCategories.length > 0
     ? [
         {
           title: 'วัสดุก่อสร้าง',
           count: dbCategories.filter(c => c.type === 'construction').reduce((sum, c) => sum + c.count, 0),
-          items: dbCategories.filter(c => c.type === 'construction').map(c => `${c.name} (${c.count})`),
+          items: dbCategories.filter(c => c.type === 'construction').map(c => ({ name: c.name, label: `${c.name} (${c.count})` })),
         },
         {
           title: 'ผลิตภัณฑ์สำเร็จ',
           count: dbCategories.filter(c => c.type !== 'construction').reduce((sum, c) => sum + c.count, 0),
-          items: dbCategories.filter(c => c.type !== 'construction').map(c => `${c.name} (${c.count})`),
+          items: dbCategories.filter(c => c.type !== 'construction').map(c => ({ name: c.name, label: `${c.name} (${c.count})` })),
         },
       ]
     : fallbackFilterCategories
@@ -254,13 +286,13 @@ export default function ProductsPageClient({ products: dbProducts = [], categori
               placeholder="กำลังมองหาสินค้าอะไร? ค้นหาเลย..."
               className="pl-2 flex-1 border-none outline-none bg-transparent font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] lg:text-[18px] text-black placeholder:text-[#c3c3c3] tracking-[0.09px]"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); setMobileVisible(MOBILE_PAGE_SIZE) }}
             />
           </div>
           <div className="flex flex-col sm:flex-row gap-[16px] lg:gap-[24px] w-full">
             {[
               { label: 'วัสดุก่อสร้าง', count: `${filterCategories[0]?.count || 250} รายการ`, path: '/products/construction' },
-              { label: 'ผลิตภัณฑ์สำเร็จ', count: `${filterCategories[1]?.count || 250} รายการ`, path: '/products/finished' },
+              { label: 'ผลิตภัณฑ์สำเร็จ', count: `${filterCategories[1]?.count || 250} รายการ`, path: '/products/decoration' },
             ].map((cat) => (
               <Link
                 key={cat.label}
@@ -299,6 +331,8 @@ export default function ProductsPageClient({ products: dbProducts = [], categori
               items={cat.items}
               isOpen={openFilters.has(i)}
               onToggle={() => toggleFilter(i)}
+              selectedCategories={selectedCategories}
+              onCategoryToggle={toggleCategory}
             />
           ))}
         </div>
@@ -316,6 +350,8 @@ export default function ProductsPageClient({ products: dbProducts = [], categori
                   type="text"
                   placeholder="กำลังมองหาสินค้าอะไร? ค้นหาเลย..."
                   className="pl-1 flex-1 border-none outline-none bg-transparent font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-[#6b7280] placeholder:text-[#6b7280] tracking-[0.07px]"
+                  value={searchQuery}
+                  onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); setMobileVisible(MOBILE_PAGE_SIZE) }}
                 />
               </div>
             </div>
@@ -324,19 +360,38 @@ export default function ProductsPageClient({ products: dbProducts = [], categori
             </p>
           </div>
 
-          {/* Desktop product grid */}
-          <div className="hidden lg:grid grid-cols-4 gap-[25px] w-full">
-            {desktopProducts.map((p, i) => (
-              <ProductCard key={p.id || i} {...p} />
-            ))}
-          </div>
+          {allProducts.length === 0 && searchQuery.trim() ? (
+            <div className="flex flex-col items-center justify-center py-[48px] gap-[8px]">
+              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[18px] text-black">
+                ไม่พบสินค้าที่ค้นหา
+              </p>
+              <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-grey">
+                ลองค้นหาด้วยคำอื่น หรือ{' '}
+                <button
+                  className="text-orange bg-transparent border-none cursor-pointer p-0 font-['IBM_Plex_Sans_Thai'] text-[14px] underline"
+                  onClick={() => { setSearchQuery(''); setCurrentPage(1); setMobileVisible(MOBILE_PAGE_SIZE) }}
+                >
+                  ดูสินค้าทั้งหมด
+                </button>
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Desktop product grid */}
+              <div className="hidden lg:grid grid-cols-4 gap-[25px] w-full">
+                {desktopProducts.map((p, i) => (
+                  <ProductCard key={p.id || i} {...p} />
+                ))}
+              </div>
 
-          {/* Mobile product grid */}
-          <div className="lg:hidden grid grid-cols-2 gap-[16px] w-full">
-            {mobileProducts.map((p, i) => (
-              <ProductCard key={p.id || i} {...p} />
-            ))}
-          </div>
+              {/* Mobile product grid */}
+              <div className="lg:hidden grid grid-cols-2 gap-[16px] w-full">
+                {mobileProducts.map((p, i) => (
+                  <ProductCard key={p.id || i} {...p} />
+                ))}
+              </div>
+            </>
+          )}
 
           {/* Mobile load more */}
           {mobileRemaining > 0 && (

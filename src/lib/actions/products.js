@@ -62,6 +62,7 @@ export async function createProduct(formData) {
 
   const rawData = {
     name: formData.get('name'),
+    slug: formData.get('slug'),
     code: formData.get('code'),
     sku: formData.get('sku'),
     type: formData.get('type') || 'construction',
@@ -127,7 +128,7 @@ export async function updateProduct(id, formData) {
   const supabase = createServiceClient()
 
   const updates = {}
-  const fields = ['name', 'code', 'sku', 'type', 'category', 'description', 'characteristics']
+  const fields = ['name', 'slug', 'code', 'sku', 'type', 'category', 'description', 'characteristics']
   for (const field of fields) {
     const val = formData.get(field)
     if (val !== null) updates[field] = val

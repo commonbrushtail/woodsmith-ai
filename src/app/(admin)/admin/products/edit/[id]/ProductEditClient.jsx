@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
@@ -8,12 +8,19 @@ import { updateProduct } from '@/lib/actions/products'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 
-export default function ProductEditClient({ product }) {
+const typeOptions = [
+  { value: 'construction', label: 'วัสดุก่อสร้าง' },
+  { value: 'decoration', label: 'ผลิตภัณฑ์สำเร็จ' },
+  { value: 'tool', label: 'เครื่องมือ' },
+]
+
+export default function ProductEditClient({ product, categories = [] }) {
   const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const formErrors = useFormErrors()
   const [productName, setProductName] = useState(product.name || '')
+  const [slug, setSlug] = useState(product.slug || '')
   const [productCode, setProductCode] = useState(product.code || '')
   const [sku, setSku] = useState(product.sku || '')
   const [productType, setProductType] = useState(product.type || '')
@@ -27,6 +34,21 @@ export default function ProductEditClient({ product }) {
   const sizeOptions = (product.product_options || []).filter((o) => o.option_type === 'size')
   const [colorChips, setColorChips] = useState(colorOptions.map((o) => ({ id: o.id, label: o.label })))
   const [sizeChips, setSizeChips] = useState(sizeOptions.map((o) => ({ id: o.id, label: o.label })))
+
+  // Build cascading category options from managed categories
+  const categoryOptions = useMemo(() => {
+    if (!productType) return []
+    const parents = categories.filter(c => !c.parent_id && c.type === productType)
+    const result = []
+    for (const parent of parents) {
+      result.push({ value: parent.name, label: parent.name, isParent: true })
+      const children = categories.filter(c => c.parent_id === parent.id)
+      for (const child of children) {
+        result.push({ value: child.name, label: `  └ ${child.name}`, isParent: false })
+      }
+    }
+    return result
+  }, [productType, categories])
 
   const removeColorChip = (id) => setColorChips((prev) => prev.filter((c) => c.id !== id))
   const removeSizeChip = (id) => setSizeChips((prev) => prev.filter((c) => c.id !== id))
@@ -47,6 +69,7 @@ export default function ProductEditClient({ product }) {
     startTransition(async () => {
       const formData = new FormData()
       formData.set('name', productName)
+      formData.set('slug', slug)
       formData.set('code', productCode)
       formData.set('sku', sku)
       formData.set('type', productType)
@@ -129,6 +152,22 @@ export default function ProductEditClient({ product }) {
           {formErrors.getError('name') && <p className="text-red-500 text-[13px] font-['IBM_Plex_Sans_Thai'] mt-[2px]">{formErrors.getError('name')}</p>}
         </div>
 
+        {/* Slug */}
+        <div className="flex flex-col gap-[8px]">
+          <label htmlFor="slug" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
+            Slug (URL) <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="slug"
+            type="text"
+            value={slug}
+            onChange={(e) => { setSlug(e.target.value); formErrors.clearError('slug') }}
+            placeholder="product-url-slug"
+            className={`font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border rounded-[8px] px-[14px] py-[10px] outline-none transition-all placeholder:text-[#bfbfbf] ${formErrors.getError('slug') ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20' : 'border-[#e8eaef] focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20'}`}
+          />
+          {formErrors.getError('slug') && <p className="text-red-500 text-[13px] font-['IBM_Plex_Sans_Thai'] mt-[2px]">{formErrors.getError('slug')}</p>}
+        </div>
+
         {/* Code + SKU */}
         <div className="grid grid-cols-2 gap-[20px]">
           <div className="flex flex-col gap-[8px]">
@@ -163,19 +202,19 @@ export default function ProductEditClient({ product }) {
         <div className="grid grid-cols-2 gap-[20px]">
           <div className="flex flex-col gap-[8px]">
             <label htmlFor="productType" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
-              {'ประเภทสินค้า'} <span className="text-red-500">*</span>
+              ประเภทสินค้า <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <select
                 id="productType"
                 value={productType}
-                onChange={(e) => setProductType(e.target.value)}
+                onChange={(e) => { setProductType(e.target.value); setProductCategory('') }}
                 className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none w-full appearance-none bg-white cursor-pointer focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all"
               >
-                <option value="" disabled>{'เลือกประเภทสินค้า'}</option>
-                <option value="construction">{'วัสดุก่อสร้าง'}</option>
-                <option value="decoration">{'ผลิตภัณฑ์สำเร็จ'}</option>
-                <option value="tool">{'เครื่องมือ'}</option>
+                <option value="" disabled>เลือกประเภทสินค้า</option>
+                {typeOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
               </select>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="absolute right-[14px] top-1/2 -translate-y-1/2 pointer-events-none">
                 <path d="M4 6L8 10L12 6" />
@@ -184,15 +223,29 @@ export default function ProductEditClient({ product }) {
           </div>
           <div className="flex flex-col gap-[8px]">
             <label htmlFor="productCategory" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
-              {'หมวดหมู่สินค้า'} <span className="text-red-500">*</span>
+              หมวดหมู่สินค้า <span className="text-red-500">*</span>
             </label>
-            <input
-              id="productCategory"
-              type="text"
-              value={productCategory}
-              onChange={(e) => setProductCategory(e.target.value)}
-              className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf]"
-            />
+            <div className="relative">
+              <select
+                id="productCategory"
+                value={productCategory}
+                onChange={(e) => setProductCategory(e.target.value)}
+                disabled={!productType}
+                className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none w-full appearance-none bg-white cursor-pointer focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all disabled:bg-[#f9fafb] disabled:text-[#9ca3af]"
+              >
+                <option value="">{productType ? 'เลือกหมวดหมู่สินค้า' : 'เลือกประเภทก่อน'}</option>
+                {categoryOptions.map((opt, i) => (
+                  <option key={`${opt.value}-${i}`} value={opt.value}>{opt.label}</option>
+                ))}
+                {/* Allow keeping current value if not in managed categories */}
+                {productCategory && !categoryOptions.some(o => o.value === productCategory) && (
+                  <option value={productCategory}>{productCategory} (ไม่ได้จัดการ)</option>
+                )}
+              </select>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="absolute right-[14px] top-1/2 -translate-y-1/2 pointer-events-none">
+                <path d="M4 6L8 10L12 6" />
+              </svg>
+            </div>
           </div>
         </div>
 

@@ -16,7 +16,7 @@ export async function searchAll(query) {
   const [productsResult, postsResult] = await Promise.all([
     supabase
       .from('products')
-      .select('id, name, code, category, product_images(url, is_primary)')
+      .select('id, name, slug, type, code, category, product_images(url, is_primary)')
       .or(`name.ilike.%${term}%,code.ilike.%${term}%,sku.ilike.%${term}%`)
       .limit(6),
     supabase
@@ -40,7 +40,7 @@ export async function getRecommendedProducts() {
 
   const { data } = await supabase
     .from('products')
-    .select('id, name, code, category, product_images(url, is_primary)')
+    .select('id, name, slug, type, code, category, product_images(url, is_primary)')
     .eq('recommended', true)
     .order('sort_order', { ascending: true })
     .limit(6)

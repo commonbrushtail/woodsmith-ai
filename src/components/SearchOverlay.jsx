@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { getProductUrl } from '@/lib/product-url'
 
 function SearchIcon() {
   return (
@@ -243,7 +244,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
                   </p>
                   <div className="flex flex-col lg:flex-row lg:flex-wrap gap-[16px] w-full">
                     {recommended.slice(0, 3).map((item) => (
-                      <a key={item.id} href={`/product/${item.id}`} className="flex gap-[10px] items-start w-full lg:w-[335px] cursor-pointer no-underline">
+                      <a key={item.id} href={getProductUrl(item)} className="flex gap-[10px] items-start w-full lg:w-[335px] cursor-pointer no-underline">
                         <div className="shrink-0 size-[64px] bg-[#e8e3da] overflow-hidden">
                           {getProductImage(item) && (
                             <img src={getProductImage(item)} alt="" className="size-full object-cover" />
@@ -263,7 +264,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
                   {recommended.length > 3 && (
                     <div className="flex flex-col lg:flex-row lg:flex-wrap gap-[16px] w-full">
                       {recommended.slice(3, 6).map((item) => (
-                        <a key={item.id} href={`/product/${item.id}`} className="flex gap-[10px] items-start w-full lg:w-[335px] cursor-pointer no-underline">
+                        <a key={item.id} href={getProductUrl(item)} className="flex gap-[10px] items-start w-full lg:w-[335px] cursor-pointer no-underline">
                           <div className="shrink-0 size-[64px] bg-[#d9d9d9] overflow-hidden">
                             {getProductImage(item) && (
                               <img src={getProductImage(item)} alt="" className="size-full object-cover" />
@@ -322,7 +323,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
                       </p>
                       <div className="flex flex-col lg:flex-row lg:flex-wrap gap-[16px] w-full">
                         {searchResults.products.map((item) => (
-                          <a key={item.id} href={`/product/${item.id}`} className="flex gap-[10px] items-start w-full lg:w-[335px] cursor-pointer no-underline">
+                          <a key={item.id} href={getProductUrl(item)} className="flex gap-[10px] items-start w-full lg:w-[335px] cursor-pointer no-underline">
                             <div className="shrink-0 size-[64px] bg-[#e8e3da] overflow-hidden">
                               {getProductImage(item) && (
                                 <img src={getProductImage(item)} alt="" className="size-full object-cover" />
