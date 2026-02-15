@@ -314,56 +314,56 @@ export default function VideoHighlightsListClient({ highlights, totalCount }) {
       </div>
 
       {/* Table */}
-      <div className="border border-[#e5e7eb] rounded-[10px] overflow-hidden bg-white">
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse min-w-[1200px]">
-            <thead>
-              <tr className="bg-[#f9fafb]">
-                <th className="w-[40px] px-[8px] py-[10px]" />
-                <th className="w-[44px] px-[12px] py-[10px] text-left">
-                  <input
-                    type="checkbox"
-                    checked={allSelected}
-                    ref={(el) => { if (el) el.indeterminate = someSelected }}
-                    onChange={toggleSelectAll}
-                    className="size-[16px] accent-[#ff7e1b] cursor-pointer rounded"
-                    aria-label="Select all rows"
-                  />
-                </th>
-                <th
-                  className="w-[80px] px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider whitespace-nowrap cursor-pointer select-none"
-                  onClick={() => setSortAsc((prev) => !prev)}
-                  aria-sort={sortAsc ? 'ascending' : 'descending'}
-                >
-                  <div className="flex items-center gap-[4px]">
-                    <span>ORDER / {'ลำดับ'}</span>
-                    <SortArrowIcon ascending={sortAsc} />
-                  </div>
-                </th>
-                <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider whitespace-nowrap">
-                  {'ชื่อไฮไลท์'}
-                </th>
-                <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider whitespace-nowrap">
-                  {'หมวดหมู่'}
-                </th>
-                <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider">
-                  <span className="block leading-[1.4]">
-                    {'ช่วงวันเวลาเริ่มต้น-สิ้นสุด'}
-                  </span>
-                  <span className="block leading-[1.4]">
-                    {'การเผยแพร่'}
-                  </span>
-                </th>
-                <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider whitespace-nowrap">
-                  {'สถานะเผยแพร่'}
-                </th>
-                <th className="w-[56px] px-[10px] py-[10px] text-center text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider">
-                  ACTION
-                </th>
-              </tr>
-            </thead>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={sortedHighlights.map((h) => h.id)} strategy={verticalListSortingStrategy}>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={sortedHighlights.map((h) => h.id)} strategy={verticalListSortingStrategy}>
+          <div className="border border-[#e5e7eb] rounded-[10px] overflow-hidden bg-white">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse min-w-[1200px]">
+                <thead>
+                  <tr className="bg-[#f9fafb]">
+                    <th className="w-[40px] px-[8px] py-[10px]" />
+                    <th className="w-[44px] px-[12px] py-[10px] text-left">
+                      <input
+                        type="checkbox"
+                        checked={allSelected}
+                        ref={(el) => { if (el) el.indeterminate = someSelected }}
+                        onChange={toggleSelectAll}
+                        className="size-[16px] accent-[#ff7e1b] cursor-pointer rounded"
+                        aria-label="Select all rows"
+                      />
+                    </th>
+                    <th
+                      className="w-[80px] px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider whitespace-nowrap cursor-pointer select-none"
+                      onClick={() => setSortAsc((prev) => !prev)}
+                      aria-sort={sortAsc ? 'ascending' : 'descending'}
+                    >
+                      <div className="flex items-center gap-[4px]">
+                        <span>ORDER / {'ลำดับ'}</span>
+                        <SortArrowIcon ascending={sortAsc} />
+                      </div>
+                    </th>
+                    <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider whitespace-nowrap">
+                      {'ชื่อไฮไลท์'}
+                    </th>
+                    <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider whitespace-nowrap">
+                      {'หมวดหมู่'}
+                    </th>
+                    <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider">
+                      <span className="block leading-[1.4]">
+                        {'ช่วงวันเวลาเริ่มต้น-สิ้นสุด'}
+                      </span>
+                      <span className="block leading-[1.4]">
+                        {'การเผยแพร่'}
+                      </span>
+                    </th>
+                    <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider whitespace-nowrap">
+                      {'สถานะเผยแพร่'}
+                    </th>
+                    <th className="w-[56px] px-[10px] py-[10px] text-center text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider">
+                      ACTION
+                    </th>
+                  </tr>
+                </thead>
                 <tbody>
                   {sortedHighlights.length === 0 ? (
                     <tr>
@@ -436,11 +436,11 @@ export default function VideoHighlightsListClient({ highlights, totalCount }) {
                     ))
                   )}
                 </tbody>
-              </SortableContext>
-            </DndContext>
-          </table>
-        </div>
-      </div>
+              </table>
+            </div>
+          </div>
+        </SortableContext>
+      </DndContext>
     </div>
   )
 }

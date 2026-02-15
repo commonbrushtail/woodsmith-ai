@@ -157,19 +157,19 @@ export default function FaqListClient({ faqs, totalCount }) {
       </div>
 
       {/* Table */}
-      <div className="flex-1 overflow-y-auto bg-white rounded-[12px] border border-[#e8eaef]">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="border-b border-[#e8eaef]">
-              <th className="w-[40px] px-[8px] py-[12px]" />
-              <th className="text-left px-[16px] py-[12px] font-['IBM_Plex_Sans_Thai'] text-[12px] font-semibold text-[#9ca3af] uppercase tracking-wider">#</th>
-              <th className="text-left px-[16px] py-[12px] font-['IBM_Plex_Sans_Thai'] text-[12px] font-semibold text-[#9ca3af] uppercase tracking-wider">คำถาม</th>
-              <th className="text-left px-[16px] py-[12px] font-['IBM_Plex_Sans_Thai'] text-[12px] font-semibold text-[#9ca3af] uppercase tracking-wider">สถานะ</th>
-              <th className="w-[60px]"></th>
-            </tr>
-          </thead>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={filtered.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={filtered.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+          <div className="flex-1 overflow-y-auto bg-white rounded-[12px] border border-[#e8eaef]">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-[#e8eaef]">
+                  <th className="w-[40px] px-[8px] py-[12px]" />
+                  <th className="text-left px-[16px] py-[12px] font-['IBM_Plex_Sans_Thai'] text-[12px] font-semibold text-[#9ca3af] uppercase tracking-wider">#</th>
+                  <th className="text-left px-[16px] py-[12px] font-['IBM_Plex_Sans_Thai'] text-[12px] font-semibold text-[#9ca3af] uppercase tracking-wider">คำถาม</th>
+                  <th className="text-left px-[16px] py-[12px] font-['IBM_Plex_Sans_Thai'] text-[12px] font-semibold text-[#9ca3af] uppercase tracking-wider">สถานะ</th>
+                  <th className="w-[60px]"></th>
+                </tr>
+              </thead>
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
@@ -245,10 +245,10 @@ export default function FaqListClient({ faqs, totalCount }) {
                   ))
                 )}
               </tbody>
-            </SortableContext>
-          </DndContext>
-        </table>
-      </div>
+            </table>
+          </div>
+        </SortableContext>
+      </DndContext>
     </div>
   )
 }

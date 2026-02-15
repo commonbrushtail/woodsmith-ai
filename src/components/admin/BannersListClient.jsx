@@ -222,47 +222,47 @@ export default function BannersListClient({ banners }) {
       </div>
 
       {/* Table */}
-      <div className="border border-[#e5e7eb] rounded-[12px] overflow-hidden bg-white">
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b border-[#e5e7eb] bg-[#f9fafb]">
-                <th className="w-[40px] px-[8px] py-[12px]" />
-                <th className="w-[56px] px-[20px] py-[12px] text-left">
-                  <input
-                    type="checkbox"
-                    className="size-[16px] accent-orange cursor-pointer"
-                    checked={selectedRows.length === banners.length && banners.length > 0}
-                    onChange={handleSelectAll}
-                  />
-                </th>
-                <th
-                  className="px-[12px] py-[12px] text-left font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap cursor-pointer select-none"
-                  onClick={toggleSort}
-                >
-                  <div className="flex items-center gap-[4px]">
-                    <span>ORDER / {'ลำดับ'}</span>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${sortAsc ? '' : 'rotate-180'}`}>
-                      <path d="M3 4.5L6 7.5L9 4.5" />
-                    </svg>
-                  </div>
-                </th>
-                <th className="px-[12px] py-[12px] text-left font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap">
-                  IMAGE / {'รูปภาพ'}
-                </th>
-                <th className="px-[12px] py-[12px] text-left font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap">
-                  {'วันที่สร้าง'}
-                </th>
-                <th className="px-[12px] py-[12px] text-left font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap">
-                  STATUS
-                </th>
-                <th className="w-[64px] px-[12px] py-[12px] text-center font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap">
-                  ACTION
-                </th>
-              </tr>
-            </thead>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={sortedBanners.map((b) => b.id)} strategy={verticalListSortingStrategy}>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={sortedBanners.map((b) => b.id)} strategy={verticalListSortingStrategy}>
+          <div className="border border-[#e5e7eb] rounded-[12px] overflow-hidden bg-white">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-[#e5e7eb] bg-[#f9fafb]">
+                    <th className="w-[40px] px-[8px] py-[12px]" />
+                    <th className="w-[56px] px-[20px] py-[12px] text-left">
+                      <input
+                        type="checkbox"
+                        className="size-[16px] accent-orange cursor-pointer"
+                        checked={selectedRows.length === banners.length && banners.length > 0}
+                        onChange={handleSelectAll}
+                      />
+                    </th>
+                    <th
+                      className="px-[12px] py-[12px] text-left font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap cursor-pointer select-none"
+                      onClick={toggleSort}
+                    >
+                      <div className="flex items-center gap-[4px]">
+                        <span>ORDER / {'ลำดับ'}</span>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${sortAsc ? '' : 'rotate-180'}`}>
+                          <path d="M3 4.5L6 7.5L9 4.5" />
+                        </svg>
+                      </div>
+                    </th>
+                    <th className="px-[12px] py-[12px] text-left font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap">
+                      IMAGE / {'รูปภาพ'}
+                    </th>
+                    <th className="px-[12px] py-[12px] text-left font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap">
+                      {'วันที่สร้าง'}
+                    </th>
+                    <th className="px-[12px] py-[12px] text-left font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap">
+                      STATUS
+                    </th>
+                    <th className="w-[64px] px-[12px] py-[12px] text-center font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] text-[#6b7280] whitespace-nowrap">
+                      ACTION
+                    </th>
+                  </tr>
+                </thead>
                 <tbody>
                   {sortedBanners.length === 0 ? (
                     <tr>
@@ -357,11 +357,11 @@ export default function BannersListClient({ banners }) {
                     ))
                   )}
                 </tbody>
-              </SortableContext>
-            </DndContext>
-          </table>
-        </div>
-      </div>
+              </table>
+            </div>
+          </div>
+        </SortableContext>
+      </DndContext>
     </div>
   )
 }
