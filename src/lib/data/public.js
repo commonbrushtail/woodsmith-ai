@@ -317,6 +317,23 @@ export async function getPublishedCategories({ type = '' } = {}) {
 }
 
 /**
+ * Fetch published product types (top-level categories where parent_id IS NULL).
+ * RLS automatically filters to published = true.
+ */
+export async function getPublishedProductTypes() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('product_categories')
+    .select('*')
+    .is('parent_id', null)
+    .order('sort_order', { ascending: true })
+
+  if (error) return { data: [], error: error.message }
+  return { data: data || [], error: null }
+}
+
+/**
  * Fetch published subcategories (child categories where parent_id IS NOT NULL).
  * When featured=true, only returns categories marked as is_featured.
  * RLS automatically filters to published = true.

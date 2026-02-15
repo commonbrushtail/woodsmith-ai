@@ -188,7 +188,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
   )
 }
 
-export default function ProductsPageClient({ products: dbProducts = [], categories: dbCategories = [] }) {
+export default function ProductsPageClient({ products: dbProducts = [], categories: dbCategories = [], productTypes: dbProductTypes = [] }) {
   const [openFilters, setOpenFilters] = useState(new Set([0, 1]))
   const [currentPage, setCurrentPage] = useState(1)
   const [mobileVisible, setMobileVisible] = useState(MOBILE_PAGE_SIZE)
@@ -290,10 +290,18 @@ export default function ProductsPageClient({ products: dbProducts = [], categori
             />
           </div>
           <div className="flex flex-col sm:flex-row gap-[16px] lg:gap-[24px] w-full">
-            {[
-              { label: 'วัสดุก่อสร้าง', count: `${filterCategories[0]?.count || 250} รายการ`, path: '/products/construction' },
-              { label: 'ผลิตภัณฑ์สำเร็จ', count: `${filterCategories[1]?.count || 250} รายการ`, path: '/products/decoration' },
-            ].map((cat) => (
+            {(dbProductTypes.length > 0
+              ? dbProductTypes.map(pt => ({
+                  label: pt.name,
+                  count: `${filterCategories.find(fc => fc.title === pt.name)?.count || 0} รายการ`,
+                  path: `/products/${pt.type}`,
+                  image: pt.image_url || imgCategoryBg,
+                }))
+              : [
+                  { label: 'วัสดุก่อสร้าง', count: `${filterCategories[0]?.count || 250} รายการ`, path: '/products/construction', image: imgCategoryBg },
+                  { label: 'ผลิตภัณฑ์สำเร็จ', count: `${filterCategories[1]?.count || 250} รายการ`, path: '/products/decoration', image: imgCategoryBg },
+                ]
+            ).map((cat) => (
               <Link
                 key={cat.label}
                 href={cat.path}
@@ -302,7 +310,7 @@ export default function ProductsPageClient({ products: dbProducts = [], categori
                 <img
                   alt=""
                   className="absolute inset-0 max-w-none object-cover size-full pointer-events-none"
-                  src={imgCategoryBg}
+                  src={cat.image}
                 />
                 <p className="relative font-['IBM_Plex_Sans_Thai'] font-bold text-[24px] lg:text-[32px] text-black">
                   {cat.label}
