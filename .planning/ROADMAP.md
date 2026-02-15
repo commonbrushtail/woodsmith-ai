@@ -12,9 +12,9 @@ This milestone stabilizes the existing codebase by resolving 5 runtime bugs disc
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Critical Bug Fixes** - Unblock admin workflows (TipTap SSR crash, missing Banner create page)
-- [ ] **Phase 2: Cosmetic Bug Fixes** - Polish UI display issues (Profile HTML tags, Gallery order off-by-one)
-- [ ] **Phase 3: Hydration Warning Cleanup** - Eliminate dnd-kit React hydration mismatches on 5 sortable list pages
+- [x] **Phase 1: Critical Bug Fixes** - Unblock admin workflows (TipTap SSR crash, missing Banner create page)
+- [x] **Phase 2: Cosmetic Bug Fixes** - Polish UI display issues (Profile HTML tags, Gallery order off-by-one)
+- [x] **Phase 3: Hydration Warning Cleanup** - Eliminate dnd-kit React hydration mismatches on 5 sortable list pages
 
 ## Phase Details
 
@@ -31,8 +31,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2
 
 Plans:
-- [ ] 01-01: Fix TipTap SSR crash (immediatelyRender: false) — Wave 1, TDD
-- [ ] 01-02: Create missing banner create page — Wave 1, TDD
+- [x] 01-01: Fix TipTap SSR crash (immediatelyRender: false) — Wave 1, TDD
+- [x] 01-02: Create missing banner create page — Wave 1, TDD
 
 ### Phase 2: Cosmetic Bug Fixes
 **Goal**: Admin UI displays content correctly without raw HTML or confusing numbering
@@ -47,7 +47,7 @@ Plans:
 **Plans**: 1
 
 Plans:
-- [ ] 02-01: Fix profile HTML display + gallery order off-by-one — Wave 1, TDD
+- [x] 02-01: Fix profile HTML display + gallery order off-by-one — Wave 1, TDD
 
 ### Phase 3: Hydration Warning Cleanup
 **Goal**: All admin sortable list pages render cleanly without React hydration mismatches
@@ -62,8 +62,8 @@ Plans:
 **Plans**: 2
 
 Plans:
-- [ ] 03-01: Refactor DndContext out of table structure on 5 list pages — Wave 1, TDD
-- [ ] 03-02: Add hydration test coverage for all 5 ListClient components — Wave 2, TDD (depends: 03-01)
+- [x] 03-01: Refactor DndContext out of table structure on 5 list pages — Wave 1, TDD
+- [x] 03-02: Add hydration test coverage for all 5 ListClient components — Wave 2, TDD (depends: 03-01)
 
 ## Progress
 
@@ -72,9 +72,9 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Critical Bug Fixes | 0/2 | Planned | - |
-| 2. Cosmetic Bug Fixes | 0/1 | Planned | - |
-| 3. Hydration Warning Cleanup | 0/2 | Planned | - |
+| 1. Critical Bug Fixes | 2/2 | ✓ Complete | 2026-02-15 |
+| 2. Cosmetic Bug Fixes | 1/1 | ✓ Complete | 2026-02-15 |
+| 3. Hydration Warning Cleanup | 2/2 | ✓ Complete | 2026-02-15 |
 
 ---
 *Roadmap created: 2026-02-15*
