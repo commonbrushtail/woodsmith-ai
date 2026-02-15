@@ -64,3 +64,46 @@ describe('GalleryListClient - Sort Order Display', () => {
     expect(orderCell).toBeInTheDocument()
   })
 })
+
+describe('GalleryListClient - Edge Cases', () => {
+  it('handles galleries with null sort_order', async () => {
+    const GalleryListClient = (await import('@/components/admin/GalleryListClient')).default
+    const galleries = [
+      { id: '1', sort_order: null, caption: 'No order', image_url: '/img.jpg', published: true, created_at: '2024-01-01' },
+    ]
+
+    render(createElement(GalleryListClient, { galleries, totalCount: 1 }))
+
+    expect(screen.getByText('-')).toBeInTheDocument()
+  })
+
+  it('handles galleries with undefined sort_order', async () => {
+    const GalleryListClient = (await import('@/components/admin/GalleryListClient')).default
+    const galleries = [
+      { id: '1', caption: 'No order', image_url: '/img.jpg', published: true, created_at: '2024-01-01' },
+    ]
+
+    render(createElement(GalleryListClient, { galleries, totalCount: 1 }))
+
+    expect(screen.getByText('-')).toBeInTheDocument()
+  })
+
+  it('maintains correct order after sorting descending', async () => {
+    const GalleryListClient = (await import('@/components/admin/GalleryListClient')).default
+    const galleries = [
+      { id: '1', sort_order: 0, caption: 'First', image_url: '/img1.jpg', published: true, created_at: '2024-01-01' },
+      { id: '2', sort_order: 1, caption: 'Second', image_url: '/img2.jpg', published: true, created_at: '2024-01-02' },
+    ]
+
+    const { container } = render(createElement(GalleryListClient, { galleries, totalCount: 2 }))
+
+    // Click sort header to reverse order
+    const sortHeader = screen.getByText(/ORDER.*ลำดับ/)
+    fireEvent.click(sortHeader)
+
+    // After descending sort, order should still be 1-indexed (but reversed)
+    const orderCells = container.querySelectorAll('tbody td:nth-child(3)')
+    expect(orderCells[0].textContent).toBe('2')
+    expect(orderCells[1].textContent).toBe('1')
+  })
+})

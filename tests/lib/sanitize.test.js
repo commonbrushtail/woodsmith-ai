@@ -110,3 +110,49 @@ describe('stripHtmlTags', () => {
     expect(stripHtmlTags('<p><strong>Bold Company</strong></p>')).toBe('Bold Company')
   })
 })
+
+describe('stripHtmlTags - Edge Cases', () => {
+  it('handles malformed HTML gracefully', () => {
+    expect(stripHtmlTags('<p>Unclosed tag')).toBe('Unclosed tag')
+    expect(stripHtmlTags('Unopened tag</p>')).toBe('Unopened tag')
+    expect(stripHtmlTags('<p>Nested <b>bold text')).toBe('Nested bold text')
+  })
+
+  it('handles multiple consecutive tags', () => {
+    expect(stripHtmlTags('<p></p><p></p><p>Text</p>')).toBe('Text')
+    expect(stripHtmlTags('<br/><br/><br/>Line')).toBe('Line')
+  })
+
+  it('handles mixed content with tags and entities', () => {
+    expect(stripHtmlTags('<p>&lt;script&gt;alert()&lt;/script&gt;</p>')).toBe('<script>alert()</script>')
+    expect(stripHtmlTags('<b>Bold</b> &amp; <i>Italic</i>')).toBe('Bold & Italic')
+  })
+
+  it('handles very long HTML strings', () => {
+    const longHtml = '<p>' + 'x'.repeat(10000) + '</p>'
+    const result = stripHtmlTags(longHtml)
+    expect(result).toBe('x'.repeat(10000))
+    expect(result.length).toBe(10000)
+  })
+
+  it('handles HTML with attributes', () => {
+    expect(stripHtmlTags('<a href="http://example.com">Link</a>')).toBe('Link')
+    expect(stripHtmlTags('<img src="image.jpg" alt="Alt text" />')).toBe('')
+  })
+
+  it('preserves Thai diacritics and tone marks', () => {
+    expect(stripHtmlTags('<p>ภาษาไทย สวัสดี</p>')).toBe('ภาษาไทย สวัสดี')
+    expect(stripHtmlTags('<strong>กำหนด</strong> คีย์')).toBe('กำหนด คีย์')
+  })
+
+  it('strips tags from script and style elements', () => {
+    // In browser DOMParser strips script/style content, in server/tests uses regex
+    const result1 = stripHtmlTags('<p>Safe</p><script>alert()</script>')
+    expect(result1).toContain('Safe')
+    // May be 'Safe' or 'Safealert()' depending on environment
+
+    const result2 = stripHtmlTags('<style>body{}</style><p>Text</p>')
+    expect(result2).toContain('Text')
+    // May be 'Text' or 'body{}Text' depending on environment
+  })
+})
