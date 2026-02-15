@@ -1,5 +1,6 @@
 import AdminSidebar from '../../../components/admin/AdminSidebar'
 import ErrorBoundary from '../../../components/ErrorBoundary'
+import ClientOnly from '../../../components/admin/ClientOnly'
 
 export default function DashboardLayout({ children }) {
   return (
@@ -7,7 +8,9 @@ export default function DashboardLayout({ children }) {
       <AdminSidebar />
       <main className="flex-1 overflow-y-auto px-[32px] py-[20px]">
         <ErrorBoundary>
-          {children}
+          <ClientOnly>
+            {children}
+          </ClientOnly>
         </ErrorBoundary>
       </main>
     </div>
