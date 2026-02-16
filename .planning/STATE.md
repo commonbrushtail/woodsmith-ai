@@ -88,6 +88,8 @@ Recent decisions affecting v1.1:
 - [Quick 15]: updateUserRole syncs to auth immediately (no deferred sync) to ensure role changes take effect on next login
 - [Quick 16]: /admin/login route check MUST precede general /admin check to prevent redirect loops (route precedence pattern)
 - [Quick 16]: Old /login path falls through to default allow (no longer special, available for future customer login modal)
+- [Quick 18]: Sibling route groups (auth) and (dashboard) for independent layouts (eliminates x-pathname header workaround)
+- [Quick 18]: Minimal parent layout when children have distinct chrome requirements (pass-through pattern)
 
 ### Quick Tasks Completed
 
@@ -106,6 +108,7 @@ Recent decisions affecting v1.1:
 | 14 | Add role verification to admin login action | 2026-02-17 | DONE — role check after signInWithPassword, immediate signOut on failure, Thai error message, eliminates redirect loops (1 min) |
 | 15 | Fix authorization bypass in inviteUser/updateUserRole | 2026-02-17 | DONE — role synced to user_metadata in both functions, invited users can now log in, role changes take effect (1 min) |
 | 16 | Move admin login from /login to /admin/login | 2026-02-17 | DONE — login pages moved to /admin namespace, route-rules updated with precedence check, all redirects updated, 38 tests pass (3 min) |
+| 18 | Separate admin login and dashboard layouts | 2026-02-17 | DONE — sibling route groups (auth) and (dashboard), removed x-pathname workaround, 18 directories moved, 65 files updated (2 min) |
 
 ### Pending Todos
 
@@ -118,7 +121,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed quick task 16 (move admin login to /admin/login)
+Stopped at: Completed quick task 18 (separate admin login and dashboard layouts)
 Resume file: None
 
 ### Recent Activity
@@ -147,6 +150,7 @@ Resume file: None
 | 2026-02-17 | Quick task 14 executed | Admin login role verification: role check after signInWithPassword, immediate signOut on failure, Thai error, eliminates redirect loops (1 min) |
 | 2026-02-17 | Quick task 15 executed | User management auth bypass fix: role synced to user_metadata in inviteUser and updateUserRole, dual-write pattern (1 file, 1 min) |
 | 2026-02-17 | Quick task 16 executed | Move admin login to /admin/login: login pages moved, route precedence established, 11 files updated, 38 tests pass (3 min) |
+| 2026-02-17 | Quick task 18 executed | Separate admin login and dashboard layouts: sibling route groups, x-pathname workaround removed, 18 directories moved to (dashboard)/, clean architecture (2 min) |
 
 ---
 *Last updated: 2026-02-17*
