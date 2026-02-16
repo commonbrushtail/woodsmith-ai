@@ -6,11 +6,15 @@ import { createServiceClient } from '@/lib/supabase/admin'
 import { blogCategorySchema, blogCategoryUpdateSchema } from '@/lib/validations/blog-categories'
 import { sanitizeInput } from '@/lib/sanitize'
 import { logAudit } from '@/lib/audit'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 /**
  * Fetch all blog categories sorted by sort_order.
  */
 export async function getBlogCategories() {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: [], error: authError }
+
   const supabase = createServiceClient()
 
   const { data, error } = await supabase
@@ -26,6 +30,9 @@ export async function getBlogCategories() {
  * Fetch a single blog category by ID.
  */
 export async function getBlogCategory(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const { data, error } = await supabase
@@ -42,6 +49,9 @@ export async function getBlogCategory(id) {
  * Create a new blog category.
  */
 export async function createBlogCategory(formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const raw = { name: sanitizeInput(formData.get('name') || '') }
@@ -89,8 +99,6 @@ export async function createBlogCategory(formData) {
 
   if (error) return { data: null, error: error.message }
 
-  const authClient = await createClient()
-  const { data: { user } } = await authClient.auth.getUser()
   logAudit({ userId: user?.id, action: 'blog_category.create', targetId: data.id })
 
   revalidatePath('/admin/blog-categories')
@@ -103,6 +111,9 @@ export async function createBlogCategory(formData) {
  * Update a blog category.
  */
 export async function updateBlogCategory(id, formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const raw = {}
@@ -164,8 +175,6 @@ export async function updateBlogCategory(id, formData) {
 
   if (error) return { data: null, error: error.message }
 
-  const authClient = await createClient()
-  const { data: { user } } = await authClient.auth.getUser()
   logAudit({ userId: user?.id, action: 'blog_category.update', targetId: id })
 
   revalidatePath('/admin/blog-categories')
@@ -178,6 +187,9 @@ export async function updateBlogCategory(id, formData) {
  * Delete a blog category. Shows warning if posts use it.
  */
 export async function deleteBlogCategory(id, { force = false } = {}) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { data: category, error: fetchError } = await supabase
@@ -215,8 +227,6 @@ export async function deleteBlogCategory(id, { force = false } = {}) {
 
   if (deleteError) return { error: deleteError.message }
 
-  const authClient = await createClient()
-  const { data: { user } } = await authClient.auth.getUser()
   logAudit({ userId: user?.id, action: 'blog_category.delete', targetId: id })
 
   revalidatePath('/admin/blog-categories')

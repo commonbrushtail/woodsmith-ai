@@ -2,12 +2,16 @@
 
 import { revalidatePath } from 'next/cache'
 import { createServiceClient } from '@/lib/supabase/admin'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 /**
  * Fetch the singleton about_us record.
  * The `content` column stores JSON: { companyDetail }
  */
 export async function getAboutUs() {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const { data, error } = await supabase
@@ -46,6 +50,9 @@ export async function getAboutUs() {
  * Update (or insert) the singleton about_us record.
  */
 export async function updateAboutUs(formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const content = JSON.stringify({

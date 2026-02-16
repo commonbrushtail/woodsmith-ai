@@ -2,12 +2,16 @@
 
 import { revalidatePath } from 'next/cache'
 import { createServiceClient } from '@/lib/supabase/admin'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 /**
  * Get the company profile (singleton from company_profile table).
  * Content is stored as JSON in the 'content' text column.
  */
 export async function getCompanyProfile() {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
   const { data, error } = await supabase
     .from('company_profile')
@@ -45,6 +49,9 @@ export async function getCompanyProfile() {
  * Update the company profile (upsert singleton).
  */
 export async function updateCompanyProfile(formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const content = JSON.stringify({
@@ -81,6 +88,6 @@ export async function updateCompanyProfile(formData) {
     return { data: null, error: result.error.message }
   }
 
-  revalidatePath('/admin/profile')
+  revalidatePath('/admin/site-settings')
   return { data: result.data, error: null }
 }

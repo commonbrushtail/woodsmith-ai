@@ -5,11 +5,15 @@ import { createServiceClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { quotationStatusSchema } from '@/lib/validations/quotations'
 import { logAudit } from '@/lib/audit'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 /**
  * List quotations with pagination and optional status filter.
  */
 export async function getQuotations({ page = 1, perPage = 10, status = '', search = '' } = {}) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: [], count: 0, error: authError }
+
   const supabase = createServiceClient()
   const from = (page - 1) * perPage
   const to = from + perPage - 1
@@ -41,6 +45,9 @@ export async function getQuotations({ page = 1, perPage = 10, status = '', searc
  * Get a single quotation by ID with product details.
  */
 export async function getQuotation(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
   const { data, error } = await supabase
     .from('quotations')
@@ -59,6 +66,9 @@ export async function getQuotation(id) {
  * Update quotation status.
  */
 export async function updateQuotationStatus(id, status) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const parsed = quotationStatusSchema.safeParse(status)
   if (!parsed.success) {
     return { error: 'สถานะไม่ถูกต้อง' }
@@ -75,8 +85,6 @@ export async function updateQuotationStatus(id, status) {
   }
 
   // Audit log for status change
-  const authClient = await createClient()
-  const { data: { user } } = await authClient.auth.getUser()
   logAudit({ userId: user?.id, action: 'quotation.status_change', targetId: id, details: { status } })
 
   revalidatePath('/admin/quotations')
@@ -88,6 +96,9 @@ export async function updateQuotationStatus(id, status) {
  * Add/update admin notes on a quotation.
  */
 export async function updateAdminNotes(id, notes) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
   const { error } = await supabase
     .from('quotations')
@@ -106,6 +117,9 @@ export async function updateAdminNotes(id, notes) {
  * Delete a quotation.
  */
 export async function deleteQuotation(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
   const { error } = await supabase
     .from('quotations')

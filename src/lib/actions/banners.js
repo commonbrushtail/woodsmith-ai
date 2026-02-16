@@ -3,11 +3,15 @@
 import { revalidatePath } from 'next/cache'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 /**
  * Fetch all banners ordered by sort_order.
  */
 export async function getBanners() {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: [], error: authError }
+
   const supabase = createServiceClient()
 
   const { data, error } = await supabase
@@ -26,6 +30,9 @@ export async function getBanners() {
  * Fetch a single banner by ID.
  */
 export async function getBanner(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const { data, error } = await supabase
@@ -45,6 +52,9 @@ export async function getBanner(id) {
  * Create a new banner.
  */
 export async function createBanner(formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   // Get next sort_order
@@ -91,6 +101,9 @@ export async function createBanner(formData) {
  * Update a banner.
  */
 export async function updateBanner(id, formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const updates = {}
@@ -128,6 +141,9 @@ export async function updateBanner(id, formData) {
  * Delete a banner.
  */
 export async function deleteBanner(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   // Get image URL to delete from storage
@@ -163,6 +179,9 @@ export async function deleteBanner(id) {
  * @param {Array<{id: string, sort_order: number}>} updates
  */
 export async function reorderBanners(updates) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   for (const { id, sort_order } of updates) {
@@ -181,6 +200,9 @@ export async function reorderBanners(updates) {
 }
 
 export async function toggleBannerStatus(id, status) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { error } = await supabase

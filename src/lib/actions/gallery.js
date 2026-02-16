@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { requireAdmin } from '@/lib/auth/require-admin'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
 
@@ -8,6 +9,9 @@ import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
  * Fetch gallery items ordered by sort_order, optionally filtered by section.
  */
 export async function getGalleryItems({ section, page = 1, perPage = 200, sortAsc = true } = {}) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: [], count: 0, error: authError }
+
   const supabase = createServiceClient()
   const from = (page - 1) * perPage
   const to = from + perPage - 1
@@ -36,6 +40,9 @@ export async function getGalleryItems({ section, page = 1, perPage = 200, sortAs
  * FormData: section (string), images (File[])
  */
 export async function createGalleryItems(formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
   const section = formData.get('section') || 'homepage'
 
@@ -81,6 +88,9 @@ export async function createGalleryItems(formData) {
  * Delete a gallery item and its image from storage.
  */
 export async function deleteGalleryItem(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { data: item } = await supabase
@@ -112,6 +122,9 @@ export async function deleteGalleryItem(id) {
  * @param {Array<{id: string, sort_order: number}>} updates
  */
 export async function reorderGalleryItems(updates) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   for (const { id, sort_order } of updates) {

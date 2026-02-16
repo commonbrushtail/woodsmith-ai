@@ -1,11 +1,15 @@
 'use server'
 
 import { createServiceClient } from '@/lib/supabase/admin'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 /**
  * Fetch dashboard statistics.
  */
 export async function getDashboardStats() {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { totalProducts: 0, totalBanners: 0, totalBlogPosts: 0, totalQuotations: 0, pendingQuotations: 0 }
+
   const supabase = createServiceClient()
 
   const [products, banners, blogPosts, quotations] = await Promise.all([

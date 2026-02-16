@@ -6,11 +6,15 @@ import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
 import { blogCreateSchema, blogUpdateSchema } from '@/lib/validations/blog'
 import { sanitizeObject } from '@/lib/sanitize'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 /**
  * Fetch paginated blog posts with optional search.
  */
 export async function getBlogPosts({ page = 1, perPage = 10, search = '', sortAsc = true } = {}) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: [], count: 0, error: authError }
+
   const supabase = createServiceClient()
   const from = (page - 1) * perPage
   const to = from + perPage - 1
@@ -38,6 +42,9 @@ export async function getBlogPosts({ page = 1, perPage = 10, search = '', sortAs
  * Fetch a single blog post by ID.
  */
 export async function getBlogPost(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const { data, error } = await supabase
@@ -57,11 +64,10 @@ export async function getBlogPost(id) {
  * Create a new blog post.
  */
 export async function createBlogPost(formData) {
-  const supabase = createServiceClient()
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
 
-  // Get author from current session
-  const authClient = await createClient()
-  const { data: { user } } = await authClient.auth.getUser()
+  const supabase = createServiceClient()
 
   // Sanitize text inputs before validation
   const blogData = sanitizeObject({
@@ -133,6 +139,9 @@ export async function createBlogPost(formData) {
  * Update a blog post.
  */
 export async function updateBlogPost(id, formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const updates = {}
@@ -191,6 +200,9 @@ export async function updateBlogPost(id, formData) {
  * Delete a blog post.
  */
 export async function deleteBlogPost(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { data: post } = await supabase
@@ -222,6 +234,9 @@ export async function deleteBlogPost(id) {
  * Toggle blog post recommended status.
  */
 export async function toggleBlogRecommended(id, recommended) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { error } = await supabase
@@ -242,6 +257,9 @@ export async function toggleBlogRecommended(id, recommended) {
  * Toggle blog post published status.
  */
 export async function toggleBlogPublished(id, published) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { error } = await supabase
@@ -272,6 +290,9 @@ export async function incrementBlogViewCount(id) {
  * Returns { url: string } on success or { error: string } on failure.
  */
 export async function uploadEditorImage(formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { url: null, error: authError }
+
   const file = formData.get('file')
   if (!file || file.size === 0) {
     return { url: null, error: 'ไม่พบไฟล์' }

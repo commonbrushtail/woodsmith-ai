@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { requireAdmin } from '@/lib/auth/require-admin'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
@@ -12,6 +13,9 @@ import { logAudit } from '@/lib/audit'
  * Fetch all variation groups with entry counts and linked product counts.
  */
 export async function getVariationGroups() {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: [], count: 0, error: authError }
+
   const supabase = createServiceClient()
 
   // Fetch all groups with their entries
@@ -54,6 +58,9 @@ export async function getVariationGroups() {
  * Fetch a single variation group with all entries sorted by sort_order.
  */
 export async function getVariationGroup(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const { data, error } = await supabase
@@ -71,6 +78,9 @@ export async function getVariationGroup(id) {
  * Create a new variation group.
  */
 export async function createVariationGroup(formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const raw = {
@@ -95,8 +105,7 @@ export async function createVariationGroup(formData) {
   if (error) return { data: null, error: error.message }
 
   // Audit log
-  const authClient = await createClient()
-  const { data: { user } } = await authClient.auth.getUser()
+  // User already obtained from requireAdmin()
   logAudit({ userId: user?.id, action: 'variation_group.create', targetId: data.id })
 
   revalidatePath('/admin/variations')
@@ -107,6 +116,9 @@ export async function createVariationGroup(formData) {
  * Update a variation group name.
  */
 export async function updateVariationGroup(id, formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const raw = {}
@@ -131,8 +143,7 @@ export async function updateVariationGroup(id, formData) {
   if (error) return { data: null, error: error.message }
 
   // Audit log
-  const authClient = await createClient()
-  const { data: { user } } = await authClient.auth.getUser()
+  // User already obtained from requireAdmin()
   logAudit({ userId: user?.id, action: 'variation_group.update', targetId: id })
 
   revalidatePath('/admin/variations')
@@ -145,6 +156,9 @@ export async function updateVariationGroup(id, formData) {
  * @param {{ force: boolean }} options - If force=true, delete even if products are linked
  */
 export async function deleteVariationGroup(id, { force = false } = {}) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   // Check for linked products
@@ -198,8 +212,7 @@ export async function deleteVariationGroup(id, { force = false } = {}) {
   if (deleteError) return { error: deleteError.message }
 
   // Audit log
-  const authClient = await createClient()
-  const { data: { user } } = await authClient.auth.getUser()
+  // User already obtained from requireAdmin()
   logAudit({ userId: user?.id, action: 'variation_group.delete', targetId: id })
 
   revalidatePath('/admin/variations')
@@ -210,6 +223,9 @@ export async function deleteVariationGroup(id, { force = false } = {}) {
  * Create a new variation entry.
  */
 export async function createVariationEntry(formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const raw = {
@@ -260,8 +276,7 @@ export async function createVariationEntry(formData) {
   if (error) return { data: null, error: error.message }
 
   // Audit log
-  const authClient = await createClient()
-  const { data: { user } } = await authClient.auth.getUser()
+  // User already obtained from requireAdmin()
   logAudit({ userId: user?.id, action: 'variation_entry.create', targetId: data.id })
 
   revalidatePath('/admin/variations')
@@ -272,6 +287,9 @@ export async function createVariationEntry(formData) {
  * Update a variation entry label and/or swatch image.
  */
 export async function updateVariationEntry(id, formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const raw = {}
@@ -335,8 +353,7 @@ export async function updateVariationEntry(id, formData) {
   if (error) return { data: null, error: error.message }
 
   // Audit log
-  const authClient = await createClient()
-  const { data: { user } } = await authClient.auth.getUser()
+  // User already obtained from requireAdmin()
   logAudit({ userId: user?.id, action: 'variation_entry.update', targetId: id })
 
   revalidatePath('/admin/variations')
@@ -347,6 +364,9 @@ export async function updateVariationEntry(id, formData) {
  * Delete a single variation entry.
  */
 export async function deleteVariationEntry(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   // Fetch entry to get image_url and group_id
@@ -373,8 +393,7 @@ export async function deleteVariationEntry(id) {
   if (deleteError) return { error: deleteError.message }
 
   // Audit log
-  const authClient = await createClient()
-  const { data: { user } } = await authClient.auth.getUser()
+  // User already obtained from requireAdmin()
   logAudit({ userId: user?.id, action: 'variation_entry.delete', targetId: id })
 
   revalidatePath('/admin/variations')
@@ -386,6 +405,9 @@ export async function deleteVariationEntry(id) {
  * @param {Array<{id: string, sort_order: number}>} updates
  */
 export async function reorderVariationEntries(updates) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   for (const { id, sort_order } of updates) {
@@ -407,6 +429,9 @@ export async function reorderVariationEntries(updates) {
  * @param {FormData} formData - FormData with 'file' field
  */
 export async function uploadVariationSwatchImage(groupId, formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const file = formData.get('file')
   if (!file) return { url: null, error: 'No file provided' }
 

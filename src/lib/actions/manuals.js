@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { requireAdmin } from '@/lib/auth/require-admin'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
 
@@ -8,6 +9,9 @@ import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
  * Fetch all manuals ordered by sort_order.
  */
 export async function getManuals({ page = 1, perPage = 50, search = '', sortAsc = true } = {}) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: [], count: 0, error: authError }
+
   const supabase = createServiceClient()
   const from = (page - 1) * perPage
   const to = from + perPage - 1
@@ -35,6 +39,9 @@ export async function getManuals({ page = 1, perPage = 50, search = '', sortAsc 
  * Fetch a single manual by ID.
  */
 export async function getManual(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const { data, error } = await supabase
@@ -54,6 +61,9 @@ export async function getManual(id) {
  * Create a new manual.
  */
 export async function createManual(formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   // Get next sort_order
@@ -112,6 +122,9 @@ export async function createManual(formData) {
  * Update a manual.
  */
 export async function updateManual(id, formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const updates = {}
@@ -165,6 +178,9 @@ export async function updateManual(id, formData) {
  * Delete a manual.
  */
 export async function deleteManual(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { data: manual } = await supabase
@@ -203,6 +219,9 @@ export async function deleteManual(id) {
  * @param {Array<{id: string, sort_order: number}>} updates
  */
 export async function reorderManuals(updates) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   for (const { id, sort_order } of updates) {
@@ -221,6 +240,9 @@ export async function reorderManuals(updates) {
 }
 
 export async function toggleManualPublished(id, published) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { error } = await supabase

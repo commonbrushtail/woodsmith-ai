@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { requireAdmin } from '@/lib/auth/require-admin'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
@@ -12,6 +13,9 @@ import { logAudit } from '@/lib/audit'
  * Fetch paginated products with optional search/filter.
  */
 export async function getProducts({ page = 1, perPage = 10, search = '', sortAsc = true } = {}) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: [], count: 0, error: authError }
+
   const supabase = createServiceClient()
   const from = (page - 1) * perPage
   const to = from + perPage - 1
@@ -39,6 +43,9 @@ export async function getProducts({ page = 1, perPage = 10, search = '', sortAsc
  * Fetch a single product by ID with all related data.
  */
 export async function getProduct(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const { data, error } = await supabase
@@ -58,6 +65,9 @@ export async function getProduct(id) {
  * Create a new product.
  */
 export async function createProduct(formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const rawData = {
@@ -126,6 +136,9 @@ export async function createProduct(formData) {
  * Update an existing product.
  */
 export async function updateProduct(id, formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const updates = {}
@@ -204,6 +217,9 @@ export async function updateProduct(id, formData) {
  * Delete a product by ID.
  */
 export async function deleteProduct(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   // Delete associated images from storage first
@@ -230,9 +246,7 @@ export async function deleteProduct(id) {
     return { error: error.message }
   }
 
-  // Get current user for audit
-  const authClient = await createClient()
-  const { data: { user } } = await authClient.auth.getUser()
+  // User already obtained from requireAdmin()
   logAudit({ userId: user?.id, action: 'product.delete', targetId: id })
 
   revalidatePath('/admin/products')
@@ -243,6 +257,9 @@ export async function deleteProduct(id) {
  * Toggle product recommended status.
  */
 export async function toggleProductRecommended(id, recommended) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { error } = await supabase
@@ -262,6 +279,9 @@ export async function toggleProductRecommended(id, recommended) {
  * Toggle product published status.
  */
 export async function toggleProductPublished(id, published) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { error } = await supabase
@@ -281,6 +301,9 @@ export async function toggleProductPublished(id, published) {
  * Upload a product image and add it to product_images.
  */
 export async function uploadProductImage(productId, formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const file = formData.get('file')
   if (!file) return { error: 'No file provided' }
 
@@ -319,6 +342,9 @@ export async function uploadProductImage(productId, formData) {
  * Delete a product image.
  */
 export async function deleteProductImage(imageId) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { data: image } = await supabase
@@ -348,6 +374,9 @@ export async function deleteProductImage(imageId) {
  * Returns the public URL for the uploaded image.
  */
 export async function uploadOptionImage(productId, formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const file = formData.get('file')
   if (!file) return { url: null, error: 'No file provided' }
 
@@ -367,6 +396,9 @@ export async function uploadOptionImage(productId, formData) {
  * @param {Array<{group_id: string, entry_id: string}>} links - Array of variation links
  */
 export async function syncProductVariationLinks(productId, links) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   // Delete all existing links for this product
@@ -393,9 +425,7 @@ export async function syncProductVariationLinks(productId, links) {
     if (insertError) return { error: insertError.message }
   }
 
-  // Get current user for audit
-  const authClient = await createClient()
-  const { data: { user } } = await authClient.auth.getUser()
+  // User already obtained from requireAdmin()
   logAudit({ userId: user?.id, action: 'product.sync_variation_links', targetId: productId })
 
   revalidatePath('/admin/products')

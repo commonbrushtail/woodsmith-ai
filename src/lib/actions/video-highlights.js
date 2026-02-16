@@ -1,12 +1,16 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { requireAdmin } from '@/lib/auth/require-admin'
 import { createServiceClient } from '@/lib/supabase/admin'
 
 /**
  * Fetch all video highlights ordered by sort_order.
  */
 export async function getVideoHighlights({ page = 1, perPage = 50, search = '', sortAsc = true } = {}) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: [], count: 0, error: authError }
+
   const supabase = createServiceClient()
   const from = (page - 1) * perPage
   const to = from + perPage - 1
@@ -34,6 +38,9 @@ export async function getVideoHighlights({ page = 1, perPage = 50, search = '', 
  * Fetch a single video highlight by ID.
  */
 export async function getVideoHighlight(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const { data, error } = await supabase
@@ -53,6 +60,9 @@ export async function getVideoHighlight(id) {
  * Create a new video highlight.
  */
 export async function createVideoHighlight(formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   // Get next sort_order
@@ -93,6 +103,9 @@ export async function createVideoHighlight(formData) {
  * Update a video highlight.
  */
 export async function updateVideoHighlight(id, formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const updates = {}
@@ -129,6 +142,9 @@ export async function updateVideoHighlight(id, formData) {
  * Delete a video highlight.
  */
 export async function deleteVideoHighlight(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { error } = await supabase
@@ -152,6 +168,9 @@ export async function deleteVideoHighlight(id) {
  * @param {Array<{id: string, sort_order: number}>} updates
  */
 export async function reorderVideoHighlights(updates) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   for (const { id, sort_order } of updates) {
@@ -170,6 +189,9 @@ export async function reorderVideoHighlights(updates) {
 }
 
 export async function toggleVideoHighlightPublished(id, published) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { error } = await supabase
@@ -187,6 +209,9 @@ export async function toggleVideoHighlightPublished(id, published) {
 }
 
 export async function toggleVideoHighlightRecommended(id, recommended) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { error } = await supabase

@@ -3,11 +3,15 @@
 import { revalidatePath } from 'next/cache'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 /**
  * Fetch all branches ordered by sort_order.
  */
 export async function getBranches({ page = 1, perPage = 50, search = '', sortAsc = true } = {}) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: [], count: 0, error: authError }
+
   const supabase = createServiceClient()
   const from = (page - 1) * perPage
   const to = from + perPage - 1
@@ -35,6 +39,9 @@ export async function getBranches({ page = 1, perPage = 50, search = '', sortAsc
  * Fetch a single branch by ID.
  */
 export async function getBranch(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const { data, error } = await supabase
@@ -54,6 +61,9 @@ export async function getBranch(id) {
  * Create a new branch.
  */
 export async function createBranch(formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const { data: existing } = await supabase
@@ -104,6 +114,9 @@ export async function createBranch(formData) {
  * Update a branch.
  */
 export async function updateBranch(id, formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const updates = {}
@@ -159,6 +172,9 @@ export async function updateBranch(id, formData) {
  * Delete a branch.
  */
 export async function deleteBranch(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   // Clean up image from storage
@@ -185,6 +201,9 @@ export async function deleteBranch(id) {
  * Set a branch as the head office (only one allowed at a time).
  */
 export async function setBranchHq(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   // Clear any existing HQ
@@ -216,6 +235,9 @@ export async function setBranchHq(id) {
  * Toggle branch published status.
  */
 export async function toggleBranchPublished(id, published) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   const { error } = await supabase

@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { requireAdmin } from '@/lib/auth/require-admin'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { logAudit } from '@/lib/audit'
@@ -9,6 +10,9 @@ import { logAudit } from '@/lib/audit'
  * List users from user_profiles joined with auth.users email.
  */
 export async function getUsers({ page = 1, perPage = 50, search = '' } = {}) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: [], count: 0, error: authError }
+
   const supabase = createServiceClient()
   const from = (page - 1) * perPage
   const to = from + perPage - 1
@@ -47,6 +51,9 @@ export async function getUsers({ page = 1, perPage = 50, search = '' } = {}) {
  * Get a single user profile by ID.
  */
 export async function getUser(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
   const { data, error } = await supabase
     .from('user_profiles')
@@ -71,6 +78,9 @@ export async function getUser(id) {
  * Invite a new user (create auth user + user_profile).
  */
 export async function inviteUser(formData) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
 
   const email = formData.get('email')
@@ -83,14 +93,14 @@ export async function inviteUser(formData) {
   }
 
   // Create auth user
-  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+  const { data: authData, error: createUserError } = await supabase.auth.admin.createUser({
     email,
     email_confirm: true,
     user_metadata: { display_name: displayName },
   })
 
-  if (authError) {
-    return { data: null, error: authError.message }
+  if (createUserError) {
+    return { data: null, error: createUserError.message }
   }
 
   // Create user_profile
@@ -123,6 +133,9 @@ export async function inviteUser(formData) {
  * Update a user's role.
  */
 export async function updateUserRole(id, role) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: null, error: authError }
+
   const supabase = createServiceClient()
   const { error } = await supabase
     .from('user_profiles')
@@ -141,6 +154,9 @@ export async function updateUserRole(id, role) {
  * Delete/deactivate a user. Deletes auth user which cascades to user_profiles.
  */
 export async function deleteUser(id) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
   const supabase = createServiceClient()
 
   // Get the user_id from profile first
