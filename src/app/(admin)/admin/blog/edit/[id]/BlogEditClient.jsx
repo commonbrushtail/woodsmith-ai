@@ -8,6 +8,8 @@ import { updateBlogPost } from '@/lib/actions/blog'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
 import { validateFile, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 import RichTextEditor from '@/components/admin/RichTextEditor'
+import CalendarPicker from '@/components/admin/CalendarPicker'
+import TimePickerDropdown from '@/components/admin/TimePickerDropdown'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
   return (
@@ -44,6 +46,26 @@ function DotsIcon({ size = 18, color = '#6b7280' }) {
   )
 }
 
+function CalendarIcon({ size = 16, color = '#6b7280' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+  )
+}
+
+function ClockIcon({ size = 16, color = '#6b7280' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  )
+}
+
 export default function BlogEditClient({ post }) {
   const { toast } = useToast()
   const router = useRouter()
@@ -56,6 +78,17 @@ export default function BlogEditClient({ post }) {
   const [recommended, setRecommended] = useState(post.recommended ? 'yes' : 'no')
   const [coverPreview, setCoverPreview] = useState(post.cover_image_url || null)
   const [coverFile, setCoverFile] = useState(null)
+  const [category, setCategory] = useState(post.category || '')
+  const [publishDate, setPublishDate] = useState(
+    post.publish_date ? post.publish_date.split('T')[0] : ''
+  )
+  const [publishTime, setPublishTime] = useState(
+    post.publish_date && post.publish_date.includes('T')
+      ? post.publish_date.split('T')[1]?.slice(0, 5) || ''
+      : ''
+  )
+  const [showCal, setShowCal] = useState(false)
+  const [showTime, setShowTime] = useState(false)
 
   const TITLE_MAX = 120
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0
@@ -85,6 +118,11 @@ export default function BlogEditClient({ post }) {
       formData.set('content', content)
       formData.set('recommended', recommended === 'yes' ? 'true' : 'false')
       formData.set('published', publish ? 'true' : 'false')
+      formData.set('category', category)
+      if (publishDate) {
+        const pd = publishTime ? `${publishDate}T${publishTime}:00` : `${publishDate}T00:00:00`
+        formData.set('publish_date', pd)
+      }
 
       if (coverFile) {
         formData.set('cover_image', coverFile)
@@ -101,6 +139,12 @@ export default function BlogEditClient({ post }) {
         router.refresh()
       }
     })
+  }
+
+  const formatDateDisplay = (dateStr) => {
+    if (!dateStr) return ''
+    const [y, m, d] = dateStr.split('-')
+    return `${d}/${m}/${Number(y) + 543}`
   }
 
   return (
@@ -202,6 +246,35 @@ export default function BlogEditClient({ post }) {
             </span>
           </section>
 
+          {/* Category */}
+          <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
+            <label htmlFor="blogCategory" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
+              หมวดหมู่
+            </label>
+            <div className="relative">
+              <select
+                id="blogCategory"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className={`
+                  w-full font-['IBM_Plex_Sans_Thai'] text-[14px] border border-[#e8eaef] rounded-[8px]
+                  px-[14px] py-[10px] outline-none appearance-none bg-white cursor-pointer
+                  focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all
+                  ${category ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
+                `}
+              >
+                <option value="" disabled>เลือกหมวดหมู่</option>
+                <option value="ideas">ไอเดียและเคล็ดลับ</option>
+                <option value="trend">เทรนด์</option>
+                <option value="style">สไตล์และฟังก์ชัน</option>
+                <option value="knowledge">ความรู้ทั่วไป</option>
+              </select>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="absolute right-[14px] top-1/2 -translate-y-1/2 pointer-events-none">
+                <path d="M4 6L8 10L12 6" />
+              </svg>
+            </div>
+          </section>
+
           {/* Content */}
           <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
             <label htmlFor="blogContent" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
@@ -231,6 +304,80 @@ export default function BlogEditClient({ post }) {
               <option value="no">ไม่แนะนำ</option>
               <option value="yes">แนะนำ</option>
             </select>
+          </section>
+
+          {/* Publish Date */}
+          <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[16px]">
+            <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
+              วันที่เผยแพร่
+            </label>
+            {(publishDate || publishTime) && (
+              <button
+                type="button"
+                onClick={() => { setPublishDate(''); setPublishTime('') }}
+                className="self-start font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280] hover:text-red-500 hover:border-red-300 border border-[#e8eaef] rounded-[6px] px-[10px] py-[4px] bg-white cursor-pointer transition-colors"
+              >
+                ล้างค่า
+              </button>
+            )}
+            <div className="flex items-center gap-[12px]">
+              {/* Date picker */}
+              <div className="relative flex-1">
+                <button
+                  type="button"
+                  onClick={() => { setShowCal(!showCal); setShowTime(false) }}
+                  className={`
+                    w-full flex items-center gap-[8px] border border-[#e8eaef] rounded-[8px]
+                    px-[14px] py-[10px] bg-white cursor-pointer transition-all text-left
+                    font-['IBM_Plex_Sans_Thai'] text-[14px]
+                    ${showCal ? 'border-[#ff7e1b] ring-1 ring-[#ff7e1b]/20' : 'hover:border-[#d1d5db]'}
+                    ${publishDate ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
+                  `}
+                  aria-label="Select publish date"
+                >
+                  <CalendarIcon size={16} color="#6b7280" />
+                  <span>{publishDate ? formatDateDisplay(publishDate) : 'dd/mm/yyyy'}</span>
+                </button>
+                {showCal && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowCal(false)} />
+                    <CalendarPicker
+                      selectedDate={publishDate}
+                      onSelect={setPublishDate}
+                      onClose={() => setShowCal(false)}
+                    />
+                  </>
+                )}
+              </div>
+              {/* Time picker */}
+              <div className="relative w-[140px]">
+                <button
+                  type="button"
+                  onClick={() => { setShowTime(!showTime); setShowCal(false) }}
+                  className={`
+                    w-full flex items-center gap-[8px] border border-[#e8eaef] rounded-[8px]
+                    px-[14px] py-[10px] bg-white cursor-pointer transition-all text-left
+                    font-['IBM_Plex_Sans_Thai'] text-[14px]
+                    ${showTime ? 'border-[#ff7e1b] ring-1 ring-[#ff7e1b]/20' : 'hover:border-[#d1d5db]'}
+                    ${publishTime ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
+                  `}
+                  aria-label="Select publish time"
+                >
+                  <ClockIcon size={16} color="#6b7280" />
+                  <span>{publishTime || '00:00'}</span>
+                </button>
+                {showTime && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowTime(false)} />
+                    <TimePickerDropdown
+                      selectedTime={publishTime}
+                      onSelect={setPublishTime}
+                      onClose={() => setShowTime(false)}
+                    />
+                  </>
+                )}
+              </div>
+            </div>
           </section>
         </div>
 
