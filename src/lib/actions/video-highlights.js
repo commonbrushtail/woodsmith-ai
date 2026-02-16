@@ -71,6 +71,7 @@ export async function createVideoHighlight(formData) {
     duration: formData.get('duration') || null,
     channel_name: formData.get('channel_name') || null,
     published: formData.get('published') === 'true',
+    recommended: formData.get('recommended') === 'true',
     sort_order: nextOrder,
   }
 
@@ -103,6 +104,10 @@ export async function updateVideoHighlight(id, formData) {
 
   if (formData.has('published')) {
     updates.published = formData.get('published') === 'true'
+  }
+
+  if (formData.has('recommended')) {
+    updates.recommended = formData.get('recommended') === 'true'
   }
 
   const { data, error } = await supabase
@@ -177,5 +182,23 @@ export async function toggleVideoHighlightPublished(id, published) {
   }
 
   revalidatePath('/admin/video-highlight')
+  revalidatePath('/highlight')
+  return { error: null }
+}
+
+export async function toggleVideoHighlightRecommended(id, recommended) {
+  const supabase = createServiceClient()
+
+  const { error } = await supabase
+    .from('video_highlights')
+    .update({ recommended })
+    .eq('id', id)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/admin/video-highlight')
+  revalidatePath('/highlight')
   return { error: null }
 }

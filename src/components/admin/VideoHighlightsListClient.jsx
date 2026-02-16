@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
-import { deleteVideoHighlight, toggleVideoHighlightPublished, reorderVideoHighlights } from '@/lib/actions/video-highlights'
+import { deleteVideoHighlight, toggleVideoHighlightPublished, toggleVideoHighlightRecommended, reorderVideoHighlights } from '@/lib/actions/video-highlights'
 import { buildSortOrderUpdates } from '@/lib/reorder'
 import {
   DndContext,
@@ -228,6 +228,29 @@ export default function VideoHighlightsListClient({ highlights, totalCount }) {
     })
   }
 
+  const handleToggleRecommended = (id, current) => {
+    startTransition(async () => {
+      await toggleVideoHighlightRecommended(id, !current)
+      router.refresh()
+    })
+  }
+
+  function renderRecommendedBadge(highlight) {
+    return (
+      <button onClick={() => handleToggleRecommended(highlight.id, highlight.recommended)} className="cursor-pointer bg-transparent border-none p-0">
+        {highlight.recommended ? (
+          <span className="inline-flex items-center gap-[4px] rounded-full border border-[#22c55e] text-[#16a34a] bg-[#f0fdf4] px-[10px] py-[2px] text-[12px] font-medium leading-[20px] whitespace-nowrap">
+            YES
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-[4px] rounded-full border border-[#d1d5db] text-[#6b7280] bg-[#f9fafb] px-[10px] py-[2px] text-[12px] font-medium leading-[20px] whitespace-nowrap">
+            NO
+          </span>
+        )}
+      </button>
+    )
+  }
+
   function renderPublishBadge(highlight) {
     return (
       <button onClick={() => handleTogglePublished(highlight.id, highlight.published)} className="cursor-pointer bg-transparent border-none p-0">
@@ -330,6 +353,9 @@ export default function VideoHighlightsListClient({ highlights, totalCount }) {
                       {'ชื่อไฮไลท์'}
                     </th>
                     <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider whitespace-nowrap">
+                      {'แนะนำ'}
+                    </th>
+                    <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider whitespace-nowrap">
                       {'สถานะเผยแพร่'}
                     </th>
                     <th className="w-[56px] px-[10px] py-[10px] text-center text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider">
@@ -340,7 +366,7 @@ export default function VideoHighlightsListClient({ highlights, totalCount }) {
                 <tbody>
                   {sortedHighlights.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-[20px] py-[40px] text-center text-[14px] text-[#9ca3af] font-['IBM_Plex_Sans_Thai']">
+                      <td colSpan={7} className="px-[20px] py-[40px] text-center text-[14px] text-[#9ca3af] font-['IBM_Plex_Sans_Thai']">
                         ไม่พบข้อมูลวิดีโอไฮไลท์
                       </td>
                     </tr>
@@ -368,6 +394,9 @@ export default function VideoHighlightsListClient({ highlights, totalCount }) {
                         </td>
                         <td className="px-[10px] py-[10px] text-[13px] text-[#374151] max-w-[280px]">
                           <span className="line-clamp-2">{highlight.title}</span>
+                        </td>
+                        <td className="px-[10px] py-[10px]">
+                          {renderRecommendedBadge(highlight)}
                         </td>
                         <td className="px-[10px] py-[10px]">
                           {renderPublishBadge(highlight)}
