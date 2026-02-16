@@ -34,8 +34,8 @@ export function getRouteAction(pathname, user) {
     return 'skip'
   }
 
-  // Login page: redirect authenticated admins to dashboard
-  if (pathname === '/login') {
+  // Admin login page: redirect authenticated admins to dashboard
+  if (pathname === '/admin/login' || pathname.startsWith('/admin/login/')) {
     if (user && ADMIN_ROLES.includes(user.role)) {
       return { redirect: '/admin/dashboard' }
     }
@@ -45,7 +45,7 @@ export function getRouteAction(pathname, user) {
   // Admin routes: require admin/editor role
   if (pathname.startsWith('/admin')) {
     if (!user) {
-      return { redirect: '/login' }
+      return { redirect: '/admin/login' }
     }
     if (!ADMIN_ROLES.includes(user.role)) {
       return { redirect: '/' }

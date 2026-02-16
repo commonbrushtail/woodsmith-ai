@@ -21,14 +21,14 @@ describe('getRouteAction', () => {
     expect(action).toBe('allow')
   })
 
-  it('redirects /admin/dashboard to /login when unauthenticated', () => {
+  it('redirects /admin/dashboard to /admin/login when unauthenticated', () => {
     const action = getRouteAction('/admin/dashboard', null)
-    expect(action).toEqual({ redirect: '/login' })
+    expect(action).toEqual({ redirect: '/admin/login' })
   })
 
-  it('redirects /admin/products to /login when unauthenticated', () => {
+  it('redirects /admin/products to /admin/login when unauthenticated', () => {
     const action = getRouteAction('/admin/products', null)
-    expect(action).toEqual({ redirect: '/login' })
+    expect(action).toEqual({ redirect: '/admin/login' })
   })
 
   it('allows /admin/dashboard for admin user', () => {
@@ -49,14 +49,14 @@ describe('getRouteAction', () => {
     expect(action).toEqual({ redirect: '/' })
   })
 
-  it('redirects /login to /admin/dashboard for authenticated admin', () => {
+  it('redirects /admin/login to /admin/dashboard for authenticated admin', () => {
     const user = { role: 'admin' }
-    const action = getRouteAction('/login', user)
+    const action = getRouteAction('/admin/login', user)
     expect(action).toEqual({ redirect: '/admin/dashboard' })
   })
 
-  it('allows /login for unauthenticated user', () => {
-    const action = getRouteAction('/login', null)
+  it('allows /admin/login for unauthenticated user', () => {
+    const action = getRouteAction('/admin/login', null)
     expect(action).toBe('allow')
   })
 
@@ -84,17 +84,17 @@ describe('getRouteAction', () => {
   // --- Expanded tests: admin sub-routes ---
   it('protects /admin/users for unauthenticated users', () => {
     const action = getRouteAction('/admin/users', null)
-    expect(action).toEqual({ redirect: '/login' })
+    expect(action).toEqual({ redirect: '/admin/login' })
   })
 
   it('protects /admin/blog/create for unauthenticated users', () => {
     const action = getRouteAction('/admin/blog/create', null)
-    expect(action).toEqual({ redirect: '/login' })
+    expect(action).toEqual({ redirect: '/admin/login' })
   })
 
   it('protects /admin/quotations/some-id for unauthenticated users', () => {
     const action = getRouteAction('/admin/quotations/abc-123', null)
-    expect(action).toEqual({ redirect: '/login' })
+    expect(action).toEqual({ redirect: '/admin/login' })
   })
 
   it('allows /admin/users for editor user', () => {
@@ -145,16 +145,16 @@ describe('getRouteAction', () => {
     expect(action).toBe('allow')
   })
 
-  // --- Expanded tests: login page edge cases ---
-  it('allows /login for authenticated customer (not admin)', () => {
+  // --- Expanded tests: admin login page edge cases ---
+  it('allows /admin/login for authenticated customer (not admin)', () => {
     const user = { role: 'customer' }
-    const action = getRouteAction('/login', user)
+    const action = getRouteAction('/admin/login', user)
     expect(action).toBe('allow')
   })
 
-  it('redirects /login for authenticated editor to dashboard', () => {
+  it('redirects /admin/login for authenticated editor to dashboard', () => {
     const user = { role: 'editor' }
-    const action = getRouteAction('/login', user)
+    const action = getRouteAction('/admin/login', user)
     expect(action).toEqual({ redirect: '/admin/dashboard' })
   })
 
@@ -194,6 +194,22 @@ describe('getRouteAction', () => {
   // --- Expanded tests: unknown routes ---
   it('allows unknown routes as fallback', () => {
     const action = getRouteAction('/some-unknown-page', null)
+    expect(action).toBe('allow')
+  })
+
+  // --- New tests: old /login path and forgot-password sub-routes ---
+  it('treats old /login path as a regular route (fallback allow)', () => {
+    const action = getRouteAction('/login', null)
+    expect(action).toBe('allow')
+  })
+
+  it('allows /admin/login/forgot-password without auth', () => {
+    const action = getRouteAction('/admin/login/forgot-password', null)
+    expect(action).toBe('allow')
+  })
+
+  it('allows /admin/login/set-new-password without auth', () => {
+    const action = getRouteAction('/admin/login/set-new-password', null)
     expect(action).toBe('allow')
   })
 })
