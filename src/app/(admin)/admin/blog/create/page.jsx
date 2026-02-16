@@ -219,16 +219,12 @@ export default function BlogCreatePage() {
   const [recommendation, setRecommendation] = useState('')
   const [startDate, setStartDate] = useState('')
   const [startTime, setStartTime] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [endTime, setEndTime] = useState('')
   const [images, setImages] = useState([])
   const [coverFile, setCoverFile] = useState(null)
 
   /* ---- Picker visibility ---- */
   const [showStartCal, setShowStartCal] = useState(false)
-  const [showEndCal, setShowEndCal] = useState(false)
   const [showStartTime, setShowStartTime] = useState(false)
-  const [showEndTime, setShowEndTime] = useState(false)
   const [showLocalePicker, setShowLocalePicker] = useState(false)
 
   /* ---- Derived values ---- */
@@ -277,6 +273,7 @@ export default function BlogCreatePage() {
     startTransition(async () => {
       const formData = new FormData()
       formData.set('title', title)
+      formData.set('category', category)
       formData.set('content', content)
       formData.set('recommended', recommendation === 'yes' ? 'true' : 'false')
       formData.set('published', publish ? 'true' : 'false')
@@ -463,10 +460,10 @@ export default function BlogCreatePage() {
                 `}
               >
                 <option value="" disabled>เลือกหมวดหมู่</option>
-                <option value="news">ข่าวสาร</option>
-                <option value="knowledge">ความรู้</option>
-                <option value="promotion">โปรโมชั่น</option>
-                <option value="inspiration">แรงบันดาลใจ</option>
+                <option value="ideas">ไอเดียและเคล็ดลับ</option>
+                <option value="trend">เทรนด์</option>
+                <option value="style">สไตล์และฟังก์ชัน</option>
+                <option value="knowledge">ความรู้ทั่วไป</option>
               </select>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="absolute right-[14px] top-1/2 -translate-y-1/2 pointer-events-none">
                 <path d="M4 6L8 10L12 6" />
@@ -512,146 +509,75 @@ export default function BlogCreatePage() {
           {/* ---------------------------------------------------------- */}
           <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[16px]">
             <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
-              กำหนดช่วงวันเวลาเริ่มต้น-สิ้นสุด การเผยแพร่
+              วันที่เผยแพร่
             </label>
-            {(startDate || startTime || endDate || endTime) && (
+            {(startDate || startTime) && (
               <button
                 type="button"
-                onClick={() => { setStartDate(null); setStartTime(''); setEndDate(null); setEndTime('') }}
+                onClick={() => { setStartDate(''); setStartTime('') }}
                 className="self-start font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280] hover:text-red-500 hover:border-red-300 border border-[#e8eaef] rounded-[6px] px-[10px] py-[4px] bg-white cursor-pointer transition-colors"
               >
                 ล้างค่า
               </button>
             )}
 
-            {/* Start date + time */}
-            <div className="flex flex-col gap-[8px]">
-              <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">วันเริ่มต้น</span>
-              <div className="flex items-center gap-[12px]">
-                {/* Date picker */}
-                <div className="relative flex-1">
-                  <button
-                    type="button"
-                    onClick={() => { setShowStartCal(!showStartCal); setShowEndCal(false); setShowStartTime(false); setShowEndTime(false) }}
-                    className={`
-                      w-full flex items-center gap-[8px] border border-[#e8eaef] rounded-[8px]
-                      px-[14px] py-[10px] bg-white cursor-pointer transition-all text-left
-                      font-['IBM_Plex_Sans_Thai'] text-[14px]
-                      ${showStartCal ? 'border-[#ff7e1b] ring-1 ring-[#ff7e1b]/20' : 'hover:border-[#d1d5db]'}
-                      ${startDate ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
-                    `}
-                    aria-label="Select start date"
-                  >
-                    <CalendarIcon size={16} color="#6b7280" />
-                    <span>{startDate ? formatDateDisplay(startDate) : 'dd/mm/yyyy'}</span>
-                  </button>
-                  {showStartCal && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowStartCal(false)} />
-                      <CalendarPicker
-                        selectedDate={startDate}
-                        onSelect={setStartDate}
-                        onClose={() => setShowStartCal(false)}
-                      />
-                    </>
-                  )}
-                </div>
-
-                {/* Time picker */}
-                <div className="relative w-[140px]">
-                  <button
-                    type="button"
-                    onClick={() => { setShowStartTime(!showStartTime); setShowStartCal(false); setShowEndCal(false); setShowEndTime(false) }}
-                    className={`
-                      w-full flex items-center gap-[8px] border border-[#e8eaef] rounded-[8px]
-                      px-[14px] py-[10px] bg-white cursor-pointer transition-all text-left
-                      font-['IBM_Plex_Sans_Thai'] text-[14px]
-                      ${showStartTime ? 'border-[#ff7e1b] ring-1 ring-[#ff7e1b]/20' : 'hover:border-[#d1d5db]'}
-                      ${startTime ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
-                    `}
-                    aria-label="Select start time"
-                  >
-                    <ClockIcon size={16} color="#6b7280" />
-                    <span>{startTime || '00:00'}</span>
-                  </button>
-                  {showStartTime && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowStartTime(false)} />
-                      <TimePickerDropdown
-                        selectedTime={startTime}
-                        onSelect={setStartTime}
-                        onClose={() => setShowStartTime(false)}
-                      />
-                    </>
-                  )}
-                </div>
+            <div className="flex items-center gap-[12px]">
+              {/* Date picker */}
+              <div className="relative flex-1">
+                <button
+                  type="button"
+                  onClick={() => { setShowStartCal(!showStartCal); setShowStartTime(false) }}
+                  className={`
+                    w-full flex items-center gap-[8px] border border-[#e8eaef] rounded-[8px]
+                    px-[14px] py-[10px] bg-white cursor-pointer transition-all text-left
+                    font-['IBM_Plex_Sans_Thai'] text-[14px]
+                    ${showStartCal ? 'border-[#ff7e1b] ring-1 ring-[#ff7e1b]/20' : 'hover:border-[#d1d5db]'}
+                    ${startDate ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
+                  `}
+                  aria-label="Select publish date"
+                >
+                  <CalendarIcon size={16} color="#6b7280" />
+                  <span>{startDate ? formatDateDisplay(startDate) : 'dd/mm/yyyy'}</span>
+                </button>
+                {showStartCal && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowStartCal(false)} />
+                    <CalendarPicker
+                      selectedDate={startDate}
+                      onSelect={setStartDate}
+                      onClose={() => setShowStartCal(false)}
+                    />
+                  </>
+                )}
               </div>
-            </div>
 
-            {/* Divider */}
-            <div className="h-px bg-[#e8eaef]" />
-
-            {/* End date + time */}
-            <div className="flex flex-col gap-[8px]">
-              <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">วันสิ้นสุด</span>
-              <div className="flex items-center gap-[12px]">
-                {/* Date picker */}
-                <div className="relative flex-1">
-                  <button
-                    type="button"
-                    onClick={() => { setShowEndCal(!showEndCal); setShowStartCal(false); setShowStartTime(false); setShowEndTime(false) }}
-                    className={`
-                      w-full flex items-center gap-[8px] border border-[#e8eaef] rounded-[8px]
-                      px-[14px] py-[10px] bg-white cursor-pointer transition-all text-left
-                      font-['IBM_Plex_Sans_Thai'] text-[14px]
-                      ${showEndCal ? 'border-[#ff7e1b] ring-1 ring-[#ff7e1b]/20' : 'hover:border-[#d1d5db]'}
-                      ${endDate ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
-                    `}
-                    aria-label="Select end date"
-                  >
-                    <CalendarIcon size={16} color="#6b7280" />
-                    <span>{endDate ? formatDateDisplay(endDate) : 'dd/mm/yyyy'}</span>
-                  </button>
-                  {showEndCal && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowEndCal(false)} />
-                      <CalendarPicker
-                        selectedDate={endDate}
-                        onSelect={setEndDate}
-                        onClose={() => setShowEndCal(false)}
-                      />
-                    </>
-                  )}
-                </div>
-
-                {/* Time picker */}
-                <div className="relative w-[140px]">
-                  <button
-                    type="button"
-                    onClick={() => { setShowEndTime(!showEndTime); setShowStartCal(false); setShowEndCal(false); setShowStartTime(false) }}
-                    className={`
-                      w-full flex items-center gap-[8px] border border-[#e8eaef] rounded-[8px]
-                      px-[14px] py-[10px] bg-white cursor-pointer transition-all text-left
-                      font-['IBM_Plex_Sans_Thai'] text-[14px]
-                      ${showEndTime ? 'border-[#ff7e1b] ring-1 ring-[#ff7e1b]/20' : 'hover:border-[#d1d5db]'}
-                      ${endTime ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
-                    `}
-                    aria-label="Select end time"
-                  >
-                    <ClockIcon size={16} color="#6b7280" />
-                    <span>{endTime || '00:00'}</span>
-                  </button>
-                  {showEndTime && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowEndTime(false)} />
-                      <TimePickerDropdown
-                        selectedTime={endTime}
-                        onSelect={setEndTime}
-                        onClose={() => setShowEndTime(false)}
-                      />
-                    </>
-                  )}
-                </div>
+              {/* Time picker */}
+              <div className="relative w-[140px]">
+                <button
+                  type="button"
+                  onClick={() => { setShowStartTime(!showStartTime); setShowStartCal(false) }}
+                  className={`
+                    w-full flex items-center gap-[8px] border border-[#e8eaef] rounded-[8px]
+                    px-[14px] py-[10px] bg-white cursor-pointer transition-all text-left
+                    font-['IBM_Plex_Sans_Thai'] text-[14px]
+                    ${showStartTime ? 'border-[#ff7e1b] ring-1 ring-[#ff7e1b]/20' : 'hover:border-[#d1d5db]'}
+                    ${startTime ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
+                  `}
+                  aria-label="Select publish time"
+                >
+                  <ClockIcon size={16} color="#6b7280" />
+                  <span>{startTime || '00:00'}</span>
+                </button>
+                {showStartTime && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowStartTime(false)} />
+                    <TimePickerDropdown
+                      selectedTime={startTime}
+                      onSelect={setStartTime}
+                      onClose={() => setShowStartTime(false)}
+                    />
+                  </>
+                )}
               </div>
             </div>
           </section>
