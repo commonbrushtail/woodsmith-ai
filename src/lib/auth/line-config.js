@@ -2,9 +2,9 @@
  * LINE Login OIDC configuration.
  *
  * Required env vars:
- *   LINE_CHANNEL_ID     — LINE Login Channel ID
- *   LINE_CHANNEL_SECRET — LINE Login Channel Secret
- *   NEXT_PUBLIC_SITE_URL — Site base URL for redirect
+ *   NEXT_PUBLIC_LINE_LOGIN_CHANNEL_ID — LINE Login Channel ID
+ *   LINE_LOGIN_CHANNEL_SECRET         — LINE Login Channel Secret
+ *   NEXT_PUBLIC_SITE_URL              — Site base URL for redirect
  */
 
 export const LINE_CONFIG = {
@@ -19,7 +19,7 @@ export const LINE_CONFIG = {
  * @returns {string} Full authorization URL
  */
 export function getLineLoginUrl(state) {
-  const channelId = process.env.LINE_CHANNEL_ID
+  const channelId = process.env.NEXT_PUBLIC_LINE_LOGIN_CHANNEL_ID
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   const redirectUri = `${siteUrl}/auth/callback/line`
 

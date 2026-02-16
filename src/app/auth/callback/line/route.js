@@ -36,8 +36,8 @@ export async function GET(request) {
         grant_type: 'authorization_code',
         code,
         redirect_uri: `${siteUrl}/auth/callback/line`,
-        client_id: process.env.LINE_CHANNEL_ID,
-        client_secret: process.env.LINE_CHANNEL_SECRET,
+        client_id: process.env.NEXT_PUBLIC_LINE_LOGIN_CHANNEL_ID,
+        client_secret: process.env.LINE_LOGIN_CHANNEL_SECRET,
       }),
     })
 
