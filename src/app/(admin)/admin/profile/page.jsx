@@ -45,7 +45,6 @@ export default function ProfilePage() {
   const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('draft')
   const [companyName, setCompanyName] = useState('')
   const [setKey, setSetKey] = useState('')
   const [setRecommendedKey, setSetRecommendedKey] = useState('')
@@ -76,11 +75,6 @@ export default function ProfilePage() {
       }
     })
   }
-
-  const tabs = [
-    { key: 'draft', label: 'DRAFT' },
-    { key: 'published', label: 'PUBLISHED' },
-  ]
 
   return (
     <div className={`flex flex-col gap-0 h-full min-h-0 ${isPending || loading ? 'opacity-60 pointer-events-none' : ''}`}>
@@ -113,34 +107,6 @@ export default function ProfilePage() {
             <DotsIcon size={18} />
           </button>
         </div>
-      </div>
-
-      {/* ================================================================ */}
-      {/*  Tab navigation                                                  */}
-      {/* ================================================================ */}
-      <div className="flex gap-0 border-b border-[#e5e7eb]" role="tablist" aria-label="Content status tabs">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.key
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setActiveTab(tab.key)}
-              className={`
-                relative px-[20px] py-[10px] font-['IBM_Plex_Sans_Thai'] font-semibold text-[13px]
-                tracking-[0.5px] cursor-pointer bg-transparent border-0 transition-colors
-                ${isActive ? 'text-[#ff7e1b]' : 'text-[#9ca3af] hover:text-[#6b7280]'}
-              `}
-            >
-              {tab.label}
-              {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#ff7e1b] rounded-t-full" />
-              )}
-            </button>
-          )
-        })}
       </div>
 
       {/* ================================================================ */}
@@ -259,7 +225,7 @@ export default function ProfilePage() {
             {/* Save button */}
             <button
               type="button"
-              onClick={() => handleSubmit(false)}
+              onClick={() => handleSubmit()}
               disabled={isPending}
               className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e86f15] transition-colors disabled:opacity-50"
             >

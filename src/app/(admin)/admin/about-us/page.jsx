@@ -38,7 +38,6 @@ export default function AboutUsPage() {
   const [isPending, startTransition] = useTransition()
 
   /* ---- Form state ---- */
-  const [activeTab, setActiveTab] = useState('published')
   const [companyName, setCompanyName] = useState('')
   const [companySlogan, setCompanySlogan] = useState('')
   const [companyDetail, setCompanyDetail] = useState('')
@@ -77,11 +76,6 @@ export default function AboutUsPage() {
   /* ---- Derived values ---- */
   const wordCount = companyDetail.trim() ? companyDetail.trim().split(/\s+/).length : 0
   const charCount = companyDetail.length
-
-  const tabs = [
-    { key: 'draft', label: 'DRAFT' },
-    { key: 'published', label: 'PUBLISHED' },
-  ]
 
   if (loading) {
     return (
@@ -122,34 +116,6 @@ export default function AboutUsPage() {
             <DotsIcon size={18} />
           </button>
         </div>
-      </div>
-
-      {/* ================================================================ */}
-      {/*  Tab navigation                                                  */}
-      {/* ================================================================ */}
-      <div className="flex gap-0 border-b border-[#e5e7eb]" role="tablist" aria-label="Content status tabs">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.key
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setActiveTab(tab.key)}
-              className={`
-                relative px-[20px] py-[10px] font-['IBM_Plex_Sans_Thai'] font-semibold text-[13px]
-                tracking-[0.5px] cursor-pointer bg-transparent border-0 transition-colors
-                ${isActive ? 'text-[#ff7e1b]' : 'text-[#9ca3af] hover:text-[#6b7280]'}
-              `}
-            >
-              {tab.label}
-              {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#ff7e1b] rounded-t-full" />
-              )}
-            </button>
-          )
-        })}
       </div>
 
       {/* ================================================================ */}
@@ -225,24 +191,14 @@ export default function AboutUsPage() {
               Entry
             </h3>
 
-            {/* Publish button + dots menu */}
-            <div className="flex items-center gap-[8px]">
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isPending}
-                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
-              >
-                {isPending ? 'กำลังบันทึก...' : 'บันทึก'}
-              </button>
-              <button
-                type="button"
-                className="size-[36px] flex items-center justify-center rounded-[8px] border border-[#e8eaef] bg-white cursor-pointer hover:bg-[#f9fafb]"
-                aria-label="Publish options"
-              >
-                <DotsIcon size={16} color="#6b7280" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
+            >
+              {isPending ? 'กำลังบันทึก...' : 'บันทึก'}
+            </button>
           </div>
         </aside>
       </div>

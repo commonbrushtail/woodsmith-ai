@@ -61,15 +61,6 @@ export default function BannerEditClient({ banner }) {
   const [selectedFile, setSelectedFile] = useState(null)
   const fileInputRef = useRef(null)
 
-  const [activeTab, setActiveTab] = useState(
-    banner.status === 'active' ? 'published' : 'draft'
-  )
-
-  const tabs = [
-    { key: 'draft', label: 'DRAFT' },
-    { key: 'published', label: 'PUBLISHED' },
-  ]
-
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -141,30 +132,6 @@ export default function BannerEditClient({ banner }) {
             <DotsIcon size={18} />
           </button>
         </div>
-      </div>
-
-      {/* Tab navigation */}
-      <div className="flex gap-0 border-b border-[#e5e7eb]" role="tablist">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.key
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setActiveTab(tab.key)}
-              className={`relative px-[20px] py-[10px] font-['IBM_Plex_Sans_Thai'] font-semibold text-[13px] tracking-[0.5px] cursor-pointer bg-transparent border-0 transition-colors ${
-                isActive ? 'text-orange' : 'text-[#9ca3af] hover:text-[#6b7280]'
-              }`}
-            >
-              {tab.label}
-              {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-orange rounded-t-full" />
-              )}
-            </button>
-          )
-        })}
       </div>
 
       {/* Content body */}
@@ -252,26 +219,32 @@ export default function BannerEditClient({ banner }) {
               Entry
             </h3>
 
-            {/* Publish button */}
+            {/* Status indicator — uses banner.status */}
             <div className="flex items-center gap-[8px]">
-              <button
-                type="button"
-                onClick={() => handleSave(true)}
-                disabled={isPending}
-                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-orange text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-orange/90 transition-colors disabled:opacity-50"
-              >
-                {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
-              </button>
+              <span className={`w-[8px] h-[8px] rounded-full ${banner.status === 'active' ? 'bg-green-500' : 'bg-[#9ca3af]'}`} />
+              <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
+                สถานะ: {banner.status === 'active' ? 'ใช้งาน' : 'ไม่ใช้งาน'}
+              </span>
             </div>
 
-            {/* Save as draft button */}
+            {/* Publish button — sets status to 'active' */}
+            <button
+              type="button"
+              onClick={() => handleSave(true)}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-orange text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-orange/90 transition-colors disabled:opacity-50"
+            >
+              {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
+            </button>
+
+            {/* Save as inactive button */}
             <button
               type="button"
               onClick={() => handleSave(false)}
               disabled={isPending}
               className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e5e7eb] cursor-pointer hover:bg-[#f9fafb] transition-colors disabled:opacity-50"
             >
-              {'บันทึก'}
+              บันทึกฉบับร่าง
             </button>
           </div>
         </aside>
