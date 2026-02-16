@@ -399,7 +399,7 @@ export default function ProductEditClient({ product, categories = [], variationG
               <button
                 type="button"
                 onClick={() => { setStartDate(null); setStartTime(''); setEndDate(null); setEndTime('') }}
-                className="self-start font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280] hover:text-red-500 bg-transparent border-0 cursor-pointer transition-colors p-0"
+                className="self-start font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280] hover:text-red-500 hover:border-red-300 border border-[#e8eaef] rounded-[6px] px-[10px] py-[4px] bg-white cursor-pointer transition-colors"
               >
                 ล้างค่า
               </button>
