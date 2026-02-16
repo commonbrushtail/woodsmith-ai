@@ -370,7 +370,7 @@ export default function BlogCreatePage() {
       {/* ================================================================ */}
       {/*  Content body                                                    */}
       {/* ================================================================ */}
-      <div className="flex gap-[24px] mt-[20px] flex-1 min-h-0 overflow-y-auto pb-[32px]">
+      <div className="flex gap-[24px] mt-[20px] flex-1 pb-[32px]">
         {/* ---- Main form area ---- */}
         <div className="flex-1 flex flex-col gap-[24px] min-w-0">
 

@@ -2,11 +2,9 @@
 
 import Link from 'next/link'
 import SafeHtmlContent from '@/components/SafeHtmlContent'
-import imgHero from '../../../../assets/blog_hero.png'
 import imgShareFb from '../../../../assets/icon_share_facebook.svg'
 import imgShareLine from '../../../../assets/icon_share_line.svg'
 import imgShareX from '../../../../assets/icon_share_x.svg'
-import imgView from '../../../../assets/icon_view.svg'
 import imgCard1 from '../../../../assets/blog_card_1.png'
 
 const fallbackRelatedPosts = [
@@ -68,24 +66,33 @@ function ShareButtons() {
   )
 }
 
+const CATEGORY_LABELS = {
+  ideas: 'ไอเดียและเคล็ดลับ',
+  trend: 'เทรนด์',
+  style: 'สไตล์และฟังก์ชัน',
+  knowledge: 'ความรู้ทั่วไป',
+}
+
 export default function BlogPostPageClient({ post = null, relatedPosts: dbRelated = [] }) {
   const related = dbRelated.length > 0
     ? dbRelated.map(p => ({
         id: p.id,
         slug: p.slug,
         image: p.cover_image_url || imgCard1,
-        category: p.category || 'บทความ',
+        category: CATEGORY_LABELS[(p.category || '').toLowerCase()] || p.category || 'บทความ',
         title: p.title,
       }))
     : fallbackRelatedPosts
 
-  const heroImage = post?.cover_image_url || imgHero
-  const postTitle = post?.title || 'เปิด 6 ไอเดียตกแต่งบ้านด้วย "ไม้บอร์ด MDF HMR ปิดผิวเมลามีน" Melamine on MDF'
-  const postCategory = post?.category || 'Idea & Tips'
+  const heroImage = post?.cover_image_url || null
+  const postTitle = post?.title || ''
+  const postCategory = CATEGORY_LABELS[(post?.category || '').toLowerCase()] || post?.category || ''
   const postContent = post?.content || null
-  const publishDate = post?.publish_date
-    ? new Date(post.publish_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })
-    : '22 ต.ค. 2568'
+  const viewCount = post?.view_count ?? 0
+  const dateSource = post?.publish_date || post?.created_at
+  const publishDate = dateSource
+    ? new Date(dateSource).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })
+    : null
 
   return (
     <div className="flex flex-col items-center w-full">
@@ -118,10 +125,12 @@ export default function BlogPostPageClient({ post = null, relatedPosts: dbRelate
           <article className="flex flex-col gap-[24px] lg:gap-[40px] items-start px-[20px] lg:px-0 w-full lg:flex-[725]">
             {/* Hero Image */}
             <div className="flex flex-col gap-[16px] lg:gap-[12px] items-start w-full">
-              <div className="aspect-square relative w-full overflow-hidden">
-                <div className="absolute bg-[#e8e3da] inset-0" />
-                <img alt="" className="absolute max-w-none object-cover size-full" src={heroImage} />
-              </div>
+              {heroImage && (
+                <div className="aspect-square relative w-full overflow-hidden">
+                  <div className="absolute bg-[#e8e3da] inset-0" />
+                  <img alt="" className="absolute max-w-none object-cover size-full" src={heroImage} />
+                </div>
+              )}
 
               {/* Category Tags */}
               <div className="flex lg:hidden gap-[8px] items-start">
@@ -142,40 +151,32 @@ export default function BlogPostPageClient({ post = null, relatedPosts: dbRelate
 
               {/* Meta */}
               <div className="flex flex-wrap gap-[8px] lg:gap-[16px] items-center">
-                <p className="font-['IBM_Plex_Sans_Thai'] text-[15px] text-[#35383b] tracking-[0.075px] leading-[1.3]">
-                  เผยแพร่เมื่อ {publishDate}
-                </p>
-                <div className="size-[4px] rounded-full bg-[#35383b]" />
-                <p className="font-['IBM_Plex_Sans_Thai'] text-[15px] text-[#35383b] tracking-[0.075px] leading-[1.3]">
-                  โดย Wood Writer
-                </p>
-                <div className="size-[4px] rounded-full bg-[#35383b]" />
-                <div className="flex gap-[4px] items-center">
-                  <img alt="" className="size-[20px]" src={imgView} />
+                {publishDate && (
                   <p className="font-['IBM_Plex_Sans_Thai'] text-[15px] text-[#35383b] tracking-[0.075px] leading-[1.3]">
-                    450
+                    เผยแพร่เมื่อ {publishDate}
+                  </p>
+                )}
+                {publishDate && (
+                  <div className="size-[4px] rounded-full bg-[#35383b]" />
+                )}
+                <div className="flex gap-[4px] items-center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#35383b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  <p className="font-['IBM_Plex_Sans_Thai'] text-[15px] text-[#35383b] tracking-[0.075px] leading-[1.3]">
+                    {viewCount}
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Article Body */}
-            {postContent ? (
+            {postContent && (
               <SafeHtmlContent
                 html={postContent}
                 className="font-['IBM_Plex_Sans_Thai'] text-[16px] text-[#35383b] tracking-[0.08px] leading-[1.5] w-full prose prose-headings:font-['IBM_Plex_Sans_Thai'] prose-headings:text-[#35383b]"
               />
-            ) : (
-              <>
-                <div className="font-['IBM_Plex_Sans_Thai'] text-[16px] text-[#35383b] tracking-[0.08px] leading-[1.5] w-full">
-                  <p className="mb-4">
-                    ในยุคที่การตกแต่งและบิ้วท์อินเฟอร์นิเจอร์เป็นส่วนสำคัญของการสร้างบ้านในฝัน การเลือกใช้วัสดุที่ตอบโจทย์ ทั้งด้านความสวยงาม ความทนทาน และงบประมาณ จึงเป็นเรื่องที่เจ้าของบ้านให้ความสำคัญเป็นพิเศษ และวัสดุ ที่กำลังมาแรงและถูกเลือกใช้มากขึ้นในงานบิ้วท์อินคือ "ไม้บอร์ด MDF HMR ปิดผิวเมลามีน (Melamine on HMR)"
-                  </p>
-                  <p>
-                    ไม้ HMR (High Moisture Resistance Board) คือไม้ MDF ที่ถูกพัฒนาให้มีคุณสมบัติทนทานต่อความชื้นได้สูง กว่าไม้ MDF ทั่วไป และเมื่อนำมาปิดทับด้วยแผ่นเมลามีนที่มีลวดลายและผิวสัมผัสหลากหลาย ทำให้ได้วัสดุที่สวย งาม แข็งแรง ทนทานต่อรอยขีดข่วน และดูแลรักษาง่าย เราจึงรวบรวม 6 ไอเดียการตกแต่งบ้านที่ใช้ Melamine on HMR มาให้คุณนำไปปรับใช้ครับ
-                  </p>
-                </div>
-              </>
             )}
 
             {/* Share Buttons */}

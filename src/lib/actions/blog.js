@@ -125,6 +125,7 @@ export async function createBlogPost(formData) {
   }
 
   revalidatePath('/admin/blog')
+  revalidatePath('/blog')
   return { data, error: null }
 }
 
@@ -182,6 +183,7 @@ export async function updateBlogPost(id, formData) {
   }
 
   revalidatePath('/admin/blog')
+  revalidatePath('/blog')
   return { data, error: null }
 }
 
@@ -212,6 +214,7 @@ export async function deleteBlogPost(id) {
   }
 
   revalidatePath('/admin/blog')
+  revalidatePath('/blog')
   return { error: null }
 }
 
@@ -231,6 +234,7 @@ export async function toggleBlogRecommended(id, recommended) {
   }
 
   revalidatePath('/admin/blog')
+  revalidatePath('/blog')
   return { error: null }
 }
 
@@ -250,5 +254,14 @@ export async function toggleBlogPublished(id, published) {
   }
 
   revalidatePath('/admin/blog')
+  revalidatePath('/blog')
   return { error: null }
+}
+
+/**
+ * Increment blog post view count (atomic via Postgres function).
+ */
+export async function incrementBlogViewCount(id) {
+  const supabase = createServiceClient()
+  await supabase.rpc('increment_blog_view', { post_id: id })
 }
