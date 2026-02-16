@@ -14,7 +14,7 @@ Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
 Current Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-16 — Completed quick task 11b: Related blog posts replace hardcoded sidebar
+Last activity: 2026-02-16 — Completed quick task 12: Add recommend toggle to video highlights admin + unified badges
 
 Progress: [███████░░░] 70% (across all milestones: 7 of 10 phases complete, Phase 7: 2 of 2 plans done)
 
@@ -93,6 +93,7 @@ Recent decisions affecting v1.1:
 | 10 | Make blog admin and public functional | 2026-02-16 | DONE — 6 bugs fixed across 4 files (category submission, edit fields, public labels, search filter, 5 min) |
 | 11 | Dynamic blog categories | 2026-02-16 | DONE — blog_categories table + CRUD actions + admin pages + CategorySelect + dynamic public pages (12 files created, 6 modified) |
 | 11b | Related blog posts replace hardcoded sidebar | 2026-02-16 | DONE — backfill logic in getPublishedBlogPost, removed fallbackRelatedPosts, conditional sidebar (3 files, 2 min) |
+| 12 | Add recommend toggle to highlight admin | 2026-02-16 | DONE — migration, server action, admin toggle column, unified badge design (blog/products/highlights), homepage curated highlights with fallback (7 files, 2 min) |
 
 ### Pending Todos
 
@@ -105,7 +106,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed quick task 11b (related blog posts replace hardcoded sidebar)
+Stopped at: Completed quick task 12 (video highlight recommend toggle + unified badges)
 Resume file: None
 
 ### Recent Activity
@@ -129,6 +130,7 @@ Resume file: None
 | 2026-02-16 | Quick task 10 executed | Blog admin+public fixes: category submission, edit fields, public labels, search filter (5 min) |
 | 2026-02-16 | Quick task 11 executed | Dynamic blog categories: migration, CRUD actions, admin CRUD pages, CategorySelect, sidebar, dynamic public pages |
 | 2026-02-16 | Quick task 11b executed | Related blog posts: backfill logic, removed hardcoded fallback, conditional sidebar (3 files, 2 min) |
+| 2026-02-16 | Quick task 12 executed | Video highlight recommend toggle: migration, server action, unified badge design, homepage curation (7 files, 2 min) |
 
 ---
 *Last updated: 2026-02-16*
