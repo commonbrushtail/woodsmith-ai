@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Set env vars before import
-vi.stubEnv('LINE_CHANNEL_ID', 'test-channel-id')
-vi.stubEnv('LINE_CHANNEL_SECRET', 'test-channel-secret')
+vi.stubEnv('NEXT_PUBLIC_LINE_LOGIN_CHANNEL_ID', 'test-channel-id')
+vi.stubEnv('LINE_LOGIN_CHANNEL_SECRET', 'test-channel-secret')
 vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://woodsmith.co.th')
 
 describe('getLineLoginUrl', () => {
