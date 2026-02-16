@@ -82,9 +82,6 @@ export default function ProductCreateClient({ categories = [], variationGroups =
   const [isPending, startTransition] = useTransition()
   const formErrors = useFormErrors()
 
-  // Draft/Published tab
-  const [activeTab, setActiveTab] = useState('draft')
-
   // Basic fields
   const [productName, setProductName] = useState('')
   const [slug, setSlug] = useState('')
@@ -131,11 +128,6 @@ export default function ProductCreateClient({ categories = [], variationGroups =
     }
     return result
   }, [productType, categories])
-
-  const tabs = [
-    { key: 'draft', label: 'DRAFT' },
-    { key: 'published', label: 'PUBLISHED' },
-  ]
 
   const handleSubmit = (publish) => {
     formErrors.clearAll()
@@ -262,26 +254,6 @@ export default function ProductCreateClient({ categories = [], variationGroups =
             <DotsIcon />
           </button>
         </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-0 border-b border-[#e5e7eb]" role="tablist">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.key
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setActiveTab(tab.key)}
-              className={`relative px-[20px] py-[10px] font-['IBM_Plex_Sans_Thai'] font-semibold text-[13px] tracking-[0.5px] cursor-pointer bg-transparent border-0 transition-colors ${isActive ? 'text-orange' : 'text-[#9ca3af] hover:text-[#6b7280]'}`}
-            >
-              {tab.label}
-              {isActive && <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-orange rounded-t-full" />}
-            </button>
-          )
-        })}
       </div>
 
       {/* Content: main + sidebar */}
@@ -532,13 +504,22 @@ export default function ProductCreateClient({ categories = [], variationGroups =
             <h3 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[14px] text-[#1f2937] uppercase tracking-[0.5px] m-0">
               Entry
             </h3>
+
+            {/* Status indicator */}
+            <div className="flex items-center gap-[8px]">
+              <span className="w-[8px] h-[8px] rounded-full bg-[#9ca3af]" />
+              <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
+                สถานะ: ฉบับร่าง
+              </span>
+            </div>
+
             <button
               type="button"
-              onClick={() => handleSubmit(activeTab === 'published')}
+              onClick={() => handleSubmit(true)}
               disabled={isPending}
               className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-white bg-orange border-0 rounded-[8px] py-[10px] cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
             >
-              {isPending ? 'กำลังบันทึก...' : 'บันทึก'}
+              {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
             </button>
             <button
               type="button"
@@ -546,7 +527,7 @@ export default function ProductCreateClient({ categories = [], variationGroups =
               disabled={isPending}
               className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#494c4f] bg-white border border-[#e8eaef] rounded-[8px] py-[10px] cursor-pointer hover:bg-[#f3f4f6] transition-colors disabled:opacity-50"
             >
-              บันทึก
+              บันทึกฉบับร่าง
             </button>
           </div>
         </aside>
