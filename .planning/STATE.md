@@ -14,7 +14,7 @@ Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
 Current Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-16 — Completed quick task 8: Rework admin draft/publish UI consistency
+Last activity: 2026-02-16 — Completed quick task 9: Add view-on-site button to admin edit pages
 
 Progress: [███████░░░] 70% (across all milestones: 7 of 10 phases complete, Phase 7: 2 of 2 plans done)
 
@@ -89,6 +89,7 @@ Recent decisions affecting v1.1:
 | 6 | Fix pagination active page display past page 3 | 2026-02-16 | FIXED — shared getPageNumbers utility, 4 components fixed (2 min) |
 | 7 | Add time-based publish filtering via RLS | 2026-02-16 | DONE — 8 RLS policies updated + 4-state admin badges (2 min) |
 | 8 | Rework admin draft/publish UI consistency | 2026-02-16 | DONE — 15 pages updated (Plan 01: 10 standard, Plan 02: 5 special), activeTab bug fixed (3 min) |
+| 9 | Add view-on-site button to admin edit pages | 2026-02-16 | DONE — 2 files updated (ProductEditClient + BlogEditClient sidebars, 1 min) |
 
 ### Pending Todos
 
@@ -101,7 +102,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed quick task 8 (admin draft/publish UI consistency)
+Stopped at: Completed quick task 9 (view-on-site button on admin edit pages)
 Resume file: None
 
 ### Recent Activity
@@ -121,6 +122,7 @@ Resume file: None
 | 2026-02-16 | Quick task 6 executed | Pagination active page fix (shared utility + 4 components, 2 min) |
 | 2026-02-16 | Quick task 7 executed | Time-based publish RLS + 4-state admin badges (2 files, 2 min) |
 | 2026-02-16 | Quick task 8 executed | Admin draft/publish UI rework — 15 pages updated, tabs removed, consistent sidebar (3 min) |
+| 2026-02-16 | Quick task 9 executed | View-on-site links added to product + blog edit sidebars (1 min) |
 
 ---
 *Last updated: 2026-02-16*
