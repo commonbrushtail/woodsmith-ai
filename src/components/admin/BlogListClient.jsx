@@ -146,7 +146,11 @@ export default function BlogListClient({ blogs, totalCount }) {
     )
   }
 
-  const sortedBlogs = [...blogs].sort((a, b) =>
+  const filteredBlogs = searchQuery.trim()
+    ? blogs.filter(b => b.title?.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+    : blogs
+
+  const sortedBlogs = [...filteredBlogs].sort((a, b) =>
     sortAsc
       ? (a.sort_order ?? 0) - (b.sort_order ?? 0)
       : (b.sort_order ?? 0) - (a.sort_order ?? 0)
@@ -309,7 +313,7 @@ export default function BlogListClient({ blogs, totalCount }) {
               {sortedBlogs.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-[20px] py-[40px] text-center text-[14px] text-[#9ca3af] font-['IBM_Plex_Sans_Thai']">
-                    ไม่พบข้อมูลบทความ
+                    {searchQuery.trim() ? `ไม่พบบทความที่ตรงกับ "${searchQuery.trim()}"` : 'ไม่พบข้อมูลบทความ'}
                   </td>
                 </tr>
               ) : (
