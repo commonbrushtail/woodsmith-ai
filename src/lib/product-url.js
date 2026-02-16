@@ -13,5 +13,5 @@ export function getProductUrl(product) {
     .toLowerCase()
     .replace(/\s+/g, '-')
     .replace(/[^\u0E00-\u0E7Fa-z0-9-]/g, '')
-  return `/products/${typeSlug}/${categorySlug}/${product.slug}`
+  return encodeURI(`/products/${typeSlug}/${categorySlug}/${product.slug}`)
 }
