@@ -235,7 +235,6 @@ export default function FaqCreatePage() {
   const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
 
-  const [activeTab, setActiveTab] = useState('draft')
   const [showLocalePicker, setShowLocalePicker] = useState(false)
 
   /* FAQ entries state: keyed by category id */
@@ -254,11 +253,6 @@ export default function FaqCreatePage() {
 
   /* Track which entries are expanded */
   const [expandedEntries, setExpandedEntries] = useState(['entry-init-1'])
-
-  const tabs = [
-    { key: 'draft', label: 'DRAFT' },
-    { key: 'published', label: 'PUBLISHED' },
-  ]
 
   /* ---- handlers ---- */
 
@@ -387,34 +381,6 @@ export default function FaqCreatePage() {
       </div>
 
       {/* ================================================================ */}
-      {/*  Tab navigation                                                  */}
-      {/* ================================================================ */}
-      <div className="flex gap-0 border-b border-[#e5e7eb]" role="tablist" aria-label="FAQ status tabs">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.key
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setActiveTab(tab.key)}
-              className={`
-                relative px-[20px] py-[10px] font-['IBM_Plex_Sans_Thai'] font-semibold text-[13px]
-                tracking-[0.5px] cursor-pointer bg-transparent border-0 transition-colors
-                ${isActive ? 'text-[#ff7e1b]' : 'text-[#9ca3af] hover:text-[#6b7280]'}
-              `}
-            >
-              {tab.label}
-              {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#ff7e1b] rounded-t-full" />
-              )}
-            </button>
-          )
-        })}
-      </div>
-
-      {/* ================================================================ */}
       {/*  Content body (scrollable)                                       */}
       {/* ================================================================ */}
       <div className="flex gap-[24px] mt-[20px] flex-1 min-h-0 overflow-y-auto pb-[32px]">
@@ -441,33 +407,32 @@ export default function FaqCreatePage() {
               Entry
             </h3>
 
-            {/* Publish button + 3-dot menu */}
+            {/* Status indicator */}
             <div className="flex items-center gap-[8px]">
-              <button
-                type="button"
-                onClick={() => handleSubmit(true)}
-                disabled={isPending}
-                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
-              >
-                {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
-              </button>
-              <button
-                type="button"
-                className="size-[36px] flex items-center justify-center rounded-[8px] border border-[#e8eaef] bg-white cursor-pointer hover:bg-[#f9fafb]"
-                aria-label="Publish options"
-              >
-                <DotsIcon size={16} color="#6b7280" />
-              </button>
+              <span className="w-[8px] h-[8px] rounded-full bg-[#9ca3af]" />
+              <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
+                สถานะ: ฉบับร่าง
+              </span>
             </div>
 
-            {/* Save button */}
+            {/* Publish button */}
+            <button
+              type="button"
+              onClick={() => handleSubmit(true)}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
+            >
+              {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
+            </button>
+
+            {/* Save as draft button */}
             <button
               type="button"
               onClick={() => handleSubmit(false)}
               disabled={isPending}
-              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#ff7e1b] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#ff7e1b] cursor-pointer hover:bg-[#fff8f3] transition-colors disabled:opacity-50"
+              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors disabled:opacity-50"
             >
-              {'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01'}
+              บันทึกฉบับร่าง
             </button>
           </div>
         </aside>

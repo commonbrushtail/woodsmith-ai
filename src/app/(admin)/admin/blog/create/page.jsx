@@ -8,6 +8,8 @@ import { useToast } from '@/lib/toast-context'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
 import { validateFile, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 import RichTextEditor from '@/components/admin/RichTextEditor'
+import CalendarPicker from '@/components/admin/CalendarPicker'
+import TimePickerDropdown from '@/components/admin/TimePickerDropdown'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -65,173 +67,6 @@ function ClockIcon({ size = 16, color = '#6b7280' }) {
       <circle cx="12" cy="12" r="10" />
       <polyline points="12 6 12 12 16 14" />
     </svg>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/*  Time options generator                                             */
-/* ------------------------------------------------------------------ */
-
-function generateTimeOptions() {
-  const times = []
-  for (let h = 0; h < 24; h++) {
-    for (let m = 0; m < 60; m += 15) {
-      const hh = String(h).padStart(2, '0')
-      const mm = String(m).padStart(2, '0')
-      times.push(`${hh}:${mm}`)
-    }
-  }
-  return times
-}
-
-const TIME_OPTIONS = generateTimeOptions()
-
-/* ------------------------------------------------------------------ */
-/*  Calendar picker component                                          */
-/* ------------------------------------------------------------------ */
-
-function CalendarPicker({ selectedDate, onSelect, onClose }) {
-  const today = new Date()
-  const [viewYear, setViewYear] = useState(selectedDate ? new Date(selectedDate).getFullYear() : today.getFullYear())
-  const [viewMonth, setViewMonth] = useState(selectedDate ? new Date(selectedDate).getMonth() : today.getMonth())
-
-  const monthNames = [
-    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน',
-    'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม',
-    'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม',
-  ]
-
-  const dayHeaders = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส']
-
-  const firstDay = new Date(viewYear, viewMonth, 1).getDay()
-  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
-
-  const prevMonth = () => {
-    if (viewMonth === 0) {
-      setViewMonth(11)
-      setViewYear(viewYear - 1)
-    } else {
-      setViewMonth(viewMonth - 1)
-    }
-  }
-
-  const nextMonth = () => {
-    if (viewMonth === 11) {
-      setViewMonth(0)
-      setViewYear(viewYear + 1)
-    } else {
-      setViewMonth(viewMonth + 1)
-    }
-  }
-
-  const handleDayClick = (day) => {
-    const mm = String(viewMonth + 1).padStart(2, '0')
-    const dd = String(day).padStart(2, '0')
-    onSelect(`${viewYear}-${mm}-${dd}`)
-    onClose()
-  }
-
-  const cells = []
-  for (let i = 0; i < firstDay; i++) {
-    cells.push(<div key={`e-${i}`} />)
-  }
-  for (let d = 1; d <= daysInMonth; d++) {
-    const mm = String(viewMonth + 1).padStart(2, '0')
-    const dd = String(d).padStart(2, '0')
-    const dateStr = `${viewYear}-${mm}-${dd}`
-    const isSelected = selectedDate === dateStr
-    const isToday =
-      d === today.getDate() &&
-      viewMonth === today.getMonth() &&
-      viewYear === today.getFullYear()
-    cells.push(
-      <button
-        key={d}
-        type="button"
-        onClick={() => handleDayClick(d)}
-        className={`
-          size-[32px] rounded-full flex items-center justify-center text-[13px] border-0 cursor-pointer transition-colors
-          font-['IBM_Plex_Sans_Thai']
-          ${isSelected
-            ? 'bg-[#ff7e1b] text-white'
-            : isToday
-              ? 'bg-[#fff3e8] text-[#ff7e1b] hover:bg-[#ffe8d4]'
-              : 'bg-transparent text-[#374151] hover:bg-[#f3f4f6]'
-          }
-        `}
-      >
-        {d}
-      </button>
-    )
-  }
-
-  return (
-    <div className="absolute top-full left-0 mt-[4px] z-50 bg-white border border-[#e8eaef] rounded-[8px] shadow-lg p-[16px] w-[280px]">
-      {/* Month/Year header */}
-      <div className="flex items-center justify-between mb-[12px]">
-        <button
-          type="button"
-          onClick={prevMonth}
-          className="size-[28px] flex items-center justify-center rounded-full hover:bg-[#f3f4f6] border-0 bg-transparent cursor-pointer"
-          aria-label="Previous month"
-        >
-          <ChevronLeftIcon size={14} color="#6b7280" />
-        </button>
-        <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
-          {monthNames[viewMonth]} {viewYear + 543}
-        </span>
-        <button
-          type="button"
-          onClick={nextMonth}
-          className="size-[28px] flex items-center justify-center rounded-full hover:bg-[#f3f4f6] border-0 bg-transparent cursor-pointer rotate-180"
-          aria-label="Next month"
-        >
-          <ChevronLeftIcon size={14} color="#6b7280" />
-        </button>
-      </div>
-
-      {/* Day headers */}
-      <div className="grid grid-cols-7 gap-[2px] mb-[4px]">
-        {dayHeaders.map((dh) => (
-          <div key={dh} className="size-[32px] flex items-center justify-center font-['IBM_Plex_Sans_Thai'] text-[11px] font-medium text-[#9ca3af]">
-            {dh}
-          </div>
-        ))}
-      </div>
-
-      {/* Day cells */}
-      <div className="grid grid-cols-7 gap-[2px]">
-        {cells}
-      </div>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/*  Time picker dropdown component                                     */
-/* ------------------------------------------------------------------ */
-
-function TimePickerDropdown({ selectedTime, onSelect, onClose }) {
-  return (
-    <div className="absolute top-full left-0 mt-[4px] z-50 bg-white border border-[#e8eaef] rounded-[8px] shadow-lg w-[120px] max-h-[200px] overflow-y-auto">
-      {TIME_OPTIONS.map((time) => (
-        <button
-          key={time}
-          type="button"
-          onClick={() => { onSelect(time); onClose() }}
-          className={`
-            w-full text-left px-[12px] py-[8px] border-0 cursor-pointer transition-colors
-            font-['IBM_Plex_Sans_Thai'] text-[13px]
-            ${selectedTime === time
-              ? 'bg-[#fff3e8] text-[#ff7e1b]'
-              : 'bg-transparent text-[#374151] hover:bg-[#f3f4f6]'
-            }
-          `}
-        >
-          {time}
-        </button>
-      ))}
-    </div>
   )
 }
 
@@ -378,7 +213,6 @@ export default function BlogCreatePage() {
   const formErrors = useFormErrors()
 
   /* ---- Form state ---- */
-  const [activeTab, setActiveTab] = useState('draft')
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('')
   const [content, setContent] = useState('')
@@ -401,11 +235,6 @@ export default function BlogCreatePage() {
   const TITLE_MAX = 120
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0
   const charCount = content.length
-
-  const tabs = [
-    { key: 'draft', label: 'DRAFT' },
-    { key: 'published', label: 'PUBLISHED' },
-  ]
 
   const handleImageUpload = (files) => {
     if (images.length + files.length > 5) return
@@ -539,34 +368,6 @@ export default function BlogCreatePage() {
             <DotsIcon size={18} />
           </button>
         </div>
-      </div>
-
-      {/* ================================================================ */}
-      {/*  Tabs                                                            */}
-      {/* ================================================================ */}
-      <div className="flex gap-0 border-b border-[#e5e7eb]" role="tablist" aria-label="Blog status tabs">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.key
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setActiveTab(tab.key)}
-              className={`
-                relative px-[20px] py-[10px] font-['IBM_Plex_Sans_Thai'] font-semibold text-[13px]
-                tracking-[0.5px] cursor-pointer bg-transparent border-0 transition-colors
-                ${isActive ? 'text-[#ff7e1b]' : 'text-[#9ca3af] hover:text-[#6b7280]'}
-              `}
-            >
-              {tab.label}
-              {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#ff7e1b] rounded-t-full" />
-              )}
-            </button>
-          )
-        })}
       </div>
 
       {/* ================================================================ */}
@@ -856,17 +657,23 @@ export default function BlogCreatePage() {
               Entry
             </h3>
 
-            {/* Publish button */}
+            {/* Status indicator */}
             <div className="flex items-center gap-[8px]">
-              <button
-                type="button"
-                onClick={() => handleSubmit(true)}
-                disabled={isPending}
-                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
-              >
-                {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
-              </button>
+              <span className="w-[8px] h-[8px] rounded-full bg-[#9ca3af]" />
+              <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
+                สถานะ: ฉบับร่าง
+              </span>
             </div>
+
+            {/* Publish button */}
+            <button
+              type="button"
+              onClick={() => handleSubmit(true)}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
+            >
+              {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
+            </button>
 
             {/* Save as draft button */}
             <button
@@ -875,7 +682,7 @@ export default function BlogCreatePage() {
               disabled={isPending}
               className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors disabled:opacity-50"
             >
-              บันทึก
+              บันทึกฉบับร่าง
             </button>
           </div>
         </aside>
