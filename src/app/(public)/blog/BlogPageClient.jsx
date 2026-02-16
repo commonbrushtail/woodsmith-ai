@@ -119,6 +119,13 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
   )
 }
 
+const CATEGORY_LABELS = {
+  ideas: 'ไอเดียและเคล็ดลับ',
+  trend: 'เทรนด์',
+  style: 'สไตล์และฟังก์ชัน',
+  knowledge: 'ความรู้ทั่วไป',
+}
+
 export default function BlogPageClient({ posts: dbPosts = [] }) {
   const [activeTab, setActiveTab] = useState('all')
   const [mobileVisibleCount, setMobileVisibleCount] = useState(MOBILE_PAGE_SIZE)
@@ -129,7 +136,7 @@ export default function BlogPageClient({ posts: dbPosts = [] }) {
         id: p.id,
         slug: p.slug,
         image: p.cover_image_url || imgCard1,
-        category: p.category || 'บทความ',
+        category: CATEGORY_LABELS[(p.category || '').toLowerCase()] || p.category || 'บทความ',
         categoryKey: (p.category || '').toLowerCase(),
         title: p.title,
       }))
