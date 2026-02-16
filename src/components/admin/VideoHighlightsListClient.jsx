@@ -157,6 +157,11 @@ export default function VideoHighlightsListClient({ highlights, totalCount }) {
   const [orderedHighlights, setOrderedHighlights] = useState(highlights)
   const menuRef = useRef(null)
 
+  // Sync local state when server props update (after router.refresh)
+  useEffect(() => {
+    setOrderedHighlights(highlights)
+  }, [highlights])
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -222,6 +227,7 @@ export default function VideoHighlightsListClient({ highlights, totalCount }) {
   }
 
   const handleTogglePublished = (id, current) => {
+    setOrderedHighlights(prev => prev.map(h => h.id === id ? { ...h, published: !current } : h))
     startTransition(async () => {
       await toggleVideoHighlightPublished(id, !current)
       router.refresh()
@@ -229,6 +235,7 @@ export default function VideoHighlightsListClient({ highlights, totalCount }) {
   }
 
   const handleToggleRecommended = (id, current) => {
+    setOrderedHighlights(prev => prev.map(h => h.id === id ? { ...h, recommended: !current } : h))
     startTransition(async () => {
       await toggleVideoHighlightRecommended(id, !current)
       router.refresh()

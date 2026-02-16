@@ -402,14 +402,14 @@ describe('getActiveBanners', () => {
 
 describe('getAboutContent', () => {
   it('returns about us singleton', async () => {
-    const about = { id: '1', company_name: 'WoodSmith' }
+    const about = { id: '1', content: '{"companyDetail":"<p>Hello</p>"}' }
     mockQueryChain = createQueryChain({ data: about, error: null })
     mockServerClient.from = vi.fn(() => mockQueryChain)
 
     const { getAboutContent } = await import('@/lib/data/public')
     const result = await getAboutContent()
 
-    expect(result.data).toEqual(about)
+    expect(result.data).toEqual({ id: '1', companyDetail: '<p>Hello</p>' })
     expect(mockServerClient.from).toHaveBeenCalledWith('about_us')
     expect(mockQueryChain.single).toHaveBeenCalled()
   })

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/lib/toast-context'
@@ -129,13 +129,16 @@ const TYPE_LABELS = {
 /* ------------------------------------------------------------------ */
 /*  Page component                                                     */
 /* ------------------------------------------------------------------ */
-export default function ProductsListClient({ products, totalCount, currentPage = 1, rowsPerPage = 10 }) {
+export default function ProductsListClient({ products: productsProp, totalCount, currentPage = 1, rowsPerPage = 10 }) {
   const router = useRouter()
   const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
+  const [products, setProducts] = useState(productsProp)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRows, setSelectedRows] = useState([])
   const [openMenuId, setOpenMenuId] = useState(null)
+
+  useEffect(() => { setProducts(productsProp) }, [productsProp])
 
   function navigateToPage(page, perPage = rowsPerPage) {
     const params = new URLSearchParams()
@@ -176,6 +179,7 @@ export default function ProductsListClient({ products, totalCount, currentPage =
   }
 
   function handleToggleRecommended(id, current) {
+    setProducts(prev => prev.map(p => p.id === id ? { ...p, recommended: !current } : p))
     startTransition(async () => {
       await toggleProductRecommended(id, !current)
       router.refresh()
@@ -183,6 +187,7 @@ export default function ProductsListClient({ products, totalCount, currentPage =
   }
 
   function handleTogglePublished(id, current) {
+    setProducts(prev => prev.map(p => p.id === id ? { ...p, published: !current } : p))
     startTransition(async () => {
       await toggleProductPublished(id, !current)
       router.refresh()

@@ -5,7 +5,7 @@ import { createServiceClient } from '@/lib/supabase/admin'
 
 /**
  * Fetch the singleton about_us record.
- * The `content` column stores JSON: { companyName, companySlogan, companyDetail }
+ * The `content` column stores JSON: { companyDetail }
  */
 export async function getAboutUs() {
   const supabase = createServiceClient()
@@ -19,19 +19,20 @@ export async function getAboutUs() {
   if (error) {
     // No row yet — return empty defaults
     if (error.code === 'PGRST116') {
-      return { data: { id: null, companyName: '', companySlogan: '', companyDetail: '' }, error: null }
+      return { data: { id: null, companyDetail: '' }, error: null }
     }
     return { data: null, error: error.message }
   }
 
   // Parse content JSON
-  let parsed = { companyName: '', companySlogan: '', companyDetail: '' }
+  let parsed = { companyDetail: '' }
   if (data.content) {
     try {
-      parsed = JSON.parse(data.content)
+      const json = JSON.parse(data.content)
+      parsed = { companyDetail: json.companyDetail || '' }
     } catch {
-      // If content isn't JSON, treat it as companyDetail
-      parsed = { companyName: '', companySlogan: '', companyDetail: data.content }
+      // If content isn't JSON, treat it as companyDetail directly
+      parsed = { companyDetail: data.content }
     }
   }
 
@@ -48,8 +49,6 @@ export async function updateAboutUs(formData) {
   const supabase = createServiceClient()
 
   const content = JSON.stringify({
-    companyName: formData.get('companyName') || '',
-    companySlogan: formData.get('companySlogan') || '',
     companyDetail: formData.get('companyDetail') || '',
   })
 
@@ -81,5 +80,6 @@ export async function updateAboutUs(formData) {
   }
 
   revalidatePath('/admin/about-us')
+  revalidatePath('/about')
   return { error: null }
 }

@@ -240,6 +240,40 @@ export async function getRecommendedHighlights({ perPage = 4 } = {}) {
 }
 
 /**
+ * Fetch recommended blog posts for homepage.
+ */
+export async function getRecommendedBlogPosts({ perPage = 5 } = {}) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*, blog_categories(name)')
+    .eq('recommended', true)
+    .order('created_at', { ascending: false })
+    .limit(perPage)
+  if (error) return { data: [], error: error.message }
+  const mapped = (data || []).map(p => ({
+    ...p,
+    category: p.blog_categories?.name || p.category || null,
+  }))
+  return { data: mapped, error: null }
+}
+
+/**
+ * Fetch recommended products for homepage.
+ */
+export async function getRecommendedProducts({ perPage = 12 } = {}) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, product_images(*)')
+    .eq('recommended', true)
+    .order('sort_order', { ascending: true })
+    .limit(perPage)
+  if (error) return { data: [], error: error.message }
+  return { data: data || [], error: null }
+}
+
+/**
  * Fetch published manuals.
  */
 export async function getPublishedManuals({ page = 1, perPage = 10 } = {}) {
@@ -294,6 +328,7 @@ export async function getActiveBanners() {
 
 /**
  * Fetch about us content (singleton).
+ * Returns { companyDetail } parsed from JSON content column.
  */
 export async function getAboutContent() {
   const supabase = await createClient()
@@ -309,7 +344,17 @@ export async function getAboutContent() {
     return { data: null, error: error.message }
   }
 
-  return { data, error: null }
+  let parsed = { companyDetail: '' }
+  if (data.content) {
+    try {
+      const json = JSON.parse(data.content)
+      parsed = { companyDetail: json.companyDetail || '' }
+    } catch {
+      parsed = { companyDetail: data.content }
+    }
+  }
+
+  return { data: { id: data.id, ...parsed }, error: null }
 }
 
 /**

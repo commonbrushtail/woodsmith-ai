@@ -38,8 +38,6 @@ export default function AboutUsPage() {
   const [isPending, startTransition] = useTransition()
 
   /* ---- Form state ---- */
-  const [companyName, setCompanyName] = useState('')
-  const [companySlogan, setCompanySlogan] = useState('')
   const [companyDetail, setCompanyDetail] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -47,8 +45,6 @@ export default function AboutUsPage() {
   useEffect(() => {
     getAboutUs().then(({ data }) => {
       if (data) {
-        setCompanyName(data.companyName || '')
-        setCompanySlogan(data.companySlogan || '')
         setCompanyDetail(data.companyDetail || '')
       }
       setLoading(false)
@@ -59,8 +55,6 @@ export default function AboutUsPage() {
   const handleSubmit = () => {
     startTransition(async () => {
       const formData = new FormData()
-      formData.set('companyName', companyName)
-      formData.set('companySlogan', companySlogan)
       formData.set('companyDetail', companyDetail)
 
       const result = await updateAboutUs(formData)
@@ -94,11 +88,11 @@ export default function AboutUsPage() {
         {/* Left: title + status badge */}
         <div className="flex items-center gap-[12px]">
           <h1 className="font-['IBM_Plex_Sans_Thai'] font-bold text-[22px] text-[#1f2937] m-0">
-            {'\u0e40\u0e01\u0e35\u0e48\u0e22\u0e27\u0e01\u0e31\u0e1a\u0e40\u0e23\u0e32 (About Us)'}
+            {'เกี่ยวกับเรา (About Us)'}
           </h1>
 
           <span className="inline-flex items-center px-[10px] py-[2px] rounded-full border border-[#ff7e1b]/40 bg-[#ff7e1b]/5 font-['IBM_Plex_Sans_Thai'] text-[12px] font-medium text-[#ff7e1b] leading-[1.8]">
-            {'\u0e40\u0e1c\u0e22\u0e41\u0e1e\u0e23\u0e48'}
+            {'เผยแพร่'}
           </span>
         </div>
 
@@ -126,45 +120,11 @@ export default function AboutUsPage() {
         <div className="flex-1 flex flex-col gap-[24px] min-w-0">
 
           {/* ---------------------------------------------------------- */}
-          {/*  1. Company name                                             */}
-          {/* ---------------------------------------------------------- */}
-          <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
-            <label htmlFor="companyName" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
-              {'\u0e0a\u0e37\u0e48\u0e2d\u0e1a\u0e23\u0e34\u0e29\u0e31\u0e17'} <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="companyName"
-              type="text"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              placeholder={'\u0e01\u0e23\u0e2d\u0e01\u0e0a\u0e37\u0e48\u0e2d\u0e1a\u0e23\u0e34\u0e29\u0e31\u0e17'}
-              className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf] bg-white"
-            />
-          </section>
-
-          {/* ---------------------------------------------------------- */}
-          {/*  2. Company slogan / tagline                                  */}
-          {/* ---------------------------------------------------------- */}
-          <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
-            <label htmlFor="companySlogan" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
-              {'\u0e2a\u0e42\u0e25\u0e41\u0e01\u0e19\u0e1a\u0e23\u0e34\u0e29\u0e31\u0e17 / \u0e04\u0e33\u0e2d\u0e18\u0e34\u0e1a\u0e32\u0e22\u0e15\u0e31\u0e27\u0e15\u0e19\u0e41\u0e1a\u0e1a\u0e22\u0e48\u0e2d'} <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="companySlogan"
-              type="text"
-              value={companySlogan}
-              onChange={(e) => setCompanySlogan(e.target.value)}
-              placeholder={'\u0e01\u0e23\u0e2d\u0e01\u0e2a\u0e42\u0e25\u0e41\u0e01\u0e19\u0e2b\u0e23\u0e37\u0e2d\u0e04\u0e33\u0e2d\u0e18\u0e34\u0e1a\u0e32\u0e22\u0e2a\u0e31\u0e49\u0e19 \u0e46'}
-              className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf] bg-white"
-            />
-          </section>
-
-          {/* ---------------------------------------------------------- */}
-          {/*  3. Company detail (rich text editor)                         */}
+          {/*  Company detail (rich text editor)                           */}
           {/* ---------------------------------------------------------- */}
           <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
             <label htmlFor="companyDetail" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
-              {'\u0e23\u0e32\u0e22\u0e25\u0e30\u0e40\u0e2d\u0e35\u0e22\u0e14\u0e1a\u0e23\u0e34\u0e29\u0e31\u0e17'} <span className="text-red-500">*</span>
+              {'รายละเอียดบริษัท'} <span className="text-red-500">*</span>
             </label>
             <RichTextEditor
               content={companyDetail}
@@ -173,10 +133,10 @@ export default function AboutUsPage() {
             />
             <div className="flex items-center gap-[16px] self-end">
               <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#9ca3af]">
-                {'\u0e04\u0e33: '}{wordCount}
+                {'คำ: '}{wordCount}
               </span>
               <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#9ca3af]">
-                {'\u0e15\u0e31\u0e27\u0e2d\u0e31\u0e01\u0e29\u0e23: '}{charCount}
+                {'ตัวอักษร: '}{charCount}
               </span>
             </div>
           </section>

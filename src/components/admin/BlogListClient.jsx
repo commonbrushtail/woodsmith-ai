@@ -111,15 +111,18 @@ function SortArrowIcon({ ascending }) {
   )
 }
 
-export default function BlogListClient({ blogs, totalCount }) {
+export default function BlogListClient({ blogs: blogsProp, totalCount }) {
   const router = useRouter()
   const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
+  const [blogs, setBlogs] = useState(blogsProp)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRows, setSelectedRows] = useState([])
   const [sortAsc, setSortAsc] = useState(true)
   const [openMenuId, setOpenMenuId] = useState(null)
   const menuRef = useRef(null)
+
+  useEffect(() => { setBlogs(blogsProp) }, [blogsProp])
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -167,6 +170,7 @@ export default function BlogListClient({ blogs, totalCount }) {
   }
 
   const handleToggleRecommended = (id, current) => {
+    setBlogs(prev => prev.map(b => b.id === id ? { ...b, recommended: !current } : b))
     startTransition(async () => {
       await toggleBlogRecommended(id, !current)
       router.refresh()
@@ -174,6 +178,7 @@ export default function BlogListClient({ blogs, totalCount }) {
   }
 
   const handleTogglePublished = (id, current) => {
+    setBlogs(prev => prev.map(b => b.id === id ? { ...b, published: !current } : b))
     startTransition(async () => {
       await toggleBlogPublished(id, !current)
       router.refresh()
