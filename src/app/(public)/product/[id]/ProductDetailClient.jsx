@@ -38,6 +38,7 @@ const fallbackProduct = {
     { id: '19', name: '19 มม.', status: 'choice' },
     { id: '24', name: '24 มม.', status: 'choice' },
   ],
+  variations: {},
   description: '<p>ไม้พื้นไส้ HDF ปิดวีเนียร์ ทางเลือกของคนที่ชื่นชอบพื้นไม้อารมณ์ใกล้ชิดธรรมชาติ เพราะผลิตโดยใช้วีเนียร์ ไม้จริงที่ให้ลายเสี้ยนไม้สวยงามปิดทับบนแผ่นไม้ HDF ความหนา 12 มิลลิเมตร พร้อมเคลือบ UV coating เพิ่มความทนทาน และปลอดภัยด้วยระดับฟอร์มัลดีไฮด์ E1</p>',
   specs: [
     { label: 'ผลิตภัณฑ์', value: 'ไม้พื้นลามิเนตแบบยาว\n(Long Plank)' },
@@ -208,6 +209,21 @@ export default function ProductDetailClient({ product: dbProduct = null }) {
     category: { slug: dbProduct.type || 'construction', title: dbProduct.type === 'construction' ? 'วัสดุก่อสร้าง' : 'ผลิตภัณฑ์สำเร็จ' },
     subcategory: { slug: dbProduct.category || '', title: dbProduct.category || '' },
     images: (dbProduct.product_images || []).sort((a, b) => a.sort_order - b.sort_order).map(img => img.url),
+    variations: (dbProduct.product_variation_links || [])
+      .reduce((acc, link) => {
+        const groupName = link.variation_groups?.name
+        if (!groupName) return acc
+        if (!acc[groupName]) {
+          acc[groupName] = []
+        }
+        acc[groupName].push({
+          id: link.entry_id,
+          label: link.variation_entries?.label,
+          image_url: link.show_image ? link.variation_entries?.image_url : null,
+          sort_order: link.variation_entries?.sort_order || 0
+        })
+        return acc
+      }, {}),
     colors: (dbProduct.product_options || []).filter(o => o.option_type === 'color').map(o => ({ id: o.id, name: o.label, swatch: imgRectangle15 })),
     surfaces: (dbProduct.product_options || []).filter(o => o.option_type === 'surface').map(o => ({ id: o.id, name: o.label })),
     sizes: (dbProduct.product_options || []).filter(o => o.option_type === 'size').map(o => ({ id: o.id, name: o.label, status: 'choice' })),
@@ -220,12 +236,24 @@ export default function ProductDetailClient({ product: dbProduct = null }) {
     }),
   } : fallbackProduct
 
+  // Debug: log variations data
+  console.log('Product variations:', product.variations)
+  console.log('dbProduct.product_variation_links:', dbProduct?.product_variation_links)
+
   // Ensure at least one image
   if (product.images.length === 0) product.images = [imgRectangle15]
 
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.id || '')
   const [selectedSurface, setSelectedSurface] = useState(product.surfaces[0]?.id || '')
   const [selectedSize, setSelectedSize] = useState(product.sizes.find(s => s.status !== 'sold')?.id || product.sizes[0]?.id || '')
+  const [selectedVariations, setSelectedVariations] = useState(() => {
+    const initial = {}
+    Object.entries(product.variations || {}).forEach(([groupName, entries]) => {
+      const sortedEntries = entries.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+      initial[groupName] = sortedEntries[0]?.id || ''
+    })
+    return initial
+  })
   const [quotationOpen, setQuotationOpen] = useState(false)
 
   return (
@@ -284,6 +312,37 @@ export default function ProductDetailClient({ product: dbProduct = null }) {
                 }}
               />
             )}
+            {/* Variations */}
+            {Object.entries(product.variations || {}).map(([groupName, entries]) => {
+              const sortedEntries = entries.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+              const hasImages = sortedEntries.some(e => e.image_url)
+
+              return (
+                <OptionSelector
+                  key={groupName}
+                  label={groupName}
+                  options={sortedEntries}
+                  selectedId={selectedVariations[groupName] || ''}
+                  onSelect={(id) => setSelectedVariations(prev => ({ ...prev, [groupName]: id }))}
+                  renderItem={(entry, isSelected, onClick) => (
+                    <button
+                      key={entry.id}
+                      className={`flex gap-[10px] items-center px-[16px] py-[8px] overflow-hidden cursor-pointer bg-transparent ${isSelected ? 'border-2 border-dark-brown' : 'border border-[#e5e5e5]'}`}
+                      onClick={onClick}
+                    >
+                      {hasImages && entry.image_url && (
+                        <div className="shrink-0 size-[40px] rounded-full overflow-hidden">
+                          <img alt="" className="max-w-none object-cover size-full" src={entry.image_url} />
+                        </div>
+                      )}
+                      <span className={`font-['IBM_Plex_Sans_Thai'] text-[14px] text-black ${isSelected ? 'font-semibold' : ''}`}>
+                        {entry.label}
+                      </span>
+                    </button>
+                  )}
+                />
+              )
+            })}
           </div>
           <button className="w-full h-[48px] bg-orange flex items-center justify-center cursor-pointer border-none mt-[8px]" onClick={() => setQuotationOpen(true)}>
             <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[16px] text-white leading-[1.5]">ขอใบเสนอราคา</span>

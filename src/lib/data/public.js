@@ -42,7 +42,19 @@ export async function getPublishedProduct(id) {
 
   const { data, error } = await supabase
     .from('products')
-    .select('*, product_images(id, url, is_primary, sort_order), product_options(id, option_type, label, sort_order)')
+    .select(`
+      *,
+      product_images(id, url, is_primary, sort_order),
+      product_options(id, option_type, label, sort_order),
+      product_variation_links(
+        id,
+        group_id,
+        entry_id,
+        show_image,
+        variation_groups!group_id(id, name),
+        variation_entries!entry_id(id, label, image_url, sort_order)
+      )
+    `)
     .eq('id', id)
     .single()
 
@@ -67,7 +79,19 @@ export async function getPublishedProductBySlug(slug) {
 
   const { data, error } = await supabase
     .from('products')
-    .select('*, product_images(id, url, is_primary, sort_order), product_options(id, option_type, label, sort_order)')
+    .select(`
+      *,
+      product_images(id, url, is_primary, sort_order),
+      product_options(id, option_type, label, sort_order),
+      product_variation_links(
+        id,
+        group_id,
+        entry_id,
+        show_image,
+        variation_groups!group_id(id, name),
+        variation_entries!entry_id(id, label, image_url, sort_order)
+      )
+    `)
     .eq('slug', slug)
     .single()
 
@@ -459,4 +483,19 @@ export async function getBranchRegions() {
 
   const regions = [...new Set((data || []).map(b => b.region).filter(Boolean))]
   return { data: regions, error: null }
+}
+
+/**
+ * Fetch site settings (public access for footer/header).
+ */
+export async function getSiteSettings() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('*')
+    .limit(1)
+
+  if (error) return { data: null, error: error.message }
+  return { data: data?.[0] || null, error: null }
 }
