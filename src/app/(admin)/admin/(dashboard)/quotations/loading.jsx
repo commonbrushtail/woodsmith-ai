@@ -1,4 +1,4 @@
-import { TableSkeleton } from '../../../../components/admin/AdminSkeleton'
+import { TableSkeleton } from '../../../../../components/admin/AdminSkeleton'
 
 export default function Loading() {
   return (

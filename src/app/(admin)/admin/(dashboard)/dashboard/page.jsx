@@ -1,4 +1,4 @@
-import AdminHeader from '../../../../components/admin/AdminHeader'
+import AdminHeader from '../../../../../components/admin/AdminHeader'
 import { getDashboardStats } from '@/lib/actions/dashboard'
 
 export default async function DashboardPage() {

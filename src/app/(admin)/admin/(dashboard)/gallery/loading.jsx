@@ -1,4 +1,4 @@
-import { CardSkeleton } from '../../../../components/admin/AdminSkeleton'
+import { CardSkeleton } from '../../../../../components/admin/AdminSkeleton'
 
 export default function Loading() {
   return (
