@@ -101,7 +101,11 @@ function FaqSection({ section, sectionIndex, openItems, onToggle }) {
         <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[32px] text-black leading-[1.3] tracking-[0.16px]">
           {section.title}
         </p>
-        <div className="hidden lg:block w-[200px] h-[120px] bg-[#e8e3da]" />
+        {section.image_url ? (
+          <img src={section.image_url} alt={section.title} className="hidden lg:block w-[200px] h-[120px] object-cover rounded-[8px]" />
+        ) : (
+          <div className="hidden lg:block w-[200px] h-[120px] bg-[#e8e3da] rounded-[8px]" />
+        )}
       </div>
       <div className="flex flex-col gap-[12px] w-full lg:flex-1">
         {section.items.map((item, itemIndex) => {
@@ -122,14 +126,15 @@ function FaqSection({ section, sectionIndex, openItems, onToggle }) {
   )
 }
 
-export default function FaqPageClient({ faqGroups = {} }) {
+export default function FaqPageClient({ faqGroups = [] }) {
   const [openItems, setOpenItems] = useState(new Set(['0-0']))
 
-  const hasDbData = Object.keys(faqGroups).length > 0
+  const hasDbData = Array.isArray(faqGroups) ? faqGroups.length > 0 : Object.keys(faqGroups).length > 0
   const faqData = hasDbData
-    ? Object.entries(faqGroups).map(([title, items]) => ({
-        title,
-        items: items.map((item, i) => ({
+    ? (Array.isArray(faqGroups) ? faqGroups : []).map(group => ({
+        title: group.name,
+        image_url: group.image_url || null,
+        items: (group.faqs || []).map((item, i) => ({
           icon: i % 3,
           question: item.question,
           answer: item.answer,

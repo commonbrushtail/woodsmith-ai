@@ -256,31 +256,38 @@ describe('getPublishedBranches', () => {
 })
 
 describe('getPublishedFaqs', () => {
-  it('groups FAQs by group_title', async () => {
-    const faqs = [
-      { id: '1', question: 'Q1', group_title: 'สินค้า' },
-      { id: '2', question: 'Q2', group_title: 'สินค้า' },
-      { id: '3', question: 'Q3', group_title: 'บริการ' },
+  it('returns FAQ groups with nested faqs array', async () => {
+    const groups = [
+      { id: 'g1', name: 'สินค้า', image_url: null, sort_order: 0, faqs: [
+        { id: '1', question: 'Q1', answer: 'A1', sort_order: 0 },
+        { id: '2', question: 'Q2', answer: 'A2', sort_order: 1 },
+      ]},
+      { id: 'g2', name: 'บริการ', image_url: 'https://example.com/img.jpg', sort_order: 1, faqs: [
+        { id: '3', question: 'Q3', answer: 'A3', sort_order: 0 },
+      ]},
     ]
-    mockQueryChain = createQueryChain({ data: faqs, error: null })
+    mockQueryChain = createQueryChain({ data: groups, error: null })
     mockServerClient.from = vi.fn(() => mockQueryChain)
 
     const { getPublishedFaqs } = await import('@/lib/data/public')
     const result = await getPublishedFaqs()
 
-    expect(result.data['สินค้า']).toHaveLength(2)
-    expect(result.data['บริการ']).toHaveLength(1)
+    expect(result.data).toHaveLength(2)
+    expect(result.data[0].name).toBe('สินค้า')
+    expect(result.data[0].faqs).toHaveLength(2)
+    expect(result.data[1].image_url).toBe('https://example.com/img.jpg')
+    expect(mockServerClient.from).toHaveBeenCalledWith('faq_groups')
   })
 
-  it('uses default group for null group_title', async () => {
-    const faqs = [{ id: '1', question: 'Q1', group_title: null }]
-    mockQueryChain = createQueryChain({ data: faqs, error: null })
+  it('returns empty array on error', async () => {
+    mockQueryChain = createQueryChain({ data: null, error: { message: 'DB error' } })
     mockServerClient.from = vi.fn(() => mockQueryChain)
 
     const { getPublishedFaqs } = await import('@/lib/data/public')
     const result = await getPublishedFaqs()
 
-    expect(result.data['ทั่วไป']).toHaveLength(1)
+    expect(result.data).toEqual([])
+    expect(result.error).toBe('DB error')
   })
 })
 

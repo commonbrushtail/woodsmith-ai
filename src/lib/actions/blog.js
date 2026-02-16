@@ -265,3 +265,34 @@ export async function incrementBlogViewCount(id) {
   const supabase = createServiceClient()
   await supabase.rpc('increment_blog_view', { post_id: id })
 }
+
+/**
+ * Upload an image from the rich text editor.
+ * Accepts FormData with a 'file' field.
+ * Returns { url: string } on success or { error: string } on failure.
+ */
+export async function uploadEditorImage(formData) {
+  const file = formData.get('file')
+  if (!file || file.size === 0) {
+    return { url: null, error: 'ไม่พบไฟล์' }
+  }
+
+  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+  if (!allowed.includes(file.type)) {
+    return { url: null, error: 'รองรับเฉพาะไฟล์ JPEG, PNG, WebP, GIF' }
+  }
+
+  const maxSize = 5 * 1024 * 1024
+  if (file.size > maxSize) {
+    return { url: null, error: 'ขนาดไฟล์เกิน 5MB' }
+  }
+
+  const ext = file.name.split('.').pop()
+  const filePath = `editor/${Date.now()}.${ext}`
+  const { path, error: uploadError } = await uploadFile('blog', file, filePath)
+  if (uploadError) {
+    return { url: null, error: uploadError.message }
+  }
+
+  return { url: getPublicUrl('blog', path), error: null }
+}

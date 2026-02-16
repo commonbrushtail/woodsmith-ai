@@ -1,8 +1,8 @@
-import { getFaqs } from '@/lib/actions/faqs'
-import FaqListClient from '@/components/admin/FaqListClient'
+import { getFaqGroups } from '@/lib/actions/faq-groups'
+import FaqPageClient from '@/components/admin/FaqPageClient'
 
 export default async function FaqPage() {
-  const { data: faqs, count } = await getFaqs({ page: 1, perPage: 1000 })
+  const { data: groups } = await getFaqGroups()
 
-  return <FaqListClient faqs={faqs} totalCount={count} />
+  return <FaqPageClient groups={groups || []} />
 }

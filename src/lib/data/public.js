@@ -175,27 +175,21 @@ export async function getPublishedBranches({ region = '' } = {}) {
 }
 
 /**
- * Fetch published FAQs grouped by group_title.
+ * Fetch published FAQ groups with their published FAQs.
+ * Returns array of groups, each with nested faqs array.
  */
 export async function getPublishedFaqs() {
   const supabase = await createClient()
 
   const { data, error } = await supabase
-    .from('faqs')
-    .select('*')
+    .from('faq_groups')
+    .select('id, name, image_url, sort_order, faqs(id, question, answer, sort_order)')
     .order('sort_order', { ascending: true })
+    .order('sort_order', { referencedTable: 'faqs', ascending: true })
 
   if (error) return { data: [], error: error.message }
 
-  // Group by group_title
-  const grouped = {}
-  for (const faq of (data || [])) {
-    const group = faq.group_title || 'ทั่วไป'
-    if (!grouped[group]) grouped[group] = []
-    grouped[group].push(faq)
-  }
-
-  return { data: grouped, error: null }
+  return { data: data || [], error: null }
 }
 
 /**

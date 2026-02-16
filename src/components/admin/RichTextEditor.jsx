@@ -1,9 +1,11 @@
 'use client'
 
+import { useRef, useState } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
+import { uploadEditorImage } from '@/lib/actions/blog'
 
 function ToolbarButton({ onClick, isActive, ariaLabel, children }) {
   return (
@@ -21,7 +23,7 @@ function ToolbarButton({ onClick, isActive, ariaLabel, children }) {
   )
 }
 
-function Toolbar({ editor }) {
+function Toolbar({ editor, fileInputRef, uploading, onFileSelect }) {
   if (!editor) return null
 
   const handleLink = () => {
@@ -32,10 +34,7 @@ function Toolbar({ editor }) {
   }
 
   const handleImage = () => {
-    const url = window.prompt('Image URL:')
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run()
-    }
+    fileInputRef.current?.click()
   }
 
   return (
@@ -131,11 +130,17 @@ function Toolbar({ editor }) {
         isActive={false}
         ariaLabel="Image"
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-          <circle cx="8.5" cy="8.5" r="1.5" />
-          <polyline points="21 15 16 10 5 21" />
-        </svg>
+        {uploading ? (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+          </svg>
+        )}
       </ToolbarButton>
 
       <div className="w-px h-[20px] bg-[#e5e7eb] mx-[4px]" />
@@ -166,6 +171,9 @@ function Toolbar({ editor }) {
 }
 
 export default function RichTextEditor({ content = '', onChange, minHeight = 200 }) {
+  const fileInputRef = useRef(null)
+  const [uploading, setUploading] = useState(false)
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ link: false }),
@@ -179,9 +187,38 @@ export default function RichTextEditor({ content = '', onChange, minHeight = 200
     immediatelyRender: false,
   })
 
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file || !editor) return
+
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const { url, error } = await uploadEditorImage(formData)
+      if (error) {
+        alert(error)
+      } else if (url) {
+        editor.chain().focus().setImage({ src: url }).run()
+      }
+    } catch {
+      alert('อัปโหลดรูปภาพไม่สำเร็จ')
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
+
   return (
     <div className="border border-[#e5e7eb] rounded-[8px] overflow-hidden bg-white">
-      <Toolbar editor={editor} />
+      <Toolbar editor={editor} fileInputRef={fileInputRef} uploading={uploading} />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="hidden"
+        onChange={handleFileSelect}
+      />
       <div
         data-testid="editor-wrapper"
         style={{ minHeight: `${minHeight}px` }}

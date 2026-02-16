@@ -55,18 +55,26 @@ export async function getFaq(id) {
 export async function createFaq(formData) {
   const supabase = createServiceClient()
 
-  const { data: existing } = await supabase
+  const groupId = formData.get('group_id')
+
+  // Scope sort_order to within the group
+  let orderQuery = supabase
     .from('faqs')
     .select('sort_order')
     .order('sort_order', { ascending: false })
     .limit(1)
 
-  const nextOrder = existing && existing.length > 0 ? existing[0].sort_order + 1 : 1
+  if (groupId) {
+    orderQuery = orderQuery.eq('group_id', groupId)
+  }
+
+  const { data: existing } = await orderQuery
+  const nextOrder = existing && existing.length > 0 ? existing[0].sort_order + 1 : 0
 
   const faqData = {
     question: formData.get('question') || '',
     answer: formData.get('answer') || '',
-    group_title: formData.get('group_title') || null,
+    group_id: groupId,
     published: formData.get('published') === 'true',
     sort_order: nextOrder,
   }
@@ -95,7 +103,7 @@ export async function updateFaq(id, formData) {
 
   if (formData.has('question')) updates.question = formData.get('question')
   if (formData.has('answer')) updates.answer = formData.get('answer')
-  if (formData.has('group_title')) updates.group_title = formData.get('group_title')
+  if (formData.has('group_id')) updates.group_id = formData.get('group_id')
   if (formData.has('published')) updates.published = formData.get('published') === 'true'
 
   const { data, error } = await supabase
