@@ -1,6 +1,7 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useLayoutEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
@@ -31,6 +32,21 @@ function ToolbarButton({ onClick, isActive, ariaLabel, children, disabled }) {
 
 function TableMenu({ editor }) {
   const [open, setOpen] = useState(false)
+  const anchorEl = useRef(null)
+  const [pos, setPos] = useState(null)
+
+  useLayoutEffect(() => {
+    if (!open || !anchorEl.current) return
+    const parent = anchorEl.current.parentElement
+    if (!parent) return
+    const rect = parent.getBoundingClientRect()
+    const menuHeight = 400 // approximate menu height
+    const spaceBelow = window.innerHeight - rect.bottom
+    const top = spaceBelow < menuHeight && rect.top > menuHeight
+      ? rect.top - menuHeight - 4   // flip above
+      : rect.bottom + 4              // open below
+    setPos({ top, left: rect.left })
+  }, [open])
 
   if (!editor) return null
 
@@ -41,25 +57,31 @@ function TableMenu({ editor }) {
     setOpen(false)
   }
 
-  return (
-    <div className="relative">
-      <ToolbarButton
-        onClick={() => inTable ? setOpen(!open) : insertTable()}
-        isActive={inTable}
-        ariaLabel="Table"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <line x1="3" y1="9" x2="21" y2="9" />
-          <line x1="3" y1="15" x2="21" y2="15" />
-          <line x1="12" y1="3" x2="12" y2="21" />
-        </svg>
-      </ToolbarButton>
+  const handleToggle = () => {
+    if (inTable) {
+      setOpen(!open)
+    } else {
+      insertTable()
+    }
+  }
 
-      {open && inTable && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute top-full left-0 mt-[4px] z-20 bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[180px]">
+  const menu = open && inTable ? (
+    <>
+      <div className="fixed inset-0 z-[9998]" onClick={() => setOpen(false)} />
+      <div
+        className="fixed z-[9999] bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[200px]"
+        style={pos ? { top: pos.top, left: pos.left } : { top: -9999, left: -9999 }}
+      >
+            <MenuItem onClick={() => { editor.chain().focus().toggleHeaderRow().run(); setOpen(false) }}>
+              ตั้งหัวแถวตาราง
+            </MenuItem>
+            <MenuItem onClick={() => { editor.chain().focus().toggleHeaderColumn().run(); setOpen(false) }}>
+              ตั้งคอลัมน์หัวตาราง
+            </MenuItem>
+            <MenuItem onClick={() => { editor.chain().focus().toggleHeaderCell().run(); setOpen(false) }}>
+              ตั้งเซลล์หัวตาราง
+            </MenuItem>
+            <div className="h-px bg-[#e5e7eb] my-[4px]" />
             <MenuItem onClick={() => { editor.chain().focus().addRowAfter().run(); setOpen(false) }}>
               เพิ่มแถวด้านล่าง
             </MenuItem>
@@ -85,7 +107,24 @@ function TableMenu({ editor }) {
             </MenuItem>
           </div>
         </>
-      )}
+      ) : null
+
+  return (
+    <div className="relative">
+      <ToolbarButton
+        onClick={handleToggle}
+        isActive={inTable}
+        ariaLabel="Table"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <line x1="3" y1="9" x2="21" y2="9" />
+          <line x1="3" y1="15" x2="21" y2="15" />
+          <line x1="12" y1="3" x2="12" y2="21" />
+        </svg>
+      </ToolbarButton>
+      <span ref={anchorEl} style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }} />
+      {typeof window !== 'undefined' && menu ? createPortal(menu, document.body) : null}
     </div>
   )
 }
@@ -265,7 +304,12 @@ export default function RichTextEditor({ content = '', onChange, minHeight = 200
       Table.configure({ resizable: false }),
       TableRow,
       TableHeader,
-      TableCell,
+      TableCell.configure({
+        // Allow lists and other block content in cells
+        HTMLAttributes: {
+          class: 'table-cell',
+        },
+      }),
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -313,7 +357,7 @@ export default function RichTextEditor({ content = '', onChange, minHeight = 200
       >
         <EditorContent
           editor={editor}
-          className="prose prose-sm max-w-none font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#374151] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[inherit] [&_.ProseMirror_table]:w-full [&_.ProseMirror_table]:border-collapse [&_.ProseMirror_table]:border [&_.ProseMirror_table]:border-[#e5e7eb] [&_.ProseMirror_td]:border [&_.ProseMirror_td]:border-[#e5e7eb] [&_.ProseMirror_td]:px-[20px] [&_.ProseMirror_td]:py-[12px] [&_.ProseMirror_td]:align-top [&_.ProseMirror_th]:border [&_.ProseMirror_th]:border-[#e5e7eb] [&_.ProseMirror_th]:px-[20px] [&_.ProseMirror_th]:py-[12px] [&_.ProseMirror_th]:bg-[#f9fafb] [&_.ProseMirror_th]:font-semibold [&_.ProseMirror_th]:text-left"
+          className="prose prose-sm max-w-none font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#374151] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[inherit]"
         />
       </div>
     </div>

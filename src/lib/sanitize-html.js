@@ -4,11 +4,16 @@ const ALLOWED_TAGS = new Set([
   'ul', 'ol', 'li',
   'a', 'img', 'br', 'hr',
   'blockquote', 'pre', 'code',
+  'table', 'thead', 'tbody', 'tr', 'th', 'td', 'colgroup', 'col',
 ])
 
 const ALLOWED_ATTRS = {
   a: new Set(['href', 'target', 'rel']),
   img: new Set(['src', 'alt', 'width', 'height']),
+  table: new Set(['style']),
+  col: new Set(['style']),
+  td: new Set(['colspan', 'rowspan']),
+  th: new Set(['colspan', 'rowspan']),
 }
 
 const DANGEROUS_URL_RE = /^\s*javascript\s*:/i

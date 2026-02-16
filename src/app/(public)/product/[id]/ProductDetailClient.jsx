@@ -160,22 +160,23 @@ function OptionSelector({ label, options, selectedId, onSelect, renderItem }) {
   )
 }
 
+// Helper function to check if HTML content is non-empty
+function hasContent(html) {
+  if (!html) return false
+  // Strip HTML tags and check if there's actual text content
+  const text = html.replace(/<[^>]*>/g, '').trim()
+  return text.length > 0
+}
+
 function SpecTable({ specs }) {
+  if (!hasContent(specs)) return null
   return (
     <div className="flex flex-col gap-[24px]">
       <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-black leading-[1.2]">ข้อมูลจำเพาะ</p>
-      <div className="border border-[#e5e7eb] overflow-hidden w-full lg:w-[435px]">
-        {specs.map((spec, i) => (
-          <div key={i} className="flex border-b border-[#e5e7eb] last:border-b-0">
-            <div className="w-[140px] lg:w-[153px] shrink-0 px-[20px] py-[12px] flex items-start">
-              <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[15px] text-[#202124] leading-[1.5]">{spec.label}</span>
-            </div>
-            <div className="flex-1 px-[20px] py-[12px] flex items-start border-l border-[#e5e7eb]">
-              <span className="font-['IBM_Plex_Sans_Thai'] text-[15px] text-[#202124] leading-[1.5] whitespace-pre-line">{spec.value}</span>
-            </div>
-          </div>
-        ))}
-      </div>
+      <SafeHtmlContent
+        html={specs}
+        className="rich-text font-['IBM_Plex_Sans_Thai'] text-[15px] text-[#202124] leading-[1.5]"
+      />
     </div>
   )
 }
@@ -211,7 +212,8 @@ export default function ProductDetailClient({ product: dbProduct = null }) {
     surfaces: (dbProduct.product_options || []).filter(o => o.option_type === 'surface').map(o => ({ id: o.id, name: o.label })),
     sizes: (dbProduct.product_options || []).filter(o => o.option_type === 'size').map(o => ({ id: o.id, name: o.label, status: 'choice' })),
     description: dbProduct.description || '',
-    specs: dbProduct.specifications ? Object.entries(dbProduct.specifications).map(([label, value]) => ({ label, value: String(value) })) : [],
+    characteristics: dbProduct.characteristics || '',
+    specs: dbProduct.specifications?.raw || dbProduct.specifications || '',
     relatedProducts: (dbProduct.relatedProducts || []).map(rp => {
       const img = rp.product_images?.find(i => i.is_primary)?.url || rp.product_images?.[0]?.url || imgRectangle15
       return { href: getProductUrl(rp), image: img, category: rp.category || '', engName: rp.name }
@@ -292,16 +294,25 @@ export default function ProductDetailClient({ product: dbProduct = null }) {
       {/* Description + Specs */}
       <div className="max-w-[1212px] mx-auto w-full px-[16px] py-[16px] lg:py-[24px]">
         <div className="w-full lg:w-[680px] flex flex-col gap-[32px]">
-          {product.description && (
+          {hasContent(product.description) && (
             <div className="flex flex-col gap-[16px]">
               <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-black leading-[1.2]">รายละเอียดสินค้า</p>
               <SafeHtmlContent
                 html={product.description}
-                className="font-['IBM_Plex_Sans_Thai'] text-[16px] text-black leading-[1.5] prose prose-sm max-w-none"
+                className="rich-text font-['IBM_Plex_Sans_Thai'] text-[16px] text-black leading-[1.5] prose prose-sm max-w-none"
               />
             </div>
           )}
-          {product.specs.length > 0 && <SpecTable specs={product.specs} />}
+          {hasContent(product.characteristics) && (
+            <div className="flex flex-col gap-[16px]">
+              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-black leading-[1.2]">คุณสมบัติ</p>
+              <SafeHtmlContent
+                html={product.characteristics}
+                className="rich-text font-['IBM_Plex_Sans_Thai'] text-[16px] text-black leading-[1.5] prose prose-sm max-w-none"
+              />
+            </div>
+          )}
+          <SpecTable specs={product.specs} />
         </div>
       </div>
 
