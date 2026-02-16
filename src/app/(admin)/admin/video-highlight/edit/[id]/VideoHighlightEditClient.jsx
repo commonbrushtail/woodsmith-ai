@@ -37,15 +37,9 @@ export default function VideoHighlightEditClient({ highlight }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
-  const [activeTab, setActiveTab] = useState(highlight.published ? 'published' : 'draft')
   const [title, setTitle] = useState(highlight.title || '')
   const [youtubeUrl, setYoutubeUrl] = useState(highlight.youtube_url || '')
   const [thumbnailUrl, setThumbnailUrl] = useState(highlight.thumbnail_url || '')
-
-  const tabs = [
-    { key: 'draft', label: 'DRAFT' },
-    { key: 'published', label: 'PUBLISHED' },
-  ]
 
   const handleSubmit = (publish) => {
     if (!title.trim()) { toast.error('กรุณากรอกชื่อไฮไลท์'); return }
@@ -108,30 +102,6 @@ export default function VideoHighlightEditClient({ highlight }) {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-0 border-b border-[#e5e7eb]" role="tablist">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.key
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setActiveTab(tab.key)}
-              className={`relative px-[20px] py-[10px] font-['IBM_Plex_Sans_Thai'] font-semibold text-[13px] tracking-[0.5px] cursor-pointer bg-transparent border-0 transition-colors ${
-                isActive ? 'text-[#ff7e1b]' : 'text-[#9ca3af] hover:text-[#6b7280]'
-              }`}
-            >
-              {tab.label}
-              {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#ff7e1b] rounded-t-full" />
-              )}
-            </button>
-          )
-        })}
-      </div>
-
       {/* Content body */}
       <div className="flex gap-[24px] mt-[20px] flex-1 min-h-0 overflow-y-auto pb-[32px]">
         <div className="flex-1 flex flex-col gap-[24px] min-w-0">
@@ -188,24 +158,32 @@ export default function VideoHighlightEditClient({ highlight }) {
               Entry
             </h3>
 
+            {/* Status indicator */}
             <div className="flex items-center gap-[8px]">
-              <button
-                type="button"
-                onClick={() => handleSubmit(true)}
-                disabled={isPending}
-                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
-              >
-                {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
-              </button>
+              <span className={`w-[8px] h-[8px] rounded-full ${highlight.published ? 'bg-green-500' : 'bg-[#9ca3af]'}`} />
+              <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
+                สถานะ: {highlight.published ? 'เผยแพร่แล้ว' : 'ฉบับร่าง'}
+              </span>
             </div>
 
+            {/* Publish button */}
+            <button
+              type="button"
+              onClick={() => handleSubmit(true)}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
+            >
+              {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
+            </button>
+
+            {/* Save as draft button */}
             <button
               type="button"
               onClick={() => handleSubmit(false)}
               disabled={isPending}
               className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors disabled:opacity-50"
             >
-              บันทึก
+              บันทึกฉบับร่าง
             </button>
           </div>
         </aside>

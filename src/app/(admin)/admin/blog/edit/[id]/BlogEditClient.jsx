@@ -51,7 +51,6 @@ export default function BlogEditClient({ post }) {
   const formErrors = useFormErrors()
   const fileInputRef = useRef(null)
 
-  const [activeTab, setActiveTab] = useState(post.published ? 'published' : 'draft')
   const [title, setTitle] = useState(post.title || '')
   const [content, setContent] = useState(post.content || '')
   const [recommended, setRecommended] = useState(post.recommended ? 'yes' : 'no')
@@ -61,11 +60,6 @@ export default function BlogEditClient({ post }) {
   const TITLE_MAX = 120
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0
   const charCount = content.length
-
-  const tabs = [
-    { key: 'draft', label: 'DRAFT' },
-    { key: 'published', label: 'PUBLISHED' },
-  ]
 
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0]
@@ -148,30 +142,6 @@ export default function BlogEditClient({ post }) {
             <DotsIcon size={18} />
           </button>
         </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-0 border-b border-[#e5e7eb]" role="tablist">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.key
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setActiveTab(tab.key)}
-              className={`relative px-[20px] py-[10px] font-['IBM_Plex_Sans_Thai'] font-semibold text-[13px] tracking-[0.5px] cursor-pointer bg-transparent border-0 transition-colors ${
-                isActive ? 'text-[#ff7e1b]' : 'text-[#9ca3af] hover:text-[#6b7280]'
-              }`}
-            >
-              {tab.label}
-              {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#ff7e1b] rounded-t-full" />
-              )}
-            </button>
-          )
-        })}
       </div>
 
       {/* Content body */}
@@ -271,24 +241,32 @@ export default function BlogEditClient({ post }) {
               Entry
             </h3>
 
+            {/* Status indicator */}
             <div className="flex items-center gap-[8px]">
-              <button
-                type="button"
-                onClick={() => handleSubmit(true)}
-                disabled={isPending}
-                className="flex-1 flex items-center justify-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
-              >
-                {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
-              </button>
+              <span className={`w-[8px] h-[8px] rounded-full ${post.published ? 'bg-green-500' : 'bg-[#9ca3af]'}`} />
+              <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
+                สถานะ: {post.published ? 'เผยแพร่แล้ว' : 'ฉบับร่าง'}
+              </span>
             </div>
 
+            {/* Publish button */}
+            <button
+              type="button"
+              onClick={() => handleSubmit(true)}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
+            >
+              {isPending ? 'กำลังบันทึก...' : 'เผยแพร่'}
+            </button>
+
+            {/* Save as draft button */}
             <button
               type="button"
               onClick={() => handleSubmit(false)}
               disabled={isPending}
               className="w-full flex items-center justify-center px-[16px] py-[8px] rounded-[8px] bg-white text-[#374151] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border border-[#e8eaef] cursor-pointer hover:bg-[#f9fafb] transition-colors disabled:opacity-50"
             >
-              บันทึก
+              บันทึกฉบับร่าง
             </button>
           </div>
         </aside>
