@@ -34,6 +34,17 @@ export async function adminLogin(email, password) {
     return { error: error.message }
   }
 
+  // Verify user has admin or editor role
+  const userRole = data.user?.user_metadata?.role
+  const ADMIN_ROLES = ['admin', 'editor']
+
+  if (!userRole || !ADMIN_ROLES.includes(userRole)) {
+    // Revoke the session immediately to prevent redirect loops
+    await supabase.auth.signOut()
+    logAudit({ userId: data.user?.id, action: 'login.role_denied', ip, details: { email, role: userRole } })
+    return { error: 'บัญชีนี้ไม่มีสิทธิ์เข้าใช้ระบบผู้ดูแล' }
+  }
+
   logAudit({ userId: data.user?.id, action: 'login.success', ip, details: { email } })
   return { error: null }
 }
