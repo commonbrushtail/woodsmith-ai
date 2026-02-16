@@ -96,7 +96,7 @@ export async function inviteUser(formData) {
   const { data: authData, error: createUserError } = await supabase.auth.admin.createUser({
     email,
     email_confirm: true,
-    user_metadata: { display_name: displayName },
+    user_metadata: { display_name: displayName, role },
   })
 
   if (createUserError) {
@@ -137,6 +137,19 @@ export async function updateUserRole(id, role) {
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
+
+  // Get user_id from profile
+  const { data: profile, error: fetchError } = await supabase
+    .from('user_profiles')
+    .select('user_id')
+    .eq('id', id)
+    .single()
+
+  if (fetchError) {
+    return { error: fetchError.message }
+  }
+
+  // Update user_profiles table
   const { error } = await supabase
     .from('user_profiles')
     .update({ role })
@@ -144,6 +157,16 @@ export async function updateUserRole(id, role) {
 
   if (error) {
     return { error: error.message }
+  }
+
+  // Sync role to auth user_metadata
+  const { error: authUpdateError } = await supabase.auth.admin.updateUserById(
+    profile.user_id,
+    { user_metadata: { role } }
+  )
+
+  if (authUpdateError) {
+    return { error: authUpdateError.message }
   }
 
   revalidatePath('/admin/users')
