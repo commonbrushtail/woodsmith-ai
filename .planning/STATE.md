@@ -14,7 +14,7 @@ Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
 Current Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-17 — Completed quick task 14: Add role verification to admin login action
+Last activity: 2026-02-17 — Completed quick task 15: Fix authorization bypass in user management
 
 Progress: [███████░░░] 70% (across all milestones: 7 of 10 phases complete, Phase 7: 2 of 2 plans done)
 
@@ -84,6 +84,8 @@ Recent decisions affecting v1.1:
 - [Quick 13]: All admin-only functions protected including read operations (createServiceClient bypasses RLS, must be admin-gated)
 - [Quick 14]: Role verification at login prevents customer authentication at /login form level (defense-in-depth with middleware)
 - [Quick 14]: Immediate signOut on role failure prevents redirect loops from lingering session cookies
+- [Quick 15]: Dual-write role to both user_profiles table and auth user_metadata (user_profiles for queries, user_metadata for auth checks)
+- [Quick 15]: updateUserRole syncs to auth immediately (no deferred sync) to ensure role changes take effect on next login
 
 ### Quick Tasks Completed
 
@@ -100,6 +102,7 @@ Recent decisions affecting v1.1:
 | 12 | Add recommend toggle to highlight admin | 2026-02-16 | DONE — migration, server action, admin toggle column, unified badge design (blog/products/highlights), homepage curated highlights with fallback (7 files, 2 min) |
 | 13 | Add authentication for admin site settings | 2026-02-17 | DONE — requireAdmin utility, layout guard, 67 functions protected across 18 action files, defense-in-depth admin auth (7 min) |
 | 14 | Add role verification to admin login action | 2026-02-17 | DONE — role check after signInWithPassword, immediate signOut on failure, Thai error message, eliminates redirect loops (1 min) |
+| 15 | Fix authorization bypass in inviteUser/updateUserRole | 2026-02-17 | DONE — role synced to user_metadata in both functions, invited users can now log in, role changes take effect (1 min) |
 
 ### Pending Todos
 
@@ -139,6 +142,7 @@ Resume file: None
 | 2026-02-16 | Quick task 12 executed | Video highlight recommend toggle: migration, server action, unified badge design, homepage curation (7 files, 2 min) |
 | 2026-02-17 | Quick task 13 executed | Admin auth enforcement: requireAdmin utility, layout guard, 67 functions protected across 18 files, defense-in-depth (7 min) |
 | 2026-02-17 | Quick task 14 executed | Admin login role verification: role check after signInWithPassword, immediate signOut on failure, Thai error, eliminates redirect loops (1 min) |
+| 2026-02-17 | Quick task 15 executed | User management auth bypass fix: role synced to user_metadata in inviteUser and updateUserRole, dual-write pattern (1 file, 1 min) |
 
 ---
 *Last updated: 2026-02-17*
