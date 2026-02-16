@@ -14,7 +14,7 @@ Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
 Current Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-16 — Completed quick task 10: Make blog admin and public functional
+Last activity: 2026-02-16 — Completed quick task 11: Dynamic blog categories
 
 Progress: [███████░░░] 70% (across all milestones: 7 of 10 phases complete, Phase 7: 2 of 2 plans done)
 
@@ -91,6 +91,7 @@ Recent decisions affecting v1.1:
 | 8 | Rework admin draft/publish UI consistency | 2026-02-16 | DONE — 15 pages updated (Plan 01: 10 standard, Plan 02: 5 special), activeTab bug fixed (3 min) |
 | 9 | Add view-on-site button to admin edit pages | 2026-02-16 | DONE — 2 files updated (ProductEditClient + BlogEditClient sidebars, 1 min) |
 | 10 | Make blog admin and public functional | 2026-02-16 | DONE — 6 bugs fixed across 4 files (category submission, edit fields, public labels, search filter, 5 min) |
+| 11 | Dynamic blog categories | 2026-02-16 | DONE — blog_categories table + CRUD actions + admin pages + CategorySelect + dynamic public pages (12 files created, 6 modified) |
 
 ### Pending Todos
 
@@ -103,7 +104,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed quick task 10 (make blog admin and public functional)
+Stopped at: Completed quick task 11 (dynamic blog categories)
 Resume file: None
 
 ### Recent Activity
@@ -125,6 +126,7 @@ Resume file: None
 | 2026-02-16 | Quick task 8 executed | Admin draft/publish UI rework — 15 pages updated, tabs removed, consistent sidebar (3 min) |
 | 2026-02-16 | Quick task 9 executed | View-on-site links added to product + blog edit sidebars (1 min) |
 | 2026-02-16 | Quick task 10 executed | Blog admin+public fixes: category submission, edit fields, public labels, search filter (5 min) |
+| 2026-02-16 | Quick task 11 executed | Dynamic blog categories: migration, CRUD actions, admin CRUD pages, CategorySelect, sidebar, dynamic public pages |
 
 ---
 *Last updated: 2026-02-16*

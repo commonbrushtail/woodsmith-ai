@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 const iconSidebar = [
-  { icon: 'book-open', section: 'content', paths: ['/admin/banner', '/admin/profile', '/admin/blog', '/admin/video-highlight', '/admin/gallery', '/admin/manual', '/admin/about-us', '/admin/branch', '/admin/faq', '/admin/product-types', '/admin/categories', '/admin/products', '/admin/variations'] },
+  { icon: 'book-open', section: 'content', paths: ['/admin/banner', '/admin/profile', '/admin/blog', '/admin/blog-categories', '/admin/video-highlight', '/admin/gallery', '/admin/manual', '/admin/about-us', '/admin/branch', '/admin/faq', '/admin/product-types', '/admin/categories', '/admin/products', '/admin/variations'] },
   { icon: 'file-text', section: 'quotation', paths: ['/admin/quotations'] },
   { icon: 'users', section: 'users', paths: ['/admin/users', '/admin/account'] },
 ]
@@ -14,6 +14,7 @@ const contentMenuItems = [
   { label: 'แบนเนอร์ (Banner)', path: '/admin/banner' },
   { label: 'โปรไฟล์ (Profile)', path: '/admin/profile' },
   { label: 'บทความ (Blog)', path: '/admin/blog' },
+  { label: 'หมวดหมู่บทความ (Blog Category)', path: '/admin/blog-categories' },
   { label: 'วิดีโอไฮไลต์ (Video Highlight)', path: '/admin/video-highlight' },
   { label: 'แกลลอรี่ (Gallery)', path: '/admin/gallery' },
   { label: 'คู่มือการใช้สินค้า (Manual)', path: '/admin/manual' },

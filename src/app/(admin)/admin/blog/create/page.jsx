@@ -9,7 +9,7 @@ import { useFormErrors } from '@/lib/hooks/use-form-errors'
 import { validateFile, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import CalendarPicker from '@/components/admin/CalendarPicker'
-import TimePickerDropdown from '@/components/admin/TimePickerDropdown'
+import CategorySelect from '@/components/admin/CategorySelect'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -57,15 +57,6 @@ function CalendarIcon({ size = 16, color = '#6b7280' }) {
       <line x1="16" y1="2" x2="16" y2="6" />
       <line x1="8" y1="2" x2="8" y2="6" />
       <line x1="3" y1="10" x2="21" y2="10" />
-    </svg>
-  )
-}
-
-function ClockIcon({ size = 16, color = '#6b7280' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
     </svg>
   )
 }
@@ -218,13 +209,11 @@ export default function BlogCreatePage() {
   const [content, setContent] = useState('')
   const [recommendation, setRecommendation] = useState('')
   const [startDate, setStartDate] = useState('')
-  const [startTime, setStartTime] = useState('')
   const [images, setImages] = useState([])
   const [coverFile, setCoverFile] = useState(null)
 
   /* ---- Picker visibility ---- */
   const [showStartCal, setShowStartCal] = useState(false)
-  const [showStartTime, setShowStartTime] = useState(false)
   const [showLocalePicker, setShowLocalePicker] = useState(false)
 
   /* ---- Derived values ---- */
@@ -279,8 +268,7 @@ export default function BlogCreatePage() {
       formData.set('published', publish ? 'true' : 'false')
 
       if (startDate) {
-        const publishDate = startTime ? `${startDate}T${startTime}:00` : `${startDate}T00:00:00`
-        formData.set('publish_date', publishDate)
+        formData.set('publish_date', `${startDate}T00:00:00`)
       }
 
       if (coverFile) {
@@ -444,31 +432,10 @@ export default function BlogCreatePage() {
           {/*  3. Category                                                 */}
           {/* ---------------------------------------------------------- */}
           <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
-            <label htmlFor="blogCategory" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
+            <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
               หมวดหมู่ <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <select
-                id="blogCategory"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className={`
-                  w-full font-['IBM_Plex_Sans_Thai'] text-[14px] border border-[#e8eaef] rounded-[8px]
-                  px-[14px] py-[10px] outline-none appearance-none bg-white cursor-pointer
-                  focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all
-                  ${category ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
-                `}
-              >
-                <option value="" disabled>เลือกหมวดหมู่</option>
-                <option value="ideas">ไอเดียและเคล็ดลับ</option>
-                <option value="trend">เทรนด์</option>
-                <option value="style">สไตล์และฟังก์ชัน</option>
-                <option value="knowledge">ความรู้ทั่วไป</option>
-              </select>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="absolute right-[14px] top-1/2 -translate-y-1/2 pointer-events-none">
-                <path d="M4 6L8 10L12 6" />
-              </svg>
-            </div>
+            <CategorySelect value={category} onChange={setCategory} />
           </section>
 
           {/* ---------------------------------------------------------- */}
@@ -511,74 +478,42 @@ export default function BlogCreatePage() {
             <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
               วันที่เผยแพร่
             </label>
-            {(startDate || startTime) && (
+            {startDate && (
               <button
                 type="button"
-                onClick={() => { setStartDate(''); setStartTime('') }}
+                onClick={() => setStartDate('')}
                 className="self-start font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280] hover:text-red-500 hover:border-red-300 border border-[#e8eaef] rounded-[6px] px-[10px] py-[4px] bg-white cursor-pointer transition-colors"
               >
                 ล้างค่า
               </button>
             )}
 
-            <div className="flex items-center gap-[12px]">
-              {/* Date picker */}
-              <div className="relative flex-1">
-                <button
-                  type="button"
-                  onClick={() => { setShowStartCal(!showStartCal); setShowStartTime(false) }}
-                  className={`
-                    w-full flex items-center gap-[8px] border border-[#e8eaef] rounded-[8px]
-                    px-[14px] py-[10px] bg-white cursor-pointer transition-all text-left
-                    font-['IBM_Plex_Sans_Thai'] text-[14px]
-                    ${showStartCal ? 'border-[#ff7e1b] ring-1 ring-[#ff7e1b]/20' : 'hover:border-[#d1d5db]'}
-                    ${startDate ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
-                  `}
-                  aria-label="Select publish date"
-                >
-                  <CalendarIcon size={16} color="#6b7280" />
-                  <span>{startDate ? formatDateDisplay(startDate) : 'dd/mm/yyyy'}</span>
-                </button>
-                {showStartCal && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowStartCal(false)} />
-                    <CalendarPicker
-                      selectedDate={startDate}
-                      onSelect={setStartDate}
-                      onClose={() => setShowStartCal(false)}
-                    />
-                  </>
-                )}
-              </div>
-
-              {/* Time picker */}
-              <div className="relative w-[140px]">
-                <button
-                  type="button"
-                  onClick={() => { setShowStartTime(!showStartTime); setShowStartCal(false) }}
-                  className={`
-                    w-full flex items-center gap-[8px] border border-[#e8eaef] rounded-[8px]
-                    px-[14px] py-[10px] bg-white cursor-pointer transition-all text-left
-                    font-['IBM_Plex_Sans_Thai'] text-[14px]
-                    ${showStartTime ? 'border-[#ff7e1b] ring-1 ring-[#ff7e1b]/20' : 'hover:border-[#d1d5db]'}
-                    ${startTime ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
-                  `}
-                  aria-label="Select publish time"
-                >
-                  <ClockIcon size={16} color="#6b7280" />
-                  <span>{startTime || '00:00'}</span>
-                </button>
-                {showStartTime && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowStartTime(false)} />
-                    <TimePickerDropdown
-                      selectedTime={startTime}
-                      onSelect={setStartTime}
-                      onClose={() => setShowStartTime(false)}
-                    />
-                  </>
-                )}
-              </div>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowStartCal(!showStartCal)}
+                className={`
+                  w-full flex items-center gap-[8px] border border-[#e8eaef] rounded-[8px]
+                  px-[14px] py-[10px] bg-white cursor-pointer transition-all text-left
+                  font-['IBM_Plex_Sans_Thai'] text-[14px]
+                  ${showStartCal ? 'border-[#ff7e1b] ring-1 ring-[#ff7e1b]/20' : 'hover:border-[#d1d5db]'}
+                  ${startDate ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
+                `}
+                aria-label="Select publish date"
+              >
+                <CalendarIcon size={16} color="#6b7280" />
+                <span>{startDate ? formatDateDisplay(startDate) : 'dd/mm/yyyy'}</span>
+              </button>
+              {showStartCal && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowStartCal(false)} />
+                  <CalendarPicker
+                    selectedDate={startDate}
+                    onSelect={setStartDate}
+                    onClose={() => setShowStartCal(false)}
+                  />
+                </>
+              )}
             </div>
           </section>
         </div>

@@ -9,7 +9,7 @@ import imgCard2 from '../../../assets/blog_card_2.png'
 import imgCard3 from '../../../assets/blog_card_3.png'
 import imgCard4 from '../../../assets/blog_card_4.png'
 
-const categoryTabs = [
+const fallbackCategoryTabs = [
   { key: 'all', label: 'ทั้งหมด' },
   { key: 'ideas', label: 'ไอเดียและเคล็ดลับ' },
   { key: 'trend', label: 'เทรนด์' },
@@ -119,17 +119,18 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
   )
 }
 
-const CATEGORY_LABELS = {
-  ideas: 'ไอเดียและเคล็ดลับ',
-  trend: 'เทรนด์',
-  style: 'สไตล์และฟังก์ชัน',
-  knowledge: 'ความรู้ทั่วไป',
-}
-
-export default function BlogPageClient({ posts: dbPosts = [] }) {
+export default function BlogPageClient({ posts: dbPosts = [], categories: dbCategories = [] }) {
   const [activeTab, setActiveTab] = useState('all')
   const [mobileVisibleCount, setMobileVisibleCount] = useState(MOBILE_PAGE_SIZE)
   const [desktopPage, setDesktopPage] = useState(1)
+
+  const categoryTabs = dbCategories.length > 0
+    ? [{ key: 'all', label: 'ทั้งหมด' }, ...dbCategories.map(c => ({ key: c.slug, label: c.name }))]
+    : fallbackCategoryTabs
+
+  const CATEGORY_LABELS = dbCategories.length > 0
+    ? Object.fromEntries(dbCategories.map(c => [c.slug, c.name]))
+    : { ideas: 'ไอเดียและเคล็ดลับ', trend: 'เทรนด์', style: 'สไตล์และฟังก์ชัน', knowledge: 'ความรู้ทั่วไป' }
 
   const allPosts = dbPosts.length > 0
     ? dbPosts.map(p => ({

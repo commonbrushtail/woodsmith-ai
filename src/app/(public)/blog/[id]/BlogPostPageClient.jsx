@@ -52,28 +52,49 @@ function RelatedPostCard({ id, slug, image, category, title }) {
 }
 
 function ShareButtons() {
+  const handleShare = (platform) => {
+    const url = encodeURIComponent(window.location.href)
+    const title = encodeURIComponent(document.title)
+    const urls = {
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+      line: `https://social-plugins.line.me/lineit/share?url=${url}`,
+      x: `https://x.com/intent/tweet?url=${url}&text=${title}`,
+    }
+    window.open(urls[platform], '_blank', 'noopener,noreferrer,width=600,height=400')
+  }
+
   return (
     <div className="flex gap-[10px] items-center w-full">
       <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#222]">
         แชร์ :
       </p>
       <div className="flex gap-[12px] items-center">
-        <img alt="Facebook" className="size-[40px] cursor-pointer" src={imgShareFb} />
-        <img alt="LINE" className="size-[40px] cursor-pointer" src={imgShareLine} />
-        <img alt="X" className="size-[40px] cursor-pointer" src={imgShareX} />
+        <button type="button" onClick={() => handleShare('facebook')} className="p-0 border-0 bg-transparent cursor-pointer">
+          <img alt="Facebook" className="size-[40px]" src={imgShareFb} />
+        </button>
+        <button type="button" onClick={() => handleShare('line')} className="p-0 border-0 bg-transparent cursor-pointer">
+          <img alt="LINE" className="size-[40px]" src={imgShareLine} />
+        </button>
+        <button type="button" onClick={() => handleShare('x')} className="p-0 border-0 bg-transparent cursor-pointer">
+          <img alt="X" className="size-[40px]" src={imgShareX} />
+        </button>
       </div>
     </div>
   )
 }
 
-const CATEGORY_LABELS = {
+const FALLBACK_CATEGORY_LABELS = {
   ideas: 'ไอเดียและเคล็ดลับ',
   trend: 'เทรนด์',
   style: 'สไตล์และฟังก์ชัน',
   knowledge: 'ความรู้ทั่วไป',
 }
 
-export default function BlogPostPageClient({ post = null, relatedPosts: dbRelated = [] }) {
+export default function BlogPostPageClient({ post = null, relatedPosts: dbRelated = [], categories: dbCategories = [] }) {
+  const CATEGORY_LABELS = dbCategories.length > 0
+    ? Object.fromEntries(dbCategories.map(c => [c.slug, c.name]))
+    : FALLBACK_CATEGORY_LABELS
+
   const related = dbRelated.length > 0
     ? dbRelated.map(p => ({
         id: p.id,

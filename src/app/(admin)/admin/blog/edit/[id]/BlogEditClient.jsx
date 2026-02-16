@@ -9,7 +9,7 @@ import { useFormErrors } from '@/lib/hooks/use-form-errors'
 import { validateFile, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import CalendarPicker from '@/components/admin/CalendarPicker'
-import TimePickerDropdown from '@/components/admin/TimePickerDropdown'
+import CategorySelect from '@/components/admin/CategorySelect'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
   return (
@@ -57,15 +57,6 @@ function CalendarIcon({ size = 16, color = '#6b7280' }) {
   )
 }
 
-function ClockIcon({ size = 16, color = '#6b7280' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  )
-}
-
 export default function BlogEditClient({ post }) {
   const { toast } = useToast()
   const router = useRouter()
@@ -82,13 +73,7 @@ export default function BlogEditClient({ post }) {
   const [publishDate, setPublishDate] = useState(
     post.publish_date ? post.publish_date.split('T')[0] : ''
   )
-  const [publishTime, setPublishTime] = useState(
-    post.publish_date && post.publish_date.includes('T')
-      ? post.publish_date.split('T')[1]?.slice(0, 5) || ''
-      : ''
-  )
   const [showCal, setShowCal] = useState(false)
-  const [showTime, setShowTime] = useState(false)
 
   const TITLE_MAX = 120
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0
@@ -120,8 +105,7 @@ export default function BlogEditClient({ post }) {
       formData.set('published', publish ? 'true' : 'false')
       formData.set('category', category)
       if (publishDate) {
-        const pd = publishTime ? `${publishDate}T${publishTime}:00` : `${publishDate}T00:00:00`
-        formData.set('publish_date', pd)
+        formData.set('publish_date', `${publishDate}T00:00:00`)
       }
 
       if (coverFile) {
@@ -248,31 +232,10 @@ export default function BlogEditClient({ post }) {
 
           {/* Category */}
           <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
-            <label htmlFor="blogCategory" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
+            <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
               หมวดหมู่
             </label>
-            <div className="relative">
-              <select
-                id="blogCategory"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className={`
-                  w-full font-['IBM_Plex_Sans_Thai'] text-[14px] border border-[#e8eaef] rounded-[8px]
-                  px-[14px] py-[10px] outline-none appearance-none bg-white cursor-pointer
-                  focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all
-                  ${category ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
-                `}
-              >
-                <option value="" disabled>เลือกหมวดหมู่</option>
-                <option value="ideas">ไอเดียและเคล็ดลับ</option>
-                <option value="trend">เทรนด์</option>
-                <option value="style">สไตล์และฟังก์ชัน</option>
-                <option value="knowledge">ความรู้ทั่วไป</option>
-              </select>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="absolute right-[14px] top-1/2 -translate-y-1/2 pointer-events-none">
-                <path d="M4 6L8 10L12 6" />
-              </svg>
-            </div>
+            <CategorySelect value={category} onChange={setCategory} />
           </section>
 
           {/* Content */}
@@ -311,10 +274,10 @@ export default function BlogEditClient({ post }) {
             <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
               วันที่เผยแพร่
             </label>
-            {(publishDate || publishTime) && (
+            {publishDate && (
               <button
                 type="button"
-                onClick={() => { setPublishDate(''); setPublishTime('') }}
+                onClick={() => setPublishDate('')}
                 className="self-start font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280] hover:text-red-500 hover:border-red-300 border border-[#e8eaef] rounded-[6px] px-[10px] py-[4px] bg-white cursor-pointer transition-colors"
               >
                 ล้างค่า
@@ -325,7 +288,7 @@ export default function BlogEditClient({ post }) {
               <div className="relative flex-1">
                 <button
                   type="button"
-                  onClick={() => { setShowCal(!showCal); setShowTime(false) }}
+                  onClick={() => setShowCal(!showCal)}
                   className={`
                     w-full flex items-center gap-[8px] border border-[#e8eaef] rounded-[8px]
                     px-[14px] py-[10px] bg-white cursor-pointer transition-all text-left
@@ -345,34 +308,6 @@ export default function BlogEditClient({ post }) {
                       selectedDate={publishDate}
                       onSelect={setPublishDate}
                       onClose={() => setShowCal(false)}
-                    />
-                  </>
-                )}
-              </div>
-              {/* Time picker */}
-              <div className="relative w-[140px]">
-                <button
-                  type="button"
-                  onClick={() => { setShowTime(!showTime); setShowCal(false) }}
-                  className={`
-                    w-full flex items-center gap-[8px] border border-[#e8eaef] rounded-[8px]
-                    px-[14px] py-[10px] bg-white cursor-pointer transition-all text-left
-                    font-['IBM_Plex_Sans_Thai'] text-[14px]
-                    ${showTime ? 'border-[#ff7e1b] ring-1 ring-[#ff7e1b]/20' : 'hover:border-[#d1d5db]'}
-                    ${publishTime ? 'text-[#1f2937]' : 'text-[#bfbfbf]'}
-                  `}
-                  aria-label="Select publish time"
-                >
-                  <ClockIcon size={16} color="#6b7280" />
-                  <span>{publishTime || '00:00'}</span>
-                </button>
-                {showTime && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowTime(false)} />
-                    <TimePickerDropdown
-                      selectedTime={publishTime}
-                      onSelect={setPublishTime}
-                      onClose={() => setShowTime(false)}
                     />
                   </>
                 )}
