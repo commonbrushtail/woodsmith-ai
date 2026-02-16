@@ -23,22 +23,6 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-function formatThaiDate(dateStr) {
-  if (!dateStr) return '-'
-  try {
-    return new Date(dateStr).toLocaleDateString('th-TH', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  } catch {
-    return dateStr
-  }
-}
-
 function SearchIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -346,17 +330,6 @@ export default function VideoHighlightsListClient({ highlights, totalCount }) {
                       {'ชื่อไฮไลท์'}
                     </th>
                     <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider whitespace-nowrap">
-                      {'หมวดหมู่'}
-                    </th>
-                    <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider">
-                      <span className="block leading-[1.4]">
-                        {'ช่วงวันเวลาเริ่มต้น-สิ้นสุด'}
-                      </span>
-                      <span className="block leading-[1.4]">
-                        {'การเผยแพร่'}
-                      </span>
-                    </th>
-                    <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider whitespace-nowrap">
                       {'สถานะเผยแพร่'}
                     </th>
                     <th className="w-[56px] px-[10px] py-[10px] text-center text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider">
@@ -367,7 +340,7 @@ export default function VideoHighlightsListClient({ highlights, totalCount }) {
                 <tbody>
                   {sortedHighlights.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-[20px] py-[40px] text-center text-[14px] text-[#9ca3af] font-['IBM_Plex_Sans_Thai']">
+                      <td colSpan={6} className="px-[20px] py-[40px] text-center text-[14px] text-[#9ca3af] font-['IBM_Plex_Sans_Thai']">
                         ไม่พบข้อมูลวิดีโอไฮไลท์
                       </td>
                     </tr>
@@ -395,12 +368,6 @@ export default function VideoHighlightsListClient({ highlights, totalCount }) {
                         </td>
                         <td className="px-[10px] py-[10px] text-[13px] text-[#374151] max-w-[280px]">
                           <span className="line-clamp-2">{highlight.title}</span>
-                        </td>
-                        <td className="px-[10px] py-[10px] text-[13px] text-[#374151] whitespace-nowrap">
-                          -
-                        </td>
-                        <td className="px-[10px] py-[10px] text-[12px] text-[#6b7280] min-w-[200px]">
-                          <div className="leading-[1.5]">{formatThaiDate(highlight.created_at)}</div>
                         </td>
                         <td className="px-[10px] py-[10px]">
                           {renderPublishBadge(highlight)}

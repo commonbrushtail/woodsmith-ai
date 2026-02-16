@@ -23,22 +23,6 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-function formatThaiDate(dateStr) {
-  if (!dateStr) return '-'
-  try {
-    return new Date(dateStr).toLocaleDateString('th-TH', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  } catch {
-    return dateStr
-  }
-}
-
 function SearchIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -334,10 +318,6 @@ export default function ManualsListClient({ manuals, totalCount }) {
                     <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider whitespace-nowrap">
                       {'ชื่อคู่มือ'}
                     </th>
-                    <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider">
-                      <span className="block leading-[1.4]">{'ช่วงวันเวลาเริ่มต้น-สิ้นสุด'}</span>
-                      <span className="block leading-[1.4]">{'การเผยแพร่'}</span>
-                    </th>
                     <th className="px-[10px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wider whitespace-nowrap">
                       {'สถานะเผยแพร่'}
                     </th>
@@ -349,7 +329,7 @@ export default function ManualsListClient({ manuals, totalCount }) {
                 <tbody>
                   {sortedManuals.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="px-[20px] py-[40px] text-center text-[14px] text-[#9ca3af] font-['IBM_Plex_Sans_Thai']">
+                      <td colSpan={6} className="px-[20px] py-[40px] text-center text-[14px] text-[#9ca3af] font-['IBM_Plex_Sans_Thai']">
                         ไม่พบข้อมูลคู่มือ
                       </td>
                     </tr>
@@ -377,9 +357,6 @@ export default function ManualsListClient({ manuals, totalCount }) {
                         </td>
                         <td className="px-[10px] py-[10px] text-[13px] text-[#374151] max-w-[320px]">
                           <span className="line-clamp-2">{manual.title}</span>
-                        </td>
-                        <td className="px-[10px] py-[10px] text-[12px] text-[#6b7280] min-w-[220px]">
-                          <div className="leading-[1.5]">{formatThaiDate(manual.created_at)}</div>
                         </td>
                         <td className="px-[10px] py-[10px]">
                           {renderStatusBadge(manual)}
