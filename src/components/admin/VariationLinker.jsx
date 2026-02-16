@@ -44,6 +44,7 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
   const [localGroups, setLocalGroups] = useState(allGroups)
   const [linkedGroups, setLinkedGroups] = useState([])
   const [selectedEntries, setSelectedEntries] = useState({})
+  const [showImages, setShowImages] = useState({})
   const [expandedGroups, setExpandedGroups] = useState(new Set())
   const [searchQuery, setSearchQuery] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -63,6 +64,7 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
 
     const groupIds = new Set()
     const entries = {}
+    const imageFlags = {}
 
     initialLinks.forEach(link => {
       groupIds.add(link.group_id)
@@ -70,26 +72,31 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
         entries[link.group_id] = new Set()
       }
       entries[link.group_id].add(link.entry_id)
+      // show_image is per-group — take from any link in the group (all same value)
+      if (imageFlags[link.group_id] === undefined) {
+        imageFlags[link.group_id] = link.show_image !== false
+      }
     })
 
     setLinkedGroups(Array.from(groupIds))
     setSelectedEntries(entries)
+    setShowImages(imageFlags)
     setExpandedGroups(new Set(groupIds))
   }, [initialLinks])
 
-  // Call onChange whenever linkedGroups or selectedEntries changes
+  // Call onChange whenever linkedGroups, selectedEntries, or showImages changes
   useEffect(() => {
     const links = []
     linkedGroups.forEach(groupId => {
       const entries = selectedEntries[groupId]
       if (entries) {
         entries.forEach(entryId => {
-          links.push({ group_id: groupId, entry_id: entryId })
+          links.push({ group_id: groupId, entry_id: entryId, show_image: showImages[groupId] !== false })
         })
       }
     })
     onChange(links)
-  }, [linkedGroups, selectedEntries, onChange])
+  }, [linkedGroups, selectedEntries, showImages, onChange])
 
   const handleAddGroup = (groupId) => {
     const group = localGroups.find(g => g.id === groupId)
@@ -102,6 +109,9 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
     const allEntryIds = new Set(group.variation_entries?.map(e => e.id) || [])
     setSelectedEntries(prev => ({ ...prev, [groupId]: allEntryIds }))
 
+    // Show images by default
+    setShowImages(prev => ({ ...prev, [groupId]: true }))
+
     // Expand the group
     setExpandedGroups(prev => new Set([...prev, groupId]))
 
@@ -113,6 +123,11 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
   const handleUnlinkGroup = (groupId) => {
     setLinkedGroups(prev => prev.filter(id => id !== groupId))
     setSelectedEntries(prev => {
+      const updated = { ...prev }
+      delete updated[groupId]
+      return updated
+    })
+    setShowImages(prev => {
       const updated = { ...prev }
       delete updated[groupId]
       return updated
@@ -240,6 +255,7 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
         // Link it immediately
         setLinkedGroups(prev => [...prev, newGroup.id])
         setSelectedEntries(prev => ({ ...prev, [newGroup.id]: new Set() }))
+        setShowImages(prev => ({ ...prev, [newGroup.id]: true }))
         setExpandedGroups(prev => new Set([...prev, newGroup.id]))
 
         setSearchQuery('')
@@ -337,6 +353,17 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
                   <div className="px-[8px] py-[2px] rounded-full bg-orange/10 font-['IBM_Plex_Sans_Thai'] text-[12px] text-orange font-medium">
                     {selectedCount}/{totalCount} เลือกแล้ว
                   </div>
+
+                  {/* Show image toggle */}
+                  <label className="flex items-center gap-[4px] cursor-pointer shrink-0" title="แสดงรูปภาพตัวเลือก">
+                    <input
+                      type="checkbox"
+                      checked={showImages[groupId] !== false}
+                      onChange={(e) => setShowImages(prev => ({ ...prev, [groupId]: e.target.checked }))}
+                      className="accent-orange cursor-pointer"
+                    />
+                    <span className="font-['IBM_Plex_Sans_Thai'] text-[11px] text-[#6b7280]">แสดงรูป</span>
+                  </label>
 
                   {/* Unlink button */}
                   <button

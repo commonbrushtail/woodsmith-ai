@@ -43,7 +43,7 @@ export async function getProduct(id) {
 
   const { data, error } = await supabase
     .from('products')
-    .select('*, product_images(id, url, is_primary, sort_order), product_options(id, option_type, label, image_url, sort_order), product_variation_links(id, group_id, entry_id, variation_groups(id, name), variation_entries(id, label, image_url, sort_order))')
+    .select('*, product_images(id, url, is_primary, sort_order), product_options(id, option_type, label, image_url, sort_order), product_variation_links(id, group_id, entry_id, show_image, variation_groups(id, name), variation_entries(id, label, image_url, sort_order))')
     .eq('id', id)
     .single()
 
@@ -383,6 +383,7 @@ export async function syncProductVariationLinks(productId, links) {
       product_id: productId,
       group_id: link.group_id,
       entry_id: link.entry_id,
+      show_image: link.show_image !== false,
     }))
 
     const { error: insertError } = await supabase
