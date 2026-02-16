@@ -214,25 +214,36 @@ export default function ProductsListClient({ products, totalCount, currentPage =
     )
   }
 
+  function getPublishStatus(product) {
+    if (!product.published) return 'unpublished'
+    const now = new Date()
+    // Check expired first (if end date has passed, it's expired regardless of start date)
+    if (product.publish_end && new Date(product.publish_end) < now) return 'expired'
+    // Check scheduled (start date is in the future)
+    if (product.publish_start && new Date(product.publish_start) > now) return 'scheduled'
+    // Otherwise active (within range or no dates set)
+    return 'active'
+  }
+
   function renderPublishBadge(product) {
-    if (product.published) {
-      return (
-        <button
-          onClick={() => handleTogglePublished(product.id, product.published)}
-          className="inline-flex items-center gap-[4px] rounded-full border border-[#22c55e] text-[#16a34a] bg-[#f0fdf4] px-[10px] py-[2px] text-[12px] font-medium leading-[20px] whitespace-nowrap cursor-pointer"
-        >
-          {'เผยแพร่'}
-          <ChevronDownIcon className="text-[#16a34a]" />
-        </button>
-      )
+    const status = getPublishStatus(product)
+
+    const styles = {
+      unpublished: { border: 'border-[#d1d5db]', text: 'text-[#6b7280]', bg: 'bg-[#f9fafb]', chevron: 'text-[#6b7280]', label: 'ไม่แสดง' },
+      scheduled:   { border: 'border-[#818cf8]', text: 'text-[#6366f1]', bg: 'bg-[#eef2ff]', chevron: 'text-[#6366f1]', label: 'รอเผยแพร่' },
+      active:      { border: 'border-[#22c55e]', text: 'text-[#16a34a]', bg: 'bg-[#f0fdf4]', chevron: 'text-[#16a34a]', label: 'เผยแพร่' },
+      expired:     { border: 'border-[#f87171]', text: 'text-[#dc2626]', bg: 'bg-[#fef2f2]', chevron: 'text-[#dc2626]', label: 'หมดอายุ' },
     }
+
+    const s = styles[status]
+
     return (
       <button
         onClick={() => handleTogglePublished(product.id, product.published)}
-        className="inline-flex items-center gap-[4px] rounded-full border border-[#d1d5db] text-[#6b7280] bg-[#f9fafb] px-[10px] py-[2px] text-[12px] font-medium leading-[20px] whitespace-nowrap cursor-pointer"
+        className={`inline-flex items-center gap-[4px] rounded-full border ${s.border} ${s.text} ${s.bg} px-[10px] py-[2px] text-[12px] font-medium leading-[20px] whitespace-nowrap cursor-pointer`}
       >
-        {'ไม่แสดง'}
-        <ChevronDownIcon className="text-[#6b7280]" />
+        {s.label}
+        <ChevronDownIcon className={s.chevron} />
       </button>
     )
   }
