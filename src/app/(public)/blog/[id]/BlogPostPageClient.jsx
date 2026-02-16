@@ -7,13 +7,6 @@ import imgShareLine from '../../../../assets/icon_share_line.svg'
 import imgShareX from '../../../../assets/icon_share_x.svg'
 import imgCard1 from '../../../../assets/blog_card_1.png'
 
-const fallbackRelatedPosts = [
-  { id: 2, image: imgCard1, category: 'Idea & Tips', title: 'Goodbye Sun☀️ & Rain 🌧️ประตูสวย ไม่กลัวน้ำ ไม่กลัว แดด \u200B3 จุดเด่นที่ทำให้ประตูเมลามีนกันน้ำอัลตร้าคือคำตอบของทุกบ้าน' },
-  { id: 3, image: imgCard1, category: 'Idea & Tips', title: '"Life without limits" ใช้ชีวิตได้สุด ไม่ต้องกลัวพื้นพัง รวม 5 สถานการณ์ ที่ทำไมคุณควรเปลี่ยนมาใช้ "ไม้พื้นไฮบริดอัลตร้า"' },
-  { id: 4, image: imgCard1, category: 'Idea & Tips', title: 'ไม้พื้นลามิเนตแสนสวยจากวู้ดสมิตร สวยเสมือนไม้จริง เดินดีไม่มีสะดุด ไม่บวม ไม่เด้ง' },
-  { id: 5, image: imgCard1, category: 'Idea & Tips', title: '"ประตูบ้านไม่ใช่แค่ทางเข้า แต่คือส่วนหนึ่งของไลฟ์สไตล์ คุณ !" ประตูเมลามีนกันน้ำอัลตร้า ประตูที่สวยและทน แดด ท้าทายทุกฤดู' },
-]
-
 function HomeIcon() {
   return (
     <svg className="size-[14px] shrink-0 relative bottom-[2px]" viewBox="0 0 24 24" fill="none">
@@ -95,15 +88,13 @@ export default function BlogPostPageClient({ post = null, relatedPosts: dbRelate
     ? Object.fromEntries(dbCategories.map(c => [c.slug, c.name]))
     : FALLBACK_CATEGORY_LABELS
 
-  const related = dbRelated.length > 0
-    ? dbRelated.map(p => ({
-        id: p.id,
-        slug: p.slug,
-        image: p.cover_image_url || imgCard1,
-        category: CATEGORY_LABELS[(p.category || '').toLowerCase()] || p.category || 'บทความ',
-        title: p.title,
-      }))
-    : fallbackRelatedPosts
+  const related = dbRelated.map(p => ({
+    id: p.id,
+    slug: p.slug,
+    image: p.cover_image_url || imgCard1,
+    category: CATEGORY_LABELS[(p.category || '').toLowerCase()] || p.category || 'บทความ',
+    title: p.title,
+  }))
 
   const heroImage = post?.cover_image_url || null
   const postTitle = post?.title || ''
@@ -205,23 +196,25 @@ export default function BlogPostPageClient({ post = null, relatedPosts: dbRelate
           </article>
 
           {/* Sidebar */}
-          <aside className="w-full lg:flex-[451] lg:sticky lg:top-[80px] px-[20px] lg:px-0 mt-[24px] lg:mt-0">
-            <div className="flex flex-col gap-[20px] items-start w-full py-[20px]">
-              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-[#35383b] tracking-[0.1px] leading-[1.3]">
-                Blog ที่คล้ายกัน
-              </p>
-              <div className="flex flex-col gap-[16px] items-start w-full">
-                {related.map((post) => (
-                  <RelatedPostCard key={post.id} {...post} />
-                ))}
-              </div>
-              <Link href="/blog" className="border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full no-underline">
-                <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#35383b]">
-                  ดูเพิ่มเติม
+          {related.length > 0 && (
+            <aside className="w-full lg:flex-[451] lg:sticky lg:top-[80px] px-[20px] lg:px-0 mt-[24px] lg:mt-0">
+              <div className="flex flex-col gap-[20px] items-start w-full py-[20px]">
+                <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-[#35383b] tracking-[0.1px] leading-[1.3]">
+                  Blog ที่คล้ายกัน
                 </p>
-              </Link>
-            </div>
-          </aside>
+                <div className="flex flex-col gap-[16px] items-start w-full">
+                  {related.map((post) => (
+                    <RelatedPostCard key={post.id} {...post} />
+                  ))}
+                </div>
+                <Link href="/blog" className="border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full no-underline">
+                  <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#35383b]">
+                    ดูเพิ่มเติม
+                  </p>
+                </Link>
+              </div>
+            </aside>
+          )}
         </div>
       </div>
     </div>
