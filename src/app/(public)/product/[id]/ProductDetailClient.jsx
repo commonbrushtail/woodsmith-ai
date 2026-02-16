@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import SafeHtmlContent from '@/components/SafeHtmlContent'
+import Lightbox from '@/components/Lightbox'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css'
 import ArrowRight from '../../../../components/ArrowRight'
@@ -89,6 +90,7 @@ function ChevronRightArrow() {
 
 function ImageGallery({ images }) {
   const [activeIndex, setActiveIndex] = useState(0)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
   const mobileSwiperRef = useRef(null)
   const desktopSwiperRef = useRef(null)
 
@@ -126,15 +128,23 @@ function ImageGallery({ images }) {
           </Swiper>
         </div>
       </div>
-      <div className="relative flex-1 aspect-square overflow-hidden order-1 lg:order-2">
+      <div className="relative flex-1 aspect-square overflow-hidden order-1 lg:order-2 cursor-pointer" onClick={() => setLightboxOpen(true)}>
         <div className="absolute bg-[#e8e3da] inset-0" />
         <img alt="" className="absolute max-w-none object-cover size-full" src={images[activeIndex]} />
-        <div className="absolute top-1/2 left-[8px] -translate-y-1/2 cursor-pointer" onClick={goPrev}><ChevronLeftArrow /></div>
-        <div className="absolute top-1/2 right-[8px] -translate-y-1/2 cursor-pointer" onClick={goNext}><ChevronRightArrow /></div>
+        <div className="absolute top-1/2 left-[8px] -translate-y-1/2 cursor-pointer" onClick={(e) => { e.stopPropagation(); goPrev() }}><ChevronLeftArrow /></div>
+        <div className="absolute top-1/2 right-[8px] -translate-y-1/2 cursor-pointer" onClick={(e) => { e.stopPropagation(); goNext() }}><ChevronRightArrow /></div>
         <div className="absolute bottom-[12px] right-[12px] bg-black rounded-full px-[12px] py-[4px]">
           <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[12px] text-white tracking-[0.96px]">{activeIndex + 1}/{images.length}</span>
         </div>
       </div>
+
+      {lightboxOpen && (
+        <Lightbox
+          images={images}
+          startIndex={activeIndex}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
     </div>
   )
 }

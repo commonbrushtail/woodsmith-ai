@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { createElement } from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 
 // Mock dependencies
 vi.mock('@/lib/toast-context', () => ({
@@ -12,98 +12,43 @@ vi.mock('next/navigation', () => ({
 }))
 
 vi.mock('@/lib/actions/gallery', () => ({
-  deleteGalleryItem: vi.fn(),
-  toggleGalleryPublished: vi.fn(),
-  reorderGalleryItems: vi.fn(),
+  createGalleryItems: vi.fn(async () => ({ results: [], error: null })),
+  deleteGalleryItem: vi.fn(async () => ({ error: null })),
+  reorderGalleryItems: vi.fn(async () => ({ error: null })),
 }))
 
-describe('GalleryListClient - Sort Order Display', () => {
-  it('displays sort_order as 1-indexed (first item shows 1, not 0)', async () => {
-    const GalleryListClient = (await import('@/components/admin/GalleryListClient')).default
-    const galleries = [
-      { id: '1', sort_order: 0, caption: 'First', image_url: '/img1.jpg', published: true, created_at: '2024-01-01' },
-      { id: '2', sort_order: 1, caption: 'Second', image_url: '/img2.jpg', published: true, created_at: '2024-01-02' },
-      { id: '3', sort_order: 2, caption: 'Third', image_url: '/img3.jpg', published: true, created_at: '2024-01-03' },
+describe('GalleryPageClient - Section Rendering', () => {
+  it('renders homepage and about sections separately', async () => {
+    const GalleryPageClient = (await import('@/components/admin/GalleryPageClient')).default
+    const homepageItems = [
+      { id: '1', image_url: '/img1.jpg', sort_order: 0 },
+      { id: '2', image_url: '/img2.jpg', sort_order: 1 },
+    ]
+    const aboutItems = [
+      { id: '3', image_url: '/img3.jpg', sort_order: 0 },
     ]
 
-    render(createElement(GalleryListClient, { galleries, totalCount: 3 }))
+    render(createElement(GalleryPageClient, { homepageItems, aboutItems }))
 
-    // First item should display "1" (not "0")
-    const firstOrderCell = screen.getAllByText('1')[0]
-    expect(firstOrderCell).toBeInTheDocument()
-
-    // Second item should display "2" (not "1")
-    const secondOrderCell = screen.getAllByText('2')[0]
-    expect(secondOrderCell).toBeInTheDocument()
-
-    // Third item should display "3" (not "2")
-    const thirdOrderCell = screen.getAllByText('3')[0]
-    expect(thirdOrderCell).toBeInTheDocument()
-
-    // Should NOT display "0" anywhere in order column
-    const orderCells = screen.queryByText('0')
-    expect(orderCells).not.toBeInTheDocument()
+    expect(screen.getByText(/แกลเลอรี่หน้าแรก/)).toBeInTheDocument()
+    expect(screen.getByText(/แกลเลอรี่เกี่ยวกับเรา/)).toBeInTheDocument()
+    expect(screen.getByText('2 รูปภาพ')).toBeInTheDocument()
+    expect(screen.getByText('1 รูปภาพ')).toBeInTheDocument()
   })
 
-  it('handles empty gallery list without errors', async () => {
-    const GalleryListClient = (await import('@/components/admin/GalleryListClient')).default
-    render(createElement(GalleryListClient, { galleries: [], totalCount: 0 }))
+  it('handles empty sections without errors', async () => {
+    const GalleryPageClient = (await import('@/components/admin/GalleryPageClient')).default
+    render(createElement(GalleryPageClient, { homepageItems: [], aboutItems: [] }))
 
-    expect(screen.getByText(/ไม่พบข้อมูลแกลลอรี่/)).toBeInTheDocument()
+    const emptyTexts = screen.getAllByText('ยังไม่มีรูปภาพ')
+    expect(emptyTexts).toHaveLength(2)
   })
 
-  it('handles single gallery item (displays order as 1)', async () => {
-    const GalleryListClient = (await import('@/components/admin/GalleryListClient')).default
-    const galleries = [
-      { id: '1', sort_order: 0, caption: 'Only', image_url: '/img.jpg', published: true, created_at: '2024-01-01' },
-    ]
+  it('shows upload zones in both sections', async () => {
+    const GalleryPageClient = (await import('@/components/admin/GalleryPageClient')).default
+    render(createElement(GalleryPageClient, { homepageItems: [], aboutItems: [] }))
 
-    render(createElement(GalleryListClient, { galleries, totalCount: 1 }))
-
-    const orderCell = screen.getByText('1')
-    expect(orderCell).toBeInTheDocument()
-  })
-})
-
-describe('GalleryListClient - Edge Cases', () => {
-  it('handles galleries with null sort_order', async () => {
-    const GalleryListClient = (await import('@/components/admin/GalleryListClient')).default
-    const galleries = [
-      { id: '1', sort_order: null, caption: 'No order', image_url: '/img.jpg', published: true, created_at: '2024-01-01' },
-    ]
-
-    render(createElement(GalleryListClient, { galleries, totalCount: 1 }))
-
-    expect(screen.getByText('-')).toBeInTheDocument()
-  })
-
-  it('handles galleries with undefined sort_order', async () => {
-    const GalleryListClient = (await import('@/components/admin/GalleryListClient')).default
-    const galleries = [
-      { id: '1', caption: 'No order', image_url: '/img.jpg', published: true, created_at: '2024-01-01' },
-    ]
-
-    render(createElement(GalleryListClient, { galleries, totalCount: 1 }))
-
-    expect(screen.getByText('-')).toBeInTheDocument()
-  })
-
-  it('maintains correct order after sorting descending', async () => {
-    const GalleryListClient = (await import('@/components/admin/GalleryListClient')).default
-    const galleries = [
-      { id: '1', sort_order: 0, caption: 'First', image_url: '/img1.jpg', published: true, created_at: '2024-01-01' },
-      { id: '2', sort_order: 1, caption: 'Second', image_url: '/img2.jpg', published: true, created_at: '2024-01-02' },
-    ]
-
-    const { container } = render(createElement(GalleryListClient, { galleries, totalCount: 2 }))
-
-    // Click sort header to reverse order
-    const sortHeader = screen.getByText(/ORDER.*ลำดับ/)
-    fireEvent.click(sortHeader)
-
-    // After descending sort, order should still be 1-indexed (but reversed)
-    const orderCells = container.querySelectorAll('tbody td:nth-child(3)')
-    expect(orderCells[0].textContent).toBe('2')
-    expect(orderCells[1].textContent).toBe('1')
+    const uploadTexts = screen.getAllByText(/ลากไฟล์มาวาง/)
+    expect(uploadTexts).toHaveLength(2)
   })
 })

@@ -3,7 +3,7 @@ import GallerySection from '../../../components/GallerySection'
 import imgBannerAbout from '../../../assets/image_banner_about.png'
 
 export default async function AboutPage() {
-  const galleryRes = await getPublishedGalleryItems()
+  const galleryRes = await getPublishedGalleryItems('about')
   return (
     <>
       {/* Banner */}

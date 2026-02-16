@@ -5,9 +5,9 @@ import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
 
 /**
- * Fetch all gallery items ordered by sort_order.
+ * Fetch gallery items ordered by sort_order, optionally filtered by section.
  */
-export async function getGalleryItems({ page = 1, perPage = 50, search = '', sortAsc = true } = {}) {
+export async function getGalleryItems({ section, page = 1, perPage = 200, sortAsc = true } = {}) {
   const supabase = createServiceClient()
   const from = (page - 1) * perPage
   const to = from + perPage - 1
@@ -18,8 +18,8 @@ export async function getGalleryItems({ page = 1, perPage = 50, search = '', sor
     .order('sort_order', { ascending: sortAsc })
     .range(from, to)
 
-  if (search) {
-    query = query.ilike('caption', `%${search}%`)
+  if (section) {
+    query = query.eq('section', section)
   }
 
   const { data, count, error } = await query
@@ -32,112 +32,53 @@ export async function getGalleryItems({ page = 1, perPage = 50, search = '', sor
 }
 
 /**
- * Fetch a single gallery item by ID.
+ * Upload multiple gallery images at once.
+ * FormData: section (string), images (File[])
  */
-export async function getGalleryItem(id) {
+export async function createGalleryItems(formData) {
   const supabase = createServiceClient()
+  const section = formData.get('section') || 'homepage'
 
-  const { data, error } = await supabase
-    .from('gallery_items')
-    .select('*')
-    .eq('id', id)
-    .single()
-
-  if (error) {
-    return { data: null, error: error.message }
-  }
-
-  return { data, error: null }
-}
-
-/**
- * Create a new gallery item.
- */
-export async function createGalleryItem(formData) {
-  const supabase = createServiceClient()
-
-  // Get next sort_order
+  // Get next sort_order for this section
   const { data: existing } = await supabase
     .from('gallery_items')
     .select('sort_order')
+    .eq('section', section)
     .order('sort_order', { ascending: false })
     .limit(1)
 
-  const nextOrder = existing && existing.length > 0 ? existing[0].sort_order + 1 : 1
+  let nextOrder = existing && existing.length > 0 ? existing[0].sort_order + 1 : 0
+  const files = formData.getAll('images')
+  const results = []
 
-  const itemData = {
-    caption: formData.get('caption') || '',
-    image_url: '',
-    published: formData.get('published') === 'true',
-    sort_order: nextOrder,
-  }
-
-  // Handle image upload
-  const file = formData.get('image')
-  if (file && file.size > 0) {
+  for (const file of files) {
+    if (!file || file.size === 0) continue
     const ext = file.name.split('.').pop()
-    const filePath = `gallery/${Date.now()}.${ext}`
+    const filePath = `gallery/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
     const { path, error: uploadError } = await uploadFile('gallery', file, filePath)
-    if (uploadError) return { data: null, error: uploadError.message }
-    itemData.image_url = getPublicUrl('gallery', path)
-  }
-
-  const { data, error } = await supabase
-    .from('gallery_items')
-    .insert(itemData)
-    .select()
-    .single()
-
-  if (error) {
-    return { data: null, error: error.message }
+    if (uploadError) {
+      results.push({ error: uploadError.message, file: file.name })
+      continue
+    }
+    const imageUrl = getPublicUrl('gallery', path)
+    const { data, error } = await supabase
+      .from('gallery_items')
+      .insert({ image_url: imageUrl, published: true, sort_order: nextOrder++, section })
+      .select()
+      .single()
+    if (error) {
+      results.push({ error: error.message, file: file.name })
+    } else {
+      results.push({ data, error: null })
+    }
   }
 
   revalidatePath('/admin/gallery')
-  return { data, error: null }
+  return { results, error: null }
 }
 
 /**
- * Update a gallery item.
- */
-export async function updateGalleryItem(id, formData) {
-  const supabase = createServiceClient()
-
-  const updates = {}
-
-  if (formData.has('caption')) {
-    updates.caption = formData.get('caption')
-  }
-  if (formData.has('published')) {
-    updates.published = formData.get('published') === 'true'
-  }
-
-  // Handle image upload
-  const file = formData.get('image')
-  if (file && file.size > 0) {
-    const ext = file.name.split('.').pop()
-    const filePath = `gallery/${Date.now()}.${ext}`
-    const { path, error: uploadError } = await uploadFile('gallery', file, filePath)
-    if (uploadError) return { data: null, error: uploadError.message }
-    updates.image_url = getPublicUrl('gallery', path)
-  }
-
-  const { data, error } = await supabase
-    .from('gallery_items')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) {
-    return { data: null, error: error.message }
-  }
-
-  revalidatePath('/admin/gallery')
-  return { data, error: null }
-}
-
-/**
- * Delete a gallery item.
+ * Delete a gallery item and its image from storage.
  */
 export async function deleteGalleryItem(id) {
   const supabase = createServiceClient()
@@ -167,9 +108,6 @@ export async function deleteGalleryItem(id) {
 }
 
 /**
- * Toggle gallery item published status.
- */
-/**
  * Batch update sort_order for gallery items.
  * @param {Array<{id: string, sort_order: number}>} updates
  */
@@ -185,22 +123,6 @@ export async function reorderGalleryItems(updates) {
     if (error) {
       return { error: error.message }
     }
-  }
-
-  revalidatePath('/admin/gallery')
-  return { error: null }
-}
-
-export async function toggleGalleryPublished(id, published) {
-  const supabase = createServiceClient()
-
-  const { error } = await supabase
-    .from('gallery_items')
-    .update({ published })
-    .eq('id', id)
-
-  if (error) {
-    return { error: error.message }
   }
 
   revalidatePath('/admin/gallery')

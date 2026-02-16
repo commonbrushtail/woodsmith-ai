@@ -18,7 +18,7 @@ export default async function HomePage() {
     getPublishedBlogPosts({ perPage: 5 }),
     getPublishedHighlights({ perPage: 4 }),
     getPublishedProducts({ perPage: 12 }),
-    getPublishedGalleryItems(),
+    getPublishedGalleryItems('homepage'),
   ])
 
   return (

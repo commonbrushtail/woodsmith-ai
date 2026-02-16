@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { createElement } from 'react'
-import GalleryListClient from '@/components/admin/GalleryListClient'
+import GalleryPageClient from '@/components/admin/GalleryPageClient'
 
 // Mock dependencies
 vi.mock('next/navigation', () => ({
@@ -13,12 +13,12 @@ vi.mock('@/lib/toast-context', () => ({
 }))
 
 vi.mock('@/lib/actions/gallery', () => ({
+  createGalleryItems: vi.fn(async () => ({ results: [], error: null })),
   deleteGalleryItem: vi.fn(async () => ({ error: null })),
-  toggleGalleryPublished: vi.fn(async () => ({ error: null })),
   reorderGalleryItems: vi.fn(async () => ({ error: null })),
 }))
 
-describe('GalleryListClient', () => {
+describe('GalleryPageClient', () => {
   let consoleErrorSpy
 
   beforeEach(() => {
@@ -29,13 +29,68 @@ describe('GalleryListClient', () => {
     consoleErrorSpy.mockRestore()
   })
 
-  it('renders without hydration warnings', () => {
-    const mockGalleries = [
-      { id: '1', caption: 'Gallery 1', image_url: '/gallery1.jpg', published: true, sort_order: 0, created_at: '2024-01-01T00:00:00Z' },
-      { id: '2', caption: 'Gallery 2', image_url: '/gallery2.jpg', published: false, sort_order: 1, created_at: '2024-01-02T00:00:00Z' },
+  it('renders two sections with correct titles', () => {
+    render(createElement(GalleryPageClient, { homepageItems: [], aboutItems: [] }))
+
+    expect(screen.getByText(/แกลเลอรี่หน้าแรก/)).toBeInTheDocument()
+    expect(screen.getByText(/แกลเลอรี่เกี่ยวกับเรา/)).toBeInTheDocument()
+  })
+
+  it('renders page heading', () => {
+    render(createElement(GalleryPageClient, { homepageItems: [], aboutItems: [] }))
+
+    expect(screen.getByRole('heading', { name: /แกลเลอรี่ \(Gallery\)/ })).toBeInTheDocument()
+  })
+
+  it('renders items in homepage section (shows count)', () => {
+    const homepageItems = [
+      { id: '1', image_url: '/img1.jpg', sort_order: 0 },
+      { id: '2', image_url: '/img2.jpg', sort_order: 1 },
     ]
 
-    render(createElement(GalleryListClient, { galleries: mockGalleries, totalCount: 2 }))
+    render(createElement(GalleryPageClient, { homepageItems, aboutItems: [] }))
+
+    // Verify the item count is displayed
+    expect(screen.getByText('2 รูปภาพ')).toBeInTheDocument()
+    // About section should show empty state
+    expect(screen.getByText('ยังไม่มีรูปภาพ')).toBeInTheDocument()
+  })
+
+  it('shows empty state when no images', () => {
+    render(createElement(GalleryPageClient, { homepageItems: [], aboutItems: [] }))
+
+    const emptyTexts = screen.getAllByText('ยังไม่มีรูปภาพ')
+    expect(emptyTexts).toHaveLength(2)
+  })
+
+  it('shows image counts per section', () => {
+    const homepageItems = [
+      { id: '1', image_url: '/img1.jpg', sort_order: 0 },
+      { id: '2', image_url: '/img2.jpg', sort_order: 1 },
+    ]
+    const aboutItems = [
+      { id: '3', image_url: '/img3.jpg', sort_order: 0 },
+    ]
+
+    render(createElement(GalleryPageClient, { homepageItems, aboutItems }))
+
+    expect(screen.getByText('2 รูปภาพ')).toBeInTheDocument()
+    expect(screen.getByText('1 รูปภาพ')).toBeInTheDocument()
+  })
+
+  it('renders upload drop zones for each section', () => {
+    render(createElement(GalleryPageClient, { homepageItems: [], aboutItems: [] }))
+
+    const uploadTexts = screen.getAllByText(/ลากไฟล์มาวาง/)
+    expect(uploadTexts).toHaveLength(2)
+  })
+
+  it('renders without hydration warnings', () => {
+    const homepageItems = [
+      { id: '1', image_url: '/img1.jpg', sort_order: 0 },
+    ]
+
+    render(createElement(GalleryPageClient, { homepageItems, aboutItems: [] }))
 
     const hydrationWarnings = consoleErrorSpy.mock.calls.filter(call =>
       call.some(arg =>
@@ -46,43 +101,5 @@ describe('GalleryListClient', () => {
       )
     )
     expect(hydrationWarnings).toHaveLength(0)
-  })
-
-  it('renders items with drag handles', () => {
-    const mockGalleries = [
-      { id: '1', caption: 'Gallery 1', image_url: '/gallery1.jpg', published: true, sort_order: 0, created_at: '2024-01-01T00:00:00Z' },
-      { id: '2', caption: 'Gallery 2', image_url: '/gallery2.jpg', published: false, sort_order: 1, created_at: '2024-01-02T00:00:00Z' },
-    ]
-
-    render(createElement(GalleryListClient, { galleries: mockGalleries, totalCount: 2 }))
-
-    const dragHandles = screen.getAllByLabelText('ลากเพื่อจัดเรียง')
-    expect(dragHandles).toHaveLength(2)
-  })
-
-  it('displays data correctly', () => {
-    const mockGalleries = [
-      { id: '1', caption: 'Gallery 1', image_url: '/gallery1.jpg', published: true, sort_order: 0, created_at: '2024-01-01T00:00:00Z' },
-      { id: '2', caption: 'Gallery 2', image_url: '/gallery2.jpg', published: false, sort_order: 1, created_at: '2024-01-02T00:00:00Z' },
-    ]
-
-    render(createElement(GalleryListClient, { galleries: mockGalleries, totalCount: 2 }))
-
-    // Header text (use getByRole to be more specific)
-    expect(screen.getByRole('heading', { name: /แกลลอรี่/ })).toBeInTheDocument()
-    // Entry count
-    expect(screen.getByText('2 entries found')).toBeInTheDocument()
-    // Captions
-    expect(screen.getByText('Gallery 1')).toBeInTheDocument()
-    expect(screen.getByText('Gallery 2')).toBeInTheDocument()
-    // Status badges (both should be present)
-    expect(screen.getByText('เผยแพร่')).toBeInTheDocument()
-    expect(screen.getByText('ไม่เผยแพร่')).toBeInTheDocument()
-  })
-
-  it('renders empty state', () => {
-    render(createElement(GalleryListClient, { galleries: [], totalCount: 0 }))
-
-    expect(screen.getByText('ไม่พบข้อมูลแกลลอรี่')).toBeInTheDocument()
   })
 })

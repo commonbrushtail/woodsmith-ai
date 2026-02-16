@@ -1,7 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation } from 'swiper/modules'
+import 'swiper/css'
+import Lightbox from './Lightbox'
 import imgImg4 from '../assets/f7255ed778b64cf2b23182a0a2a87707a625f317.png'
 import imgImg5 from '../assets/b67b2afc2ebf76f9c6018d5d33ac38abe04715d0.png'
 import imgImg6 from '../assets/861c421ea2f0ed42a7af0d4a5519a5562e155476.png'
@@ -10,6 +13,8 @@ import imgVector2 from '../assets/111a70dead0aec3d9b930f8886d84779617edefa.svg'
 import imgVector3 from '../assets/ca8a43b8ab750b34b816e40ae620fcfb9b449dfd.svg'
 
 export default function GallerySection({ items = [] }) {
+  const [lightboxIndex, setLightboxIndex] = useState(null)
+
   const fallbackImages = [
     { src: imgImg4, imgClass: 'absolute h-[118.94%] left-[-12.04%] max-w-none top-[-9.87%] w-[191.42%]' },
     { src: imgImg5, imgClass: 'absolute h-[179.78%] left-[-18.45%] max-w-none top-[-6.25%] w-[192.89%]' },
@@ -40,7 +45,7 @@ export default function GallerySection({ items = [] }) {
       >
         {galleryImages.map((img, i) => (
           <SwiperSlide key={i}>
-            <div className="h-[240px] lg:h-[405px] relative overflow-hidden">
+            <div className="h-[240px] lg:h-[405px] relative overflow-hidden cursor-pointer" onClick={() => setLightboxIndex(i)}>
               <div className="absolute bg-[#d9d9d9] inset-0" />
               <img alt="" className={img.imgClass} src={img.src} />
             </div>
@@ -55,6 +60,14 @@ export default function GallerySection({ items = [] }) {
           <img alt="Next" className="size-[12px]" src={imgVector3} />
         </button>
       </div>
+
+      {lightboxIndex !== null && (
+        <Lightbox
+          images={galleryImages.map(img => img.src)}
+          startIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
     </div>
   )
 }
