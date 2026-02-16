@@ -14,7 +14,7 @@ Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
 Current Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-16 — Completed quick task 6: Fix pagination active page display past page 3
+Last activity: 2026-02-16 — Completed quick task 7: Add time-based publish filtering via RLS
 
 Progress: [███████░░░] 70% (across all milestones: 7 of 10 phases complete, Phase 7: 2 of 2 plans done)
 
@@ -87,6 +87,7 @@ Recent decisions affecting v1.1:
 |---|------|------|--------|
 | 5 | Check if pagination of admin really work | 2026-02-15 | VERIFIED — all pagination working correctly, no changes needed |
 | 6 | Fix pagination active page display past page 3 | 2026-02-16 | FIXED — shared getPageNumbers utility, 4 components fixed (2 min) |
+| 7 | Add time-based publish filtering via RLS | 2026-02-16 | DONE — 8 RLS policies updated + 4-state admin badges (2 min) |
 
 ### Pending Todos
 
@@ -99,7 +100,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed quick task 6 (pagination fix)
+Stopped at: Completed quick task 7 (time-based publish filtering via RLS)
 Resume file: None
 
 ### Recent Activity
@@ -117,6 +118,7 @@ Resume file: None
 | 2026-02-15 | Phase 07 Plan 02 executed | Product admin integration (VariationLinker in create/edit forms, 2 tasks, 3 min) |
 | 2026-02-15 | v1.1 shipped | Variations Management complete (6 plans, 15 min total) |
 | 2026-02-16 | Quick task 6 executed | Pagination active page fix (shared utility + 4 components, 2 min) |
+| 2026-02-16 | Quick task 7 executed | Time-based publish RLS + 4-state admin badges (2 files, 2 min) |
 
 ---
 *Last updated: 2026-02-16*
