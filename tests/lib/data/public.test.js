@@ -255,6 +255,33 @@ describe('getPublishedBranches', () => {
   })
 })
 
+describe('getHqBranch', () => {
+  it('returns the HQ branch', async () => {
+    const hq = { id: '1', name: 'สำนักงานใหญ่', is_hq: true }
+    mockQueryChain = createQueryChain({ data: hq, error: null })
+    mockServerClient.from = vi.fn(() => mockQueryChain)
+
+    const { getHqBranch } = await import('@/lib/data/public')
+    const result = await getHqBranch()
+
+    expect(result.data).toEqual(hq)
+    expect(mockServerClient.from).toHaveBeenCalledWith('branches')
+    expect(mockQueryChain.eq).toHaveBeenCalledWith('is_hq', true)
+    expect(mockQueryChain.single).toHaveBeenCalled()
+  })
+
+  it('returns null on error', async () => {
+    mockQueryChain = createQueryChain({ data: null, error: { message: 'not found' } })
+    mockServerClient.from = vi.fn(() => mockQueryChain)
+
+    const { getHqBranch } = await import('@/lib/data/public')
+    const result = await getHqBranch()
+
+    expect(result.data).toBeNull()
+    expect(result.error).toBe('not found')
+  })
+})
+
 describe('getPublishedFaqs', () => {
   it('returns FAQ groups with nested faqs array', async () => {
     const groups = [

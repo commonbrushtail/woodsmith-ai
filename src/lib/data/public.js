@@ -175,6 +175,20 @@ export async function getPublishedBranches({ region = '' } = {}) {
 }
 
 /**
+ * Fetch the head office branch (is_hq = true).
+ */
+export async function getHqBranch() {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('branches')
+    .select('*')
+    .eq('is_hq', true)
+    .single()
+  if (error) return { data: null, error: error.message }
+  return { data, error: null }
+}
+
+/**
  * Fetch published FAQ groups with their published FAQs.
  * Returns array of groups, each with nested faqs array.
  */

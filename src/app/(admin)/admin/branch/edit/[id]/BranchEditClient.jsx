@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateBranch } from '@/lib/actions/branches'
+import { validateFile, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
   return (
@@ -51,6 +52,27 @@ export default function BranchEditClient({ branch }) {
     return m ? m[1] : '19:00'
   })
   const [lineUrl, setLineUrl] = useState(branch.line_url || '')
+  const [imagePreview, setImagePreview] = useState(branch.image_url || null)
+  const [imageFile, setImageFile] = useState(null)
+  const [removeImage, setRemoveImage] = useState(false)
+  const fileInputRef = useRef(null)
+
+  const handleImageSelect = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const check = validateFile(file, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
+    if (!check.valid) { toast.error(check.error); return }
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+    setRemoveImage(false)
+  }
+
+  const handleRemoveImage = () => {
+    setImageFile(null)
+    setImagePreview(null)
+    setRemoveImage(true)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   const handleSubmit = (publish) => {
     startTransition(async () => {
@@ -63,6 +85,8 @@ export default function BranchEditClient({ branch }) {
       formData.set('hours', `ทุกวัน ${openTime} น. - ${closeTime} น.`)
       formData.set('line_url', lineUrl)
       formData.set('published', publish ? 'true' : 'false')
+      if (imageFile) formData.set('image', imageFile)
+      if (removeImage) formData.set('remove_image', 'true')
 
       const result = await updateBranch(branch.id, formData)
       if (result.error) {
@@ -118,6 +142,40 @@ export default function BranchEditClient({ branch }) {
       {/* Content body */}
       <div className="flex gap-[24px] mt-[20px] flex-1 min-h-0 overflow-y-auto pb-[32px]">
         <div className="flex-1 flex flex-col gap-[24px] min-w-0">
+          {/* Branch image */}
+          <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
+            <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
+              รูปภาพสาขา
+            </label>
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+            {imagePreview ? (
+              <div className="relative w-full max-w-[320px] h-[200px] rounded-[8px] overflow-hidden bg-[#f3f4f6]">
+                <img src={imagePreview} alt="Branch" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute top-[8px] right-[8px] size-[24px] bg-black/40 hover:bg-black/60 rounded-full flex items-center justify-center border-0 cursor-pointer z-10 transition-colors"
+                  aria-label="Remove image"
+                >
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><path d="M2 2L8 8M8 2L2 8" /></svg>
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="border-2 border-dashed border-[#e5e7eb] rounded-[8px] bg-[#fafafa] flex flex-col items-center justify-center gap-[8px] py-[32px] px-[16px] cursor-pointer hover:border-orange/50 transition-colors w-full max-w-[320px]"
+              >
+                <div className="size-[40px] rounded-full bg-orange/10 flex items-center justify-center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff7e1b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                </div>
+                <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#9ca3af] text-center m-0">คลิกเพื่ออัปโหลดรูปภาพ</p>
+              </button>
+            )}
+          </section>
+
           {/* Branch name */}
           <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
             <label htmlFor="branchName" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">

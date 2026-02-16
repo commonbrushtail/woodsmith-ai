@@ -553,11 +553,14 @@ export default function BranchCreatePage() {
   }
 
   /* ---- Image upload handler ---- */
+  const [imageFile, setImageFile] = useState(null)
+
   const handleImageUpload = (files) => {
     if (files.length > 0) {
       const f = files[0]
       const check = validateFile(f, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
       if (!check.valid) { toast.error(check.error); return }
+      setImageFile(f)
       setImage({
         id: Date.now() + Math.random(),
         name: f.name,
@@ -566,7 +569,7 @@ export default function BranchCreatePage() {
     }
   }
 
-  const removeImage = () => setImage(null)
+  const removeImage = () => { setImage(null); setImageFile(null) }
 
   /* ---- Submit handler ---- */
   const handleSubmit = (publish) => {
@@ -584,6 +587,7 @@ export default function BranchCreatePage() {
       if (workStartTime && workEndTime) formData.set('hours', `ทุกวัน ${workStartTime} น. - ${workEndTime} น.`)
       formData.set('line_url', lineOaUrl)
       formData.set('published', publish ? 'true' : 'false')
+      if (imageFile) formData.set('image', imageFile)
 
       const result = await createBranch(formData)
       if (result.error) {

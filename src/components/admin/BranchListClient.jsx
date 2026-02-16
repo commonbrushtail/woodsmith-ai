@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { deleteBranch, toggleBranchPublished } from '@/lib/actions/branches'
+import { deleteBranch, toggleBranchPublished, setBranchHq } from '@/lib/actions/branches'
 
 function DotsIcon({ size = 18, color = '#6b7280' }) {
   return (
@@ -45,6 +45,13 @@ export default function BranchListClient({ branches, totalCount }) {
     if (!confirm('ต้องการลบสาขานี้หรือไม่?')) return
     startTransition(async () => {
       await deleteBranch(id)
+      router.refresh()
+    })
+  }
+
+  const handleSetHq = (id) => {
+    startTransition(async () => {
+      await setBranchHq(id)
       router.refresh()
     })
   }
@@ -115,12 +122,19 @@ export default function BranchListClient({ branches, totalCount }) {
                     {branch.sort_order || idx + 1}
                   </td>
                   <td className="px-[16px] py-[14px]">
-                    <Link
-                      href={`/admin/branch/edit/${branch.id}`}
-                      className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] font-medium no-underline hover:text-[#ff7e1b] transition-colors"
-                    >
-                      {branch.name || '-'}
-                    </Link>
+                    <div className="flex items-center gap-[8px]">
+                      <Link
+                        href={`/admin/branch/edit/${branch.id}`}
+                        className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] font-medium no-underline hover:text-[#ff7e1b] transition-colors"
+                      >
+                        {branch.name || '-'}
+                      </Link>
+                      {branch.is_hq && (
+                        <span className="inline-flex items-center px-1.5 py-px rounded-sm bg-orange/10 font-['IBM_Plex_Sans_Thai'] text-[11px] font-semibold text-orange leading-[1.6]">
+                          HQ
+                        </span>
+                      )}
+                    </div>
                     {branch.address && (
                       <p className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#9ca3af] m-0 mt-[2px] truncate max-w-[300px]">
                         {branch.address}
@@ -163,6 +177,15 @@ export default function BranchListClient({ branches, totalCount }) {
                             >
                               แก้ไข
                             </Link>
+                            {!branch.is_hq && (
+                              <button
+                                type="button"
+                                onClick={() => { setOpenMenuId(null); handleSetHq(branch.id) }}
+                                className="w-full text-left px-[14px] py-[10px] border-0 cursor-pointer bg-transparent text-[#374151] hover:bg-[#f3f4f6] font-['IBM_Plex_Sans_Thai'] text-[13px]"
+                              >
+                                ตั้งเป็นสำนักงานใหญ่
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={() => { setOpenMenuId(null); handleDelete(branch.id) }}

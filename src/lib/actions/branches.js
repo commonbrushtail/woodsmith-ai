@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createServiceClient } from '@/lib/supabase/admin'
+import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
 
 /**
  * Fetch all branches ordered by sort_order.
@@ -75,6 +76,16 @@ export async function createBranch(formData) {
     sort_order: nextOrder,
   }
 
+  // Handle image upload
+  const imageFile = formData.get('image')
+  if (imageFile && imageFile.size > 0) {
+    const ext = imageFile.name.split('.').pop()
+    const filePath = `branches/${Date.now()}.${ext}`
+    const { path, error: uploadError } = await uploadFile('products', imageFile, filePath)
+    if (uploadError) return { data: null, error: uploadError.message }
+    branchData.image_url = getPublicUrl('products', path)
+  }
+
   const { data, error } = await supabase
     .from('branches')
     .insert(branchData)
@@ -106,6 +117,29 @@ export async function updateBranch(id, formData) {
   if (formData.has('line_url')) updates.line_url = formData.get('line_url')
   if (formData.has('published')) updates.published = formData.get('published') === 'true'
 
+  // Handle image upload / remove
+  const imageFile = formData.get('image')
+  const removeImage = formData.get('remove_image') === 'true'
+
+  if (removeImage || (imageFile && imageFile.size > 0)) {
+    // Delete old image from storage
+    const { data: current } = await supabase.from('branches').select('image_url').eq('id', id).single()
+    if (current?.image_url) {
+      const oldPath = current.image_url.split('/products/')[1]
+      if (oldPath) await deleteFile('products', oldPath)
+    }
+
+    if (imageFile && imageFile.size > 0) {
+      const ext = imageFile.name.split('.').pop()
+      const filePath = `branches/${Date.now()}.${ext}`
+      const { path, error: uploadError } = await uploadFile('products', imageFile, filePath)
+      if (uploadError) return { data: null, error: uploadError.message }
+      updates.image_url = getPublicUrl('products', path)
+    } else {
+      updates.image_url = null
+    }
+  }
+
   const { data, error } = await supabase
     .from('branches')
     .update(updates)
@@ -127,6 +161,13 @@ export async function updateBranch(id, formData) {
 export async function deleteBranch(id) {
   const supabase = createServiceClient()
 
+  // Clean up image from storage
+  const { data: branch } = await supabase.from('branches').select('image_url').eq('id', id).single()
+  if (branch?.image_url) {
+    const oldPath = branch.image_url.split('/products/')[1]
+    if (oldPath) await deleteFile('products', oldPath)
+  }
+
   const { error } = await supabase
     .from('branches')
     .delete()
@@ -137,6 +178,37 @@ export async function deleteBranch(id) {
   }
 
   revalidatePath('/admin/branch')
+  return { error: null }
+}
+
+/**
+ * Set a branch as the head office (only one allowed at a time).
+ */
+export async function setBranchHq(id) {
+  const supabase = createServiceClient()
+
+  // Clear any existing HQ
+  const { error: clearError } = await supabase
+    .from('branches')
+    .update({ is_hq: false })
+    .eq('is_hq', true)
+
+  if (clearError) {
+    return { error: clearError.message }
+  }
+
+  // Set the target branch as HQ
+  const { error } = await supabase
+    .from('branches')
+    .update({ is_hq: true })
+    .eq('id', id)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/admin/branch')
+  revalidatePath('/')
   return { error: null }
 }
 

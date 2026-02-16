@@ -9,6 +9,7 @@ import imgGroup3 from '../assets/965eaf2fbd5951c3b183edca911f967a9ff81858.svg'
 import imgLineLogo1 from '../assets/460e9562d009a9dc06b89094e9317c05197e3894.svg'
 import imgLine34 from '../assets/a41fa6d7209c715799bf9e2145af85fd67c3a650.svg'
 import Link from 'next/link'
+import { getHqBranch } from '../lib/data/public'
 
 const footerLinkMap = {
   'หน้าแรก': '/',
@@ -21,7 +22,16 @@ const footerLinkMap = {
   'สินค้าของเรา': '/products',
 }
 
-export default function Footer() {
+const defaultHq = {
+  name: 'บริษัท วนชัย วู้ดสมิธ จำกัด',
+  address: 'เลขที่ 2/1 ถนน วงศ์สว่าง แขวงวงศ์สว่าง เขตบางซื่อ กรุงเทพฯ 10800',
+  phone: '0 2587 9700-1',
+}
+
+export default async function Footer() {
+  const { data: hqBranch } = await getHqBranch()
+  const hq = hqBranch || defaultHq
+
   const footerLinksLeft = ['หน้าแรก', 'เกี่ยวกับเรา', 'สินค้าของเรา', 'ค้นหาสาขา']
   const footerLinksRight = ['บทความ', 'คู่มือ', 'ไฮไลท์', 'FAQs']
   const allFooterLinks = [...footerLinksLeft, ...footerLinksRight]
@@ -40,9 +50,9 @@ export default function Footer() {
           <img alt="WoodSmith Logo" className="h-[98px] w-[105px] object-cover" src={imgImgLogofooter1} />
           <div className="flex flex-col gap-[16px] items-center w-full">
             <div className="text-white text-center">
-              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] mb-0">บริษัท วนชัย วู้ดสมิธ จำกัด (สำนักงานใหญ่)</p>
+              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] mb-0">{hq.name} (สำนักงานใหญ่)</p>
               <p className="font-['IBM_Plex_Sans_Thai'] text-[14px]">
-                เลขที่ 2/1 ถนน วงศ์สว่าง แขวงวงศ์สว่าง เขตบางซื่อ<br />กรุงเทพฯ 10800
+                {hq.address}
               </p>
             </div>
             <div className="flex flex-col items-center">
@@ -50,7 +60,7 @@ export default function Footer() {
                 <img alt="Phone" className="shrink-0 size-[20px]" src={imgGroup} />
                 <p className="font-['Circular_Std'] font-medium text-[18px] text-white leading-[1.2]">Call Center</p>
               </div>
-              <p className="font-['Circular_Std'] font-medium text-[32px] text-orange leading-[1.2]">0 2587 9700-1</p>
+              <p className="font-['Circular_Std'] font-medium text-[32px] text-orange leading-[1.2]">{hq.phone}</p>
             </div>
           </div>
         </div>
@@ -81,15 +91,15 @@ export default function Footer() {
             <img alt="WoodSmith Logo" className="h-[171px] w-[184px] object-cover" src={imgImgLogofooter1} />
             <div className="flex flex-col gap-[16px] items-start">
               <div className="text-white">
-                <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[32px] mb-0">บริษัท วนชัย วู้ดสมิธ จำกัด (สำนักงานใหญ่)</p>
-                <p className="font-['IBM_Plex_Sans_Thai'] text-[16px]">เลขที่ 2/1 ถนน วงศ์สว่าง แขวงวงศ์สว่าง เขตบางซื่อ กรุงเทพฯ 10800</p>
+                <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[32px] mb-0">{hq.name} (สำนักงานใหญ่)</p>
+                <p className="font-['IBM_Plex_Sans_Thai'] text-[16px]">{hq.address}</p>
               </div>
               <div className="flex flex-col items-start">
                 <div className="flex gap-[8px] items-center">
                   <img alt="Phone" className="shrink-0 size-[20px]" src={imgGroup} />
                   <p className="font-['Circular_Std'] font-medium text-[18px] text-white leading-[1.2]">Call Center</p>
                 </div>
-                <p className="font-['Circular_Std'] font-medium text-[36px] text-orange leading-[1.2]">0 2587 9700-1</p>
+                <p className="font-['Circular_Std'] font-medium text-[36px] text-orange leading-[1.2]">{hq.phone}</p>
               </div>
             </div>
           </div>
