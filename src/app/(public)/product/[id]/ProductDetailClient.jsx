@@ -236,10 +236,6 @@ export default function ProductDetailClient({ product: dbProduct = null }) {
     }),
   } : fallbackProduct
 
-  // Debug: log variations data
-  console.log('Product variations:', product.variations)
-  console.log('dbProduct.product_variation_links:', dbProduct?.product_variation_links)
-
   // Ensure at least one image
   if (product.images.length === 0) product.images = [imgRectangle15]
 
