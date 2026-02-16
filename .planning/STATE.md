@@ -14,7 +14,7 @@ Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
 Current Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-16 — Completed quick task 12: Add recommend toggle to video highlights admin + unified badges
+Last activity: 2026-02-17 — Completed quick task 13: Add requireAdmin auth enforcement for admin pages and server actions
 
 Progress: [███████░░░] 70% (across all milestones: 7 of 10 phases complete, Phase 7: 2 of 2 plans done)
 
@@ -80,6 +80,8 @@ Recent decisions affecting v1.1:
 - [Phase 07]: Auto-select all entries when adding variation group (user-friendly default)
 - [Phase 07]: Place VariationLinker after OptionsAccordion (section 8.5) to keep variations separate from legacy product_options
 - [Phase 07]: Sync variation links AFTER product mutation succeeds to prevent orphaned links
+- [Quick 13]: Two separate requireAdmin functions (requireAdmin for actions, requireAdminOrRedirect for layouts) for context-appropriate behavior
+- [Quick 13]: All admin-only functions protected including read operations (createServiceClient bypasses RLS, must be admin-gated)
 
 ### Quick Tasks Completed
 
@@ -94,6 +96,7 @@ Recent decisions affecting v1.1:
 | 11 | Dynamic blog categories | 2026-02-16 | DONE — blog_categories table + CRUD actions + admin pages + CategorySelect + dynamic public pages (12 files created, 6 modified) |
 | 11b | Related blog posts replace hardcoded sidebar | 2026-02-16 | DONE — backfill logic in getPublishedBlogPost, removed fallbackRelatedPosts, conditional sidebar (3 files, 2 min) |
 | 12 | Add recommend toggle to highlight admin | 2026-02-16 | DONE — migration, server action, admin toggle column, unified badge design (blog/products/highlights), homepage curated highlights with fallback (7 files, 2 min) |
+| 13 | Add authentication for admin site settings | 2026-02-17 | DONE — requireAdmin utility, layout guard, 67 functions protected across 18 action files, defense-in-depth admin auth (7 min) |
 
 ### Pending Todos
 
@@ -105,8 +108,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-16
-Stopped at: Completed quick task 12 (video highlight recommend toggle + unified badges)
+Last session: 2026-02-17
+Stopped at: Completed quick task 13 (admin authentication enforcement)
 Resume file: None
 
 ### Recent Activity
@@ -131,6 +134,7 @@ Resume file: None
 | 2026-02-16 | Quick task 11 executed | Dynamic blog categories: migration, CRUD actions, admin CRUD pages, CategorySelect, sidebar, dynamic public pages |
 | 2026-02-16 | Quick task 11b executed | Related blog posts: backfill logic, removed hardcoded fallback, conditional sidebar (3 files, 2 min) |
 | 2026-02-16 | Quick task 12 executed | Video highlight recommend toggle: migration, server action, unified badge design, homepage curation (7 files, 2 min) |
+| 2026-02-17 | Quick task 13 executed | Admin auth enforcement: requireAdmin utility, layout guard, 67 functions protected across 18 files, defense-in-depth (7 min) |
 
 ---
-*Last updated: 2026-02-16*
+*Last updated: 2026-02-17*
