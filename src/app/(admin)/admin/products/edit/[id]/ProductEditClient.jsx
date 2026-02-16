@@ -180,13 +180,9 @@ export default function ProductEditClient({ product, categories = [], variationG
       formData.set('published', String(publish))
       formData.set('recommended', recommended === 'yes' ? 'true' : 'false')
 
-      // Publish date range
-      if (startDate) {
-        formData.set('publish_start', startTime ? `${startDate}T${startTime}:00` : `${startDate}T00:00:00`)
-      }
-      if (endDate) {
-        formData.set('publish_end', endTime ? `${endDate}T${endTime}:00` : `${endDate}T23:59:59`)
-      }
+      // Publish date range — always send these fields (empty string clears the value)
+      formData.set('publish_start', startDate ? (startTime ? `${startDate}T${startTime}:00` : `${startDate}T00:00:00`) : '')
+      formData.set('publish_end', endDate ? (endTime ? `${endDate}T${endTime}:00` : `${endDate}T23:59:59`) : '')
 
       const result = await updateProduct(product.id, formData)
       if (result.fieldErrors) {

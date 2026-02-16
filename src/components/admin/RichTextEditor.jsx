@@ -5,16 +5,22 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
+import { Table } from '@tiptap/extension-table'
+import TableRow from '@tiptap/extension-table-row'
+import TableHeader from '@tiptap/extension-table-header'
+import TableCell from '@tiptap/extension-table-cell'
 import { uploadEditorImage } from '@/lib/actions/blog'
 
-function ToolbarButton({ onClick, isActive, ariaLabel, children }) {
+function ToolbarButton({ onClick, isActive, ariaLabel, children, disabled }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       aria-label={ariaLabel}
       className={`
         size-[32px] flex items-center justify-center rounded-[6px] border-0 cursor-pointer transition-colors
+        ${disabled ? 'opacity-30 cursor-not-allowed' : ''}
         ${isActive ? 'bg-[#ff7e1b]/15 text-[#ff7e1b]' : 'bg-transparent text-[#6b7280] hover:bg-[#f3f4f6]'}
       `}
     >
@@ -23,7 +29,80 @@ function ToolbarButton({ onClick, isActive, ariaLabel, children }) {
   )
 }
 
-function Toolbar({ editor, fileInputRef, uploading, onFileSelect }) {
+function TableMenu({ editor }) {
+  const [open, setOpen] = useState(false)
+
+  if (!editor) return null
+
+  const inTable = editor.isActive('table')
+
+  const insertTable = () => {
+    editor.chain().focus().insertTable({ rows: 3, cols: 2, withHeaderRow: false }).run()
+    setOpen(false)
+  }
+
+  return (
+    <div className="relative">
+      <ToolbarButton
+        onClick={() => inTable ? setOpen(!open) : insertTable()}
+        isActive={inTable}
+        ariaLabel="Table"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <line x1="3" y1="9" x2="21" y2="9" />
+          <line x1="3" y1="15" x2="21" y2="15" />
+          <line x1="12" y1="3" x2="12" y2="21" />
+        </svg>
+      </ToolbarButton>
+
+      {open && inTable && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute top-full left-0 mt-[4px] z-20 bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[180px]">
+            <MenuItem onClick={() => { editor.chain().focus().addRowAfter().run(); setOpen(false) }}>
+              เพิ่มแถวด้านล่าง
+            </MenuItem>
+            <MenuItem onClick={() => { editor.chain().focus().addRowBefore().run(); setOpen(false) }}>
+              เพิ่มแถวด้านบน
+            </MenuItem>
+            <MenuItem onClick={() => { editor.chain().focus().deleteRow().run(); setOpen(false) }}>
+              ลบแถว
+            </MenuItem>
+            <div className="h-px bg-[#e5e7eb] my-[4px]" />
+            <MenuItem onClick={() => { editor.chain().focus().addColumnAfter().run(); setOpen(false) }}>
+              เพิ่มคอลัมน์ขวา
+            </MenuItem>
+            <MenuItem onClick={() => { editor.chain().focus().addColumnBefore().run(); setOpen(false) }}>
+              เพิ่มคอลัมน์ซ้าย
+            </MenuItem>
+            <MenuItem onClick={() => { editor.chain().focus().deleteColumn().run(); setOpen(false) }}>
+              ลบคอลัมน์
+            </MenuItem>
+            <div className="h-px bg-[#e5e7eb] my-[4px]" />
+            <MenuItem onClick={() => { editor.chain().focus().deleteTable().run(); setOpen(false) }} danger>
+              ลบตาราง
+            </MenuItem>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+function MenuItem({ onClick, children, danger }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`w-full text-left px-[12px] py-[6px] font-['IBM_Plex_Sans_Thai'] text-[13px] border-0 bg-transparent cursor-pointer hover:bg-[#f3f4f6] ${danger ? 'text-red-500' : 'text-[#374151]'}`}
+    >
+      {children}
+    </button>
+  )
+}
+
+function Toolbar({ editor, fileInputRef, uploading }) {
   if (!editor) return null
 
   const handleLink = () => {
@@ -114,6 +193,10 @@ function Toolbar({ editor, fileInputRef, uploading, onFileSelect }) {
 
       <div className="w-px h-[20px] bg-[#e5e7eb] mx-[4px]" />
 
+      <TableMenu editor={editor} />
+
+      <div className="w-px h-[20px] bg-[#e5e7eb] mx-[4px]" />
+
       <ToolbarButton
         onClick={handleLink}
         isActive={editor.isActive('link')}
@@ -179,6 +262,10 @@ export default function RichTextEditor({ content = '', onChange, minHeight = 200
       StarterKit.configure({ link: false }),
       Image,
       Link.configure({ openOnClick: false }),
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -226,7 +313,7 @@ export default function RichTextEditor({ content = '', onChange, minHeight = 200
       >
         <EditorContent
           editor={editor}
-          className="prose prose-sm max-w-none font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#374151] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[inherit]"
+          className="prose prose-sm max-w-none font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#374151] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[inherit] [&_.ProseMirror_table]:w-full [&_.ProseMirror_table]:border-collapse [&_.ProseMirror_table]:border [&_.ProseMirror_table]:border-[#e5e7eb] [&_.ProseMirror_td]:border [&_.ProseMirror_td]:border-[#e5e7eb] [&_.ProseMirror_td]:px-[20px] [&_.ProseMirror_td]:py-[12px] [&_.ProseMirror_td]:align-top [&_.ProseMirror_th]:border [&_.ProseMirror_th]:border-[#e5e7eb] [&_.ProseMirror_th]:px-[20px] [&_.ProseMirror_th]:py-[12px] [&_.ProseMirror_th]:bg-[#f9fafb] [&_.ProseMirror_th]:font-semibold [&_.ProseMirror_th]:text-left"
         />
       </div>
     </div>

@@ -104,9 +104,9 @@ export default function BlogEditClient({ post }) {
       formData.set('recommended', recommended === 'yes' ? 'true' : 'false')
       formData.set('published', publish ? 'true' : 'false')
       formData.set('category', category)
-      if (publishDate) {
-        formData.set('publish_date', `${publishDate}T00:00:00`)
-      }
+
+      // Always send publish_date (empty string clears the value)
+      formData.set('publish_date', publishDate ? `${publishDate}T00:00:00` : '')
 
       if (coverFile) {
         formData.set('cover_image', coverFile)
