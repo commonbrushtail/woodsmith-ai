@@ -14,7 +14,7 @@ Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
 Current Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-16 — Completed quick task 11: Dynamic blog categories
+Last activity: 2026-02-16 — Completed quick task 11b: Related blog posts replace hardcoded sidebar
 
 Progress: [███████░░░] 70% (across all milestones: 7 of 10 phases complete, Phase 7: 2 of 2 plans done)
 
@@ -92,6 +92,7 @@ Recent decisions affecting v1.1:
 | 9 | Add view-on-site button to admin edit pages | 2026-02-16 | DONE — 2 files updated (ProductEditClient + BlogEditClient sidebars, 1 min) |
 | 10 | Make blog admin and public functional | 2026-02-16 | DONE — 6 bugs fixed across 4 files (category submission, edit fields, public labels, search filter, 5 min) |
 | 11 | Dynamic blog categories | 2026-02-16 | DONE — blog_categories table + CRUD actions + admin pages + CategorySelect + dynamic public pages (12 files created, 6 modified) |
+| 11b | Related blog posts replace hardcoded sidebar | 2026-02-16 | DONE — backfill logic in getPublishedBlogPost, removed fallbackRelatedPosts, conditional sidebar (3 files, 2 min) |
 
 ### Pending Todos
 
@@ -104,7 +105,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed quick task 11 (dynamic blog categories)
+Stopped at: Completed quick task 11b (related blog posts replace hardcoded sidebar)
 Resume file: None
 
 ### Recent Activity
@@ -127,6 +128,7 @@ Resume file: None
 | 2026-02-16 | Quick task 9 executed | View-on-site links added to product + blog edit sidebars (1 min) |
 | 2026-02-16 | Quick task 10 executed | Blog admin+public fixes: category submission, edit fields, public labels, search filter (5 min) |
 | 2026-02-16 | Quick task 11 executed | Dynamic blog categories: migration, CRUD actions, admin CRUD pages, CategorySelect, sidebar, dynamic public pages |
+| 2026-02-16 | Quick task 11b executed | Related blog posts: backfill logic, removed hardcoded fallback, conditional sidebar (3 files, 2 min) |
 
 ---
 *Last updated: 2026-02-16*
