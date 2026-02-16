@@ -125,17 +125,30 @@ export async function getPublishedBlogPost(idOrSlug) {
 
   if (error) return { data: null, error: error.message }
 
-  // Fetch related posts (same category, excluding current)
+  // Fetch related posts: same category first, then backfill with recent posts
   let related = []
   if (data.category) {
-    const { data: relatedData } = await supabase
+    const { data: sameCat } = await supabase
       .from('blog_posts')
       .select('id, title, slug, cover_image_url, category, publish_date')
       .eq('category', data.category)
       .neq('id', data.id)
       .order('publish_date', { ascending: false, nullsFirst: false })
       .limit(4)
-    related = relatedData || []
+    related = sameCat || []
+  }
+
+  // Backfill with recent posts if fewer than 4 same-category results
+  if (related.length < 4) {
+    const excludeIds = [data.id, ...related.map(r => r.id)]
+    const remaining = 4 - related.length
+    const { data: backfill } = await supabase
+      .from('blog_posts')
+      .select('id, title, slug, cover_image_url, category, publish_date')
+      .not('id', 'in', `(${excludeIds.join(',')})`)
+      .order('publish_date', { ascending: false, nullsFirst: false })
+      .limit(remaining)
+    related = [...related, ...(backfill || [])]
   }
 
   return { data: { ...data, relatedPosts: related }, error: null }
@@ -222,16 +235,21 @@ export async function getPublishedManuals({ page = 1, perPage = 10 } = {}) {
 }
 
 /**
- * Fetch published gallery items.
+ * Fetch published gallery items, optionally filtered by section.
  */
-export async function getPublishedGalleryItems() {
+export async function getPublishedGalleryItems(section) {
   const supabase = await createClient()
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('gallery_items')
     .select('*')
     .order('sort_order', { ascending: true })
 
+  if (section) {
+    query = query.eq('section', section)
+  }
+
+  const { data, error } = await query
   if (error) return { data: [], error: error.message }
   return { data: data || [], error: null }
 }

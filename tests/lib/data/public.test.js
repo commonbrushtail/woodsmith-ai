@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // --- Mocks ---
 function createQueryChain(finalResult = { data: null, error: null, count: 0 }) {
   const chain = {}
-  const methods = ['select', 'insert', 'update', 'delete', 'eq', 'neq', 'or', 'ilike', 'order', 'range', 'single', 'limit']
+  const methods = ['select', 'insert', 'update', 'delete', 'eq', 'neq', 'not', 'or', 'is', 'ilike', 'order', 'range', 'single', 'limit']
   for (const m of methods) {
     chain[m] = vi.fn(() => chain)
   }
@@ -138,47 +138,96 @@ describe('getPublishedBlogPost', () => {
   it('fetches by UUID when given valid UUID', async () => {
     const uuid = '550e8400-e29b-41d4-a716-446655440000'
     const post = { id: uuid, title: 'Test', category: 'tips' }
-    const related = [{ id: '2', title: 'Related' }]
+    const sameCat = [
+      { id: '2', title: 'Related 1' },
+      { id: '3', title: 'Related 2' },
+      { id: '4', title: 'Related 3' },
+      { id: '5', title: 'Related 4' },
+    ]
 
     const postChain = createQueryChain({ data: post, error: null })
-    const relatedChain = createQueryChain({ data: related, error: null })
+    const sameCatChain = createQueryChain({ data: sameCat, error: null })
     let callCount = 0
     mockServerClient.from = vi.fn(() => {
       callCount++
-      return callCount === 1 ? postChain : relatedChain
+      return callCount === 1 ? postChain : sameCatChain
     })
 
     const { getPublishedBlogPost } = await import('@/lib/data/public')
     const result = await getPublishedBlogPost(uuid)
 
     expect(postChain.eq).toHaveBeenCalledWith('id', uuid)
-    expect(result.data.relatedPosts).toEqual(related)
+    expect(result.data.relatedPosts).toEqual(sameCat)
+    // No backfill needed when 4 same-category results
+    expect(mockServerClient.from).toHaveBeenCalledTimes(2)
+  })
+
+  it('backfills with recent posts when same-category < 4', async () => {
+    const uuid = '550e8400-e29b-41d4-a716-446655440000'
+    const post = { id: uuid, title: 'Test', category: 'tips' }
+    const sameCat = [{ id: '2', title: 'Same Cat 1' }]
+    const backfill = [{ id: '3', title: 'Recent 1' }, { id: '4', title: 'Recent 2' }, { id: '5', title: 'Recent 3' }]
+
+    const postChain = createQueryChain({ data: post, error: null })
+    const sameCatChain = createQueryChain({ data: sameCat, error: null })
+    const backfillChain = createQueryChain({ data: backfill, error: null })
+    let callCount = 0
+    mockServerClient.from = vi.fn(() => {
+      callCount++
+      if (callCount === 1) return postChain
+      if (callCount === 2) return sameCatChain
+      return backfillChain
+    })
+
+    const { getPublishedBlogPost } = await import('@/lib/data/public')
+    const result = await getPublishedBlogPost(uuid)
+
+    expect(result.data.relatedPosts).toHaveLength(4)
+    expect(result.data.relatedPosts[0].id).toBe('2')
+    expect(result.data.relatedPosts[1].id).toBe('3')
+    // 3 calls: post + same-cat + backfill
+    expect(mockServerClient.from).toHaveBeenCalledTimes(3)
+    expect(backfillChain.limit).toHaveBeenCalledWith(3)
   })
 
   it('fetches by slug when given non-UUID string', async () => {
     const post = { id: 'x', title: 'Test', category: null }
-    mockQueryChain = createQueryChain({ data: post, error: null })
-    mockServerClient.from = vi.fn(() => mockQueryChain)
+    // No category → backfill only
+    const postChain = createQueryChain({ data: post, error: null })
+    const backfillChain = createQueryChain({ data: [{ id: '2', title: 'Recent' }], error: null })
+    let callCount = 0
+    mockServerClient.from = vi.fn(() => {
+      callCount++
+      return callCount === 1 ? postChain : backfillChain
+    })
 
     const { getPublishedBlogPost } = await import('@/lib/data/public')
     const result = await getPublishedBlogPost('my-post-slug')
 
-    expect(mockQueryChain.eq).toHaveBeenCalledWith('slug', 'my-post-slug')
-    // No category → no related posts fetch
-    expect(result.data.relatedPosts).toEqual([])
+    expect(postChain.eq).toHaveBeenCalledWith('slug', 'my-post-slug')
+    // No category → backfill kicks in
+    expect(result.data.relatedPosts).toHaveLength(1)
   })
 
-  it('skips related posts when no category', async () => {
+  it('backfills when no category (skips same-cat, fetches recent)', async () => {
     const post = { id: 'x', title: 'Test', category: null }
-    mockQueryChain = createQueryChain({ data: post, error: null })
-    mockServerClient.from = vi.fn(() => mockQueryChain)
+    const backfill = [{ id: 'a', title: 'A' }, { id: 'b', title: 'B' }]
+
+    const postChain = createQueryChain({ data: post, error: null })
+    const backfillChain = createQueryChain({ data: backfill, error: null })
+    let callCount = 0
+    mockServerClient.from = vi.fn(() => {
+      callCount++
+      return callCount === 1 ? postChain : backfillChain
+    })
 
     const { getPublishedBlogPost } = await import('@/lib/data/public')
     const result = await getPublishedBlogPost('x')
 
-    // from() should only be called once (for the post itself)
-    expect(mockServerClient.from).toHaveBeenCalledTimes(1)
-    expect(result.data.relatedPosts).toEqual([])
+    // from() called twice: post + backfill (no same-cat since no category)
+    expect(mockServerClient.from).toHaveBeenCalledTimes(2)
+    expect(result.data.relatedPosts).toEqual(backfill)
+    expect(backfillChain.limit).toHaveBeenCalledWith(4)
   })
 })
 
@@ -266,7 +315,20 @@ describe('getPublishedManuals', () => {
 })
 
 describe('getPublishedGalleryItems', () => {
-  it('returns gallery items', async () => {
+  it('returns gallery items filtered by section', async () => {
+    const items = [{ id: '1', image_url: 'img.jpg' }]
+    mockQueryChain = createQueryChain({ data: items, error: null })
+    mockServerClient.from = vi.fn(() => mockQueryChain)
+
+    const { getPublishedGalleryItems } = await import('@/lib/data/public')
+    const result = await getPublishedGalleryItems('homepage')
+
+    expect(result.data).toEqual(items)
+    expect(mockServerClient.from).toHaveBeenCalledWith('gallery_items')
+    expect(mockQueryChain.eq).toHaveBeenCalledWith('section', 'homepage')
+  })
+
+  it('returns all gallery items when no section specified', async () => {
     const items = [{ id: '1', image_url: 'img.jpg' }]
     mockQueryChain = createQueryChain({ data: items, error: null })
     mockServerClient.from = vi.fn(() => mockQueryChain)
@@ -275,7 +337,7 @@ describe('getPublishedGalleryItems', () => {
     const result = await getPublishedGalleryItems()
 
     expect(result.data).toEqual(items)
-    expect(mockServerClient.from).toHaveBeenCalledWith('gallery_items')
+    expect(mockQueryChain.eq).not.toHaveBeenCalledWith('section', expect.anything())
   })
 })
 
