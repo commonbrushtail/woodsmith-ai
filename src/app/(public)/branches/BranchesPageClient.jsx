@@ -49,7 +49,7 @@ function HqCard({ hqBranch }) {
   return (
     <div className="bg-[#fff6ef] lg:bg-white flex flex-col lg:flex-row gap-[24px] items-center lg:items-start p-[20px] lg:p-0 w-full">
       <div className="h-[213px] lg:h-[218px] lg:w-[358px] lg:shrink-0 relative w-full overflow-hidden rounded-[4px]">
-        <img alt="สำนักงานใหญ่" className="absolute max-w-none object-cover size-full" src={imgHqPhoto} />
+        <img alt="สำนักงานใหญ่" className="absolute max-w-none object-cover size-full" src={hq.image_url || imgHqPhoto} />
       </div>
       <div className="flex flex-col gap-[16px] items-start w-full lg:w-[500px]">
         <div className="flex flex-col items-start text-black w-full">
