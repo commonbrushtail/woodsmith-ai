@@ -14,7 +14,7 @@ Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
 Current Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-16 — Completed quick-8-02: Special admin pages tab removal
+Last activity: 2026-02-16 — Completed quick task 8: Rework admin draft/publish UI consistency
 
 Progress: [███████░░░] 70% (across all milestones: 7 of 10 phases complete, Phase 7: 2 of 2 plans done)
 
@@ -101,7 +101,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed quick-8 Plan 02 (special admin pages tab removal)
+Stopped at: Completed quick task 8 (admin draft/publish UI consistency)
 Resume file: None
 
 ### Recent Activity
@@ -120,7 +120,7 @@ Resume file: None
 | 2026-02-15 | v1.1 shipped | Variations Management complete (6 plans, 15 min total) |
 | 2026-02-16 | Quick task 6 executed | Pagination active page fix (shared utility + 4 components, 2 min) |
 | 2026-02-16 | Quick task 7 executed | Time-based publish RLS + 4-state admin badges (2 files, 2 min) |
-| 2026-02-16 | Quick task 8 Plan 02 executed | Special admin pages tab removal + activeTab bug fix (5 files, 3 min) |
+| 2026-02-16 | Quick task 8 executed | Admin draft/publish UI rework — 15 pages updated, tabs removed, consistent sidebar (3 min) |
 
 ---
 *Last updated: 2026-02-16*
