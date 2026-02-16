@@ -192,24 +192,17 @@ export default function ProductsListClient({ products, totalCount, currentPage =
   /* ---------- Render helpers ---------- */
 
   function renderRecommendedBadge(product) {
-    if (product.recommended) {
-      return (
-        <button
-          onClick={() => handleToggleRecommended(product.id, product.recommended)}
-          className="inline-flex items-center gap-[4px] rounded-full border border-[#22c55e] text-[#16a34a] bg-[#f0fdf4] px-[10px] py-[2px] text-[12px] font-medium leading-[20px] whitespace-nowrap cursor-pointer"
-        >
-          YES
-          <ChevronDownIcon className="text-[#16a34a]" />
-        </button>
-      )
-    }
     return (
-      <button
-        onClick={() => handleToggleRecommended(product.id, product.recommended)}
-        className="inline-flex items-center gap-[4px] rounded-full border border-[#f97316] text-[#ea580c] bg-[#fff7ed] px-[10px] py-[2px] text-[12px] font-medium leading-[20px] whitespace-nowrap cursor-pointer"
-      >
-        NO
-        <ChevronDownIcon className="text-[#ea580c]" />
+      <button onClick={() => handleToggleRecommended(product.id, product.recommended)} className="cursor-pointer bg-transparent border-none p-0">
+        {product.recommended ? (
+          <span className="inline-flex items-center gap-[4px] rounded-full border border-[#22c55e] text-[#16a34a] bg-[#f0fdf4] px-[10px] py-[2px] text-[12px] font-medium leading-[20px] whitespace-nowrap">
+            YES
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-[4px] rounded-full border border-[#d1d5db] text-[#6b7280] bg-[#f9fafb] px-[10px] py-[2px] text-[12px] font-medium leading-[20px] whitespace-nowrap">
+            NO
+          </span>
+        )}
       </button>
     )
   }

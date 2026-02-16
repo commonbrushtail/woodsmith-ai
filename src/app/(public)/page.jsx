@@ -8,18 +8,24 @@ import {
   getActiveBanners,
   getPublishedBlogPosts,
   getPublishedHighlights,
+  getRecommendedHighlights,
   getPublishedProducts,
   getPublishedGalleryItems,
 } from '../../lib/data/public'
 
 export default async function HomePage() {
-  const [bannersRes, blogsRes, highlightsRes, productsRes, galleryRes] = await Promise.all([
+  const [bannersRes, blogsRes, productsRes, galleryRes] = await Promise.all([
     getActiveBanners(),
     getPublishedBlogPosts({ perPage: 5 }),
-    getPublishedHighlights({ perPage: 4 }),
     getPublishedProducts({ perPage: 12 }),
     getPublishedGalleryItems('homepage'),
   ])
+
+  // Highlights: prefer recommended, fall back to all published
+  const recommendedRes = await getRecommendedHighlights({ perPage: 4 })
+  const highlightsRes = recommendedRes.data.length > 0
+    ? recommendedRes
+    : await getPublishedHighlights({ perPage: 4 })
 
   return (
     <>

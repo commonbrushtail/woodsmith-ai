@@ -225,6 +225,21 @@ export async function getPublishedHighlights({ page = 1, perPage = 18 } = {}) {
 }
 
 /**
+ * Fetch recommended video highlights for homepage.
+ */
+export async function getRecommendedHighlights({ perPage = 4 } = {}) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('video_highlights')
+    .select('*')
+    .eq('recommended', true)
+    .order('sort_order', { ascending: true })
+    .limit(perPage)
+  if (error) return { data: [], error: error.message }
+  return { data: data || [], error: null }
+}
+
+/**
  * Fetch published manuals.
  */
 export async function getPublishedManuals({ page = 1, perPage = 10 } = {}) {
