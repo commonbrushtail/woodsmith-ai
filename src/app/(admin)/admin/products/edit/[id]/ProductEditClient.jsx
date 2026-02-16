@@ -393,8 +393,17 @@ export default function ProductEditClient({ product, categories = [], variationG
           {/* 7. Publish date range */}
           <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
             <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
-              กำหนดช่วงวันเวลาเริ่มต้น-สิ้นสุด การเผยแพร่ <span className="text-red-500">*</span>
+              กำหนดช่วงวันเวลาเริ่มต้น-สิ้นสุด การเผยแพร่
             </label>
+            {(startDate || startTime || endDate || endTime) && (
+              <button
+                type="button"
+                onClick={() => { setStartDate(null); setStartTime(''); setEndDate(null); setEndTime('') }}
+                className="self-start font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280] hover:text-red-500 bg-transparent border-0 cursor-pointer transition-colors p-0"
+              >
+                ล้างค่า
+              </button>
+            )}
             <div className="flex items-center gap-[12px]">
               {/* Start date */}
               <div className="relative flex-1">
