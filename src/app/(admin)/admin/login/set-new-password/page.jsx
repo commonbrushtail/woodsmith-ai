@@ -29,7 +29,7 @@ export default function SetNewPasswordPage() {
       return
     }
 
-    router.push('/login?reset=success')
+    router.push('/admin/login?reset=success')
   }
 
   return (

@@ -137,7 +137,7 @@ export default function LoginPage() {
 
         {/* Forgot Password Link */}
         <Link
-          href="/login/forgot-password"
+          href="/admin/login/forgot-password"
           className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-black no-underline hover:underline h-[48px] flex items-center justify-center"
         >
           ลืมรหัสผ่าน?

@@ -32,10 +32,10 @@ export async function GET(request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`${origin}/login/set-new-password`)
+      return NextResponse.redirect(`${origin}/admin/login/set-new-password`)
     }
   }
 
   // Invalid or missing code — redirect to forgot-password with error
-  return NextResponse.redirect(`${origin}/login/forgot-password?error=invalid_link`)
+  return NextResponse.redirect(`${origin}/admin/login/forgot-password?error=invalid_link`)
 }

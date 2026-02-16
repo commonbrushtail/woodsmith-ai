@@ -36,12 +36,12 @@ export async function requireAdminOrRedirect() {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    redirect('/login')
+    redirect('/admin/login')
   }
 
   const userRole = user.user_metadata?.role
   if (!userRole || !ADMIN_ROLES.includes(userRole)) {
-    redirect('/login')
+    redirect('/admin/login')
   }
 
   return user
