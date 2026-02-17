@@ -9,8 +9,8 @@ import { sanitizeObject } from '@/lib/sanitize'
 /**
  * Create a customer profile row after registration.
  */
-export async function createCustomerProfile(userId, { displayName, phone, email }) {
-  const sanitized = sanitizeObject({ displayName, phone, email })
+export async function createCustomerProfile(userId, { displayName, phone }) {
+  const sanitized = sanitizeObject({ displayName, phone })
   const supabase = createServiceClient()
   const { error } = await supabase
     .from('user_profiles')
@@ -18,7 +18,6 @@ export async function createCustomerProfile(userId, { displayName, phone, email 
       user_id: userId,
       display_name: sanitized.displayName,
       phone: sanitized.phone,
-      email: sanitized.email,
       role: 'customer',
     })
 

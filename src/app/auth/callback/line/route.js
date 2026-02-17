@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { LINE_CONFIG } from '@/lib/auth/line-config'
-import { createClient } from '@/lib/supabase/server'
 
 /**
  * Handle LINE Login OAuth callback.
@@ -60,28 +59,126 @@ export async function GET(request) {
 
     const profile = await profileResponse.json()
 
-    // Sign in or link via Supabase
-    // Use the LINE userId as a unique identifier
-    const supabase = await createClient()
+    // Create or find Supabase user via admin API
+    const { createServiceClient } = await import('@/lib/supabase/admin')
+    const { createServerClient } = await import('@supabase/ssr')
+    const { cookies } = await import('next/headers')
 
-    // Try to find existing user by LINE ID in metadata
-    // For now, we store the LINE profile data for the application to use
-    // The full LINE-to-Supabase user linking requires Supabase custom OIDC
-    // provider configuration in the dashboard, which maps LINE users
-    // to Supabase auth users automatically.
-    //
-    // Until LINE is configured as a Supabase OIDC provider:
-    // Store LINE profile in a cookie/session for the app to process
-    const lineProfile = {
-      lineUserId: profile.userId,
-      displayName: profile.displayName,
-      pictureUrl: profile.pictureUrl || null,
+    const admin = createServiceClient()
+
+    // Use deterministic email pattern for LINE users
+    const lineEmail = `line_${profile.userId}@line.placeholder`
+
+    // Find existing user by LINE user ID in app_metadata
+    const { data: existingUsers } = await admin.auth.admin.listUsers()
+    const existingUser = existingUsers?.users?.find(
+      u => u.app_metadata?.provider === 'line' && u.app_metadata?.line_user_id === profile.userId
+    )
+
+    let supabaseUser
+    let isNewUser = false
+
+    if (existingUser) {
+      // Update existing user's metadata with latest LINE profile
+      const { data: updatedUser, error: updateError } = await admin.auth.admin.updateUserById(
+        existingUser.id,
+        {
+          user_metadata: {
+            display_name: profile.displayName,
+            picture_url: profile.pictureUrl || null,
+            line_user_id: profile.userId,
+            role: existingUser.user_metadata?.role || 'customer',
+          },
+        }
+      )
+
+      if (updateError) {
+        console.error('Failed to update LINE user metadata:', updateError)
+        return NextResponse.redirect(`${origin}/?auth_error=line_session_failed`)
+      }
+
+      supabaseUser = updatedUser.user
+    } else {
+      // Create new Supabase user
+      const { data: newUser, error: createError } = await admin.auth.admin.createUser({
+        email: lineEmail,
+        email_confirm: true, // Skip email verification
+        app_metadata: { provider: 'line', line_user_id: profile.userId },
+        user_metadata: {
+          display_name: profile.displayName,
+          picture_url: profile.pictureUrl || null,
+          line_user_id: profile.userId,
+          role: 'customer',
+        },
+      })
+
+      if (createError) {
+        console.error('Failed to create LINE user:', createError)
+        return NextResponse.redirect(`${origin}/?auth_error=line_session_failed`)
+      }
+
+      supabaseUser = newUser.user
+      isNewUser = true
+
+      // Create user_profiles row for new LINE user
+      const { error: profileError } = await admin.from('user_profiles').upsert({
+        user_id: supabaseUser.id,
+        display_name: profile.displayName,
+        phone: null,
+        role: 'customer',
+        auth_provider: 'line',
+        avatar_url: profile.pictureUrl || null,
+      }, { onConflict: 'user_id' })
+
+      if (profileError) {
+        console.error('Failed to create user_profiles row:', profileError)
+        // Don't fail the login, profile can be created later
+      }
     }
 
-    // Redirect to homepage with LINE profile data
-    // The app can process this to create/link the customer account
-    const encodedProfile = encodeURIComponent(JSON.stringify(lineProfile))
-    return NextResponse.redirect(`${origin}/?line_login=${encodedProfile}`)
+    // Generate magic link token for session establishment
+    const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+      type: 'magiclink',
+      email: lineEmail,
+    })
+
+    if (linkError || !linkData?.properties?.hashed_token) {
+      console.error('Failed to generate magic link:', linkError)
+      return NextResponse.redirect(`${origin}/?auth_error=line_session_failed`)
+    }
+
+    // Create cookie-aware Supabase client to establish session
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          },
+        },
+      }
+    )
+
+    // Verify OTP to establish session and set cookies
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      token_hash: linkData.properties.hashed_token,
+      type: 'magiclink',
+    })
+
+    if (verifyError) {
+      console.error('Failed to verify magic link:', verifyError)
+      return NextResponse.redirect(`${origin}/?auth_error=line_session_failed`)
+    }
+
+    // Redirect to homepage (session cookie is set, user is authenticated)
+    return NextResponse.redirect(`${origin}/`)
   } catch (err) {
     console.error('LINE callback error:', err)
     return NextResponse.redirect(`${origin}/?auth_error=line_error`)
