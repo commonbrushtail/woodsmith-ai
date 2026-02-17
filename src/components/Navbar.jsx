@@ -133,8 +133,11 @@ export default function Navbar() {
     router.push('/')
   }
 
+  // Only show as logged-in once profile is fully complete
+  const isProfileComplete = user?.user_metadata?.profile_complete === true
+
   // "สมชาย ใ." for users with first+last name, fallback to display_name
-  const navDisplayName = user
+  const navDisplayName = isProfileComplete
     ? (() => {
         const fn = user.user_metadata?.first_name
         const ln = user.user_metadata?.last_name
@@ -144,7 +147,7 @@ export default function Navbar() {
       })()
     : null
 
-  const userInitial = user
+  const userInitial = isProfileComplete
     ? (user.user_metadata?.first_name?.[0] || user.user_metadata?.display_name?.[0] || user.phone?.[0] || 'U').toUpperCase()
     : null
 
@@ -171,7 +174,7 @@ export default function Navbar() {
           {/* Right side actions */}
           <div className="flex gap-[24px] items-center">
             {/* Mobile: Login/User button */}
-            {user ? (
+            {isProfileComplete ? (
               <Link href="/account" className="lg:hidden bg-orange flex size-[36px] items-center justify-center no-underline">
                 <span className="font-['Circular_Std'] font-medium text-[14px] text-white">{userInitial}</span>
               </Link>
@@ -184,7 +187,7 @@ export default function Navbar() {
               <img alt="Search" className="block max-w-none size-full" src={imgUnion} />
             </button>
             {/* Desktop: Login/User button */}
-            {user ? (
+            {isProfileComplete ? (
               <div className="hidden lg:block relative" onClick={(e) => e.stopPropagation()}>
                 <button
                   className="flex items-center gap-[8px] border border-[#e5e7eb] h-[40px] px-[16px] cursor-pointer bg-transparent"

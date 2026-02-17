@@ -195,6 +195,7 @@ export async function completeLineProfile({ firstName, lastName, email }) {
     display_name: sanitized.firstName,
     first_name: sanitized.firstName,
     last_name: sanitized.lastName,
+    profile_complete: true,
   }
   if (sanitized.email) {
     metaUpdate.email = sanitized.email

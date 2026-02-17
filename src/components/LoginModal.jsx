@@ -345,7 +345,13 @@ export default function LoginModal({ isOpen, onClose }) {
 
       // Update user metadata in Supabase Auth
       await supabase.auth.updateUser({
-        data: { display_name: displayName, email: formData.email },
+        data: {
+          display_name: formData.firstName,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          profile_complete: true,
+        },
       })
 
       // Create customer profile row via server action
