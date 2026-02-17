@@ -14,7 +14,7 @@ Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
 Current Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-17 — Completed quick task 22: LINE email scope — captures email via ID token, conditional form field in /register/line
+Last activity: 2026-02-17 — Completed quick task 23: navbar profile_complete gate — hides user avatar/dropdown until registration complete
 
 Progress: [███████░░░] 70% (across all milestones: 7 of 10 phases complete, Phase 7: 2 of 2 plans done)
 
@@ -95,13 +95,16 @@ Recent decisions affecting v1.1:
 - [Quick 20]: Deterministic email pattern (line_{userId}@line.placeholder) for LINE users in Supabase Auth
 - [Quick 20]: Dual metadata storage (app_metadata for user lookup, user_metadata for profile access) for LINE users
 - [Quick 20]: User_profiles row with auth_provider=line distinguishes LINE users from SMS OTP users
-- [Quick 21]: Profile completeness determined by first_name IS NULL (no separate boolean flag needed)
-- [Quick 21]: Guard checks app_metadata.provider=line (set server-side in LINE callback, not forgeable)
+- [Quick 21]: Profile completeness tracked via explicit profile_complete boolean column (migration 029) — not IS NULL (more reliable)
+- [Quick 21]: Guard checks app_metadata.line_user_id (Supabase resets app_metadata.provider to 'email' after verifyOtp — do NOT use provider for LINE identification)
 - [Quick 21]: Auth metadata update in completeLineProfile is non-fatal; user_profiles is source of truth
 - [Quick 22]: Email extracted from LINE ID token JWT payload via atob decode — no extra API call needed
 - [Quick 22]: .is('email', null) guard on returning-user backfill prevents overwriting user-entered email
 - [Quick 22]: completeLineProfile null-safe email update (only included when truthy) prevents overwriting LINE-captured email with empty string
 - [Quick 22]: hasEmail state in /register/line drives conditional email field render based on profile.email existence
+- [Quick 23]: profile_complete: true stored in user_metadata so Navbar can gate UI client-side without a DB query
+- [Quick 23]: Navbar shows login button (not avatar) until profile_complete = true — prevents partial-registration confusion
+- [Quick 23]: display_name = firstName in user_metadata; navbar computed as "FirstName L." from first_name + last_name[0]
 
 ### Quick Tasks Completed
 
@@ -125,6 +128,7 @@ Recent decisions affecting v1.1:
 | 20 | Fix LINE Login user registration after redirect | 2026-02-17 | DONE — LINE OAuth callback creates real Supabase Auth session using admin API + magic link token, user_profiles row for new LINE users with auth_provider=line (2 files, 2 min) |
 | 21 | LINE Login profile completion form | 2026-02-17 | DONE — new LINE users redirect to /register/line, form collects first_name/last_name/email, completeLineProfile action + migration 028 (4 files, 2 min) |
 | 22 | LINE email scope to pre-fill and skip email field | 2026-02-17 | DONE — email scope added, ID token decoded for email, user_profiles.email stored on login, register form hides email when already captured (5 files, 3 min) |
+| 23 | Hide navbar user UI until profile_complete = true | 2026-02-17 | DONE — isProfileComplete flag gates mobile/desktop avatar+dropdown, profile_complete set in user_metadata for both SMS OTP and LINE flows (3 files, 1 min) |
 
 ### Pending Todos
 
@@ -137,7 +141,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed quick task 22 (LINE email scope — captures email via ID token, conditional register form field)
+Stopped at: Completed quick task 23 (navbar profile_complete gate — hides user avatar/dropdown until registration complete)
 Resume file: None
 
 ### Recent Activity
@@ -171,6 +175,7 @@ Resume file: None
 | 2026-02-17 | Quick task 20 executed | LINE Login session creation: rewrite OAuth callback to create Supabase Auth user via admin API, establish session via magic link token, create user_profiles row with auth_provider=line (2 files, 2 min) |
 | 2026-02-17 | Quick task 21 executed | LINE Login profile completion form: /register/line page with guard logic, first/last/email form matching RegisterScreen design, completeLineProfile action, migration 028 adds columns (4 files, 2 min) |
 | 2026-02-17 | Quick task 22 executed | LINE email scope: email scope in OAuth URL, ID token JWT decode in callback, email stored in user_profiles for new and returning users, conditional email field in /register/line (5 files, 3 min) |
+| 2026-02-17 | Quick task 23 executed | Navbar profile_complete gate: isProfileComplete flag hides avatar/dropdown until registration done, user_metadata synced in both SMS OTP and LINE flows (3 files, 1 min) |
 
 ---
 *Last updated: 2026-02-17*
