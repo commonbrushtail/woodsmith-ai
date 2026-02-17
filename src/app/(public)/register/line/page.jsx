@@ -10,6 +10,7 @@ export default function LineRegisterPage() {
   const router = useRouter()
   const [checking, setChecking] = useState(true)
   const [lineDisplayName, setLineDisplayName] = useState('')
+  const [hasEmail, setHasEmail] = useState(false)
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '' })
   const [agreed, setAgreed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -38,7 +39,7 @@ export default function LineRegisterPage() {
       // Check if profile is already complete (first_name already set)
       const { data: profile } = await supabase
         .from('user_profiles')
-        .select('first_name')
+        .select('first_name, email')
         .eq('user_id', user.id)
         .single()
 
@@ -46,6 +47,11 @@ export default function LineRegisterPage() {
         // Already completed — go to account
         router.replace('/account')
         return
+      }
+
+      // Set hasEmail flag if LINE already provided the email
+      if (profile?.email) {
+        setHasEmail(true)
       }
 
       // Show the form
@@ -65,7 +71,7 @@ export default function LineRegisterPage() {
     const result = await completeLineProfile({
       firstName: form.firstName,
       lastName: form.lastName,
-      email: form.email,
+      email: hasEmail ? null : form.email,
     })
 
     if (result?.error) {
@@ -89,7 +95,7 @@ export default function LineRegisterPage() {
     submitting ||
     !form.firstName.trim() ||
     !form.lastName.trim() ||
-    !form.email.trim() ||
+    (!hasEmail && !form.email.trim()) ||
     !agreed
 
   return (
@@ -141,16 +147,21 @@ export default function LineRegisterPage() {
             </div>
           </div>
 
-          {/* Email */}
-          <div className="flex flex-col gap-[8px] w-full">
-            <label className="font-['IBM_Plex_Sans_Thai'] text-[11px] text-black">อีเมล *</label>
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => update('email', e.target.value)}
-              className="h-[42px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black outline-none"
-            />
-          </div>
+          {/* Email — hidden when LINE already provided email via ID token */}
+          {!hasEmail && (
+            <div className="flex flex-col gap-[8px] w-full">
+              <label className="font-['IBM_Plex_Sans_Thai'] text-[11px] text-black">อีเมล *</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => update('email', e.target.value)}
+                className="h-[42px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black outline-none"
+              />
+              <p className="font-['IBM_Plex_Sans_Thai'] text-[11px] text-grey m-0 leading-[1.5]">
+                เราเก็บอีเมลของคุณเพื่อใช้ในการแจ้งสถานะคำขอใบเสนอราคา และการแจ้งเตือนสำคัญเกี่ยวกับบัญชีของคุณเท่านั้น
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Terms checkbox */}

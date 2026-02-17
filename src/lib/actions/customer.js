@@ -9,17 +9,21 @@ import { sanitizeObject } from '@/lib/sanitize'
 /**
  * Create a customer profile row after registration.
  */
-export async function createCustomerProfile(userId, { displayName, phone }) {
-  const sanitized = sanitizeObject({ displayName, phone })
+export async function createCustomerProfile(userId, { displayName, phone, email }) {
+  const sanitized = sanitizeObject({ displayName, phone, email })
   const supabase = createServiceClient()
+  const profileData = {
+    user_id: userId,
+    display_name: sanitized.displayName,
+    phone: sanitized.phone,
+    role: 'customer',
+  }
+  if (sanitized.email) {
+    profileData.email = sanitized.email
+  }
   const { error } = await supabase
     .from('user_profiles')
-    .insert({
-      user_id: userId,
-      display_name: sanitized.displayName,
-      phone: sanitized.phone,
-      role: 'customer',
-    })
+    .insert(profileData)
 
   if (error) {
     return { error: error.message }
@@ -163,14 +167,18 @@ export async function completeLineProfile({ firstName, lastName, email }) {
   const sanitized = sanitizeObject({ firstName, lastName, email })
   const displayName = `${sanitized.firstName} ${sanitized.lastName}`.trim()
 
+  const updateData = {
+    first_name: sanitized.firstName,
+    last_name: sanitized.lastName,
+    display_name: displayName,
+  }
+  if (sanitized.email) {
+    updateData.email = sanitized.email
+  }
+
   const { error: profileError } = await supabase
     .from('user_profiles')
-    .update({
-      first_name: sanitized.firstName,
-      last_name: sanitized.lastName,
-      email: sanitized.email,
-      display_name: displayName,
-    })
+    .update(updateData)
     .eq('user_id', user.id)
 
   if (profileError) {
@@ -178,13 +186,17 @@ export async function completeLineProfile({ firstName, lastName, email }) {
   }
 
   // Also sync to Supabase Auth user_metadata
+  const metaUpdate = {
+    display_name: displayName,
+    first_name: sanitized.firstName,
+    last_name: sanitized.lastName,
+  }
+  if (sanitized.email) {
+    metaUpdate.email = sanitized.email
+  }
+
   const { error: metaError } = await supabase.auth.updateUser({
-    data: {
-      display_name: displayName,
-      first_name: sanitized.firstName,
-      last_name: sanitized.lastName,
-      email: sanitized.email,
-    },
+    data: metaUpdate,
   })
 
   if (metaError) {
