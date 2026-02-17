@@ -14,7 +14,7 @@ Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
 Current Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-17 — Completed quick task 19: Fix LINE Login env var mismatch
+Last activity: 2026-02-17 — Completed quick task 20: Fix LINE Login user registration after redirect
 
 Progress: [███████░░░] 70% (across all milestones: 7 of 10 phases complete, Phase 7: 2 of 2 plans done)
 
@@ -91,6 +91,10 @@ Recent decisions affecting v1.1:
 - [Quick 18]: Sibling route groups (auth) and (dashboard) for independent layouts (eliminates x-pathname header workaround)
 - [Quick 18]: Minimal parent layout when children have distinct chrome requirements (pass-through pattern)
 - [Phase quick-19]: NEXT_PUBLIC_ prefix for LINE channel ID enables client-side OAuth URL generation
+- [Quick 20]: Magic link token + verifyOtp pattern for programmatic server-side login without password
+- [Quick 20]: Deterministic email pattern (line_{userId}@line.placeholder) for LINE users in Supabase Auth
+- [Quick 20]: Dual metadata storage (app_metadata for user lookup, user_metadata for profile access) for LINE users
+- [Quick 20]: User_profiles row with auth_provider=line distinguishes LINE users from SMS OTP users
 
 ### Quick Tasks Completed
 
@@ -111,6 +115,7 @@ Recent decisions affecting v1.1:
 | 16 | Move admin login from /login to /admin/login | 2026-02-17 | DONE — login pages moved to /admin namespace, route-rules updated with precedence check, all redirects updated, 38 tests pass (3 min) |
 | 18 | Separate admin login and dashboard layouts | 2026-02-17 | DONE — sibling route groups (auth) and (dashboard), removed x-pathname workaround, 18 directories moved, 65 files updated (2 min) |
 | 19 | Fix LINE Login env var mismatch | 2026-02-17 | DONE — renamed to NEXT_PUBLIC_LINE_LOGIN_CHANNEL_ID (client-accessible) and LINE_LOGIN_CHANNEL_SECRET (server-only), 4 files updated, 12 tests pass (2 min) |
+| 20 | Fix LINE Login user registration after redirect | 2026-02-17 | DONE — LINE OAuth callback creates real Supabase Auth session using admin API + magic link token, user_profiles row for new LINE users with auth_provider=line (2 files, 2 min) |
 
 ### Pending Todos
 
@@ -123,7 +128,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed quick task 19 (fix LINE Login env var mismatch)
+Stopped at: Completed quick task 20 (fix LINE Login user registration after redirect)
 Resume file: None
 
 ### Recent Activity
@@ -154,6 +159,7 @@ Resume file: None
 | 2026-02-17 | Quick task 16 executed | Move admin login to /admin/login: login pages moved, route precedence established, 11 files updated, 38 tests pass (3 min) |
 | 2026-02-17 | Quick task 18 executed | Separate admin login and dashboard layouts: sibling route groups, x-pathname workaround removed, 18 directories moved to (dashboard)/, clean architecture (2 min) |
 | 2026-02-17 | Quick task 19 executed | LINE Login env var fix: renamed to NEXT_PUBLIC_LINE_LOGIN_CHANNEL_ID (client-accessible) and LINE_LOGIN_CHANNEL_SECRET (server-only), OAuth flow now works (4 files, 2 min) |
+| 2026-02-17 | Quick task 20 executed | LINE Login session creation: rewrite OAuth callback to create Supabase Auth user via admin API, establish session via magic link token, create user_profiles row with auth_provider=line (2 files, 2 min) |
 
 ---
 *Last updated: 2026-02-17*
