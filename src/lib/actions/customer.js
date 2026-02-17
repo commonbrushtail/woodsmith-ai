@@ -150,6 +150,53 @@ export async function submitQuotation({
 }
 
 /**
+ * Complete LINE user profile with first name, last name, and email.
+ * Called from /register/line after the LINE OAuth callback for new users.
+ */
+export async function completeLineProfile({ firstName, lastName, email }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  const sanitized = sanitizeObject({ firstName, lastName, email })
+  const displayName = `${sanitized.firstName} ${sanitized.lastName}`.trim()
+
+  const { error: profileError } = await supabase
+    .from('user_profiles')
+    .update({
+      first_name: sanitized.firstName,
+      last_name: sanitized.lastName,
+      email: sanitized.email,
+      display_name: displayName,
+    })
+    .eq('user_id', user.id)
+
+  if (profileError) {
+    return { error: profileError.message }
+  }
+
+  // Also sync to Supabase Auth user_metadata
+  const { error: metaError } = await supabase.auth.updateUser({
+    data: {
+      display_name: displayName,
+      first_name: sanitized.firstName,
+      last_name: sanitized.lastName,
+      email: sanitized.email,
+    },
+  })
+
+  if (metaError) {
+    // Non-fatal: profile row already updated, log and continue
+    console.error('Failed to update LINE user auth metadata:', metaError.message)
+  }
+
+  revalidatePath('/account')
+  return { error: null }
+}
+
+/**
  * Get the current customer's quotations (RLS-filtered).
  */
 export async function getMyQuotations() {
