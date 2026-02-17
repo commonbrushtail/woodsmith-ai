@@ -109,6 +109,11 @@ Recent decisions affecting v1.1:
 - [Quick 23b]: On OTP send success, sending stays true — screen transitions away, no cleanup needed
 - [Quick 23b]: handleSendOtp wrapped in try/catch to handle both Supabase errors and unexpected exceptions
 - [Quick 23b]: docs/SUPABASE_SMS_SETUP.md documents OTP expiry as 179s to match LoginModal countdown timer exactly
+- [Quick 24]: phone_otp_codes table (migration 030) stores OTP with 3-minute expiry; service role only access
+- [Quick 24]: sendPhoneOtp generates OTP, upserts to DB, delivers via SMSKUB /api/messages directly (no Supabase phone auth needed)
+- [Quick 24]: verifyPhoneOtp validates OTP against DB, marks used, finds/creates Supabase user, generates magic link, establishes session via verifyOtp (mirrors LINE Login pattern)
+- [Quick 24]: New SMS users get placeholder email phone_{phone}@phone.placeholder + user_profiles row with auth_provider=sms, profile_complete=false
+- [Quick 24]: LoginModal now calls sendPhoneOtp/verifyPhoneOtp server actions instead of supabase.auth.signInWithOtp/verifyOtp
 
 ### Quick Tasks Completed
 
@@ -134,6 +139,7 @@ Recent decisions affecting v1.1:
 | 22 | LINE email scope to pre-fill and skip email field | 2026-02-17 | DONE — email scope added, ID token decoded for email, user_profiles.email stored on login, register form hides email when already captured (5 files, 3 min) |
 | 23 | Hide navbar user UI until profile_complete = true | 2026-02-17 | DONE — isProfileComplete flag gates mobile/desktop avatar+dropdown, profile_complete set in user_metadata for both SMS OTP and LINE flows (3 files, 1 min) |
 | 23b | SMS login loading/error feedback + Supabase SMS provider docs | 2026-02-17 | DONE — PhoneLoginScreen sending/error state, handleSendOtp returns { error } on failure, docs/SUPABASE_SMS_SETUP.md with full config (2 files, 3 min) |
+| 24 | Custom SMS OTP flow via SMSKUB (bypass Supabase phone auth) | 2026-02-17 | DONE — migration 030 + phone-auth.js server actions + LoginModal updated; Supabase has no Custom HTTP SMS option so OTP generated/stored/verified server-side (3 files, commit 6921b47) |
 
 ### Pending Todos
 
@@ -146,7 +152,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed quick task 23b (SMS login loading/error feedback — PhoneLoginScreen sending/error state, docs/SUPABASE_SMS_SETUP.md) — awaiting human-verify checkpoint
+Stopped at: Completed quick task 24 (custom SMS OTP flow via SMSKUB — migration 030, phone-auth.js, LoginModal updated) — awaiting human-verify
 Resume file: None
 
 ### Recent Activity
