@@ -177,7 +177,10 @@ export async function GET(request) {
       return NextResponse.redirect(`${origin}/?auth_error=line_session_failed`)
     }
 
-    // Redirect to homepage (session cookie is set, user is authenticated)
+    // Redirect: new users go to profile completion form, returning users go to homepage
+    if (isNewUser) {
+      return NextResponse.redirect(`${origin}/register/line`)
+    }
     return NextResponse.redirect(`${origin}/`)
   } catch (err) {
     console.error('LINE callback error:', err)
