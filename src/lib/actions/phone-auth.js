@@ -11,6 +11,14 @@ function generateOtp() {
 }
 
 /**
+ * Generate a 6-character alphanumeric reference code (uppercase).
+ * Displayed in the OTP screen UI and included in the SMS.
+ */
+function generateRefCode() {
+  return Math.random().toString(36).slice(2, 8).toUpperCase()
+}
+
+/**
  * Send an OTP to the given Thai phone number via SMSKUB.
  * Stores the OTP in phone_otp_codes with a 3-minute expiry.
  *
@@ -23,12 +31,13 @@ export async function sendPhoneOtp(phone) {
   }
 
   const otp = generateOtp()
+  const refCode = generateRefCode()
   const expiresAt = new Date(Date.now() + 3 * 60 * 1000).toISOString()
 
   // Upsert OTP into DB (replaces any previous OTP for this phone)
   const admin = createServiceClient()
   const { error: dbError } = await admin.from('phone_otp_codes').upsert(
-    { phone, otp, expires_at: expiresAt, used: false, created_at: new Date().toISOString() },
+    { phone, otp, ref_code: refCode, expires_at: expiresAt, used: false, created_at: new Date().toISOString() },
     { onConflict: 'phone' }
   )
   if (dbError) {
@@ -37,7 +46,7 @@ export async function sendPhoneOtp(phone) {
   }
 
   // Send OTP via SMSKUB
-  const message = `รหัส OTP WoodSmith ของคุณคือ ${otp} (หมดอายุใน 3 นาที)`
+  const message = `รหัส OTP WoodSmith: ${otp}\nรหัสอ้างอิง: ${refCode}\n(หมดอายุใน 3 นาที)`
   try {
     const res = await fetch(`${process.env.SMSKUB_BASE_URL}/api/messages`, {
       method: 'POST',
@@ -58,7 +67,8 @@ export async function sendPhoneOtp(phone) {
     return { error: 'ไม่สามารถส่ง OTP ได้ กรุณาตรวจสอบเบอร์โทรและลองใหม่' }
   }
 
-  // Success — no return value (undefined)
+  // Return ref code so the OTP screen can display it
+  return { refCode }
 }
 
 /**

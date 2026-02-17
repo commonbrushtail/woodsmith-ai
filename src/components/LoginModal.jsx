@@ -84,7 +84,7 @@ function PhoneLoginScreen({ onSendOtp, onLineLogin }) {
 }
 
 // Screen: OTP Verification
-function OtpScreen({ phone, onVerify, onResend, onBack }) {
+function OtpScreen({ phone, refCode, onVerify, onResend, onBack }) {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [countdown, setCountdown] = useState(179)
   const [verifying, setVerifying] = useState(false)
@@ -159,7 +159,7 @@ function OtpScreen({ phone, onVerify, onResend, onBack }) {
           กรอกรหัส OTP 6 หลักที่ส่งไปยังหมายเลข {maskedPhone}
         </p>
         <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-black m-0">
-          รหัสอ้างอิง : ab1234
+          รหัสอ้างอิง : {refCode}
         </p>
       </div>
 
@@ -329,12 +329,14 @@ function RegisterScreen({ phone, onRegister, onBack }) {
 export default function LoginModal({ isOpen, onClose }) {
   const [screen, setScreen] = useState('login') // 'login' | 'otp' | 'register'
   const [phone, setPhone] = useState('')
+  const [refCode, setRefCode] = useState('')
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
       setScreen('login')
       setPhone('')
+      setRefCode('')
     }
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
@@ -349,6 +351,7 @@ export default function LoginModal({ isOpen, onClose }) {
       if (result?.error) {
         return { error: result.error }
       }
+      setRefCode(result?.refCode || '')
       setScreen('otp')
     } catch (err) {
       console.error('OTP send error:', err)
@@ -467,6 +470,7 @@ export default function LoginModal({ isOpen, onClose }) {
               {screen === 'otp' && (
                 <OtpScreen
                   phone={phone}
+                  refCode={refCode}
                   onVerify={handleVerifyOtp}
                   onResend={() => handleSendOtp(phone)}
                   onBack={() => setScreen('login')}
