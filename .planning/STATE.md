@@ -105,6 +105,10 @@ Recent decisions affecting v1.1:
 - [Quick 23]: profile_complete: true stored in user_metadata so Navbar can gate UI client-side without a DB query
 - [Quick 23]: Navbar shows login button (not avatar) until profile_complete = true — prevents partial-registration confusion
 - [Quick 23]: display_name = firstName in user_metadata; navbar computed as "FirstName L." from first_name + last_name[0]
+- [Quick 23b]: PhoneLoginScreen owns sending/error state; parent handleSendOtp returns { error } or undefined (not void) so child can react
+- [Quick 23b]: On OTP send success, sending stays true — screen transitions away, no cleanup needed
+- [Quick 23b]: handleSendOtp wrapped in try/catch to handle both Supabase errors and unexpected exceptions
+- [Quick 23b]: docs/SUPABASE_SMS_SETUP.md documents OTP expiry as 179s to match LoginModal countdown timer exactly
 
 ### Quick Tasks Completed
 
@@ -129,6 +133,7 @@ Recent decisions affecting v1.1:
 | 21 | LINE Login profile completion form | 2026-02-17 | DONE — new LINE users redirect to /register/line, form collects first_name/last_name/email, completeLineProfile action + migration 028 (4 files, 2 min) |
 | 22 | LINE email scope to pre-fill and skip email field | 2026-02-17 | DONE — email scope added, ID token decoded for email, user_profiles.email stored on login, register form hides email when already captured (5 files, 3 min) |
 | 23 | Hide navbar user UI until profile_complete = true | 2026-02-17 | DONE — isProfileComplete flag gates mobile/desktop avatar+dropdown, profile_complete set in user_metadata for both SMS OTP and LINE flows (3 files, 1 min) |
+| 23b | SMS login loading/error feedback + Supabase SMS provider docs | 2026-02-17 | DONE — PhoneLoginScreen sending/error state, handleSendOtp returns { error } on failure, docs/SUPABASE_SMS_SETUP.md with full config (2 files, 3 min) |
 
 ### Pending Todos
 
@@ -141,7 +146,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed quick task 23 (navbar profile_complete gate — hides user avatar/dropdown until registration complete)
+Stopped at: Completed quick task 23b (SMS login loading/error feedback — PhoneLoginScreen sending/error state, docs/SUPABASE_SMS_SETUP.md) — awaiting human-verify checkpoint
 Resume file: None
 
 ### Recent Activity
@@ -176,6 +181,7 @@ Resume file: None
 | 2026-02-17 | Quick task 21 executed | LINE Login profile completion form: /register/line page with guard logic, first/last/email form matching RegisterScreen design, completeLineProfile action, migration 028 adds columns (4 files, 2 min) |
 | 2026-02-17 | Quick task 22 executed | LINE email scope: email scope in OAuth URL, ID token JWT decode in callback, email stored in user_profiles for new and returning users, conditional email field in /register/line (5 files, 3 min) |
 | 2026-02-17 | Quick task 23 executed | Navbar profile_complete gate: isProfileComplete flag hides avatar/dropdown until registration done, user_metadata synced in both SMS OTP and LINE flows (3 files, 1 min) |
+| 2026-02-17 | Quick task 23b executed | SMS login loading/error feedback: PhoneLoginScreen sending/error state with Thai text, handleSendOtp returns { error }, docs/SUPABASE_SMS_SETUP.md created (2 files, 3 min) |
 
 ---
 *Last updated: 2026-02-17*
