@@ -14,7 +14,7 @@ Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
 Current Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-17 — Completed quick task 23: navbar profile_complete gate — hides user avatar/dropdown until registration complete
+Last activity: 2026-02-17 — Completed quick task 23b: SMS login loading/error feedback + Supabase SMS provider docs (SMSKUB wired up)
 
 Progress: [███████░░░] 70% (across all milestones: 7 of 10 phases complete, Phase 7: 2 of 2 plans done)
 
