@@ -95,10 +95,16 @@ export async function GET(request) {
     let isNewUser = false
 
     if (existingUser) {
+      // If LINE provides a real email and the stored email is still the placeholder, update it
+      const emailUpdate = (lineRealEmail && existingUser.email?.endsWith('@line.placeholder'))
+        ? { email: lineRealEmail, email_confirm: true }
+        : {}
+
       // Update existing user's metadata with latest LINE profile
       const { data: updatedUser, error: updateError } = await admin.auth.admin.updateUserById(
         existingUser.id,
         {
+          ...emailUpdate,
           user_metadata: {
             display_name: profile.displayName,
             picture_url: profile.pictureUrl || null,
@@ -123,9 +129,9 @@ export async function GET(request) {
           .is('email', null)
       }
     } else {
-      // Create new Supabase user
+      // Create new Supabase user — use real email from LINE ID token if available
       const { data: newUser, error: createError } = await admin.auth.admin.createUser({
-        email: lineEmail,
+        email: lineRealEmail || lineEmail,
         email_confirm: true, // Skip email verification
         app_metadata: { provider: 'line', line_user_id: profile.userId },
         user_metadata: {
@@ -162,9 +168,10 @@ export async function GET(request) {
     }
 
     // Generate magic link token for session establishment
+    // Use supabaseUser.email — may be real email if LINE provided it, else placeholder
     const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
       type: 'magiclink',
-      email: lineEmail,
+      email: supabaseUser.email,
     })
 
     if (linkError || !linkData?.properties?.hashed_token) {

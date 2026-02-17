@@ -210,6 +210,20 @@ export async function completeLineProfile({ firstName, lastName, email }) {
     console.error('Failed to update LINE user auth metadata:', metaError.message)
   }
 
+  // Update the Supabase Auth email from the placeholder to the real email.
+  // Use service client (admin) to skip email confirmation.
+  if (sanitized.email) {
+    const adminClient = createServiceClient()
+    const { error: authEmailError } = await adminClient.auth.admin.updateUserById(user.id, {
+      email: sanitized.email,
+      email_confirm: true,
+    })
+    if (authEmailError) {
+      // Non-fatal: profile and metadata already updated, log and continue
+      console.error('Failed to update auth email for LINE user:', authEmailError.message)
+    }
+  }
+
   revalidatePath('/account')
   return { error: null }
 }
