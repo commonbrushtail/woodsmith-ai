@@ -81,6 +81,12 @@ export default function LineRegisterPage() {
       return
     }
 
+    // Refresh the client session so the navbar picks up the new user_metadata
+    // immediately without needing a manual page refresh.
+    const { createClient } = await import('@/lib/supabase/client')
+    const supabase = createClient()
+    await supabase.auth.refreshSession()
+
     router.push('/account')
   }
 
