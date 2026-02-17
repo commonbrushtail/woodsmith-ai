@@ -229,6 +229,70 @@ export async function completeLineProfile({ firstName, lastName, email }) {
 }
 
 /**
+ * Complete SMS OTP user profile with first name, last name, and email.
+ * Called from /register/phone after OTP login for new SMS users.
+ */
+export async function completePhoneProfile({ firstName, lastName, email }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  const sanitized = sanitizeObject({ firstName, lastName, email })
+
+  const updateData = {
+    first_name: sanitized.firstName,
+    last_name: sanitized.lastName,
+    display_name: sanitized.firstName,
+    profile_complete: true,
+  }
+  if (sanitized.email) {
+    updateData.email = sanitized.email
+  }
+
+  const { error: profileError } = await supabase
+    .from('user_profiles')
+    .update(updateData)
+    .eq('user_id', user.id)
+
+  if (profileError) {
+    return { error: profileError.message }
+  }
+
+  // Sync to auth user_metadata
+  const metaUpdate = {
+    display_name: sanitized.firstName,
+    first_name: sanitized.firstName,
+    last_name: sanitized.lastName,
+    profile_complete: true,
+  }
+  if (sanitized.email) {
+    metaUpdate.email = sanitized.email
+  }
+
+  const { error: metaError } = await supabase.auth.updateUser({ data: metaUpdate })
+  if (metaError) {
+    console.error('Failed to update phone user auth metadata:', metaError.message)
+  }
+
+  // Update Supabase Auth email from placeholder to real email
+  if (sanitized.email) {
+    const adminClient = createServiceClient()
+    const { error: authEmailError } = await adminClient.auth.admin.updateUserById(user.id, {
+      email: sanitized.email,
+      email_confirm: true,
+    })
+    if (authEmailError) {
+      console.error('Failed to update auth email for phone user:', authEmailError.message)
+    }
+  }
+
+  revalidatePath('/account')
+  return { error: null }
+}
+
+/**
  * Get the current customer's quotations (RLS-filtered).
  */
 export async function getMyQuotations() {

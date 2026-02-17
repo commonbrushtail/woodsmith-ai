@@ -7,7 +7,6 @@ import imgFavicon from '../assets/6727cae5f32ea2c35a94792ae9603addc6300612.png'
 import imgUnion from '../assets/4e24c29ef271a3dd1cdfea028b3abb8fceed5119.svg'
 import imgMenu1 from '../assets/ef18b0c8e480616ebef0c37dee581ff94d0c7c97.svg'
 import SearchOverlay from './SearchOverlay'
-import LoginModal from './LoginModal'
 
 const menuItems = [
   { label: 'หน้าแรก', path: '/' },
@@ -87,7 +86,6 @@ function UserDropdown({ user, onLogout, onClose }) {
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
-  const [loginOpen, setLoginOpen] = useState(false)
   const [user, setUser] = useState(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const pathname = usePathname()
@@ -104,9 +102,6 @@ export default function Navbar() {
 
       const { data: { subscription: sub } } = supabase.auth.onAuthStateChange((_event, session) => {
         setUser(session?.user ?? null)
-        if (_event === 'SIGNED_IN') {
-          setLoginOpen(false)
-        }
       })
       subscription = sub
     }
@@ -179,9 +174,9 @@ export default function Navbar() {
                 <span className="font-['Circular_Std'] font-medium text-[14px] text-white">{userInitial}</span>
               </Link>
             ) : (
-              <button className="lg:hidden bg-orange flex h-[36px] items-center justify-center px-[18px]" onClick={() => setLoginOpen(true)}>
+              <Link href="/login" className="lg:hidden bg-orange flex h-[36px] items-center justify-center px-[18px] no-underline">
                 <p className="font-['Circular_Std'] font-medium text-[14px] text-white">Login</p>
-              </button>
+              </Link>
             )}
             <button className="block shrink-0 size-[20px]" onClick={() => setSearchOpen(true)}>
               <img alt="Search" className="block max-w-none size-full" src={imgUnion} />
@@ -208,11 +203,11 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-              <button className="hidden lg:flex border border-[#e5e7eb] h-[40px] items-center justify-center px-[24px]" onClick={() => setLoginOpen(true)}>
+              <Link href="/login" className="hidden lg:flex border border-[#e5e7eb] h-[40px] items-center justify-center px-[24px] no-underline">
                 <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[15px] text-black">
                   เข้าสู่ระบบ
                 </p>
-              </button>
+              </Link>
             )}
             {/* Mobile: Hamburger menu */}
             <button className="lg:hidden shrink-0 size-[20px]" onClick={() => setMobileMenuOpen(true)}>
@@ -223,7 +218,6 @@ export default function Navbar() {
       </div>
       <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} user={user} onLogout={handleLogout} />
       <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
-      <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
     </>
   )
 }

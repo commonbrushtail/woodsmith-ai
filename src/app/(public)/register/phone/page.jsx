@@ -1,0 +1,187 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import imgFavicon from '@/assets/6727cae5f32ea2c35a94792ae9603addc6300612.png'
+import { completePhoneProfile } from '@/lib/actions/customer'
+
+export default function PhoneRegisterPage() {
+  const router = useRouter()
+  const [checking, setChecking] = useState(true)
+  const [phone, setPhone] = useState('')
+  const [form, setForm] = useState({ firstName: '', lastName: '', email: '' })
+  const [agreed, setAgreed] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
+
+  useEffect(() => {
+    async function checkAccess() {
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+
+      const { data: { user } } = await supabase.auth.getUser()
+
+      // No session — send to login
+      if (!user) {
+        router.replace('/login')
+        return
+      }
+
+      // Only SMS OTP users should see this page
+      if (user.app_metadata?.provider !== 'phone') {
+        router.replace('/')
+        return
+      }
+
+      // Check if profile is already complete
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('profile_complete, phone')
+        .eq('user_id', user.id)
+        .single()
+
+      if (profile?.profile_complete) {
+        router.replace('/account')
+        return
+      }
+
+      setPhone(profile?.phone || user.app_metadata?.phone || '')
+      setChecking(false)
+    }
+
+    checkAccess()
+  }, [router])
+
+  const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }))
+
+  const handleSubmit = async () => {
+    setSubmitting(true)
+    setErrorMsg('')
+
+    const result = await completePhoneProfile({
+      firstName: form.firstName,
+      lastName: form.lastName,
+      email: form.email,
+    })
+
+    if (result?.error) {
+      setErrorMsg(result.error)
+      setSubmitting(false)
+      return
+    }
+
+    // Refresh session so navbar picks up the new user_metadata immediately
+    const { createClient } = await import('@/lib/supabase/client')
+    const supabase = createClient()
+    await supabase.auth.refreshSession()
+
+    router.push('/account')
+  }
+
+  if (checking) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-grey">กำลังโหลด...</p>
+      </div>
+    )
+  }
+
+  const maskedPhone = phone
+    ? `${phone.slice(0, 3)}*****${phone.slice(-2)}`
+    : ''
+
+  const isDisabled =
+    submitting ||
+    !form.firstName.trim() ||
+    !form.lastName.trim() ||
+    !form.email.trim() ||
+    !agreed
+
+  return (
+    <div className="py-[60px] px-[20px]">
+      <div className="max-w-[450px] mx-auto">
+        <img alt="WoodSmith" className="size-[47px] lg:size-[60px] object-cover" src={imgFavicon} />
+
+        <div className="flex flex-col gap-[4px] mt-[16px] lg:mt-[24px]">
+          <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-black m-0">
+            สร้างบัญชี WoodSmith
+          </h2>
+          <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-grey m-0">
+            โปรดกรอกรายละเอียดของคุณเพื่อสร้างบัญชี
+          </p>
+        </div>
+
+        {maskedPhone && (
+          <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-black mt-[16px] m-0">
+            ลงทะเบียนด้วยเบอร์โทร. {maskedPhone}
+          </p>
+        )}
+
+        <div className="flex flex-col gap-[24px] w-full mt-[24px]">
+          <div className="flex flex-col lg:flex-row gap-[24px] w-full">
+            <div className="flex flex-col gap-[8px] flex-1">
+              <label className="font-['IBM_Plex_Sans_Thai'] text-[11px] text-black">ชื่อจริง *</label>
+              <input
+                type="text"
+                value={form.firstName}
+                onChange={(e) => update('firstName', e.target.value)}
+                className="h-[42px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black outline-none"
+              />
+            </div>
+            <div className="flex flex-col gap-[8px] flex-1">
+              <label className="font-['IBM_Plex_Sans_Thai'] text-[11px] text-black">นามสกุล *</label>
+              <input
+                type="text"
+                value={form.lastName}
+                onChange={(e) => update('lastName', e.target.value)}
+                className="h-[42px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-[8px] w-full">
+            <label className="font-['IBM_Plex_Sans_Thai'] text-[11px] text-black">อีเมล *</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => update('email', e.target.value)}
+              className="h-[42px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black outline-none"
+            />
+            <p className="font-['IBM_Plex_Sans_Thai'] text-[11px] text-grey m-0 leading-[1.5]">
+              เราเก็บอีเมลของคุณเพื่อใช้ในการแจ้งสถานะคำขอใบเสนอราคาเท่านั้น
+            </p>
+          </div>
+        </div>
+
+        <label className="flex gap-[8px] items-start mt-[24px] cursor-pointer">
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+            className="mt-[2px] size-[16px] shrink-0 accent-orange"
+          />
+          <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-black leading-[1.4]">
+            ฉันได้อ่านและยอมรับ{' '}
+            <span className="text-orange underline">ข้อตกลงและเงื่อนไขการใช้บริการ</span>
+          </span>
+        </label>
+
+        <button
+          onClick={handleSubmit}
+          disabled={isDisabled}
+          className="w-full h-[48px] bg-orange flex items-center justify-center cursor-pointer border-none mt-[24px] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-white">
+            {submitting ? 'กำลังบันทึก...' : 'สร้างบัญชี'}
+          </span>
+        </button>
+
+        {errorMsg && (
+          <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#dc2626] mt-[12px] text-center m-0">
+            {errorMsg}
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
