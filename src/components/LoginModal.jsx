@@ -15,6 +15,19 @@ function CloseIcon() {
 // Screen: Phone Login
 function PhoneLoginScreen({ onSendOtp, onLineLogin }) {
   const [phone, setPhone] = useState('')
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleSend = async () => {
+    setSending(true)
+    setError('')
+    const result = await onSendOtp(phone)
+    if (result?.error) {
+      setError(result.error)
+      setSending(false)
+    }
+    // On success, sending stays true — screen transitions away
+  }
 
   return (
     <div className="flex flex-col items-center w-full">
@@ -38,14 +51,19 @@ function PhoneLoginScreen({ onSendOtp, onLineLogin }) {
 
         {/* Login button */}
         <button
-          onClick={() => phone.length === 10 && onSendOtp(phone)}
-          disabled={phone.length !== 10}
+          onClick={handleSend}
+          disabled={phone.length !== 10 || sending}
           className="w-full h-[48px] bg-orange flex items-center justify-center cursor-pointer border-none disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-white">
-            เข้าสู่ระบบ
+            {sending ? 'กำลังส่ง OTP...' : 'เข้าสู่ระบบ'}
           </span>
         </button>
+
+        {/* Error message */}
+        {error && (
+          <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#dc2626] mt-[12px] m-0">{error}</p>
+        )}
 
         {/* Divider */}
         <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-grey text-center">หรือ</p>
@@ -324,18 +342,23 @@ export default function LoginModal({ isOpen, onClose }) {
   if (!isOpen) return null
 
   const handleSendOtp = async (phoneNumber) => {
-    setPhone(phoneNumber)
-    const { createClient } = await import('@/lib/supabase/client')
-    const supabase = createClient()
-    const formatted = phoneNumber.startsWith('0')
-      ? '+66' + phoneNumber.slice(1)
-      : phoneNumber
-    const { error } = await supabase.auth.signInWithOtp({ phone: formatted })
-    if (error) {
-      console.error('OTP send error:', error.message)
-      return
+    try {
+      setPhone(phoneNumber)
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const formatted = phoneNumber.startsWith('0')
+        ? '+66' + phoneNumber.slice(1)
+        : phoneNumber
+      const { error } = await supabase.auth.signInWithOtp({ phone: formatted })
+      if (error) {
+        console.error('OTP send error:', error.message)
+        return { error: 'ไม่สามารถส่ง OTP ได้ กรุณาตรวจสอบเบอร์โทรและลองใหม่' }
+      }
+      setScreen('otp')
+    } catch (err) {
+      console.error('OTP send error:', err)
+      return { error: 'ไม่สามารถส่ง OTP ได้ กรุณาตรวจสอบเบอร์โทรและลองใหม่' }
     }
-    setScreen('otp')
   }
 
   const handleVerifyOtp = async (otpCode) => {
