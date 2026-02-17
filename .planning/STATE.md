@@ -14,7 +14,7 @@ Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
 Current Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-17 — Completed quick task 20: Fix LINE Login user registration after redirect
+Last activity: 2026-02-17 — Completed quick task 21: LINE Login profile completion form at /register/line
 
 Progress: [███████░░░] 70% (across all milestones: 7 of 10 phases complete, Phase 7: 2 of 2 plans done)
 
@@ -95,6 +95,9 @@ Recent decisions affecting v1.1:
 - [Quick 20]: Deterministic email pattern (line_{userId}@line.placeholder) for LINE users in Supabase Auth
 - [Quick 20]: Dual metadata storage (app_metadata for user lookup, user_metadata for profile access) for LINE users
 - [Quick 20]: User_profiles row with auth_provider=line distinguishes LINE users from SMS OTP users
+- [Quick 21]: Profile completeness determined by first_name IS NULL (no separate boolean flag needed)
+- [Quick 21]: Guard checks app_metadata.provider=line (set server-side in LINE callback, not forgeable)
+- [Quick 21]: Auth metadata update in completeLineProfile is non-fatal; user_profiles is source of truth
 
 ### Quick Tasks Completed
 
@@ -116,6 +119,7 @@ Recent decisions affecting v1.1:
 | 18 | Separate admin login and dashboard layouts | 2026-02-17 | DONE — sibling route groups (auth) and (dashboard), removed x-pathname workaround, 18 directories moved, 65 files updated (2 min) |
 | 19 | Fix LINE Login env var mismatch | 2026-02-17 | DONE — renamed to NEXT_PUBLIC_LINE_LOGIN_CHANNEL_ID (client-accessible) and LINE_LOGIN_CHANNEL_SECRET (server-only), 4 files updated, 12 tests pass (2 min) |
 | 20 | Fix LINE Login user registration after redirect | 2026-02-17 | DONE — LINE OAuth callback creates real Supabase Auth session using admin API + magic link token, user_profiles row for new LINE users with auth_provider=line (2 files, 2 min) |
+| 21 | LINE Login profile completion form | 2026-02-17 | DONE — new LINE users redirect to /register/line, form collects first_name/last_name/email, completeLineProfile action + migration 028 (4 files, 2 min) |
 
 ### Pending Todos
 
@@ -128,7 +132,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed quick task 20 (fix LINE Login user registration after redirect)
+Stopped at: Completed quick task 21 (LINE Login profile completion form at /register/line)
 Resume file: None
 
 ### Recent Activity
@@ -160,6 +164,7 @@ Resume file: None
 | 2026-02-17 | Quick task 18 executed | Separate admin login and dashboard layouts: sibling route groups, x-pathname workaround removed, 18 directories moved to (dashboard)/, clean architecture (2 min) |
 | 2026-02-17 | Quick task 19 executed | LINE Login env var fix: renamed to NEXT_PUBLIC_LINE_LOGIN_CHANNEL_ID (client-accessible) and LINE_LOGIN_CHANNEL_SECRET (server-only), OAuth flow now works (4 files, 2 min) |
 | 2026-02-17 | Quick task 20 executed | LINE Login session creation: rewrite OAuth callback to create Supabase Auth user via admin API, establish session via magic link token, create user_profiles row with auth_provider=line (2 files, 2 min) |
+| 2026-02-17 | Quick task 21 executed | LINE Login profile completion form: /register/line page with guard logic, first/last/email form matching RegisterScreen design, completeLineProfile action, migration 028 adds columns (4 files, 2 min) |
 
 ---
 *Last updated: 2026-02-17*
