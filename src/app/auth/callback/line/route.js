@@ -85,8 +85,10 @@ export async function GET(request) {
 
     // Find existing user by LINE user ID in app_metadata
     const { data: existingUsers } = await admin.auth.admin.listUsers()
+    // Note: do NOT check app_metadata.provider — Supabase resets it to 'email'
+    // after magic link verifyOtp, overwriting our 'line' value. Use line_user_id only.
     const existingUser = existingUsers?.users?.find(
-      u => u.app_metadata?.provider === 'line' && u.app_metadata?.line_user_id === profile.userId
+      u => u.app_metadata?.line_user_id === profile.userId
     )
 
     let supabaseUser
