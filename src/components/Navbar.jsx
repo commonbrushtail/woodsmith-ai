@@ -130,7 +130,7 @@ export default function Navbar() {
     await supabase.auth.signOut()
     setUser(null)
     setDropdownOpen(false)
-    router.refresh()
+    router.push('/')
   }
 
   const userInitial = user
