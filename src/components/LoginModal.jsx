@@ -66,9 +66,11 @@ function PhoneLoginScreen({ onSendOtp, onLineLogin }) {
 }
 
 // Screen: OTP Verification
-function OtpScreen({ phone, isNewAccount, onVerify, onResend, onBack }) {
+function OtpScreen({ phone, onVerify, onResend, onBack }) {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [countdown, setCountdown] = useState(179)
+  const [verifying, setVerifying] = useState(false)
+  const [error, setError] = useState('')
   const inputRefs = useRef([])
 
   useEffect(() => {
@@ -111,14 +113,27 @@ function OtpScreen({ phone, isNewAccount, onVerify, onResend, onBack }) {
     if (countdown <= 0) {
       setCountdown(179)
       setOtp(['', '', '', '', '', ''])
+      setError('')
       onResend()
     }
+  }
+
+  const handleVerifyClick = async () => {
+    setVerifying(true)
+    setError('')
+    const result = await onVerify(otp.join(''))
+    if (result?.error) {
+      setError(result.error)
+      setOtp(['', '', '', '', '', ''])
+      inputRefs.current[0]?.focus()
+    }
+    setVerifying(false)
   }
 
   return (
     <div className="flex flex-col items-start w-full">
       <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[18px] text-black leading-[1.2] m-0">
-        {isNewAccount ? 'ป้อนรหัสยืนยัน' : 'เข้าสู่ระบบด้วย OTP'}
+        เข้าสู่ระบบด้วย OTP
       </h2>
 
       <div className="flex flex-col gap-[8px] mt-[16px]">
@@ -158,14 +173,19 @@ function OtpScreen({ phone, isNewAccount, onVerify, onResend, onBack }) {
           : 'ส่งรหัส OTP อีกครั้ง'}
       </button>
 
+      {/* Error message */}
+      {error && (
+        <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#dc2626] mt-[12px] m-0">{error}</p>
+      )}
+
       {/* Verify button */}
       <button
-        onClick={() => onVerify(otp.join(''))}
-        disabled={otp.some((d) => !d)}
+        onClick={handleVerifyClick}
+        disabled={otp.some((d) => !d) || verifying}
         className="w-full h-[48px] bg-orange flex items-center justify-center cursor-pointer border-none mt-[24px] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-white">
-          ยืนยัน
+          {verifying ? 'กำลังตรวจสอบ...' : 'ยืนยัน'}
         </span>
       </button>
     </div>
@@ -176,12 +196,24 @@ function OtpScreen({ phone, isNewAccount, onVerify, onResend, onBack }) {
 function RegisterScreen({ phone, onRegister, onBack }) {
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '' })
   const [agreed, setAgreed] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   const maskedPhone = phone
     ? `${phone.slice(0, 3)}*****${phone.slice(-2)}`
     : '088*****13'
 
   const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }))
+
+  const handleSubmit = async () => {
+    setSubmitting(true)
+    setError('')
+    const result = await onRegister(form)
+    if (result?.error) {
+      setError(result.error)
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div className="flex flex-col items-start w-full">
@@ -247,14 +279,19 @@ function RegisterScreen({ phone, onRegister, onBack }) {
         </span>
       </label>
 
+      {/* Error message */}
+      {error && (
+        <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#dc2626] mt-[12px] m-0">{error}</p>
+      )}
+
       {/* Register button */}
       <button
-        onClick={() => onRegister(form)}
-        disabled={!form.firstName || !form.lastName || !form.email || !agreed}
+        onClick={handleSubmit}
+        disabled={!form.firstName || !form.lastName || !form.email || !agreed || submitting}
         className="w-full h-[48px] bg-orange flex items-center justify-center cursor-pointer border-none mt-[24px] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-white">
-          สร้างบัญชี
+          {submitting ? 'กำลังสร้างบัญชี...' : 'สร้างบัญชี'}
         </span>
       </button>
 
@@ -272,7 +309,7 @@ function RegisterScreen({ phone, onRegister, onBack }) {
 }
 
 export default function LoginModal({ isOpen, onClose }) {
-  const [screen, setScreen] = useState('login') // 'login' | 'otp' | 'otp-new' | 'register'
+  const [screen, setScreen] = useState('login') // 'login' | 'otp' | 'register'
   const [phone, setPhone] = useState('')
 
   useEffect(() => {
@@ -296,8 +333,9 @@ export default function LoginModal({ isOpen, onClose }) {
     const { error } = await supabase.auth.signInWithOtp({ phone: formatted })
     if (error) {
       console.error('OTP send error:', error.message)
+      return
     }
-    setScreen('otp-new')
+    setScreen('otp')
   }
 
   const handleVerifyOtp = async (otpCode) => {
@@ -306,19 +344,21 @@ export default function LoginModal({ isOpen, onClose }) {
     const formatted = phone.startsWith('0')
       ? '+66' + phone.slice(1)
       : phone
-    const { error } = await supabase.auth.verifyOtp({
+    const { data, error } = await supabase.auth.verifyOtp({
       phone: formatted,
       token: otpCode,
       type: 'sms',
     })
     if (error) {
       console.error('OTP verify error:', error.message)
-      return
+      return { error: 'รหัส OTP ไม่ถูกต้องหรือหมดอายุ' }
     }
-    if (screen === 'otp-new') {
-      setScreen('register')
-    } else {
+    // Determine next step based on profile completion, not screen state
+    const profileComplete = data?.user?.user_metadata?.profile_complete === true
+    if (profileComplete) {
       onClose()
+    } else {
+      setScreen('register')
     }
   }
 
@@ -337,14 +377,13 @@ export default function LoginModal({ isOpen, onClose }) {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        console.error('No authenticated user found for registration')
-        return
+        return { error: 'ไม่พบผู้ใช้ กรุณาลองใหม่อีกครั้ง' }
       }
 
       const displayName = `${formData.firstName} ${formData.lastName}`.trim()
 
       // Update user metadata in Supabase Auth
-      await supabase.auth.updateUser({
+      const { error: metaError } = await supabase.auth.updateUser({
         data: {
           display_name: formData.firstName,
           first_name: formData.firstName,
@@ -353,18 +392,25 @@ export default function LoginModal({ isOpen, onClose }) {
           profile_complete: true,
         },
       })
+      if (metaError) {
+        return { error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' }
+      }
 
       // Create customer profile row via server action
       const { createCustomerProfile } = await import('@/lib/actions/customer')
-      await createCustomerProfile(user.id, {
+      const { error: profileError } = await createCustomerProfile(user.id, {
         displayName,
         phone: phone,
         email: formData.email,
       })
+      if (profileError) {
+        return { error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' }
+      }
 
       onClose()
     } catch (err) {
       console.error('Registration error:', err)
+      return { error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' }
     }
   }
 
@@ -406,12 +452,11 @@ export default function LoginModal({ isOpen, onClose }) {
                   onLineLogin={handleLineLogin}
                 />
               )}
-              {(screen === 'otp' || screen === 'otp-new') && (
+              {screen === 'otp' && (
                 <OtpScreen
                   phone={phone}
-                  isNewAccount={screen === 'otp-new'}
                   onVerify={handleVerifyOtp}
-                  onResend={() => {}}
+                  onResend={() => handleSendOtp(phone)}
                   onBack={() => setScreen('login')}
                 />
               )}

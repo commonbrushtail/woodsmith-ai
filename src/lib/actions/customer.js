@@ -24,7 +24,7 @@ export async function createCustomerProfile(userId, { displayName, phone, email 
   }
   const { error } = await supabase
     .from('user_profiles')
-    .insert(profileData)
+    .upsert(profileData, { onConflict: 'user_id' })
 
   if (error) {
     return { error: error.message }
