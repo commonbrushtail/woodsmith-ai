@@ -102,10 +102,9 @@ export async function verifyPhoneOtp(phone, otp) {
     return { error: 'รหัส OTP ไม่ถูกต้อง' }
   }
 
-  // 2. Mark OTP as used immediately (prevent replay attacks)
-  await admin.from('phone_otp_codes').update({ used: true }).eq('phone', phone)
+  // OTP is valid — do NOT mark as used yet (mark only after session is established)
 
-  // 3. Find or create Supabase Auth user by phone
+  // 2. Find or create Supabase Auth user by phone
   const { data: profileRow } = await admin
     .from('user_profiles')
     .select('user_id, profile_complete')
@@ -117,23 +116,24 @@ export async function verifyPhoneOtp(phone, otp) {
 
   if (profileRow) {
     // Returning user — get their auth email
-    const { data: { user }, error: getUserError } = await admin.auth.admin.getUserById(profileRow.user_id)
-    if (getUserError || !user) {
+    const { data: authData, error: getUserError } = await admin.auth.admin.getUserById(profileRow.user_id)
+    if (getUserError || !authData?.user) {
+      console.error('[verifyPhoneOtp] getUserById failed:', getUserError)
       return { error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' }
     }
-    authEmail = user.email
+    authEmail = authData.user.email
     profileComplete = profileRow.profile_complete === true
   } else {
     // New user — create Supabase Auth account
     const placeholderEmail = `phone_${phone}@phone.placeholder`
-    const { data: { user }, error: createError } = await admin.auth.admin.createUser({
+    const { data: createData, error: createError } = await admin.auth.admin.createUser({
       email: placeholderEmail,
       email_confirm: true,
       app_metadata: { provider: 'phone', phone },
       user_metadata: { phone, role: 'customer' },
     })
-    if (createError) {
-      console.error('Failed to create phone user:', createError.message)
+    if (createError || !createData?.user) {
+      console.error('[verifyPhoneOtp] createUser failed:', createError)
       return { error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' }
     }
     authEmail = placeholderEmail
@@ -141,38 +141,40 @@ export async function verifyPhoneOtp(phone, otp) {
 
     // Create initial user_profiles row (profile not yet complete)
     const { error: profileInsertError } = await admin.from('user_profiles').insert({
-      user_id: user.id,
+      user_id: createData.user.id,
       phone,
       role: 'customer',
       auth_provider: 'sms',
       profile_complete: false,
     })
     if (profileInsertError) {
-      // Non-fatal — profile can be created during registration
-      console.error('Failed to create user_profiles row:', profileInsertError.message)
+      console.error('[verifyPhoneOtp] user_profiles insert failed:', profileInsertError.message)
     }
   }
 
-  // 4. Generate magic link token to establish session
+  // 3. Generate magic link token to establish session
   const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
     type: 'magiclink',
     email: authEmail,
   })
   if (linkError || !linkData?.properties?.hashed_token) {
-    console.error('Failed to generate magic link:', linkError)
+    console.error('[verifyPhoneOtp] generateLink failed:', linkError)
     return { error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' }
   }
 
-  // 5. Verify magic link to set session cookies (server-side, cookie-aware client)
+  // 4. Verify magic link to set session cookies (server-side, cookie-aware client)
   const supabase = await createServerClient()
   const { error: verifyError } = await supabase.auth.verifyOtp({
     token_hash: linkData.properties.hashed_token,
     type: 'magiclink',
   })
   if (verifyError) {
-    console.error('Failed to verify magic link:', verifyError.message)
+    console.error('[verifyPhoneOtp] verifyOtp failed:', verifyError)
     return { error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' }
   }
+
+  // 5. Mark OTP as used only AFTER session is successfully established
+  await admin.from('phone_otp_codes').update({ used: true }).eq('phone', phone)
 
   return { profileComplete }
 }
