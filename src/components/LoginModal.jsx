@@ -344,15 +344,10 @@ export default function LoginModal({ isOpen, onClose }) {
   const handleSendOtp = async (phoneNumber) => {
     try {
       setPhone(phoneNumber)
-      const { createClient } = await import('@/lib/supabase/client')
-      const supabase = createClient()
-      const formatted = phoneNumber.startsWith('0')
-        ? '+66' + phoneNumber.slice(1)
-        : phoneNumber
-      const { error } = await supabase.auth.signInWithOtp({ phone: formatted })
-      if (error) {
-        console.error('OTP send error:', error.message)
-        return { error: 'ไม่สามารถส่ง OTP ได้ กรุณาตรวจสอบเบอร์โทรและลองใหม่' }
+      const { sendPhoneOtp } = await import('@/lib/actions/phone-auth')
+      const result = await sendPhoneOtp(phoneNumber)
+      if (result?.error) {
+        return { error: result.error }
       }
       setScreen('otp')
     } catch (err) {
@@ -362,26 +357,20 @@ export default function LoginModal({ isOpen, onClose }) {
   }
 
   const handleVerifyOtp = async (otpCode) => {
-    const { createClient } = await import('@/lib/supabase/client')
-    const supabase = createClient()
-    const formatted = phone.startsWith('0')
-      ? '+66' + phone.slice(1)
-      : phone
-    const { data, error } = await supabase.auth.verifyOtp({
-      phone: formatted,
-      token: otpCode,
-      type: 'sms',
-    })
-    if (error) {
-      console.error('OTP verify error:', error.message)
+    try {
+      const { verifyPhoneOtp } = await import('@/lib/actions/phone-auth')
+      const result = await verifyPhoneOtp(phone, otpCode)
+      if (result?.error) {
+        return { error: result.error }
+      }
+      if (result?.profileComplete) {
+        onClose()
+      } else {
+        setScreen('register')
+      }
+    } catch (err) {
+      console.error('OTP verify error:', err)
       return { error: 'รหัส OTP ไม่ถูกต้องหรือหมดอายุ' }
-    }
-    // Determine next step based on profile completion, not screen state
-    const profileComplete = data?.user?.user_metadata?.profile_complete === true
-    if (profileComplete) {
-      onClose()
-    } else {
-      setScreen('register')
     }
   }
 
