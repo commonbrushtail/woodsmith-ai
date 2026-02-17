@@ -28,7 +28,7 @@ export function getLineLoginUrl(state) {
     client_id: channelId,
     redirect_uri: redirectUri,
     state,
-    scope: 'openid profile',
+    scope: 'openid profile email',
   })
 
   return `${LINE_CONFIG.authorizationUrl}?${params.toString()}`

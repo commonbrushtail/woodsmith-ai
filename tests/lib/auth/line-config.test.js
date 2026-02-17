@@ -41,12 +41,13 @@ describe('getLineLoginUrl', () => {
     expect(url).toContain(encodeURIComponent('https://woodsmith.co.th/auth/callback/line'))
   })
 
-  it('requests openid and profile scopes', async () => {
+  it('requests openid, profile, and email scopes', async () => {
     const { getLineLoginUrl } = await import('@/lib/auth/line-config')
     const url = getLineLoginUrl('test-state')
     expect(url).toContain('scope=')
     expect(url).toMatch(/openid/)
     expect(url).toMatch(/profile/)
+    expect(url).toMatch(/email/)
   })
 })
 

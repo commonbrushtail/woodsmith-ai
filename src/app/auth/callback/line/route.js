@@ -47,6 +47,20 @@ export async function GET(request) {
 
     const tokens = await tokenResponse.json()
 
+    // Extract email from LINE ID token (email claim is in JWT payload)
+    let lineRealEmail = null
+    if (tokens.id_token) {
+      try {
+        const payload = JSON.parse(atob(tokens.id_token.split('.')[1]))
+        if (payload.email) {
+          lineRealEmail = payload.email
+        }
+      } catch (e) {
+        // ID token decode failed — not fatal, email field will remain as fallback
+        console.error('Failed to decode LINE ID token:', e.message)
+      }
+    }
+
     // Get LINE user profile
     const profileResponse = await fetch(LINE_CONFIG.profileUrl, {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
@@ -98,6 +112,14 @@ export async function GET(request) {
       }
 
       supabaseUser = updatedUser.user
+
+      // Backfill email in user_profiles if LINE provides one and profile has none
+      if (lineRealEmail) {
+        await admin.from('user_profiles')
+          .update({ email: lineRealEmail })
+          .eq('user_id', existingUser.id)
+          .is('email', null)
+      }
     } else {
       // Create new Supabase user
       const { data: newUser, error: createError } = await admin.auth.admin.createUser({
@@ -128,6 +150,7 @@ export async function GET(request) {
         role: 'customer',
         auth_provider: 'line',
         avatar_url: profile.pictureUrl || null,
+        email: lineRealEmail,
       }, { onConflict: 'user_id' })
 
       if (profileError) {
