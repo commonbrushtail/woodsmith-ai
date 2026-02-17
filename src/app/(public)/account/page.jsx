@@ -9,7 +9,7 @@ export default function AccountProfilePage() {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState({ displayName: '', phone: '', email: '' })
+  const [form, setForm] = useState({ firstName: '', lastName: '', phone: '', email: '' })
 
   useEffect(() => {
     async function load() {
@@ -20,12 +20,12 @@ export default function AccountProfilePage() {
         setUser(authUser)
 
         if (authUser) {
-          // Try to load profile from user_profiles table
           const { getCustomerProfile } = await import('@/lib/actions/customer')
           const { data } = await getCustomerProfile()
           setProfile(data)
           setForm({
-            displayName: data?.display_name || authUser.user_metadata?.display_name || '',
+            firstName: data?.first_name || authUser.user_metadata?.first_name || '',
+            lastName: data?.last_name || authUser.user_metadata?.last_name || '',
             phone: data?.phone || authUser.phone || '',
             email: data?.email || authUser.user_metadata?.email || authUser.email || '',
           })
@@ -44,17 +44,22 @@ export default function AccountProfilePage() {
     try {
       const { updateCustomerProfile } = await import('@/lib/actions/customer')
       const { error } = await updateCustomerProfile({
-        display_name: form.displayName.trim(),
+        first_name: form.firstName.trim(),
+        last_name: form.lastName.trim(),
+        display_name: form.firstName.trim(),
         phone: form.phone.trim(),
       })
       if (error) {
         toast.error('เกิดข้อผิดพลาด: ' + error)
       } else {
-        // Also update auth user metadata
         const { createClient } = await import('@/lib/supabase/client')
         const supabase = createClient()
         await supabase.auth.updateUser({
-          data: { display_name: form.displayName.trim() },
+          data: {
+            first_name: form.firstName.trim(),
+            last_name: form.lastName.trim(),
+            display_name: form.firstName.trim(),
+          },
         })
         toast.success('บันทึกข้อมูลเรียบร้อยแล้ว')
       }
@@ -87,14 +92,26 @@ export default function AccountProfilePage() {
       </h2>
 
       <div className="flex flex-col gap-[20px] max-w-[480px]">
-        <div className="flex flex-col gap-[6px]">
-          <label className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-black">ชื่อที่แสดง</label>
-          <input
-            type="text"
-            value={form.displayName}
-            onChange={(e) => setForm(prev => ({ ...prev, displayName: e.target.value }))}
-            className="h-[42px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black outline-none"
-          />
+        {/* First / Last name */}
+        <div className="flex flex-col lg:flex-row gap-[16px]">
+          <div className="flex flex-col gap-[6px] flex-1">
+            <label className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-black">ชื่อจริง</label>
+            <input
+              type="text"
+              value={form.firstName}
+              onChange={(e) => setForm(prev => ({ ...prev, firstName: e.target.value }))}
+              className="h-[42px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black outline-none"
+            />
+          </div>
+          <div className="flex flex-col gap-[6px] flex-1">
+            <label className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-black">นามสกุล</label>
+            <input
+              type="text"
+              value={form.lastName}
+              onChange={(e) => setForm(prev => ({ ...prev, lastName: e.target.value }))}
+              className="h-[42px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black outline-none"
+            />
+          </div>
         </div>
 
         <div className="flex flex-col gap-[6px]">

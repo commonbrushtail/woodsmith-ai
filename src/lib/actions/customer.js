@@ -65,10 +65,14 @@ export async function updateCustomerProfile(formData) {
   }
 
   const updates = {}
+  const firstName = formData.get?.('first_name') ?? formData.first_name
+  const lastName = formData.get?.('last_name') ?? formData.last_name
   const displayName = formData.get?.('display_name') ?? formData.display_name
   const phone = formData.get?.('phone') ?? formData.phone
   const avatarUrl = formData.get?.('avatar_url') ?? formData.avatar_url
 
+  if (firstName !== undefined) updates.first_name = firstName
+  if (lastName !== undefined) updates.last_name = lastName
   if (displayName !== undefined) updates.display_name = displayName
   if (phone !== undefined) updates.phone = phone
   if (avatarUrl !== undefined) updates.avatar_url = avatarUrl
@@ -166,12 +170,11 @@ export async function completeLineProfile({ firstName, lastName, email }) {
   }
 
   const sanitized = sanitizeObject({ firstName, lastName, email })
-  const displayName = `${sanitized.firstName} ${sanitized.lastName}`.trim()
 
   const updateData = {
     first_name: sanitized.firstName,
     last_name: sanitized.lastName,
-    display_name: displayName,
+    display_name: sanitized.firstName, // navbar shows "FirstName L." computed from first/last
     profile_complete: true,
   }
   if (sanitized.email) {
@@ -189,7 +192,7 @@ export async function completeLineProfile({ firstName, lastName, email }) {
 
   // Also sync to Supabase Auth user_metadata
   const metaUpdate = {
-    display_name: displayName,
+    display_name: sanitized.firstName,
     first_name: sanitized.firstName,
     last_name: sanitized.lastName,
   }

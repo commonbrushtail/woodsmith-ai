@@ -133,8 +133,19 @@ export default function Navbar() {
     router.push('/')
   }
 
+  // "สมชาย ใ." for users with first+last name, fallback to display_name
+  const navDisplayName = user
+    ? (() => {
+        const fn = user.user_metadata?.first_name
+        const ln = user.user_metadata?.last_name
+        if (fn && ln) return `${fn} ${ln.charAt(0).toUpperCase()}.`
+        if (fn) return fn
+        return user.user_metadata?.display_name || 'บัญชี'
+      })()
+    : null
+
   const userInitial = user
-    ? (user.user_metadata?.display_name?.[0] || user.phone?.[0] || 'U').toUpperCase()
+    ? (user.user_metadata?.first_name?.[0] || user.user_metadata?.display_name?.[0] || user.phone?.[0] || 'U').toUpperCase()
     : null
 
   return (
@@ -182,8 +193,8 @@ export default function Navbar() {
                   <div className="size-[28px] rounded-full bg-orange flex items-center justify-center">
                     <span className="font-['Circular_Std'] font-medium text-[13px] text-white">{userInitial}</span>
                   </div>
-                  <span className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[14px] text-black max-w-[100px] truncate">
-                    {user.user_metadata?.display_name || 'บัญชี'}
+                  <span className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[14px] text-black max-w-[120px] truncate">
+                    {navDisplayName}
                   </span>
                   <svg className={`size-[16px] transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none">
                     <path d="M6 9L12 15L18 9" stroke="#35383b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
