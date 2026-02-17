@@ -2,7 +2,7 @@
  * Custom SMS webhook for Supabase phone auth.
  *
  * Supabase POSTs here when a phone OTP needs to be sent.
- * We forward it to SMSKUB's OTP endpoint with the generated OTP.
+ * We forward it to SMSKUB's messages endpoint.
  *
  * Supabase dashboard setup:
  *   Auth → Providers → Phone → SMS Provider → Custom HTTP
@@ -10,10 +10,10 @@
  *   Secret: (value of SMS_WEBHOOK_SECRET env var)
  *
  * Required env vars:
- *   SMSKUB_BASE_URL     e.g. https://api.sms-kub.com
- *   SMSKUB_TOKEN        API token from SMSKUB console
- *   SMSKUB_PROJECT_ID   Project ID from SMSKUB console (e.g. 66446383e0ce9c88197de158)
- *   SMS_WEBHOOK_SECRET  Any random secret — paste the same value in Supabase dashboard
+ *   SMSKUB_BASE_URL       https://console.sms-kub.com
+ *   SMSKUB_TOKEN          API token from SMSKUB console
+ *   SMSKUB_SENDER         Sender name (e.g. SMS-DEMO or your approved sender)
+ *   SMS_WEBHOOK_SECRET    Any random secret — paste the same value in Supabase dashboard
  */
 export async function POST(request) {
   try {
@@ -36,8 +36,10 @@ export async function POST(request) {
       ? '0' + phone.slice(3)
       : phone
 
+    const message = `รหัส OTP WoodSmith ของคุณคือ ${otp} (หมดอายุใน 3 นาที)`
+
     const smskubRes = await fetch(
-      `${process.env.SMSKUB_BASE_URL}/api/v2/otp/request`,
+      `${process.env.SMSKUB_BASE_URL}/api/messages`,
       {
         method: 'POST',
         headers: {
@@ -45,9 +47,9 @@ export async function POST(request) {
           'key': process.env.SMSKUB_TOKEN,
         },
         body: JSON.stringify({
-          phone: thaiPhone,
-          project: process.env.SMSKUB_PROJECT_ID,
-          otp: String(otp), // pass Supabase's OTP directly so SMSKUB embeds it in the template
+          to: [thaiPhone],
+          from: process.env.SMSKUB_SENDER,
+          message,
         }),
       }
     )
