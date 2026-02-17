@@ -17,6 +17,7 @@ export async function createCustomerProfile(userId, { displayName, phone, email 
     display_name: sanitized.displayName,
     phone: sanitized.phone,
     role: 'customer',
+    profile_complete: true,
   }
   if (sanitized.email) {
     profileData.email = sanitized.email
@@ -171,6 +172,7 @@ export async function completeLineProfile({ firstName, lastName, email }) {
     first_name: sanitized.firstName,
     last_name: sanitized.lastName,
     display_name: displayName,
+    profile_complete: true,
   }
   if (sanitized.email) {
     updateData.email = sanitized.email

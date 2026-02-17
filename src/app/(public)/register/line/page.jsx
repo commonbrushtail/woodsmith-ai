@@ -37,14 +37,14 @@ export default function LineRegisterPage() {
         return
       }
 
-      // Check if profile is already complete (first_name already set)
+      // Check if profile is already complete
       const { data: profile } = await supabase
         .from('user_profiles')
-        .select('first_name, email')
+        .select('profile_complete, email')
         .eq('user_id', user.id)
         .single()
 
-      if (profile?.first_name) {
+      if (profile?.profile_complete) {
         // Already completed — go to account
         router.replace('/account')
         return

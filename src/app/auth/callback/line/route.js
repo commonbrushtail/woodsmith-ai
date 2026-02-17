@@ -207,14 +207,14 @@ export async function GET(request) {
       return NextResponse.redirect(`${origin}/register/line`)
     }
 
-    // Returning users: check if their profile is complete (first_name set)
+    // Returning users: check if their profile is complete
     const { data: existingProfile } = await admin
       .from('user_profiles')
-      .select('first_name')
+      .select('profile_complete')
       .eq('user_id', supabaseUser.id)
       .single()
 
-    if (!existingProfile?.first_name) {
+    if (!existingProfile?.profile_complete) {
       return NextResponse.redirect(`${origin}/register/line`)
     }
 
