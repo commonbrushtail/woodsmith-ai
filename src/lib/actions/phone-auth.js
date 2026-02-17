@@ -60,6 +60,10 @@ export async function sendPhoneOtp(phone) {
     if (!res.ok) {
       const body = await res.text()
       console.error('SMSKUB error:', res.status, body)
+      const json = (() => { try { return JSON.parse(body) } catch { return {} } })()
+      if (json.error === 'balance is not enough') {
+        return { error: 'ระบบ SMS ไม่พร้อมใช้งานชั่วคราว กรุณาติดต่อเจ้าหน้าที่' }
+      }
       return { error: 'ไม่สามารถส่ง OTP ได้ กรุณาตรวจสอบเบอร์โทรและลองใหม่' }
     }
   } catch (err) {
