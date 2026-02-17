@@ -30,8 +30,9 @@ export default function LineRegisterPage() {
       }
 
       // Only LINE users should see this page
-      const provider = user.app_metadata?.provider
-      if (provider !== 'line') {
+      // Note: we check line_user_id (not app_metadata.provider) because Supabase
+      // resets provider to 'email' internally when a magic link session is established.
+      if (!user.app_metadata?.line_user_id) {
         router.replace('/')
         return
       }
