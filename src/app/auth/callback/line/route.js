@@ -200,10 +200,22 @@ export async function GET(request) {
       return NextResponse.redirect(`${origin}/?auth_error=line_session_failed`)
     }
 
-    // Redirect: new users go to profile completion form, returning users go to homepage
+    // Redirect: users with incomplete profile go to completion form, others go to homepage
     if (isNewUser) {
       return NextResponse.redirect(`${origin}/register/line`)
     }
+
+    // Returning users: check if their profile is complete (first_name set)
+    const { data: existingProfile } = await admin
+      .from('user_profiles')
+      .select('first_name')
+      .eq('user_id', supabaseUser.id)
+      .single()
+
+    if (!existingProfile?.first_name) {
+      return NextResponse.redirect(`${origin}/register/line`)
+    }
+
     return NextResponse.redirect(`${origin}/`)
   } catch (err) {
     console.error('LINE callback error:', err)
