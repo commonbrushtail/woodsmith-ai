@@ -25,6 +25,15 @@ export async function GET(request) {
     return NextResponse.redirect(`${origin}/?auth_error=missing_params`)
   }
 
+  // Validate CSRF state against cookie
+  const cookieHeader = request.headers.get('cookie') || ''
+  const stateCookie = cookieHeader.split(';').map(c => c.trim()).find(c => c.startsWith('line_oauth_state='))
+  const storedState = stateCookie?.split('=')[1]
+
+  if (!storedState || storedState !== state) {
+    return NextResponse.redirect(`${origin}/?auth_error=invalid_state`)
+  }
+
   try {
     // Exchange authorization code for tokens
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || origin
@@ -209,9 +218,15 @@ export async function GET(request) {
       return NextResponse.redirect(`${origin}/?auth_error=line_session_failed`)
     }
 
+    // Clear the CSRF state cookie
+    const clearStateCookie = (response) => {
+      response.cookies.set('line_oauth_state', '', { path: '/', maxAge: 0 })
+      return response
+    }
+
     // Redirect: users with incomplete profile go to completion form, others go to homepage
     if (isNewUser) {
-      return NextResponse.redirect(`${origin}/register/line`)
+      return clearStateCookie(NextResponse.redirect(`${origin}/register/line`))
     }
 
     // Returning users: check if their profile is complete
@@ -222,10 +237,10 @@ export async function GET(request) {
       .single()
 
     if (!existingProfile?.profile_complete) {
-      return NextResponse.redirect(`${origin}/register/line`)
+      return clearStateCookie(NextResponse.redirect(`${origin}/register/line`))
     }
 
-    return NextResponse.redirect(`${origin}/`)
+    return clearStateCookie(NextResponse.redirect(`${origin}/`))
   } catch (err) {
     console.error('LINE callback error:', err)
     return NextResponse.redirect(`${origin}/?auth_error=line_error`)

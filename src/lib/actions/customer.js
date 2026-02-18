@@ -10,12 +10,19 @@ import { newQuotationNotification } from '@/lib/email-templates'
 
 /**
  * Create a customer profile row after registration.
+ * userId is derived from the authenticated session — not accepted as a parameter.
  */
-export async function createCustomerProfile(userId, { displayName, phone, email }) {
+export async function createCustomerProfile({ displayName, phone, email }) {
+  const authSupabase = await createClient()
+  const { data: { user } } = await authSupabase.auth.getUser()
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
   const sanitized = sanitizeObject({ displayName, phone, email })
   const supabase = createServiceClient()
   const profileData = {
-    user_id: userId,
+    user_id: user.id,
     display_name: sanitized.displayName,
     phone: sanitized.phone,
     role: 'customer',

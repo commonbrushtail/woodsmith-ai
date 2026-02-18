@@ -379,9 +379,9 @@ export default function LoginModal({ isOpen, onClose }) {
 
   const handleLineLogin = async () => {
     const { getLineLoginUrl } = await import('@/lib/auth/line-config')
-    // Generate a random state for CSRF protection
     const state = crypto.randomUUID()
-    sessionStorage.setItem('line_oauth_state', state)
+    // Store state in HTTP-only-ish cookie for server-side CSRF validation
+    document.cookie = `line_oauth_state=${state}; Path=/; Max-Age=600; SameSite=Lax`
     const url = getLineLoginUrl(state)
     window.location.href = url
   }
@@ -413,7 +413,7 @@ export default function LoginModal({ isOpen, onClose }) {
 
       // Create customer profile row via server action
       const { createCustomerProfile } = await import('@/lib/actions/customer')
-      const { error: profileError } = await createCustomerProfile(user.id, {
+      const { error: profileError } = await createCustomerProfile({
         displayName,
         phone: phone,
         email: formData.email,

@@ -14,7 +14,7 @@ Milestone: v1.1 Variations Management
 Phase: 7 of 7 (Product Integration)
 Current Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-17 — Completed quick task 23b: SMS login loading/error feedback + Supabase SMS provider docs (SMSKUB wired up)
+Last activity: 2026-02-18 — Completed quick task 25: Fix LINE OAuth CSRF and createCustomerProfile IDOR security vulnerabilities
 
 Progress: [███████░░░] 70% (across all milestones: 7 of 10 phases complete, Phase 7: 2 of 2 plans done)
 
@@ -117,6 +117,8 @@ Recent decisions affecting v1.1:
 - [Quick 24b]: submitQuotation uses createServiceClient for DB insert — anonymous quotations have null customer_id and NULL = NULL is FALSE in PostgreSQL, blocking RLS insert policy for all anonymous users
 - [Quick 24b]: id: dbProduct.id added to product mapping in ProductDetailClient — was omitted, making product.id always undefined when passed to QuotationModal
 - [Quick 24b]: quantity and message columns added to quotations table as nullable integer/text via migration 032 (were referenced in submitQuotation but never added to schema)
+- [Quick 25]: Cookie-based CSRF state for LINE OAuth (SameSite=Lax, 10-min expiry, cleared after use) — server validates state from cookie against query param
+- [Quick 25]: createCustomerProfile derives userId from auth session — eliminates IDOR by design, no longer accepts userId as parameter
 
 ### Quick Tasks Completed
 
@@ -144,6 +146,7 @@ Recent decisions affecting v1.1:
 | 23b | SMS login loading/error feedback + Supabase SMS provider docs | 2026-02-17 | DONE — PhoneLoginScreen sending/error state, handleSendOtp returns { error } on failure, docs/SUPABASE_SMS_SETUP.md with full config (2 files, 3 min) |
 | 24 | Custom SMS OTP flow via SMSKUB (bypass Supabase phone auth) | 2026-02-17 | DONE — migration 030 + phone-auth.js server actions + LoginModal updated; Supabase has no Custom HTTP SMS option so OTP generated/stored/verified server-side (3 files, commit 6921b47) |
 | 24b | Fix quotation flow: product ID mapping, missing columns, RLS bypass | 2026-02-18 | DONE — migration 032 adds quantity/message columns, ProductDetailClient adds id: dbProduct.id, submitQuotation uses createServiceClient to bypass RLS for anonymous users (3 files, 5 min) |
+| 25 | Fix LINE OAuth CSRF and createCustomerProfile IDOR | 2026-02-18 | DONE — cookie-based state validation for LINE OAuth, auth-derived userId for createCustomerProfile (5 files, 2 min) |
 
 ### Pending Todos
 
@@ -156,7 +159,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed quick task 24b (quotation flow fix — migration 032, ProductDetailClient id mapping, service client bypass) — awaiting human-verify (Task 3 checkpoint)
+Stopped at: Completed quick task 25 (security fixes — LINE OAuth CSRF cookie-based state validation + createCustomerProfile IDOR auth-derived userId)
 Resume file: None
 
 ### Recent Activity
@@ -193,6 +196,7 @@ Resume file: None
 | 2026-02-17 | Quick task 23 executed | Navbar profile_complete gate: isProfileComplete flag hides avatar/dropdown until registration done, user_metadata synced in both SMS OTP and LINE flows (3 files, 1 min) |
 | 2026-02-17 | Quick task 23b executed | SMS login loading/error feedback: PhoneLoginScreen sending/error state with Thai text, handleSendOtp returns { error }, docs/SUPABASE_SMS_SETUP.md created (2 files, 3 min) |
 | 2026-02-18 | Quick task 24b executed | Quotation flow fix: migration 032 adds quantity/message, ProductDetailClient adds id: dbProduct.id, submitQuotation uses service client to bypass RLS for anonymous users (3 files, 5 min) |
+| 2026-02-18 | Quick task 25 executed | Security fixes: LINE OAuth CSRF (cookie-based state validation) + createCustomerProfile IDOR (auth-derived userId) (5 files, 2 min) |
 
 ---
 *Last updated: 2026-02-18*

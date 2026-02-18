@@ -7,7 +7,7 @@ vi.mock('next/cache', () => ({ revalidatePath: (...args) => mockRevalidatePath(.
 // Query chain is thenable — resolves when awaited
 function createQueryChain(finalResult = { data: null, error: null, count: 0 }) {
   const chain = {}
-  const methods = ['select', 'insert', 'update', 'delete', 'eq', 'or', 'ilike', 'order', 'range', 'single', 'limit']
+  const methods = ['select', 'insert', 'upsert', 'update', 'delete', 'eq', 'or', 'ilike', 'order', 'range', 'single', 'limit']
   for (const m of methods) {
     chain[m] = vi.fn(() => chain)
   }
@@ -47,25 +47,42 @@ beforeEach(() => {
 
 // --- Tests ---
 describe('createCustomerProfile', () => {
-  it('inserts a customer profile row', async () => {
+  it('inserts a customer profile row using userId from auth session', async () => {
     mockAdminQueryChain = createQueryChain({ error: null })
     mockAdmin.from = vi.fn(() => mockAdminQueryChain)
 
     const { createCustomerProfile } = await import('@/lib/actions/customer')
-    const result = await createCustomerProfile('user-1', {
+    const result = await createCustomerProfile({
       displayName: 'John',
       phone: '0812345678',
       email: 'john@test.com',
     })
 
     expect(result.error).toBeNull()
-    expect(mockAdminQueryChain.insert).toHaveBeenCalledWith({
-      user_id: 'user-1',
-      display_name: 'John',
+    // userId should come from auth session (user-1), not from parameter
+    expect(mockAdminQueryChain.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user_id: 'user-1',
+        display_name: 'John',
+        phone: '0812345678',
+        email: 'john@test.com',
+        role: 'customer',
+        profile_complete: true,
+      }),
+      { onConflict: 'user_id' }
+    )
+  })
+
+  it('returns error when not authenticated', async () => {
+    mockServerClient.auth.getUser.mockResolvedValue({ data: { user: null } })
+
+    const { createCustomerProfile } = await import('@/lib/actions/customer')
+    const result = await createCustomerProfile({
+      displayName: 'John',
       phone: '0812345678',
-      email: 'john@test.com',
-      role: 'customer',
     })
+
+    expect(result.error).toBe('Not authenticated')
   })
 
   it('returns error on insert failure', async () => {
@@ -73,7 +90,7 @@ describe('createCustomerProfile', () => {
     mockAdmin.from = vi.fn(() => mockAdminQueryChain)
 
     const { createCustomerProfile } = await import('@/lib/actions/customer')
-    const result = await createCustomerProfile('user-1', {
+    const result = await createCustomerProfile({
       displayName: 'John',
       phone: '0812345678',
       email: 'john@test.com',

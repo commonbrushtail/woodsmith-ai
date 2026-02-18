@@ -264,7 +264,7 @@ export default function LoginPage() {
   const handleLineLogin = async () => {
     const { getLineLoginUrl } = await import('@/lib/auth/line-config')
     const state = crypto.randomUUID()
-    sessionStorage.setItem('line_oauth_state', state)
+    document.cookie = `line_oauth_state=${state}; Path=/; Max-Age=600; SameSite=Lax`
     window.location.href = getLineLoginUrl(state)
   }
 
