@@ -204,6 +204,7 @@ function RelatedProductCard({ href, image, category, engName }) {
 export default function ProductDetailClient({ product: dbProduct = null }) {
   // Map DB product to display format or use fallback
   const product = dbProduct ? {
+    id: dbProduct.id,
     name: dbProduct.name,
     sku: dbProduct.sku || dbProduct.code,
     category: { slug: dbProduct.type || 'construction', title: dbProduct.type === 'construction' ? 'วัสดุก่อสร้าง' : 'ผลิตภัณฑ์สำเร็จ' },

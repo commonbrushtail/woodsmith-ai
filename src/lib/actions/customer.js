@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { quotationCreateSchema } from '@/lib/validations/quotations'
 import { sanitizeObject } from '@/lib/sanitize'
+import { sendEmail } from '@/lib/email'
+import { newQuotationNotification } from '@/lib/email-templates'
 
 /**
  * Create a customer profile row after registration.
@@ -126,8 +128,9 @@ export async function submitQuotation({
     return { data: null, error: 'ข้อมูลไม่ถูกต้อง', fieldErrors }
   }
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const authSupabase = await createClient()
+  const { data: { user } } = await authSupabase.auth.getUser()
+  const supabase = createServiceClient()
 
   // Generate quotation number: QT-YYYYMMDD-XXXX
   const now = new Date()
@@ -153,6 +156,30 @@ export async function submitQuotation({
 
   if (error) {
     return { data: null, error: error.message }
+  }
+
+  // Fire-and-forget: notify admin about new quotation
+  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL
+  if (adminEmail) {
+    // Look up product name for the notification
+    let productName = null
+    if (productId) {
+      const { data: product } = await supabase
+        .from('products')
+        .select('name')
+        .eq('id', productId)
+        .single()
+      productName = product?.name
+    }
+
+    const { subject, html } = newQuotationNotification({
+      quotationNumber,
+      requesterName,
+      requesterPhone,
+      productName,
+      message,
+    })
+    sendEmail({ to: adminEmail, subject, html })
   }
 
   return { data, error: null }
