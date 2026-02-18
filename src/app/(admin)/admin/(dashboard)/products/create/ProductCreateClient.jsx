@@ -26,14 +26,6 @@ function ChevronLeftIcon() {
   )
 }
 
-function ChevronDownIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 6L8 10L12 6" />
-    </svg>
-  )
-}
-
 function CalendarIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -111,8 +103,7 @@ export default function ProductCreateClient({ categories = [], variationGroups =
   const [characteristics, setCharacteristics] = useState('')
   const [specifications, setSpecifications] = useState('')
 
-  // Locale picker (visual only)
-  const [showLocalePicker, setShowLocalePicker] = useState(false)
+
 
   // Cascading categories
   const categoryOptions = useMemo(() => {
@@ -223,25 +214,6 @@ export default function ProductCreateClient({ categories = [], variationGroups =
         </div>
 
         <div className="flex items-center gap-[8px]">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowLocalePicker(!showLocalePicker)}
-              className="flex items-center gap-[8px] border border-[#e5e7eb] rounded-[8px] px-[12px] py-[6px] cursor-pointer hover:bg-[#f9fafb] bg-white transition-colors"
-            >
-              <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#4b5563]">Thai (th)</span>
-              <ChevronDownIcon />
-            </button>
-            {showLocalePicker && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowLocalePicker(false)} />
-                <div className="absolute top-full right-0 mt-[4px] z-50 bg-white border border-[#e8eaef] rounded-[8px] shadow-lg overflow-hidden min-w-[140px]">
-                  <button type="button" className="w-full text-left px-[14px] py-[10px] border-0 cursor-pointer bg-[#fff3e8] text-orange font-['IBM_Plex_Sans_Thai'] text-[13px]">Thai (th)</button>
-                  <button type="button" className="w-full text-left px-[14px] py-[10px] border-0 cursor-pointer bg-transparent text-[#374151] hover:bg-[#f3f4f6] font-['IBM_Plex_Sans_Thai'] text-[13px]">English (en)</button>
-                </div>
-              </>
-            )}
-          </div>
           <button
             type="button"
             className="size-[32px] flex items-center justify-center rounded-[8px] hover:bg-gray-100 cursor-pointer bg-transparent border-0"

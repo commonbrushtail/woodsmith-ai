@@ -39,12 +39,6 @@ export default function AdminHeader({ title, subtitle, children }) {
       </div>
       <div className="flex items-center gap-[12px]">
         {children}
-        <div className="flex items-center gap-[8px] border border-[#e5e7eb] rounded-[8px] px-[12px] py-[6px]">
-          <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#4b5563]">Thai (th)</span>
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 4.5L6 7.5L9 4.5" />
-          </svg>
-        </div>
         <button className="size-[32px] flex items-center justify-center rounded-[8px] hover:bg-gray-100">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="3" />

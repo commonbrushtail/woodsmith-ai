@@ -34,14 +34,6 @@ function ArrowLeftIcon({ size = 20, color = '#6b7280' }) {
   )
 }
 
-function ChevronDownIcon({ size = 12, color = '#6b7280' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 12 12" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 4.5L6 7.5L9 4.5" />
-    </svg>
-  )
-}
-
 function DotsIcon({ size = 18, color = '#6b7280' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -121,10 +113,6 @@ export default function BannerCreatePage() {
         </div>
 
         <div className="flex items-center gap-[8px]">
-          <div className="flex items-center gap-[8px] border border-[#e5e7eb] rounded-[8px] px-[12px] py-[6px] cursor-pointer hover:bg-[#f9fafb]">
-            <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#4b5563]">Thai (th)</span>
-            <ChevronDownIcon />
-          </div>
           <button
             type="button"
             className="size-[32px] flex items-center justify-center rounded-[8px] hover:bg-gray-100 cursor-pointer bg-transparent border-none"

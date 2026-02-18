@@ -319,12 +319,7 @@ export default function VideoHighlightCreatePage() {
           </span>
         </div>
 
-        {/* Right: locale selector + 3-dot menu */}
         <div className="flex items-center gap-[8px]">
-          <div className="flex items-center gap-[8px] border border-[#e5e7eb] rounded-[8px] px-[12px] py-[6px] cursor-pointer hover:bg-[#f9fafb]">
-            <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#4b5563]">Thai (th)</span>
-            <ChevronDownIcon size={12} color="#6b7280" />
-          </div>
           <button
             type="button"
             className="size-[32px] flex items-center justify-center rounded-[8px] hover:bg-gray-100 cursor-pointer bg-transparent border-0"

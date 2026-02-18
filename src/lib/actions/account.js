@@ -35,27 +35,17 @@ export async function getAccountInfo() {
 }
 
 /**
- * Update admin password — derives user ID from session.
+ * Send password reset email to the current admin user.
  */
-export async function updatePassword(formData) {
+export async function sendPasswordResetEmail() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'ไม่ได้เข้าสู่ระบบ' }
 
-  const newPassword = formData.get('new_password')
-  const confirmPassword = formData.get('confirm_password')
+  if (!user.email) return { error: 'ไม่พบอีเมลของบัญชีนี้' }
 
-  if (!newPassword || newPassword.length < 8) {
-    return { error: 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร' }
-  }
-
-  if (newPassword !== confirmPassword) {
-    return { error: 'รหัสผ่านไม่ตรงกัน' }
-  }
-
-  const admin = createServiceClient()
-  const { error } = await admin.auth.admin.updateUserById(user.id, {
-    password: newPassword,
+  const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/reset-password`,
   })
 
   if (error) {
@@ -65,29 +55,3 @@ export async function updatePassword(formData) {
   return { error: null }
 }
 
-/**
- * Update admin email — derives user ID from session.
- */
-export async function updateEmail(formData) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'ไม่ได้เข้าสู่ระบบ' }
-
-  const newEmail = formData.get('email')
-
-  if (!newEmail) {
-    return { error: 'กรุณาระบุอีเมล' }
-  }
-
-  const admin = createServiceClient()
-  const { error } = await admin.auth.admin.updateUserById(user.id, {
-    email: newEmail,
-    email_confirm: true,
-  })
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  return { error: null }
-}

@@ -33,6 +33,26 @@ export async function getUsers({ page = 1, perPage = 50, search = '' } = {}) {
     return { data: [], count: 0, error: error.message }
   }
 
+  // Fetch quotation counts and latest address per user_id
+  const userIds = (data || []).map((p) => p.user_id)
+  let quotationCounts = {}
+  let latestAddresses = {}
+  if (userIds.length > 0) {
+    const { data: qRows } = await supabase
+      .from('quotations')
+      .select('customer_id, requester_address, created_at')
+      .in('customer_id', userIds)
+      .order('created_at', { ascending: false })
+    if (qRows) {
+      for (const q of qRows) {
+        quotationCounts[q.customer_id] = (quotationCounts[q.customer_id] || 0) + 1
+        if (q.requester_address && !latestAddresses[q.customer_id]) {
+          latestAddresses[q.customer_id] = q.requester_address
+        }
+      }
+    }
+  }
+
   // Fetch auth user emails for each profile
   const enriched = await Promise.all(
     (data || []).map(async (profile) => {
@@ -40,6 +60,8 @@ export async function getUsers({ page = 1, perPage = 50, search = '' } = {}) {
       return {
         ...profile,
         email: authData?.user?.email || null,
+        quotation_count: quotationCounts[profile.user_id] || 0,
+        address: latestAddresses[profile.user_id] || null,
       }
     })
   )
@@ -171,6 +193,35 @@ export async function updateUserRole(id, role) {
 
   revalidatePath('/admin/users')
   return { error: null }
+}
+
+/**
+ * Get quotations submitted by a user (by user_profiles.id).
+ */
+export async function getUserQuotations(profileId) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { data: [], error: authError }
+
+  const supabase = createServiceClient()
+
+  // Get user_id from profile
+  const { data: profile, error: fetchError } = await supabase
+    .from('user_profiles')
+    .select('user_id')
+    .eq('id', profileId)
+    .single()
+
+  if (fetchError) return { data: [], error: fetchError.message }
+
+  const { data, error } = await supabase
+    .from('quotations')
+    .select('*, product:products(code, name)')
+    .eq('customer_id', profile.user_id)
+    .order('created_at', { ascending: false })
+
+  if (error) return { data: [], error: error.message }
+
+  return { data: data || [], error: null }
 }
 
 /**
