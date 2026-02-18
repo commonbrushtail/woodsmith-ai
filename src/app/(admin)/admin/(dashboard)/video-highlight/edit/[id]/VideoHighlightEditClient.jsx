@@ -39,8 +39,6 @@ export default function VideoHighlightEditClient({ highlight }) {
 
   const [title, setTitle] = useState(highlight.title || '')
   const [youtubeUrl, setYoutubeUrl] = useState(highlight.youtube_url || '')
-  const [thumbnailUrl, setThumbnailUrl] = useState(highlight.thumbnail_url || '')
-
   const handleSubmit = (publish) => {
     if (!title.trim()) { toast.error('กรุณากรอกชื่อไฮไลท์'); return }
 
@@ -48,7 +46,6 @@ export default function VideoHighlightEditClient({ highlight }) {
       const formData = new FormData()
       formData.set('title', title)
       formData.set('youtube_url', youtubeUrl)
-      formData.set('thumbnail_url', thumbnailUrl)
       formData.set('published', publish ? 'true' : 'false')
 
       const result = await updateVideoHighlight(highlight.id, formData)
@@ -135,20 +132,6 @@ export default function VideoHighlightEditClient({ highlight }) {
             />
           </section>
 
-          {/* Thumbnail URL */}
-          <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
-            <label htmlFor="thumbnailUrl" className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
-              Thumbnail URL
-            </label>
-            <input
-              id="thumbnailUrl"
-              type="text"
-              value={thumbnailUrl}
-              onChange={(e) => setThumbnailUrl(e.target.value)}
-              placeholder="https://img.youtube.com/vi/.../hqdefault.jpg"
-              className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf]"
-            />
-          </section>
         </div>
 
         {/* Right sidebar */}

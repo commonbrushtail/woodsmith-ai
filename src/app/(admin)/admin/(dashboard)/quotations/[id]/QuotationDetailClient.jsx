@@ -6,10 +6,6 @@ import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateQuotationStatus, updateAdminNotes } from '@/lib/actions/quotations'
 
-/* ------------------------------------------------------------------ */
-/*  SVG icon helpers                                                   */
-/* ------------------------------------------------------------------ */
-
 function ChevronDownIcon({ size = 12, color = '#6b7280' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 12 12" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -27,50 +23,11 @@ function ArrowLeftIcon({ size = 20, color = '#6b7280' }) {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/*  Status configuration                                               */
-/* ------------------------------------------------------------------ */
-
 const STATUS_OPTIONS = [
-  {
-    key: 'pending',
-    label: 'รอพิจารณา',
-    bg: '#dbeafe',
-    text: '#1e40af',
-    border: '#93c5fd',
-  },
-  {
-    key: 'approved',
-    label: 'อนุมัติใบเสนอราคา',
-    bg: '#dcfce7',
-    text: '#166534',
-    border: '#86efac',
-  },
-  {
-    key: 'rejected',
-    label: 'ไม่อนุมัติใบเสนอราคา',
-    bg: '#fee2e2',
-    text: '#991b1b',
-    border: '#fca5a5',
-  },
+  { key: 'pending', label: 'รอพิจารณา', bg: '#dbeafe', text: '#1e40af', border: '#93c5fd' },
+  { key: 'approved', label: 'อนุมัติ', bg: '#dcfce7', text: '#166534', border: '#86efac' },
+  { key: 'rejected', label: 'ไม่อนุมัติ', bg: '#fee2e2', text: '#991b1b', border: '#fca5a5' },
 ]
-
-/* ------------------------------------------------------------------ */
-/*  Reusable sub-components                                            */
-/* ------------------------------------------------------------------ */
-
-function DetailRow({ label, children }) {
-  return (
-    <div className="flex gap-[16px] py-[8px]">
-      <span className="w-[180px] shrink-0 font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#4b5563] leading-[1.6]">
-        {label}
-      </span>
-      <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] leading-[1.6]">
-        {children}
-      </span>
-    </div>
-  )
-}
 
 function StatusDropdown({ status, onStatusChange, disabled }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -81,48 +38,26 @@ function StatusDropdown({ status, onStatusChange, disabled }) {
       <button
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        className="inline-flex items-center gap-[6px] px-[12px] py-[4px] rounded-full border cursor-pointer transition-colors"
-        style={{
-          backgroundColor: current.bg,
-          color: current.text,
-          borderColor: current.border,
-        }}
+        className="inline-flex items-center gap-[6px] px-[10px] py-[3px] rounded-full border cursor-pointer"
+        style={{ backgroundColor: current.bg, color: current.text, borderColor: current.border }}
         disabled={disabled}
       >
-        <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] font-medium leading-[1.6]">
-          {current.label}
-        </span>
-        <ChevronDownIcon size={12} color={current.text} />
+        <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] font-medium">{current.label}</span>
+        <ChevronDownIcon size={10} color={current.text} />
       </button>
-
       {isOpen && (
         <>
-          <div
-            className="fixed inset-0 z-[40]"
-            onClick={() => setIsOpen(false)}
-          />
-          <ul
-            role="listbox"
-            className="absolute right-0 top-full mt-[4px] z-[50] bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[220px]"
-          >
+          <div className="fixed inset-0 z-[40]" onClick={() => setIsOpen(false)} />
+          <ul className="absolute right-0 top-full mt-[4px] z-[50] bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[180px]">
             {STATUS_OPTIONS.map((option) => (
               <li
                 key={option.key}
-                role="option"
-                aria-selected={option.key === status}
-                onClick={() => {
-                  onStatusChange(option.key)
-                  setIsOpen(false)
-                }}
-                className="flex items-center gap-[8px] px-[12px] py-[8px] cursor-pointer hover:bg-[#f9fafb] transition-colors"
+                onClick={() => { onStatusChange(option.key); setIsOpen(false) }}
+                className="flex items-center gap-[8px] px-[12px] py-[6px] cursor-pointer hover:bg-[#f9fafb]"
               >
                 <span
-                  className="inline-flex items-center px-[10px] py-[2px] rounded-full border font-['IBM_Plex_Sans_Thai'] text-[12px] font-medium leading-[1.6]"
-                  style={{
-                    backgroundColor: option.bg,
-                    color: option.text,
-                    borderColor: option.border,
-                  }}
+                  className="inline-flex items-center px-[8px] py-[1px] rounded-full border font-['IBM_Plex_Sans_Thai'] text-[11px] font-medium"
+                  style={{ backgroundColor: option.bg, color: option.text, borderColor: option.border }}
                 >
                   {option.label}
                 </span>
@@ -135,9 +70,14 @@ function StatusDropdown({ status, onStatusChange, disabled }) {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/*  Main component                                                     */
-/* ------------------------------------------------------------------ */
+function Field({ label, value }) {
+  return (
+    <div className="flex flex-col gap-[1px]">
+      <span className="font-['IBM_Plex_Sans_Thai'] text-[11px] text-[#9ca3af] leading-[1.4]">{label}</span>
+      <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] leading-[1.4]">{value || '-'}</span>
+    </div>
+  )
+}
 
 export default function QuotationDetailClient({ quotation }) {
   const { toast } = useToast()
@@ -145,21 +85,13 @@ export default function QuotationDetailClient({ quotation }) {
   const [isPending, startTransition] = useTransition()
   const [adminNotes, setAdminNotes] = useState(quotation.admin_notes || '')
 
-  function formatDate(dateStr) {
+  function fmtDate(dateStr) {
     if (!dateStr) return '-'
     try {
-      const d = new Date(dateStr)
-      return d.toLocaleDateString('th-TH', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
+      return new Date(dateStr).toLocaleDateString('th-TH', {
+        year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
       })
-    } catch {
-      return dateStr
-    }
+    } catch { return dateStr }
   }
 
   const handleStatusChange = (newStatus) => {
@@ -172,129 +104,90 @@ export default function QuotationDetailClient({ quotation }) {
   const handleSaveNotes = () => {
     startTransition(async () => {
       const result = await updateAdminNotes(quotation.id, adminNotes)
-      if (result.error) {
-        toast.error('เกิดข้อผิดพลาด: ' + result.error)
-      } else {
-        router.refresh()
-      }
+      if (result.error) toast.error('เกิดข้อผิดพลาด: ' + result.error)
+      else router.refresh()
     })
   }
 
   return (
-    <div className={`flex flex-col gap-0 h-full min-h-0 ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
-      {/* Back link */}
-      <Link
-        href="/admin/quotations"
-        className="inline-flex items-center gap-[4px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#ff7e1b] hover:underline no-underline py-[4px] self-start"
-      >
-        <ArrowLeftIcon size={16} color="#ff7e1b" />
-        <span>กลับ</span>
-      </Link>
-
-      {/* Header */}
-      <div className="flex items-center justify-between py-[12px]">
+    <div className={`flex flex-col gap-[12px] ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
+      {/* Header row */}
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-[12px]">
-          <h1 className="font-['IBM_Plex_Sans_Thai'] font-bold text-[22px] text-[#1f2937] m-0">
-            จัดการใบเสนอราคา/ Manage Quotation
+          <Link href="/admin/quotations" className="flex items-center no-underline text-orange hover:underline">
+            <ArrowLeftIcon size={16} color="#ff7e1b" />
+          </Link>
+          <h1 className="font-['IBM_Plex_Sans_Thai'] font-bold text-[20px] text-[#1f2937] m-0">
+            {quotation.quotation_number}
           </h1>
+          <StatusDropdown status={quotation.status} onStatusChange={handleStatusChange} disabled={isPending} />
         </div>
-      </div>
-
-      {/* Status bar */}
-      <div className="flex justify-end items-center gap-[12px] mt-[16px]">
-        <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#4b5563]">
-          สถานะการอนุมัติใบเสนอราคา:
+        <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#9ca3af]">
+          {fmtDate(quotation.created_at)}
         </span>
-        <StatusDropdown
-          status={quotation.status}
-          onStatusChange={handleStatusChange}
-          disabled={isPending}
-        />
       </div>
 
-      {/* Content + Sidebar */}
-      <div className="flex gap-[24px] mt-[20px] flex-1 min-h-0 overflow-y-auto pb-[32px]">
-        {/* Main content area */}
-        <div className="flex-1 flex flex-col gap-[24px] min-w-0">
+      {/* Main content — two columns */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-[12px]">
+        {/* Left: Requester + Product */}
+        <section className="bg-white rounded-[8px] border border-[#e8eaef] p-[16px] flex flex-col gap-[12px]">
+          <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[14px] text-[#6b7280] m-0 uppercase tracking-[0.5px]">
+            ผู้ขอใบเสนอราคา
+          </h2>
+          <div className="grid grid-cols-2 gap-x-[24px] gap-y-[10px]">
+            <Field label="ชื่อ" value={quotation.requester_name} />
+            <Field label="โทร" value={quotation.requester_phone} />
+            <Field label="อีเมล" value={quotation.requester_email} />
+            <Field label="ที่อยู่" value={quotation.requester_address} />
+          </div>
+          {quotation.message && (
+            <div className="border-t border-[#f3f4f6] pt-[8px]">
+              <Field label="ข้อความ" value={quotation.message} />
+            </div>
+          )}
+        </section>
 
-          {/* Section 1: Quotation Details */}
-          <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[4px]">
-            <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#1f2937] m-0 mb-[8px]">
-              รายละเอียดใบเสนอราคา
-            </h2>
-            <DetailRow label="เลขที่ใบเสนอราคา:">
-              {quotation.quotation_number}
-            </DetailRow>
-            <DetailRow label="วันที่ขอใบเสนอราคา:">
-              {formatDate(quotation.created_at)}
-            </DetailRow>
-          </section>
+        {/* Right: Product info */}
+        <section className="bg-white rounded-[8px] border border-[#e8eaef] p-[16px] flex flex-col gap-[12px]">
+          <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[14px] text-[#6b7280] m-0 uppercase tracking-[0.5px]">
+            สินค้า
+          </h2>
+          <div className="grid grid-cols-2 gap-x-[24px] gap-y-[10px]">
+            <Field label="รหัสสินค้า" value={quotation.product?.code} />
+            <Field label="ชื่อสินค้า" value={quotation.product?.name} />
+            {quotation.selected_color && <Field label="สี" value={quotation.selected_color} />}
+            {quotation.selected_size && <Field label="ขนาด" value={quotation.selected_size} />}
+            {quotation.quantity && <Field label="จำนวน" value={quotation.quantity} />}
+            {Array.isArray(quotation.selected_variations) && quotation.selected_variations.map((v) => (
+              <Field key={v.label} label={v.label} value={v.value} />
+            ))}
+          </div>
+        </section>
+      </div>
 
-          {/* Section 2: Requester Information */}
-          <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[4px]">
-            <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#1f2937] m-0 mb-[8px]">
-              ข้อมูลผู้ขอใบเสนอราคา
-            </h2>
-            <DetailRow label="ชื่อ-นามสกุล:">
-              {quotation.requester_name || '-'}
-            </DetailRow>
-            <DetailRow label="เบอร์โทรศัพท์:">
-              {quotation.requester_phone || '-'}
-            </DetailRow>
-            <DetailRow label="อีเมล:">
-              {quotation.requester_email || '-'}
-            </DetailRow>
-            <DetailRow label="ที่อยู่:">
-              {quotation.requester_address || '-'}
-            </DetailRow>
-          </section>
-
-          {/* Section 3: Product Information */}
-          <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[4px]">
-            <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#1f2937] m-0 mb-[8px]">
-              ข้อมูลสินค้า
-            </h2>
-            <DetailRow label="รหัสสินค้า:">
-              {quotation.product?.code || '-'}
-            </DetailRow>
-            <DetailRow label="ชื่อสินค้า:">
-              {quotation.product?.name || '-'}
-            </DetailRow>
-            {quotation.selected_color && (
-              <DetailRow label="สี:">
-                {quotation.selected_color}
-              </DetailRow>
-            )}
-            {quotation.selected_size && (
-              <DetailRow label="ขนาด:">
-                {quotation.selected_size}
-              </DetailRow>
-            )}
-          </section>
-
-          {/* Section 4: Admin Notes */}
-          <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[8px]">
-            <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#1f2937] m-0">
-              หมายเหตุจากผู้ดูแล
-            </h2>
-            <textarea
-              value={adminNotes}
-              onChange={(e) => setAdminNotes(e.target.value)}
-              placeholder="เพิ่มหมายเหตุ..."
-              rows={4}
-              className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf] resize-y"
-            />
-            <button
-              type="button"
-              onClick={handleSaveNotes}
-              disabled={isPending}
-              className="self-end px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
-            >
-              {isPending ? 'กำลังบันทึก...' : 'บันทึกหมายเหตุ'}
-            </button>
-          </section>
+      {/* Admin notes — compact */}
+      <section className="bg-white rounded-[8px] border border-[#e8eaef] p-[16px] flex flex-col gap-[8px]">
+        <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[14px] text-[#6b7280] m-0 uppercase tracking-[0.5px]">
+          หมายเหตุ
+        </h2>
+        <div className="flex gap-[8px] items-start">
+          <textarea
+            value={adminNotes}
+            onChange={(e) => setAdminNotes(e.target.value)}
+            placeholder="เพิ่มหมายเหตุ..."
+            rows={2}
+            className="flex-1 font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#1f2937] border border-[#e8eaef] rounded-[6px] px-[10px] py-[8px] outline-none focus:border-orange focus:ring-1 focus:ring-orange/20 placeholder:text-[#bfbfbf] resize-y"
+          />
+          <button
+            type="button"
+            onClick={handleSaveNotes}
+            disabled={isPending}
+            className="px-[14px] py-[8px] rounded-[6px] bg-orange text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] border-0 cursor-pointer hover:bg-[#e56f15] disabled:opacity-50 shrink-0"
+          >
+            {isPending ? 'บันทึก...' : 'บันทึก'}
+          </button>
         </div>
-      </div>
+      </section>
     </div>
   )
 }

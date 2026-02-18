@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase/server'
 import { quotationStatusSchema } from '@/lib/validations/quotations'
 import { logAudit } from '@/lib/audit'
 import { requireAdmin } from '@/lib/auth/require-admin'
+import { sendEmail } from '@/lib/email'
+import { quotationStatusNotification } from '@/lib/email-templates'
 
 /**
  * List quotations with pagination and optional status filter.
@@ -86,6 +88,24 @@ export async function updateQuotationStatus(id, status) {
 
   // Audit log for status change
   logAudit({ userId: user?.id, action: 'quotation.status_change', targetId: id, details: { status } })
+
+  // Fire-and-forget: notify customer about status change
+  if (status === 'approved' || status === 'rejected') {
+    const { data: quotation } = await supabase
+      .from('quotations')
+      .select('quotation_number, requester_name, requester_email')
+      .eq('id', id)
+      .single()
+
+    if (quotation?.requester_email) {
+      const { subject, html } = quotationStatusNotification({
+        quotationNumber: quotation.quotation_number,
+        requesterName: quotation.requester_name,
+        status,
+      })
+      sendEmail({ to: quotation.requester_email, subject, html })
+    }
+  }
 
   revalidatePath('/admin/quotations')
   revalidatePath(`/admin/quotations/${id}`)

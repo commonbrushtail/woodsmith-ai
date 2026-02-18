@@ -1,8 +1,11 @@
 import AdminSidebar from '../../../../components/admin/AdminSidebar'
 import ErrorBoundary from '../../../../components/ErrorBoundary'
 import ClientOnly from '../../../../components/admin/ClientOnly'
+import { requireAdminOrRedirect } from '@/lib/auth/require-admin'
 
-export default function DashboardLayout({ children }) {
+export default async function DashboardLayout({ children }) {
+  await requireAdminOrRedirect()
+
   return (
     <div className="flex h-screen w-full bg-white overflow-hidden">
       <AdminSidebar />

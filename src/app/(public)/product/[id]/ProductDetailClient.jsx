@@ -390,6 +390,15 @@ export default function ProductDetailClient({ product: dbProduct = null }) {
         isOpen={quotationOpen}
         onClose={() => setQuotationOpen(false)}
         product={{ id: product.id, name: product.name, sku: product.sku, image: product.images[0] }}
+        selections={[
+          ...(product.colors.length > 0 ? [{ label: 'สี', value: product.colors.find(c => c.id === selectedColor)?.name }] : []),
+          ...(product.surfaces.length > 0 ? [{ label: 'พื้นผิว', value: product.surfaces.find(s => s.id === selectedSurface)?.name }] : []),
+          ...(product.sizes.length > 0 ? [{ label: 'ขนาด', value: product.sizes.find(s => s.id === selectedSize)?.name }] : []),
+          ...Object.entries(selectedVariations).map(([groupName, id]) => ({
+            label: groupName,
+            value: (product.variations[groupName] || []).find(e => e.id === id)?.label,
+          })),
+        ].filter(s => s.value)}
       />
     </div>
   )

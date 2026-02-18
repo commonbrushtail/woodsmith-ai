@@ -103,34 +103,58 @@ export async function submitQuotation({
   requesterEmail,
   message,
   quantity,
-}) {
+  selectedVariations,
+} = {}) {
+  const authSupabase = await createClient()
+  const { data: { user } } = await authSupabase.auth.getUser()
+  if (!user) {
+    return { data: null, error: 'กรุณาเข้าสู่ระบบก่อนขอใบเสนอราคา' }
+  }
+  const supabase = createServiceClient()
+
+  // Auto-fill from user profile if not provided
+  let name = requesterName || ''
+  let phone = requesterPhone || ''
+  let email = requesterEmail || ''
+
+  if (!name || !phone) {
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('first_name, last_name, display_name, phone, email')
+      .eq('user_id', user.id)
+      .single()
+
+    if (profile) {
+      if (!name) {
+        const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(' ')
+        name = fullName || profile.display_name || ''
+      }
+      if (!phone) phone = profile.phone || user.phone || ''
+      if (!email) email = profile.email || ''
+    }
+  }
+
   // Sanitize text inputs before validation
   const sanitized = sanitizeObject({
-    requesterName,
-    requesterPhone,
-    requesterEmail: requesterEmail || '',
+    requesterName: name,
+    requesterPhone: phone,
+    requesterEmail: email,
     message,
   })
 
   // Validate input
-  const validation = quotationCreateSchema.safeParse({
+  const parseInput = {
     product_id: productId || null,
     requester_name: sanitized.requesterName,
     requester_phone: sanitized.requesterPhone,
     requester_email: sanitized.requesterEmail,
     message: sanitized.message,
     quantity: quantity || null,
-  })
-  if (!validation.success) {
-    const fieldErrors = Object.fromEntries(
-      Object.entries(validation.error.flatten().fieldErrors).map(([k, v]) => [k, v[0]])
-    )
-    return { data: null, error: 'ข้อมูลไม่ถูกต้อง', fieldErrors }
   }
-
-  const authSupabase = await createClient()
-  const { data: { user } } = await authSupabase.auth.getUser()
-  const supabase = createServiceClient()
+  const validation = quotationCreateSchema.safeParse(parseInput)
+  if (!validation.success) {
+    return { data: null, error: 'ข้อมูลไม่ถูกต้อง' }
+  }
 
   // Generate quotation number: QT-YYYYMMDD-XXXX
   const now = new Date()
@@ -144,11 +168,12 @@ export async function submitQuotation({
       quotation_number: quotationNumber,
       customer_id: user?.id || null,
       product_id: productId,
-      requester_name: requesterName,
-      requester_phone: requesterPhone,
-      requester_email: requesterEmail || null,
+      requester_name: name,
+      requester_phone: phone,
+      requester_email: email || null,
       message: message || null,
       quantity: quantity || null,
+      selected_variations: selectedVariations || null,
       status: 'pending',
     })
     .select()
@@ -174,8 +199,8 @@ export async function submitQuotation({
 
     const { subject, html } = newQuotationNotification({
       quotationNumber,
-      requesterName,
-      requesterPhone,
+      requesterName: name,
+      requesterPhone: phone,
       productName,
       message,
     })
