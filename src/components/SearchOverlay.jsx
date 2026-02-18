@@ -66,6 +66,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
   const [popularTerms, setPopularTerms] = useState([])
   const [searchResults, setSearchResults] = useState(null)
   const [searching, setSearching] = useState(false)
+  const [loadingDefaults, setLoadingDefaults] = useState(true)
   const inputRef = useRef(null)
   const debounceRef = useRef(null)
 
@@ -77,6 +78,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
       setRecentSearches(getStoredRecentSearches())
       setQuery('')
       setSearchResults(null)
+      setLoadingDefaults(true)
 
       async function loadData() {
         try {
@@ -88,6 +90,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
           setRecommended(rec)
           setPopularTerms(pop)
         } catch { /* ignore */ }
+        setLoadingDefaults(false)
       }
       loadData()
     }
@@ -205,6 +208,14 @@ export default function SearchOverlay({ isOpen, onClose }) {
           <div className="w-full h-px bg-[#e5e7eb]" />
 
           {showDefault ? (
+            loadingDefaults ? (
+              <div className="flex items-center justify-center py-[40px]">
+                <svg className="animate-spin size-[24px] text-orange" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              </div>
+            ) : (
             <>
               {/* Recent Searches */}
               {recentSearches.length > 0 && (
@@ -308,6 +319,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
                 </div>
               )}
             </>
+            )
           ) : (
             <>
               {searching ? (
