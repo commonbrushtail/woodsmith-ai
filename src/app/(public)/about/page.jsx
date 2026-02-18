@@ -44,7 +44,7 @@ export default async function AboutPage() {
             เกี่ยวกับเรา
           </p>
           <div
-            className="font-['IBM_Plex_Sans_Thai'] text-[16px] lg:text-[20px] leading-normal [&_p]:mb-4 [&_p:last-child]:mb-0"
+            className="rich-text font-['IBM_Plex_Sans_Thai'] text-[16px] lg:text-[20px] leading-normal [&_p]:mb-4 [&_p:last-child]:mb-0"
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(aboutHtml) }}
           />
         </div>

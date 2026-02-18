@@ -1,8 +1,17 @@
 import imgImg1 from '../assets/eeb7b576909d441a150505ef40b2ec8a266d40f5.png'
 import imgImg2 from '../assets/3fe69461b28387eabe30698fec14e7c2f5b4a018.png'
 import imgImg3 from '../assets/118c728dba9a04975b57c409a82dafe2f7dca6f8.png'
+import { getSiteSettings } from '../lib/data/public'
 
-export default function AboutSection() {
+const defaultStats = {
+  stat_branches: '97',
+  stat_products: '20+',
+  stat_customers: '10K+',
+}
+
+export default async function AboutSection() {
+  const { data: settings } = await getSiteSettings()
+  const stats = settings || defaultStats
   return (
     <div className="bg-beige w-full py-[36px] lg:pb-[80px] lg:pt-[60px]">
       <div className="max-w-[1212px] mx-auto w-full flex flex-col gap-[32px] items-center justify-center px-[16px]">
@@ -37,15 +46,15 @@ export default function AboutSection() {
             {/* Stats - hidden on mobile, shown in separate row */}
             <div className="hidden lg:flex font-['Circular_Std'] font-medium items-center text-black w-full ">
               <div className="flex flex-col items-start lg:w-[140px] xl:w-[203.333px]">
-                <p className="text-[64px]">97</p>
+                <p className="text-[64px]">{stats.stat_branches}</p>
                 <p className="text-[16px] tracking-[6.88px] relative bottom-[14px]">Branch</p>
               </div>
               <div className="flex flex-col items-start lg:w-[140px] xl:w-[203.333px]">
-                <p className="text-[64px]">20+</p>
+                <p className="text-[64px]">{stats.stat_products}</p>
                 <p className="text-[16px] tracking-[6.88px] relative bottom-[14px]">Products</p>
               </div>
               <div className="flex flex-col items-start lg:w-[140px] xl:w-[203.333px]">
-                <p className="text-[64px]">10K+</p>
+                <p className="text-[64px]">{stats.stat_customers}</p>
                 <p className="text-[16px] tracking-[6.88px] relative bottom-[14px]">Customers</p>
               </div>
             </div>
@@ -54,15 +63,15 @@ export default function AboutSection() {
         {/* Mobile stats row */}
         <div className="flex lg:hidden font-['Circular_Std'] font-medium gap-[24px] items-center justify-center text-black w-full">
           <div className="flex flex-col items-start">
-            <p className="text-[32px]">97</p>
+            <p className="text-[32px]">{stats.stat_branches}</p>
             <p className="text-[12px] tracking-[0.6px]">Branch</p>
           </div>
           <div className="flex flex-col items-start">
-            <p className="text-[32px]">20+</p>
+            <p className="text-[32px]">{stats.stat_products}</p>
             <p className="text-[12px] tracking-[0.6px]">Products</p>
           </div>
           <div className="flex flex-col items-start">
-            <p className="text-[32px]">10K+</p>
+            <p className="text-[32px]">{stats.stat_customers}</p>
             <p className="text-[12px] tracking-[0.36px]">Customers</p>
           </div>
         </div>

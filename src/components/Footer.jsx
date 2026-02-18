@@ -9,7 +9,7 @@ import imgGroup3 from '../assets/965eaf2fbd5951c3b183edca911f967a9ff81858.svg'
 import imgLineLogo1 from '../assets/460e9562d009a9dc06b89094e9317c05197e3894.svg'
 import imgLine34 from '../assets/a41fa6d7209c715799bf9e2145af85fd67c3a650.svg'
 import Link from 'next/link'
-import { getHqBranch } from '../lib/data/public'
+import { getSiteSettings } from '../lib/data/public'
 
 const footerLinkMap = {
   'หน้าแรก': '/',
@@ -22,15 +22,21 @@ const footerLinkMap = {
   'สินค้าของเรา': '/products',
 }
 
-const defaultHq = {
-  name: 'บริษัท วนชัย วู้ดสมิธ จำกัด',
-  address: 'เลขที่ 2/1 ถนน วงศ์สว่าง แขวงวงศ์สว่าง เขตบางซื่อ กรุงเทพฯ 10800',
-  phone: '0 2587 9700-1',
+const defaultSettings = {
+  company_name: 'บริษัท วนชัย วู้ดสมิธ จำกัด',
+  company_address: 'เลขที่ 2/1 ถนน วงศ์สว่าง แขวงวงศ์สว่าง เขตบางซื่อ กรุงเทพฯ 10800',
+  phone_number: '0 2587 9700-1',
+  line_id: '@vanachai.woodsmith',
+  copyright_text: '© 2019 @vanachai.woodsmith. All rights reserved.',
+  facebook_url: '',
+  instagram_url: '',
+  tiktok_url: '',
+  line_url: '',
 }
 
 export default async function Footer() {
-  const { data: hqBranch } = await getHqBranch()
-  const hq = hqBranch || defaultHq
+  const { data: settings } = await getSiteSettings()
+  const siteSettings = settings || defaultSettings
 
   const footerLinksLeft = ['หน้าแรก', 'เกี่ยวกับเรา', 'สินค้าของเรา', 'ค้นหาสาขา']
   const footerLinksRight = ['บทความ', 'คู่มือ', 'ไฮไลท์', 'FAQs']
@@ -50,9 +56,9 @@ export default async function Footer() {
           <img alt="WoodSmith Logo" className="h-[98px] w-[105px] object-cover" src={imgImgLogofooter1} />
           <div className="flex flex-col gap-[16px] items-center w-full">
             <div className="text-white text-center">
-              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] mb-0">{hq.name} (สำนักงานใหญ่)</p>
+              <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] mb-0">{siteSettings.company_name} (สำนักงานใหญ่)</p>
               <p className="font-['IBM_Plex_Sans_Thai'] text-[14px]">
-                {hq.address}
+                {siteSettings.company_address}
               </p>
             </div>
             <div className="flex flex-col items-center">
@@ -60,7 +66,7 @@ export default async function Footer() {
                 <img alt="Phone" className="shrink-0 size-[20px]" src={imgGroup} />
                 <p className="font-['Circular_Std'] font-medium text-[18px] text-white leading-[1.2]">Call Center</p>
               </div>
-              <p className="font-['Circular_Std'] font-medium text-[32px] text-orange leading-[1.2]">{hq.phone}</p>
+              <p className="font-['Circular_Std'] font-medium text-[32px] text-orange leading-[1.2]">{siteSettings.phone_number}</p>
             </div>
           </div>
         </div>
@@ -69,18 +75,36 @@ export default async function Footer() {
             <img alt="QR Code" className="h-[110px] w-[109px] object-cover" src={imgQRCode} />
             <div className="text-center text-white">
               <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] mb-0">สแกนคิวอาร์โค้ดเพื่อเพิ่มเพื่อน LINE</p>
-              <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[20px] text-orange">@vanachai.woodsmith</p>
+              <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[20px] text-orange">{siteSettings.line_id}</p>
             </div>
           </div>
-          <div className="flex gap-[12px] items-center">
-            <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-white">ติดตามเรา</p>
-            <div className="flex gap-[14px] items-center">
-              <img alt="Facebook" className="shrink-0 size-[32px]" src={imgGroup1} />
-              <img alt="Instagram" className="shrink-0 size-[32px]" src={imgGroup2} />
-              <img alt="TikTok" className="shrink-0 size-[32px]" src={imgGroup3} />
-              <img alt="LINE" className="shrink-0 size-[32px]" src={imgLineLogo1} />
+          {(siteSettings.facebook_url || siteSettings.instagram_url || siteSettings.tiktok_url || siteSettings.line_url) && (
+            <div className="flex gap-[12px] items-center">
+              <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-white">ติดตามเรา</p>
+              <div className="flex gap-[14px] items-center">
+                {siteSettings.facebook_url && (
+                  <a href={siteSettings.facebook_url} target="_blank" rel="noopener noreferrer">
+                    <img alt="Facebook" className="shrink-0 size-[32px]" src={imgGroup1} />
+                  </a>
+                )}
+                {siteSettings.instagram_url && (
+                  <a href={siteSettings.instagram_url} target="_blank" rel="noopener noreferrer">
+                    <img alt="Instagram" className="shrink-0 size-[32px]" src={imgGroup2} />
+                  </a>
+                )}
+                {siteSettings.tiktok_url && (
+                  <a href={siteSettings.tiktok_url} target="_blank" rel="noopener noreferrer">
+                    <img alt="TikTok" className="shrink-0 size-[32px]" src={imgGroup3} />
+                  </a>
+                )}
+                {siteSettings.line_url && (
+                  <a href={siteSettings.line_url} target="_blank" rel="noopener noreferrer">
+                    <img alt="LINE" className="shrink-0 size-[32px]" src={imgLineLogo1} />
+                  </a>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -91,15 +115,15 @@ export default async function Footer() {
             <img alt="WoodSmith Logo" className="h-[171px] w-[184px] object-cover" src={imgImgLogofooter1} />
             <div className="flex flex-col gap-[16px] items-start">
               <div className="text-white">
-                <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[32px] mb-0">{hq.name} (สำนักงานใหญ่)</p>
-                <p className="font-['IBM_Plex_Sans_Thai'] text-[16px]">{hq.address}</p>
+                <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[32px] mb-0">{siteSettings.company_name} (สำนักงานใหญ่)</p>
+                <p className="font-['IBM_Plex_Sans_Thai'] text-[16px]">{siteSettings.company_address}</p>
               </div>
               <div className="flex flex-col items-start">
                 <div className="flex gap-[8px] items-center">
                   <img alt="Phone" className="shrink-0 size-[20px]" src={imgGroup} />
                   <p className="font-['Circular_Std'] font-medium text-[18px] text-white leading-[1.2]">Call Center</p>
                 </div>
-                <p className="font-['Circular_Std'] font-medium text-[36px] text-orange leading-[1.2]">{hq.phone}</p>
+                <p className="mt-1 font-['Circular_Std'] font-medium text-[36px] text-orange leading-[1.2]">{siteSettings.phone_number}</p>
               </div>
             </div>
           </div>
@@ -107,7 +131,7 @@ export default async function Footer() {
             <img alt="QR Code" className="h-[110px] w-[109px] object-cover" src={imgQRCode} />
             <div className="text-right text-white">
               <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] mb-0">สแกนคิวอาร์โค้ดเพื่อเพิ่มเพื่อน LINE</p>
-              <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[16px] text-orange">@vanachai.woodsmith</p>
+              <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[16px] text-orange">{siteSettings.line_id}</p>
             </div>
           </div>
         </div>
@@ -149,15 +173,33 @@ export default async function Footer() {
               )
             )}
           </div>
-          <div className="flex gap-[12px] items-center">
-            <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-white">ติดตามเรา</p>
-            <div className="flex gap-[14px] items-center">
-              <img alt="Facebook" className="shrink-0 size-[32px]" src={imgGroup1} />
-              <img alt="Instagram" className="shrink-0 size-[32px]" src={imgGroup2} />
-              <img alt="TikTok" className="shrink-0 size-[32px]" src={imgGroup3} />
-              <img alt="LINE" className="shrink-0 size-[32px]" src={imgLineLogo1} />
+          {(siteSettings.facebook_url || siteSettings.instagram_url || siteSettings.tiktok_url || siteSettings.line_url) && (
+            <div className="flex gap-[12px] items-center">
+              <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-white">ติดตามเรา</p>
+              <div className="flex gap-[14px] items-center">
+                {siteSettings.facebook_url && (
+                  <a href={siteSettings.facebook_url} target="_blank" rel="noopener noreferrer">
+                    <img alt="Facebook" className="shrink-0 size-[32px]" src={imgGroup1} />
+                  </a>
+                )}
+                {siteSettings.instagram_url && (
+                  <a href={siteSettings.instagram_url} target="_blank" rel="noopener noreferrer">
+                    <img alt="Instagram" className="shrink-0 size-[32px]" src={imgGroup2} />
+                  </a>
+                )}
+                {siteSettings.tiktok_url && (
+                  <a href={siteSettings.tiktok_url} target="_blank" rel="noopener noreferrer">
+                    <img alt="TikTok" className="shrink-0 size-[32px]" src={imgGroup3} />
+                  </a>
+                )}
+                {siteSettings.line_url && (
+                  <a href={siteSettings.line_url} target="_blank" rel="noopener noreferrer">
+                    <img alt="LINE" className="shrink-0 size-[32px]" src={imgLineLogo1} />
+                  </a>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -165,7 +207,7 @@ export default async function Footer() {
       <div className="border-t border-[rgba(255,255,255,0.1)] lg:border-[rgba(255,255,255,0.25)] py-[32px] relative w-full">
         <div className="max-w-[1212px] mx-auto w-full flex flex-col lg:flex-row items-center lg:justify-between gap-[12px] px-[16px]">
           <p className="font-['Circular_Std'] font-medium text-[14px] lg:text-[13px] text-white">
-            © 2019 @<span className="uppercase">vanachai.woodsmith</span>. All rights reserved.
+            {siteSettings.copyright_text}
           </p>
           <div className="flex flex-col lg:flex-row gap-[12px] lg:gap-[32px] items-center justify-center lg:justify-end">
             <div className="flex gap-[16px] items-center justify-center lg:justify-end">

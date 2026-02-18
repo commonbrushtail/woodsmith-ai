@@ -187,7 +187,7 @@ export default function BlogPostPageClient({ post = null, relatedPosts: dbRelate
             {postContent && (
               <SafeHtmlContent
                 html={postContent}
-                className="font-['IBM_Plex_Sans_Thai'] text-[16px] text-[#35383b] tracking-[0.08px] leading-[1.5] w-full prose prose-headings:font-['IBM_Plex_Sans_Thai'] prose-headings:text-[#35383b]"
+                className="rich-text font-['IBM_Plex_Sans_Thai'] text-[16px] text-[#35383b] tracking-[0.08px] leading-[1.5] w-full prose prose-headings:font-['IBM_Plex_Sans_Thai'] prose-headings:text-[#35383b]"
               />
             )}
 

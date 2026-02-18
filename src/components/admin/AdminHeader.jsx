@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 const pageTitles = {
   '/admin/dashboard': { title: 'จัดการเว็บไซต์/ Manage Website', subtitle: '' },
   '/admin/banner': { title: 'แบนเนอร์ (Banner)', subtitle: '' },
-  '/admin/profile': { title: 'โปรไฟล์ (Profile)', subtitle: '' },
+  '/admin/site-settings': { title: 'ตั้งค่าเว็บไซต์ (Site Settings)', subtitle: '' },
   '/admin/blog': { title: 'บทความ (Blog)', subtitle: '' },
   '/admin/video-highlight': { title: 'วิดีโอไฮไลต์ (Video Highlight)', subtitle: '' },
   '/admin/gallery': { title: 'แกลลอรี่ (Gallery)', subtitle: '' },
