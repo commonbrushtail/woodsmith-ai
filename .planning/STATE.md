@@ -114,6 +114,9 @@ Recent decisions affecting v1.1:
 - [Quick 24]: verifyPhoneOtp validates OTP against DB, marks used, finds/creates Supabase user, generates magic link, establishes session via verifyOtp (mirrors LINE Login pattern)
 - [Quick 24]: New SMS users get placeholder email phone_{phone}@phone.placeholder + user_profiles row with auth_provider=sms, profile_complete=false
 - [Quick 24]: LoginModal now calls sendPhoneOtp/verifyPhoneOtp server actions instead of supabase.auth.signInWithOtp/verifyOtp
+- [Quick 24b]: submitQuotation uses createServiceClient for DB insert — anonymous quotations have null customer_id and NULL = NULL is FALSE in PostgreSQL, blocking RLS insert policy for all anonymous users
+- [Quick 24b]: id: dbProduct.id added to product mapping in ProductDetailClient — was omitted, making product.id always undefined when passed to QuotationModal
+- [Quick 24b]: quantity and message columns added to quotations table as nullable integer/text via migration 032 (were referenced in submitQuotation but never added to schema)
 
 ### Quick Tasks Completed
 
@@ -140,6 +143,7 @@ Recent decisions affecting v1.1:
 | 23 | Hide navbar user UI until profile_complete = true | 2026-02-17 | DONE — isProfileComplete flag gates mobile/desktop avatar+dropdown, profile_complete set in user_metadata for both SMS OTP and LINE flows (3 files, 1 min) |
 | 23b | SMS login loading/error feedback + Supabase SMS provider docs | 2026-02-17 | DONE — PhoneLoginScreen sending/error state, handleSendOtp returns { error } on failure, docs/SUPABASE_SMS_SETUP.md with full config (2 files, 3 min) |
 | 24 | Custom SMS OTP flow via SMSKUB (bypass Supabase phone auth) | 2026-02-17 | DONE — migration 030 + phone-auth.js server actions + LoginModal updated; Supabase has no Custom HTTP SMS option so OTP generated/stored/verified server-side (3 files, commit 6921b47) |
+| 24b | Fix quotation flow: product ID mapping, missing columns, RLS bypass | 2026-02-18 | DONE — migration 032 adds quantity/message columns, ProductDetailClient adds id: dbProduct.id, submitQuotation uses createServiceClient to bypass RLS for anonymous users (3 files, 5 min) |
 
 ### Pending Todos
 
@@ -151,8 +155,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-17
-Stopped at: Completed quick task 24 (custom SMS OTP flow via SMSKUB — migration 030, phone-auth.js, LoginModal updated) — awaiting human-verify
+Last session: 2026-02-18
+Stopped at: Completed quick task 24b (quotation flow fix — migration 032, ProductDetailClient id mapping, service client bypass) — awaiting human-verify (Task 3 checkpoint)
 Resume file: None
 
 ### Recent Activity
@@ -188,6 +192,7 @@ Resume file: None
 | 2026-02-17 | Quick task 22 executed | LINE email scope: email scope in OAuth URL, ID token JWT decode in callback, email stored in user_profiles for new and returning users, conditional email field in /register/line (5 files, 3 min) |
 | 2026-02-17 | Quick task 23 executed | Navbar profile_complete gate: isProfileComplete flag hides avatar/dropdown until registration done, user_metadata synced in both SMS OTP and LINE flows (3 files, 1 min) |
 | 2026-02-17 | Quick task 23b executed | SMS login loading/error feedback: PhoneLoginScreen sending/error state with Thai text, handleSendOtp returns { error }, docs/SUPABASE_SMS_SETUP.md created (2 files, 3 min) |
+| 2026-02-18 | Quick task 24b executed | Quotation flow fix: migration 032 adds quantity/message, ProductDetailClient adds id: dbProduct.id, submitQuotation uses service client to bypass RLS for anonymous users (3 files, 5 min) |
 
 ---
-*Last updated: 2026-02-17*
+*Last updated: 2026-02-18*
