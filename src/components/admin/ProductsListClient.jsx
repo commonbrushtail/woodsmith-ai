@@ -123,7 +123,6 @@ function formatThaiDate(dateStr) {
 const TYPE_LABELS = {
   construction: 'วัสดุก่อสร้าง',
   decoration: 'ผลิตภัณฑ์สำเร็จ',
-  tool: 'เครื่องมือ',
 }
 
 /* ------------------------------------------------------------------ */

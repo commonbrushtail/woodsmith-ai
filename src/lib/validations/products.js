@@ -5,7 +5,7 @@ export const productCreateSchema = z.object({
   code: z.string().min(1, 'กรุณาระบุรหัสสินค้า'),
   sku: z.string().min(1, 'กรุณาระบุ SKU'),
   slug: z.string().min(1, 'กรุณาระบุ Slug'),
-  type: z.enum(['construction', 'decoration', 'tool'], { errorMap: () => ({ message: 'ประเภทสินค้าไม่ถูกต้อง' }) }),
+  type: z.enum(['construction', 'decoration'], { errorMap: () => ({ message: 'ประเภทสินค้าไม่ถูกต้อง' }) }),
   category: z.string().min(1, 'กรุณาระบุหมวดหมู่'),
   description: z.string().optional(),
   price: z.number().positive('ราคาต้องมากกว่า 0').optional().nullable(),

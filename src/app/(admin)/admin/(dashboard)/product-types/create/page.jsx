@@ -11,7 +11,6 @@ import AdminFileInput from '@/components/admin/AdminFileInput'
 const typeOptions = [
   { value: 'construction', label: 'วัสดุก่อสร้าง' },
   { value: 'decoration', label: 'ผลิตภัณฑ์สำเร็จ' },
-  { value: 'tool', label: 'เครื่องมือ' },
 ]
 
 function generateSlug(name) {

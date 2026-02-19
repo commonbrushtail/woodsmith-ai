@@ -15,7 +15,6 @@ import TimePickerDropdown from '@/components/admin/TimePickerDropdown'
 const typeOptions = [
   { value: 'construction', label: 'วัสดุก่อสร้าง' },
   { value: 'decoration', label: 'ผลิตภัณฑ์สำเร็จ' },
-  { value: 'tool', label: 'เครื่องมือ' },
 ]
 
 function ChevronLeftIcon() {
@@ -126,16 +125,18 @@ export default function ProductEditClient({ product, categories = [], variationG
 
 
 
-  // Cascading categories
+  // Cascading categories — root type → category → subcategory
   const categoryOptions = useMemo(() => {
     if (!productType) return []
-    const parents = categories.filter(c => !c.parent_id && c.type === productType)
+    const root = categories.find(c => !c.parent_id && c.type === productType)
+    if (!root) return []
+    const level1 = categories.filter(c => c.parent_id === root.id)
     const result = []
-    for (const parent of parents) {
-      result.push({ value: parent.name, label: parent.name, isParent: true })
-      const children = categories.filter(c => c.parent_id === parent.id)
-      for (const child of children) {
-        result.push({ value: child.name, label: `  └ ${child.name}`, isParent: false })
+    for (const cat of level1) {
+      result.push({ value: cat.name, label: cat.name, isParent: true })
+      const level2 = categories.filter(c => c.parent_id === cat.id)
+      for (const sub of level2) {
+        result.push({ value: sub.name, label: `  └ ${sub.name}`, isParent: false })
       }
     }
     return result

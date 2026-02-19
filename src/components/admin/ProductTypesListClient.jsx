@@ -39,13 +39,11 @@ function GripIcon() {
 const typeLabels = {
   construction: 'วัสดุก่อสร้าง',
   decoration: 'ผลิตภัณฑ์สำเร็จ',
-  tool: 'เครื่องมือ',
 }
 
 const typeBadgeColors = {
   construction: 'border-blue-400 text-blue-600 bg-blue-50',
   decoration: 'border-green-400 text-green-600 bg-green-50',
-  tool: 'border-purple-400 text-purple-600 bg-purple-50',
 }
 
 function SortableRow({ id, children, onClick }) {
