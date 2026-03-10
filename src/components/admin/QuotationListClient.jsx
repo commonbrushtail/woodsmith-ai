@@ -107,7 +107,7 @@ export default function QuotationListClient({ quotations, totalCount }) {
   const [isPending, startTransition] = useTransition()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRows, setSelectedRows] = useState([])
-  const [sortField, setSortField] = useState('quotation_number')
+  const [sortField, setSortField] = useState('created_at')
   const [sortAsc, setSortAsc] = useState(false)
   const [openStatusId, setOpenStatusId] = useState(null)
   const statusMenuRef = useRef(null)

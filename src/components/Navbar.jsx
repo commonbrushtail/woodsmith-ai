@@ -7,6 +7,7 @@ import imgFavicon from '../assets/6727cae5f32ea2c35a94792ae9603addc6300612.png'
 import imgUnion from '../assets/4e24c29ef271a3dd1cdfea028b3abb8fceed5119.svg'
 import imgMenu1 from '../assets/ef18b0c8e480616ebef0c37dee581ff94d0c7c97.svg'
 import SearchOverlay from './SearchOverlay'
+import imgDefaultAvatar from '../assets/avatar-default.png'
 
 const menuItems = [
   { label: 'หน้าแรก', path: '/' },
@@ -142,10 +143,6 @@ export default function Navbar() {
       })()
     : null
 
-  const userInitial = isProfileComplete
-    ? (user.user_metadata?.first_name?.[0] || user.user_metadata?.display_name?.[0] || user.phone?.[0] || 'U').toUpperCase()
-    : null
-
   return (
     <>
       <div className="bg-white w-full sticky top-0 z-50 border-b border-[#e5e7eb] lg:border-b-0">
@@ -170,8 +167,8 @@ export default function Navbar() {
           <div className="flex gap-[24px] items-center">
             {/* Mobile: Login/User button */}
             {isProfileComplete ? (
-              <Link href="/account" className="lg:hidden bg-orange flex size-[36px] items-center justify-center no-underline">
-                <span className="font-['Circular_Std'] font-medium text-[14px] text-white">{userInitial}</span>
+              <Link href="/account" className="lg:hidden flex size-[36px] items-center justify-center no-underline">
+                <img alt="" className="size-full rounded-full object-cover" src={user?.user_metadata?.avatar_url || imgDefaultAvatar} />
               </Link>
             ) : (
               <Link href="/login" className="lg:hidden bg-orange flex h-[36px] items-center justify-center px-[18px] no-underline">
@@ -185,11 +182,11 @@ export default function Navbar() {
             {isProfileComplete ? (
               <div className="hidden lg:block relative" onClick={(e) => e.stopPropagation()}>
                 <button
-                  className="flex items-center gap-[8px] border border-[#e5e7eb] h-[40px] px-[16px] cursor-pointer bg-transparent"
+                  className="flex items-center gap-[8px]  h-[40px] px-[16px] cursor-pointer bg-transparent"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
-                  <div className="size-[28px] rounded-full bg-orange flex items-center justify-center">
-                    <span className="font-['Circular_Std'] font-medium text-[13px] text-white">{userInitial}</span>
+                  <div className="size-[28px] rounded-full overflow-hidden flex items-center justify-center">
+                    <img alt="" className="size-full object-cover" src={user?.user_metadata?.avatar_url || imgDefaultAvatar} />
                   </div>
                   <span className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[14px] text-black max-w-[120px] truncate">
                     {navDisplayName}

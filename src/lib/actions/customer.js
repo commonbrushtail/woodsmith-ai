@@ -385,7 +385,7 @@ export async function getMyQuotations() {
 
   const { data, error } = await supabase
     .from('quotations')
-    .select('*, product:products(code, name)')
+    .select('*, product:products(code, name, product_images(url, sort_order))')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -397,7 +397,7 @@ export async function getMyQuotations() {
 
 /**
  * Delete the current customer's account.
- * Removes the customer_profiles row, then deletes the auth user via service client.
+ * Removes the user_profiles row, then deletes the auth user via service client.
  */
 export async function deleteMyAccount() {
   const supabase = await createClient()
@@ -406,11 +406,11 @@ export async function deleteMyAccount() {
     return { error: 'Not authenticated' }
   }
 
-  // Delete customer profile row
+  // Delete user profile row
   const { error: profileError } = await supabase
-    .from('customer_profiles')
+    .from('user_profiles')
     .delete()
-    .eq('id', user.id)
+    .eq('user_id', user.id)
 
   if (profileError) {
     return { error: profileError.message }

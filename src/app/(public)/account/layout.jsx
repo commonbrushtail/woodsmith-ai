@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import imgDefaultAvatar from '@/assets/avatar-default.png'
 
-function UserIcon({ color = 'currentColor' }) {
+function UserMenuIcon({ color = 'currentColor' }) {
   return (
     <svg className="size-[20px] shrink-0" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" />
@@ -115,11 +116,7 @@ export default function AccountLayout({ children }) {
                 {/* User info */}
                 <div className="flex flex-col items-center gap-[8px] pt-[16px] px-[16px]">
                   <div className="size-[56px] rounded-full bg-[#e8e3da] overflow-hidden flex items-center justify-center">
-                    {user?.user_metadata?.avatar_url ? (
-                      <img alt="" className="size-full object-cover" src={user.user_metadata.avatar_url} />
-                    ) : (
-                      <UserIcon color="#bfbfbf" />
-                    )}
+                    <img alt="" className="size-full object-cover" src={user?.user_metadata?.avatar_url || imgDefaultAvatar} />
                   </div>
                   <div className="flex flex-col items-center text-center">
                     <span className="font-['IBM_Plex_Sans_Thai'] font-bold text-[14px] text-[#18191f] leading-[24px]">
@@ -150,7 +147,7 @@ export default function AccountLayout({ children }) {
                             : 'text-black font-medium hover:bg-[#f5f5f5]'
                         }`}
                       >
-                        {link.icon === 'user' ? <UserIcon color={isActive ? '#ff7e1b' : 'currentColor'} /> : <FileTextIcon />}
+                        {link.icon === 'user' ? <UserMenuIcon color={isActive ? '#ff7e1b' : 'currentColor'} /> : <FileTextIcon />}
                         {link.label}
                       </Link>
                     )
