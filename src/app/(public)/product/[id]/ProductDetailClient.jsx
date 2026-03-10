@@ -66,6 +66,11 @@ function ImageGallery({ images }) {
   const mobileSwiperRef = useRef(null)
   const desktopSwiperRef = useRef(null)
 
+  // Reset active index when images change (e.g. variation selection)
+  useEffect(() => {
+    setActiveIndex(0)
+  }, [images])
+
   if (!images || images.length === 0) {
     return (
       <div className="w-full aspect-square bg-[#e8e3da] flex items-center justify-center">
@@ -192,7 +197,8 @@ export default function ProductDetailClient({ product: dbProduct = null, isLogge
     sku: dbProduct.sku || dbProduct.code,
     category: { slug: dbProduct.type || 'construction', title: dbProduct.type === 'construction' ? 'วัสดุก่อสร้าง' : 'ผลิตภัณฑ์สำเร็จ' },
     subcategory: { slug: dbProduct.category || '', title: dbProduct.category || '' },
-    images: (dbProduct.product_images || []).sort((a, b) => a.sort_order - b.sort_order).map(img => img.url),
+    allImages: (dbProduct.product_images || []).sort((a, b) => a.sort_order - b.sort_order),
+    images: (dbProduct.product_images || []).filter(img => !img.variation_entry_id).sort((a, b) => a.sort_order - b.sort_order).map(img => img.url),
     variations: (dbProduct.product_variation_links || [])
       .reduce((acc, link) => {
         const groupName = link.variation_groups?.name
@@ -241,6 +247,17 @@ export default function ProductDetailClient({ product: dbProduct = null, isLogge
   })
   const [quotationOpen, setQuotationOpen] = useState(false)
 
+  // Compute displayed images: if a selected variation has specific images, show those instead
+  const displayImages = (() => {
+    if (!product.allImages?.length) return product.images
+    const selectedEntryIds = Object.values(selectedVariations).filter(Boolean)
+    // Find variation-specific images matching any selected variation
+    const variationImages = product.allImages
+      .filter(img => img.variation_entry_id && selectedEntryIds.includes(img.variation_entry_id))
+      .map(img => img.url)
+    return variationImages.length > 0 ? variationImages : product.images
+  })()
+
   return (
     <div className="flex flex-col items-center w-full">
       {/* Breadcrumb */}
@@ -257,7 +274,7 @@ export default function ProductDetailClient({ product: dbProduct = null, isLogge
       {/* Main Content */}
       <div className="max-w-[1212px] mx-auto w-full flex flex-col lg:flex-row gap-[24px] lg:gap-[40px] items-start px-[16px] py-[16px] lg:py-[24px]">
         <div className="w-full lg:w-[680px] shrink-0">
-          <ImageGallery images={product.images} />
+          <ImageGallery images={displayImages} />
         </div>
         <div className="flex-1 flex flex-col gap-[16px] w-full">
           <div className="flex flex-col gap-[8px]">

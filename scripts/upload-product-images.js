@@ -255,6 +255,7 @@ async function main() {
 
   let mainImagesInserted = 0
   let variationImagesUpdated = 0
+  let variationImagesInserted = 0
   let uploadCount = 0
 
   // 4. Process each product in IMAGE_MAP
@@ -309,6 +310,7 @@ async function main() {
 
     // Upload and set per-color variation images
     if (mapping.colors) {
+      let colorSort = 1
       for (const [colorLabel, imgPath] of Object.entries(mapping.colors)) {
         const entry = colorEntryByLabel[colorLabel]
         if (!entry) {
@@ -319,17 +321,47 @@ async function main() {
         const url = await uploadImage(imgPath)
         if (url) {
           uploadCount++
-          // Update variation_entries.image_url
+          // Update variation_entries.image_url (swatch thumbnail)
           const { error: updateErr } = await supabase
             .from('variation_entries')
             .update({ image_url: url })
             .eq('id', entry.id)
           if (updateErr) {
-            console.log(`  ERROR updating entry ${colorLabel}: ${updateErr.message}`)
-          } else {
-            variationImagesUpdated++
-            console.log(`  Set image for color "${colorLabel}"`)
+            console.log(`  ERROR updating swatch ${colorLabel}: ${updateErr.message}`)
           }
+
+          // Also insert as product_images with variation_entry_id (gallery image)
+          const { data: existingVarImg } = await supabase
+            .from('product_images')
+            .select('id')
+            .eq('product_id', product.id)
+            .eq('variation_entry_id', entry.id)
+            .limit(1)
+
+          if (existingVarImg && existingVarImg.length > 0) {
+            await supabase
+              .from('product_images')
+              .update({ url })
+              .eq('id', existingVarImg[0].id)
+          } else {
+            const { error: insertErr } = await supabase
+              .from('product_images')
+              .insert({
+                product_id: product.id,
+                url,
+                is_primary: false,
+                sort_order: colorSort,
+                variation_entry_id: entry.id,
+              })
+            if (insertErr) {
+              console.log(`  ERROR inserting var image ${colorLabel}: ${insertErr.message}`)
+            } else {
+              variationImagesInserted++
+            }
+          }
+          variationImagesUpdated++
+          console.log(`  Set image for color "${colorLabel}"`)
+          colorSort++
         }
       }
     }
@@ -338,7 +370,8 @@ async function main() {
   console.log('\n=== Summary ===')
   console.log(`  Unique files uploaded: ${Object.keys(uploadedCache).length}`)
   console.log(`  Main product images inserted: ${mainImagesInserted}`)
-  console.log(`  Variation entry images updated: ${variationImagesUpdated}`)
+  console.log(`  Variation-specific product_images inserted: ${variationImagesInserted}`)
+  console.log(`  Variation entry swatches updated: ${variationImagesUpdated}`)
 }
 
 main().catch(console.error)

@@ -1,10 +1,22 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import imgFavicon from '@/assets/6727cae5f32ea2c35a94792ae9603addc6300612.png'
 
 export default function RegisterCompletePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-grey">กำลังโหลด...</p>
+      </div>
+    }>
+      <RegisterCompleteContent />
+    </Suspense>
+  )
+}
+
+function RegisterCompleteContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [email, setEmail] = useState('')

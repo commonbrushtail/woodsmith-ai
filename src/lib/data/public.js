@@ -44,7 +44,7 @@ export async function getPublishedProduct(id) {
     .from('products')
     .select(`
       *,
-      product_images(id, url, is_primary, sort_order),
+      product_images(id, url, is_primary, sort_order, variation_entry_id),
       product_options(id, option_type, label, sort_order),
       product_variation_links(
         id,
@@ -81,7 +81,7 @@ export async function getPublishedProductBySlug(slug) {
     .from('products')
     .select(`
       *,
-      product_images(id, url, is_primary, sort_order),
+      product_images(id, url, is_primary, sort_order, variation_entry_id),
       product_options(id, option_type, label, sort_order),
       product_variation_links(
         id,
