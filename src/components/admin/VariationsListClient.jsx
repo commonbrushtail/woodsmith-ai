@@ -51,7 +51,7 @@ export default function VariationsListClient({ groups }) {
   const [search, setSearch] = useState('')
 
   const filtered = groups.filter(
-    (g) => !search || g.name?.toLowerCase().includes(search.toLowerCase())
+    (g) => !search || g.name?.toLowerCase().includes(search.toLowerCase()) || g.display_name?.toLowerCase().includes(search.toLowerCase())
   )
 
   const handleDelete = async (id) => {
@@ -126,6 +126,7 @@ export default function VariationsListClient({ groups }) {
             <tr className="border-b border-[#e8eaef]">
               <th className="text-left px-[16px] py-[12px] font-['IBM_Plex_Sans_Thai'] text-[12px] font-semibold text-[#9ca3af] uppercase tracking-wider">#</th>
               <th className="text-left px-[16px] py-[12px] font-['IBM_Plex_Sans_Thai'] text-[12px] font-semibold text-[#9ca3af] uppercase tracking-wider">ชื่อกลุ่ม</th>
+              <th className="text-left px-[16px] py-[12px] font-['IBM_Plex_Sans_Thai'] text-[12px] font-semibold text-[#9ca3af] uppercase tracking-wider">ชื่อที่แสดง</th>
               <th className="text-left px-[16px] py-[12px] font-['IBM_Plex_Sans_Thai'] text-[12px] font-semibold text-[#9ca3af] uppercase tracking-wider">จำนวนตัวเลือก</th>
               <th className="text-left px-[16px] py-[12px] font-['IBM_Plex_Sans_Thai'] text-[12px] font-semibold text-[#9ca3af] uppercase tracking-wider">สินค้าที่เชื่อมโยง</th>
               <th className="w-[60px]"></th>
@@ -134,7 +135,7 @@ export default function VariationsListClient({ groups }) {
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center py-[40px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#9ca3af]">
+                <td colSpan={6} className="text-center py-[40px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#9ca3af]">
                   ยังไม่มีกลุ่มตัวเลือก
                 </td>
               </tr>
@@ -158,6 +159,9 @@ export default function VariationsListClient({ groups }) {
                     >
                       {group.name || '-'}
                     </Link>
+                  </td>
+                  <td className="px-[16px] py-[14px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#374151]">
+                    {group.display_name || <span className="text-[#9ca3af]">-</span>}
                   </td>
                   <td className="px-[16px] py-[14px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#374151]">
                     {group.entry_count || 0}

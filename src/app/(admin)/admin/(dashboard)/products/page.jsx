@@ -5,8 +5,9 @@ export default async function ProductsPage({ searchParams }) {
   const params = await searchParams
   const page = params?.page ? parseInt(params.page, 10) : 1
   const perPage = params?.perPage ? parseInt(params.perPage, 10) : 10
+  const search = params?.search || ''
 
-  const { data: products, count } = await getProducts({ page, perPage })
+  const { data: products, count } = await getProducts({ page, perPage, search })
 
   return (
     <ProductsListClient
@@ -14,6 +15,7 @@ export default async function ProductsPage({ searchParams }) {
       totalCount={count}
       currentPage={page}
       rowsPerPage={perPage}
+      initialSearch={search}
     />
   )
 }

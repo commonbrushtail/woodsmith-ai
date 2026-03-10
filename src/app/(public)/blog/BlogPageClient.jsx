@@ -119,7 +119,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
   )
 }
 
-export default function BlogPageClient({ posts: dbPosts = [], categories: dbCategories = [] }) {
+export default function BlogPageClient({ posts: dbPosts = [], categories: dbCategories = [], bannerUrl = '' }) {
   const [activeTab, setActiveTab] = useState('all')
   const [mobileVisibleCount, setMobileVisibleCount] = useState(MOBILE_PAGE_SIZE)
   const [desktopPage, setDesktopPage] = useState(1)
@@ -168,7 +168,7 @@ export default function BlogPageClient({ posts: dbPosts = [], categories: dbCate
     <div className="flex flex-col gap-[36px] lg:gap-[60px] items-center w-full pb-[36px] lg:pb-[60px]">
       {/* Banner */}
       <div className="h-[116px] lg:h-[200px] relative w-full overflow-hidden flex items-center justify-center">
-        <img alt="" className="absolute max-w-none object-cover size-full" src={imgBanner} />
+        <img alt="" className="absolute max-w-none object-cover size-full" src={bannerUrl || imgBanner} />
         <p className="relative font-['IBM_Plex_Sans_Thai'] font-semibold text-[24px] lg:text-[64px] text-white text-center tracking-[0.25px] leading-[1.3]">
           บทความ
         </p>

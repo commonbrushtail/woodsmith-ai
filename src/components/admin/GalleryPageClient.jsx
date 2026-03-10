@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '@/lib/toast-context'
 import { createGalleryItems, deleteGalleryItem, reorderGalleryItems } from '@/lib/actions/gallery'
 import { buildSortOrderUpdates } from '@/lib/reorder'
-import { validateFile } from '@/lib/upload-validation'
+import { validateFile, compressImage } from '@/lib/upload-validation'
 import {
   DndContext,
   closestCenter,
@@ -127,12 +127,14 @@ function GalleryGridSection({ title, section, items: initialItems }) {
     }
     if (validFiles.length === 0) return
 
+    const compressedFiles = await Promise.all(validFiles.map((f) => compressImage(f)))
+
     setIsUploading(true)
-    setUploadCount(validFiles.length)
+    setUploadCount(compressedFiles.length)
     try {
       const formData = new FormData()
       formData.set('section', section)
-      for (const file of validFiles) {
+      for (const file of compressedFiles) {
         formData.append('images', file)
       }
       const result = await createGalleryItems(formData)

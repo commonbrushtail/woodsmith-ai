@@ -3,6 +3,9 @@
 import { createServiceClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
+import { uploadFile, getPublicUrl } from '@/lib/storage'
+
+const BANNER_KEYS = ['banner_about', 'banner_blog', 'banner_manual', 'banner_highlight', 'banner_faq']
 
 /**
  * Get site settings
@@ -77,7 +80,24 @@ export async function updateSiteSettings(formData) {
       stat_customers: formData.get('stat_customers') || '',
     }
 
-    console.log('Saving settings data:', JSON.stringify(settingsData, null, 2))
+    // Handle banner image uploads
+    for (const key of BANNER_KEYS) {
+      const file = formData.get(key)
+      if (file && file.size > 0) {
+        const ext = file.name.split('.').pop() || 'webp'
+        const storagePath = `site/${key}.${ext}`
+        const { error: uploadError } = await uploadFile('banners', file, storagePath)
+        if (!uploadError) {
+          settingsData[`${key}_url`] = getPublicUrl('banners', storagePath)
+        }
+      } else {
+        // Preserve existing URL if no new file uploaded
+        const existingUrl = formData.get(`${key}_url`)
+        if (existingUrl) {
+          settingsData[`${key}_url`] = existingUrl
+        }
+      }
+    }
 
     let data, error
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, useRef } from 'react'
+import { useState, useEffect, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
@@ -155,6 +155,8 @@ export default function CategoriesListClient({ categories, parentCategories = []
   const [orderedCategories, setOrderedCategories] = useState(categories)
   const [searchQuery, setSearchQuery] = useState('')
 
+  useEffect(() => { setOrderedCategories(categories) }, [categories])
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -198,10 +200,11 @@ export default function CategoriesListClient({ categories, parentCategories = []
   const handleDelete = (id) => {
     const cat = orderedCategories.find(c => c.id === id)
     if (!confirm(`ต้องการลบหมวดหมู่สินค้า "${cat?.name}" หรือไม่?`)) return
+    setOrderedCategories(prev => prev.filter(c => c.id !== id))
+    setOpenMenuId(null)
     startTransition(async () => {
       const result = await deleteCategory(id)
       if (result.error) toast.error('เกิดข้อผิดพลาด: ' + result.error)
-      setOpenMenuId(null)
       router.refresh()
     })
   }

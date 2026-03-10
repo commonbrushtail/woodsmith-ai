@@ -96,9 +96,13 @@ export async function createVariationGroup(formData) {
     return { data: null, fieldErrors, error: null }
   }
 
+  const insertData = { ...parsed.data }
+  const displayName = formData.get('display_name')
+  if (displayName) insertData.display_name = sanitizeInput(displayName)
+
   const { data, error } = await supabase
     .from('variation_groups')
-    .insert(parsed.data)
+    .insert(insertData)
     .select()
     .single()
 
@@ -133,9 +137,12 @@ export async function updateVariationGroup(id, formData) {
     return { data: null, fieldErrors, error: null }
   }
 
+  const updateData = { ...parsed.data }
+  if (formData.has('display_name')) updateData.display_name = sanitizeInput(formData.get('display_name'))
+
   const { data, error } = await supabase
     .from('variation_groups')
-    .update(parsed.data)
+    .update(updateData)
     .eq('id', id)
     .select()
     .single()

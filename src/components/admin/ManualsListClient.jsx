@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { deleteManual, toggleManualPublished, reorderManuals } from '@/lib/actions/manuals'
+import ActionMenu from '@/components/admin/ActionMenu'
 import { buildSortOrderUpdates } from '@/lib/reorder'
 import {
   DndContext,
@@ -138,6 +139,9 @@ export default function ManualsListClient({ manuals, totalCount }) {
   const [sortAsc, setSortAsc] = useState(true)
   const [openMenuId, setOpenMenuId] = useState(null)
   const [orderedManuals, setOrderedManuals] = useState(manuals)
+
+  useEffect(() => { setOrderedManuals(manuals) }, [manuals])
+
   const menuRef = useRef(null)
 
   const sensors = useSensors(
@@ -196,10 +200,11 @@ export default function ManualsListClient({ manuals, totalCount }) {
 
   const handleDelete = (id) => {
     if (!confirm('ต้องการลบคู่มือนี้หรือไม่?')) return
+    setOrderedManuals(prev => prev.filter(m => m.id !== id))
+    setOpenMenuId(null)
     startTransition(async () => {
       const result = await deleteManual(id)
       if (result.error) toast.error('เกิดข้อผิดพลาด: ' + result.error)
-      setOpenMenuId(null)
       router.refresh()
     })
   }
@@ -350,38 +355,30 @@ export default function ManualsListClient({ manuals, totalCount }) {
                           {renderStatusBadge(manual)}
                         </td>
                         <td className="px-[10px] py-[10px] text-center">
-                          <div className="relative inline-block" ref={openMenuId === manual.id ? menuRef : null}>
-                            <button
-                              onClick={() => setOpenMenuId(openMenuId === manual.id ? null : manual.id)}
-                              className="size-[32px] inline-flex items-center justify-center rounded-[6px] hover:bg-[#f3f4f6] transition-colors cursor-pointer bg-transparent border-none"
-                              aria-label={`Actions for manual ${manual.sort_order}`}
-                              aria-haspopup="true"
-                              aria-expanded={openMenuId === manual.id}
+                          <ActionMenu
+                            open={openMenuId === manual.id}
+                            onToggle={() => setOpenMenuId(openMenuId === manual.id ? null : manual.id)}
+                            onClose={() => setOpenMenuId(null)}
+                            label={`Actions for manual ${manual.sort_order}`}
+                          >
+                            <Link
+                              href={`/admin/manual/edit/${manual.id}`}
+                              className="flex items-center gap-[8px] px-[12px] py-[8px] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
+                              onClick={() => setOpenMenuId(null)}
+                              role="menuitem"
                             >
-                              <DotsIcon />
+                              <EditIcon />
+                              {'แก้ไข'}
+                            </Link>
+                            <button
+                              className="flex items-center gap-[8px] w-full px-[12px] py-[8px] text-[13px] text-[#ef4444] hover:bg-[#fef2f2] border-none bg-transparent cursor-pointer transition-colors"
+                              onClick={() => handleDelete(manual.id)}
+                              role="menuitem"
+                            >
+                              <TrashIcon />
+                              {'ลบ'}
                             </button>
-                            {openMenuId === manual.id && (
-                              <div className="absolute right-0 top-[36px] z-20 bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[140px]" role="menu">
-                                <Link
-                                  href={`/admin/manual/edit/${manual.id}`}
-                                  className="flex items-center gap-[8px] px-[12px] py-[8px] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
-                                  onClick={() => setOpenMenuId(null)}
-                                  role="menuitem"
-                                >
-                                  <EditIcon />
-                                  {'แก้ไข'}
-                                </Link>
-                                <button
-                                  className="flex items-center gap-[8px] w-full px-[12px] py-[8px] text-[13px] text-[#ef4444] hover:bg-[#fef2f2] border-none bg-transparent cursor-pointer transition-colors"
-                                  onClick={() => handleDelete(manual.id)}
-                                  role="menuitem"
-                                >
-                                  <TrashIcon />
-                                  {'ลบ'}
-                                </button>
-                              </div>
-                            )}
-                          </div>
+                          </ActionMenu>
                         </td>
                       </SortableRow>
                     ))

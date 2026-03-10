@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
-import { validateFile } from '@/lib/upload-validation'
+import { validateFile, compressImage } from '@/lib/upload-validation'
 
 function ChevronDownIcon({ size = 12, className = '' }) {
   return (
@@ -97,14 +97,15 @@ export function buildGroupsFromOptions(options) {
 function EntryImageUpload({ entry, onImageChange, onImageRemove }) {
   const fileRef = useRef(null)
 
-  const handleFile = (e) => {
+  const handleFile = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
     e.target.value = ''
     const result = validateFile(file)
     if (!result.valid) return
-    const previewUrl = URL.createObjectURL(file)
-    onImageChange(file, previewUrl)
+    const compressed = await compressImage(file, { maxWidth: 100, maxHeight: 100, quality: 0.7 })
+    const previewUrl = URL.createObjectURL(compressed)
+    onImageChange(compressed, previewUrl)
   }
 
   const src = entry.previewUrl || entry.imageUrl

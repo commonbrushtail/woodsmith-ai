@@ -50,7 +50,7 @@ export async function getProduct(id) {
 
   const { data, error } = await supabase
     .from('products')
-    .select('*, product_images(id, url, is_primary, sort_order), product_options(id, option_type, label, image_url, sort_order), product_variation_links(id, group_id, entry_id, show_image, variation_groups(id, name), variation_entries(id, label, image_url, sort_order))')
+    .select('*, product_images(id, url, is_primary, sort_order, variation_entry_id), product_options(id, option_type, label, image_url, sort_order), product_variation_links(id, group_id, entry_id, show_image, variation_groups(id, name, display_name), variation_entries(id, label, image_url, sort_order))')
     .eq('id', id)
     .single()
 
@@ -331,8 +331,11 @@ export async function uploadProductImage(productId, formData) {
   const file = formData.get('file')
   if (!file) return { error: 'No file provided' }
 
+  const variationEntryId = formData.get('variation_entry_id') || null
+
   const ext = file.name.split('.').pop()
-  const filePath = `${productId}/${Date.now()}.${ext}`
+  const folder = variationEntryId ? `${productId}/variations` : `${productId}`
+  const filePath = `${folder}/${Date.now()}.${ext}`
 
   const { path, error: uploadError } = await uploadFile('products', file, filePath)
   if (uploadError) return { error: uploadError.message }
@@ -340,25 +343,61 @@ export async function uploadProductImage(productId, formData) {
   const url = getPublicUrl('products', path)
 
   const supabase = createServiceClient()
-  const { data: existing } = await supabase
-    .from('product_images')
-    .select('id')
-    .eq('product_id', productId)
 
-  const isPrimary = !existing || existing.length === 0
+  if (variationEntryId) {
+    // For variation images: upsert (one image per product+entry)
+    const { data: existingVar } = await supabase
+      .from('product_images')
+      .select('id, url')
+      .eq('product_id', productId)
+      .eq('variation_entry_id', variationEntryId)
+      .limit(1)
 
-  const { error: insertError } = await supabase
-    .from('product_images')
-    .insert({
-      product_id: productId,
-      url,
-      is_primary: isPrimary,
-      sort_order: existing ? existing.length : 0,
-    })
+    if (existingVar && existingVar.length > 0) {
+      // Delete old file from storage
+      const oldPath = existingVar[0].url.split('/products/').pop()
+      if (oldPath) await deleteFile('products', oldPath)
+      // Update existing record
+      const { error: updateError } = await supabase
+        .from('product_images')
+        .update({ url })
+        .eq('id', existingVar[0].id)
+      if (updateError) return { error: updateError.message }
+    } else {
+      const { error: insertError } = await supabase
+        .from('product_images')
+        .insert({
+          product_id: productId,
+          url,
+          is_primary: false,
+          sort_order: 0,
+          variation_entry_id: variationEntryId,
+        })
+      if (insertError) return { error: insertError.message }
+    }
+  } else {
+    // Regular product image
+    const { data: existing } = await supabase
+      .from('product_images')
+      .select('id')
+      .eq('product_id', productId)
+      .is('variation_entry_id', null)
 
-  if (insertError) return { error: insertError.message }
+    const isPrimary = !existing || existing.length === 0
+
+    const { error: insertError } = await supabase
+      .from('product_images')
+      .insert({
+        product_id: productId,
+        url,
+        is_primary: isPrimary,
+        sort_order: existing ? existing.length : 0,
+      })
+    if (insertError) return { error: insertError.message }
+  }
 
   revalidatePath('/admin/products')
+  revalidatePath(`/admin/products/edit/${productId}`)
   return { url, error: null }
 }
 

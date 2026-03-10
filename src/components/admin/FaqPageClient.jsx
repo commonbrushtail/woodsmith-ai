@@ -6,7 +6,7 @@ import { useToast } from '@/lib/toast-context'
 import { createFaqGroup, updateFaqGroup, deleteFaqGroup, reorderFaqGroups, toggleFaqGroupPublished } from '@/lib/actions/faq-groups'
 import { createFaq, updateFaq, deleteFaq, reorderFaqs } from '@/lib/actions/faqs'
 import { buildSortOrderUpdates } from '@/lib/reorder'
-import { validateFile } from '@/lib/upload-validation'
+import { validateFile, compressImage } from '@/lib/upload-validation'
 import {
   DndContext,
   closestCenter,
@@ -274,10 +274,11 @@ function FaqGroupCard({ group, dragAttributes, dragListeners }) {
       return
     }
 
+    const compressed = await compressImage(file)
     setIsUploadingImage(true)
     try {
       const formData = new FormData()
-      formData.set('image', file)
+      formData.set('image', compressed)
       const result = await updateFaqGroup(group.id, formData)
       if (result.error) toast.error(result.error)
       router.refresh()

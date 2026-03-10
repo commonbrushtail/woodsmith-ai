@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { createBlogPost } from '@/lib/actions/blog'
 import { useToast } from '@/lib/toast-context'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
-import { validateFile, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
+import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import CalendarPicker from '@/components/admin/CalendarPicker'
 import CategorySelect from '@/components/admin/CategorySelect'
@@ -221,7 +221,7 @@ export default function BlogCreatePage() {
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0
   const charCount = content.length
 
-  const handleImageUpload = (files) => {
+  const handleImageUpload = async (files) => {
     if (images.length + files.length > 5) return
     const validFiles = files.filter((f) => {
       const check = validateFile(f, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
@@ -229,14 +229,15 @@ export default function BlogCreatePage() {
       return true
     })
     if (validFiles.length === 0) return
-    const newImages = validFiles.map((f) => ({
+    const compressedFiles = await Promise.all(validFiles.map((f) => compressImage(f)))
+    const newImages = compressedFiles.map((f) => ({
       id: Date.now() + Math.random(),
       name: f.name,
       url: URL.createObjectURL(f),
       file: f,
     }))
     setImages((prev) => [...prev, ...newImages])
-    if (!coverFile && files.length > 0) setCoverFile(files[0])
+    if (!coverFile && compressedFiles.length > 0) setCoverFile(compressedFiles[0])
   }
 
   const removeImage = (id) => {
@@ -342,7 +343,7 @@ export default function BlogCreatePage() {
           {/* ---------------------------------------------------------- */}
           <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[16px]">
             <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
-              Image / รูปภาพ (Min 1-Max 5 file) <span className="text-red-500">*</span>
+              Image / รูปภาพ <span className="text-red-500">*</span>
             </label>
 
             {/* Uploaded images preview */}

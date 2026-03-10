@@ -249,6 +249,44 @@ export default function QuotationListClient({ quotations, totalCount }) {
     )
   }
 
+  /* ---------- CSV Export ---------- */
+  function handleExportCSV() {
+    const rows = sortedQuotations.map((q, i) => ({
+      'ลำดับ': i + 1,
+      'เลขที่ใบเสนอราคา': q.quotation_number || '',
+      'สินค้า': q.product?.name || '-',
+      'ชื่อผู้ขอ': q.requester_name || '',
+      'เบอร์โทร': q.requester_phone || '',
+      'อีเมล': q.requester_email || '',
+      'จำนวน': q.quantity || '',
+      'ข้อความ': q.message || '',
+      'สถานะ': STATUS_CONFIG[q.status]?.label || q.status,
+      'วันที่ขอ': q.created_at ? new Date(q.created_at).toLocaleString('th-TH') : '',
+    }))
+
+    if (rows.length === 0) return
+
+    const headers = Object.keys(rows[0])
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row =>
+        headers.map(h => {
+          const val = String(row[h]).replace(/"/g, '""')
+          return `"${val}"`
+        }).join(',')
+      ),
+    ].join('\n')
+
+    const BOM = '\uFEFF'
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `quotations_${new Date().toISOString().slice(0, 10)}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
   /* ================================================================ */
   /*  JSX                                                              */
   /* ================================================================ */
@@ -266,6 +304,7 @@ export default function QuotationListClient({ quotations, totalCount }) {
         </div>
         <div className="flex items-center gap-[12px]">
           <button
+            onClick={handleExportCSV}
             className="inline-flex items-center gap-[6px] bg-[#ff7e1b] hover:bg-[#e96d0f] text-white text-[14px] font-semibold rounded-[8px] px-[16px] py-[9px] border-none cursor-pointer transition-colors"
           >
             <DownloadIcon />

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { deleteVideoHighlight, toggleVideoHighlightPublished, toggleVideoHighlightRecommended, reorderVideoHighlights } from '@/lib/actions/video-highlights'
+import ActionMenu from '@/components/admin/ActionMenu'
 import { buildSortOrderUpdates } from '@/lib/reorder'
 import {
   DndContext,
@@ -210,10 +211,11 @@ export default function VideoHighlightsListClient({ highlights, totalCount }) {
 
   const handleDelete = (id) => {
     if (!confirm('ต้องการลบวิดีโอไฮไลท์นี้หรือไม่?')) return
+    setOrderedHighlights(prev => prev.filter(h => h.id !== id))
+    setOpenMenuId(null)
     startTransition(async () => {
       const result = await deleteVideoHighlight(id)
       if (result.error) toast.error('เกิดข้อผิดพลาด: ' + result.error)
-      setOpenMenuId(null)
       router.refresh()
     })
   }
@@ -397,38 +399,30 @@ export default function VideoHighlightsListClient({ highlights, totalCount }) {
                           {renderPublishBadge(highlight)}
                         </td>
                         <td className="px-[10px] py-[10px] text-center">
-                          <div className="relative inline-block" ref={openMenuId === highlight.id ? menuRef : null}>
-                            <button
-                              onClick={() => setOpenMenuId(openMenuId === highlight.id ? null : highlight.id)}
-                              className="size-[32px] inline-flex items-center justify-center rounded-[6px] hover:bg-[#f3f4f6] transition-colors cursor-pointer bg-transparent border-none"
-                              aria-label={`Actions for highlight ${highlight.sort_order}`}
-                              aria-haspopup="true"
-                              aria-expanded={openMenuId === highlight.id}
+                          <ActionMenu
+                            open={openMenuId === highlight.id}
+                            onToggle={() => setOpenMenuId(openMenuId === highlight.id ? null : highlight.id)}
+                            onClose={() => setOpenMenuId(null)}
+                            label={`Actions for highlight ${highlight.sort_order}`}
+                          >
+                            <Link
+                              href={`/admin/video-highlight/edit/${highlight.id}`}
+                              className="flex items-center gap-[8px] px-[12px] py-[8px] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
+                              onClick={() => setOpenMenuId(null)}
+                              role="menuitem"
                             >
-                              <DotsIcon />
+                              <EditIcon />
+                              {'แก้ไข'}
+                            </Link>
+                            <button
+                              className="flex items-center gap-[8px] w-full px-[12px] py-[8px] text-[13px] text-[#ef4444] hover:bg-[#fef2f2] border-none bg-transparent cursor-pointer transition-colors"
+                              onClick={() => handleDelete(highlight.id)}
+                              role="menuitem"
+                            >
+                              <TrashIcon />
+                              {'ลบ'}
                             </button>
-                            {openMenuId === highlight.id && (
-                              <div className="absolute right-0 top-[36px] z-20 bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[140px]" role="menu">
-                                <Link
-                                  href={`/admin/video-highlight/edit/${highlight.id}`}
-                                  className="flex items-center gap-[8px] px-[12px] py-[8px] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
-                                  onClick={() => setOpenMenuId(null)}
-                                  role="menuitem"
-                                >
-                                  <EditIcon />
-                                  {'แก้ไข'}
-                                </Link>
-                                <button
-                                  className="flex items-center gap-[8px] w-full px-[12px] py-[8px] text-[13px] text-[#ef4444] hover:bg-[#fef2f2] border-none bg-transparent cursor-pointer transition-colors"
-                                  onClick={() => handleDelete(highlight.id)}
-                                  role="menuitem"
-                                >
-                                  <TrashIcon />
-                                  {'ลบ'}
-                                </button>
-                              </div>
-                            )}
-                          </div>
+                          </ActionMenu>
                         </td>
                       </SortableRow>
                     ))

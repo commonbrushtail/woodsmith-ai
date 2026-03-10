@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { createVariationGroup, createVariationEntry } from '@/lib/actions/variations'
 import { useToast } from '@/lib/toast-context'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
-import { validateFile } from '@/lib/upload-validation'
+import { validateFile, compressImage } from '@/lib/upload-validation'
 
 function ChevronLeftIcon() {
   return (
@@ -62,14 +62,15 @@ const inputCls = (hasError) =>
 function EntryImageUpload({ entry, onImageChange, onImageRemove }) {
   const fileRef = useRef(null)
 
-  const handleFile = (e) => {
+  const handleFile = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
     e.target.value = ''
     const result = validateFile(file)
     if (!result.valid) return
-    const previewUrl = URL.createObjectURL(file)
-    onImageChange(file, previewUrl)
+    const compressed = await compressImage(file, { maxWidth: 100, maxHeight: 100, quality: 0.7 })
+    const previewUrl = URL.createObjectURL(compressed)
+    onImageChange(compressed, previewUrl)
   }
 
   const src = entry.previewUrl || entry.imageUrl
@@ -118,6 +119,7 @@ export default function VariationCreateClient() {
   const formErrors = useFormErrors()
 
   const [groupName, setGroupName] = useState('')
+  const [displayName, setDisplayName] = useState('')
   const [entries, setEntries] = useState([
     { id: genId(), label: '', imageFile: null, imageUrl: null, previewUrl: null }
   ])
@@ -154,6 +156,7 @@ export default function VariationCreateClient() {
       // Step 1: Create group
       const groupFormData = new FormData()
       groupFormData.append('name', groupName)
+      if (displayName.trim()) groupFormData.append('display_name', displayName.trim())
 
       const groupResult = await createVariationGroup(groupFormData)
 
@@ -235,6 +238,19 @@ export default function VariationCreateClient() {
                 {formErrors.getError('name')}
               </p>
             )}
+            <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937] mt-[12px]">
+              ชื่อที่แสดงให้ลูกค้า (Display Name)
+            </label>
+            <input
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="เช่น สี, ขนาด, แบบ (ถ้าไม่กรอกจะใช้ชื่อกลุ่มตัวเลือก)"
+              className={inputCls(false)}
+            />
+            <p className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#9ca3af] m-0">
+              ชื่อที่ลูกค้าจะเห็นในหน้าสินค้า เช่น &quot;สี&quot; แทนที่จะเป็น &quot;สี - ประตูเมลามีน&quot;
+            </p>
           </section>
 
           {/* Entries section */}

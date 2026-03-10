@@ -60,16 +60,22 @@ function ChevronRightArrow() {
   )
 }
 
-function ImageGallery({ images }) {
+function ImageGallery({ images, jumpToIndex, jumpTrigger }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const mobileSwiperRef = useRef(null)
   const desktopSwiperRef = useRef(null)
+  const prevImagesRef = useRef(images)
 
-  // Reset active index when images change (e.g. variation selection)
+  // When images array changes (new variation selected), reset or jump
   useEffect(() => {
-    setActiveIndex(0)
-  }, [images])
+    if (jumpToIndex != null && jumpToIndex >= 0 && jumpToIndex < images.length) {
+      setActiveIndex(jumpToIndex)
+    } else {
+      setActiveIndex(0)
+    }
+    prevImagesRef.current = images
+  }, [images, jumpTrigger]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!images || images.length === 0) {
     return (
@@ -201,12 +207,12 @@ export default function ProductDetailClient({ product: dbProduct = null, isLogge
     images: (dbProduct.product_images || []).filter(img => !img.variation_entry_id).sort((a, b) => a.sort_order - b.sort_order).map(img => img.url),
     variations: (dbProduct.product_variation_links || [])
       .reduce((acc, link) => {
-        const groupName = link.variation_groups?.name
-        if (!groupName) return acc
-        if (!acc[groupName]) {
-          acc[groupName] = []
+        const displayName = link.variation_groups?.display_name || link.variation_groups?.name
+        if (!displayName) return acc
+        if (!acc[displayName]) {
+          acc[displayName] = []
         }
-        acc[groupName].push({
+        acc[displayName].push({
           id: link.entry_id,
           label: link.variation_entries?.label,
           image_url: link.show_image ? link.variation_entries?.image_url : null,
@@ -247,15 +253,25 @@ export default function ProductDetailClient({ product: dbProduct = null, isLogge
   })
   const [quotationOpen, setQuotationOpen] = useState(false)
 
-  // Compute displayed images: if a selected variation has specific images, show those instead
-  const displayImages = (() => {
-    if (!product.allImages?.length) return product.images
-    const selectedEntryIds = Object.values(selectedVariations).filter(Boolean)
-    // Find variation-specific images matching any selected variation
-    const variationImages = product.allImages
-      .filter(img => img.variation_entry_id && selectedEntryIds.includes(img.variation_entry_id))
-      .map(img => img.url)
-    return variationImages.length > 0 ? variationImages : product.images
+  // Track which variation entry was last clicked (to jump gallery to its image)
+  const [lastClickedEntryId, setLastClickedEntryId] = useState(null)
+  const [jumpTrigger, setJumpTrigger] = useState(0)
+
+  // Compute displayed images: normal images + ALL variation images appended
+  const variationImageObjects = (product.allImages || [])
+    .filter(img => img.variation_entry_id)
+    .sort((a, b) => a.sort_order - b.sort_order)
+  const variationImageUrls = variationImageObjects.map(img => img.url)
+  const displayImages = variationImageUrls.length > 0
+    ? [...product.images, ...variationImageUrls]
+    : product.images
+
+  // Compute jump index: find the clicked variation's image position in displayImages
+  const galleryJumpIndex = (() => {
+    if (!lastClickedEntryId || variationImageUrls.length === 0) return null
+    const idx = variationImageObjects.findIndex(img => img.variation_entry_id === lastClickedEntryId)
+    if (idx === -1) return null
+    return product.images.length + idx
   })()
 
   return (
@@ -274,7 +290,7 @@ export default function ProductDetailClient({ product: dbProduct = null, isLogge
       {/* Main Content */}
       <div className="max-w-[1212px] mx-auto w-full flex flex-col lg:flex-row gap-[24px] lg:gap-[40px] items-start px-[16px] py-[16px] lg:py-[24px]">
         <div className="w-full lg:w-[680px] shrink-0">
-          <ImageGallery images={displayImages} />
+          <ImageGallery images={displayImages} jumpToIndex={galleryJumpIndex} jumpTrigger={jumpTrigger} />
         </div>
         <div className="flex-1 flex flex-col gap-[16px] w-full">
           <div className="flex flex-col gap-[8px]">
@@ -325,7 +341,11 @@ export default function ProductDetailClient({ product: dbProduct = null, isLogge
                   label={groupName}
                   options={sortedEntries}
                   selectedId={selectedVariations[groupName] || ''}
-                  onSelect={(id) => setSelectedVariations(prev => ({ ...prev, [groupName]: id }))}
+                  onSelect={(id) => {
+                    setSelectedVariations(prev => ({ ...prev, [groupName]: id }))
+                    setLastClickedEntryId(id)
+                    setJumpTrigger(t => t + 1)
+                  }}
                   renderItem={(entry, isSelected, onClick) => (
                     <button
                       key={entry.id}

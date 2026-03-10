@@ -6,7 +6,7 @@ export const categoryCreateSchema = z.object({
   type: z.enum(['construction', 'decoration'], {
     errorMap: () => ({ message: 'ประเภทไม่ถูกต้อง' }),
   }),
-  parent_id: z.string().uuid().nullable().optional(),
+  parent_id: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid ID').nullable().optional(),
   sort_order: z.number().int().optional(),
   published: z.boolean().optional(),
   is_featured: z.boolean().optional(),

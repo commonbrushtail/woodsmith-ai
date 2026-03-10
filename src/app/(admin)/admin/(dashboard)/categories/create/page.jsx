@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { createCategory, getCategories } from '@/lib/actions/categories'
-import { validateFile, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
+import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 import AdminFileInput from '@/components/admin/AdminFileInput'
 
 function generateSlug(name) {
@@ -44,13 +44,14 @@ export default function CategoryCreatePage() {
     }
   }, [name, slugManual])
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
     const check = validateFile(file, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
     if (!check.valid) { toast.error(check.error); e.target.value = ''; return }
-    setSelectedFile(file)
-    setImagePreview(URL.createObjectURL(file))
+    const compressed = await compressImage(file, { maxWidth: 512, maxHeight: 512 })
+    setSelectedFile(compressed)
+    setImagePreview(URL.createObjectURL(compressed))
   }
 
   const handleRemoveFile = () => {

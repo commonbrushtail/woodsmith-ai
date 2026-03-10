@@ -3,7 +3,7 @@
 import { useState, useEffect, useTransition, useRef } from 'react'
 import { createVariationEntry, createVariationGroup } from '@/lib/actions/variations'
 import { useToast } from '@/lib/toast-context'
-import { validateFile } from '@/lib/upload-validation'
+import { validateFile, compressImage } from '@/lib/upload-validation'
 
 function ChevronDownIcon({ size = 12, className = '' }) {
   return (
@@ -168,7 +168,7 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
     })
   }
 
-  const handleImageSelect = (groupId, file) => {
+  const handleImageSelect = async (groupId, file) => {
     if (!file) {
       setNewEntryImages(prev => ({ ...prev, [groupId]: null }))
       return
@@ -178,7 +178,8 @@ export default function VariationLinker({ allGroups, initialLinks, onChange }) {
       toast.error(validation.error)
       return
     }
-    setNewEntryImages(prev => ({ ...prev, [groupId]: file }))
+    const compressed = await compressImage(file, { maxWidth: 100, maxHeight: 100, quality: 0.7 })
+    setNewEntryImages(prev => ({ ...prev, [groupId]: compressed }))
   }
 
   const handleAddEntry = (groupId) => {

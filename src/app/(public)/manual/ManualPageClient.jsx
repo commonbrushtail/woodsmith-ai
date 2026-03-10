@@ -69,7 +69,7 @@ function CardManual({ image, title, date, pdfUrl, youtubeUrl }) {
   )
 }
 
-export default function ManualPageClient({ manuals: dbManuals = [] }) {
+export default function ManualPageClient({ manuals: dbManuals = [], bannerUrl = '' }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
   const allManuals = dbManuals.length > 0
@@ -89,7 +89,7 @@ export default function ManualPageClient({ manuals: dbManuals = [] }) {
   return (
     <div className="flex flex-col items-center w-full pb-[36px] lg:pb-[60px]">
       <div className="h-[116px] lg:h-[200px] relative w-full overflow-hidden flex items-center justify-center">
-        <img alt="" className="absolute max-w-none object-cover size-full" src={imgBanner} />
+        <img alt="" className="absolute max-w-none object-cover size-full" src={bannerUrl || imgBanner} />
         <p className="relative font-['IBM_Plex_Sans_Thai'] font-semibold text-[24px] lg:text-[64px] text-white text-center tracking-[0.25px] leading-[1.3]">
           คู่มือการใช้งานผลิตภัณฑ์
         </p>

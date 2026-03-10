@@ -1,7 +1,10 @@
-import { getPublishedManuals } from '../../../lib/data/public'
+import { getPublishedManuals, getSiteSettings } from '../../../lib/data/public'
 import ManualPageClient from './ManualPageClient'
 
 export default async function ManualPage() {
-  const { data } = await getPublishedManuals({ perPage: 200 })
-  return <ManualPageClient manuals={data} />
+  const [{ data }, settingsRes] = await Promise.all([
+    getPublishedManuals({ perPage: 200 }),
+    getSiteSettings(),
+  ])
+  return <ManualPageClient manuals={data} bannerUrl={settingsRes.data?.banner_manual_url || ''} />
 }

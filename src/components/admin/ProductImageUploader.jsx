@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/lib/toast-context'
-import { validateFile } from '@/lib/upload-validation'
+import { validateFile, compressImage } from '@/lib/upload-validation'
 import { uploadProductImage, deleteProductImage } from '@/lib/actions/products'
 
 function PlusIcon() {
@@ -38,7 +38,7 @@ export default function ProductImageUploader({
   productId = null,
   existingImages = [],
   onExistingImagesChange,
-  maxImages = 5,
+  maxImages = 20,
 }) {
   const { toast } = useToast()
   const router = useRouter()
@@ -68,10 +68,13 @@ export default function ProductImageUploader({
     }
     if (validFiles.length === 0) return
 
+    // Compress images before upload/preview
+    const compressed = await Promise.all(validFiles.map(f => compressImage(f)))
+
     if (isEditMode) {
       setIsUploading(true)
       try {
-        for (const file of validFiles) {
+        for (const file of compressed) {
           const formData = new FormData()
           formData.set('file', file)
           const result = await uploadProductImage(productId, formData)
@@ -88,7 +91,7 @@ export default function ProductImageUploader({
         setIsUploading(false)
       }
     } else {
-      const newFiles = validFiles.map((file) => ({
+      const newFiles = compressed.map((file) => ({
         id: Date.now() + Math.random(),
         file,
         previewUrl: URL.createObjectURL(file),
@@ -128,7 +131,7 @@ export default function ProductImageUploader({
   return (
     <section className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[16px]">
       <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
-        Image / รูปภาพ (Min 1-Max {maxImages} file) <span className="text-red-500">*</span>
+        Image / รูปภาพ <span className="text-red-500">*</span>
       </label>
 
       {images.length > 0 && (

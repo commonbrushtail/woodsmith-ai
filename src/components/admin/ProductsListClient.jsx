@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useEffect, useTransition, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/lib/toast-context'
 import { deleteProduct, toggleProductRecommended, toggleProductPublished } from '@/lib/actions/products'
 import { getPageNumbers } from '@/lib/pagination'
+import ActionMenu from '@/components/admin/ActionMenu'
 
 /* ------------------------------------------------------------------ */
 /*  Inline SVG icon helpers                                            */
@@ -128,34 +129,50 @@ const TYPE_LABELS = {
 /* ------------------------------------------------------------------ */
 /*  Page component                                                     */
 /* ------------------------------------------------------------------ */
-export default function ProductsListClient({ products: productsProp, totalCount, currentPage = 1, rowsPerPage = 10 }) {
+export default function ProductsListClient({ products: productsProp, totalCount, currentPage = 1, rowsPerPage = 10, initialSearch = '' }) {
   const router = useRouter()
   const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [products, setProducts] = useState(productsProp)
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState(initialSearch)
   const [selectedRows, setSelectedRows] = useState([])
   const [openMenuId, setOpenMenuId] = useState(null)
+  const debounceRef = useRef(null)
 
   useEffect(() => { setProducts(productsProp) }, [productsProp])
 
-  function navigateToPage(page, perPage = rowsPerPage) {
+  function buildUrl(page, perPage = rowsPerPage, search = searchQuery) {
     const params = new URLSearchParams()
     params.set('page', String(page))
     params.set('perPage', String(perPage))
-    router.replace(`/admin/products?${params.toString()}`)
+    if (search.trim()) params.set('search', search.trim())
+    return `/admin/products?${params.toString()}`
   }
+
+  function navigateToPage(page, perPage = rowsPerPage) {
+    router.replace(buildUrl(page, perPage))
+  }
+
+  const handleSearchChange = useCallback((value) => {
+    setSearchQuery(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      router.replace(buildUrl(1, rowsPerPage, value))
+    }, 400)
+  }, [rowsPerPage])
 
   const totalPages = Math.max(1, Math.ceil(totalCount / rowsPerPage))
 
-  const allSelected = products.length > 0 && selectedRows.length === products.length
+  const filteredProducts = products
+
+  const allSelected = filteredProducts.length > 0 && selectedRows.length === filteredProducts.length
   const someSelected = selectedRows.length > 0 && !allSelected
 
   function toggleSelectAll() {
     if (allSelected) {
       setSelectedRows([])
     } else {
-      setSelectedRows(products.map((p) => p.id))
+      setSelectedRows(filteredProducts.map((p) => p.id))
     }
   }
 
@@ -167,12 +184,13 @@ export default function ProductsListClient({ products: productsProp, totalCount,
 
   function handleDelete(id) {
     if (!confirm('ต้องการลบสินค้านี้หรือไม่?')) return
+    setProducts(prev => prev.filter(p => p.id !== id))
+    setOpenMenuId(null)
     startTransition(async () => {
       const result = await deleteProduct(id)
       if (result.error) {
         toast.error('เกิดข้อผิดพลาด: ' + result.error)
       }
-      setOpenMenuId(null)
       router.refresh()
     })
   }
@@ -347,7 +365,7 @@ export default function ProductsListClient({ products: productsProp, totalCount,
               type="text"
               placeholder={'ค้นหา...'}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full h-[38px] pl-[36px] pr-[12px] border border-[#e5e7eb] rounded-[8px] text-[13px] text-[#374151] placeholder-[#9ca3af] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b] transition-colors bg-white"
             />
           </div>
@@ -410,14 +428,14 @@ export default function ProductsListClient({ products: productsProp, totalCount,
               </tr>
             </thead>
             <tbody>
-              {products.length === 0 ? (
+              {filteredProducts.length === 0 ? (
                 <tr>
                   <td colSpan={11} className="px-[10px] py-[40px] text-center text-[14px] text-[#9ca3af]">
                     ไม่พบข้อมูลสินค้า
                   </td>
                 </tr>
               ) : (
-                products.map((product, index) => {
+                filteredProducts.map((product, index) => {
                   const imageUrl = getPrimaryImage(product)
                   return (
                     <tr
@@ -476,37 +494,28 @@ export default function ProductsListClient({ products: productsProp, totalCount,
                         {renderPublishBadge(product)}
                       </td>
                       <td className="px-[10px] py-[10px] text-center">
-                        <div className="relative inline-block">
-                          <button
-                            onClick={() => setOpenMenuId(openMenuId === product.id ? null : product.id)}
-                            className="size-[32px] inline-flex items-center justify-center rounded-[6px] hover:bg-[#f3f4f6] transition-colors cursor-pointer bg-transparent border-none"
-                            aria-label={`Actions for ${product.name}`}
+                        <ActionMenu
+                          open={openMenuId === product.id}
+                          onToggle={() => setOpenMenuId(openMenuId === product.id ? null : product.id)}
+                          onClose={() => setOpenMenuId(null)}
+                          label={`Actions for ${product.name}`}
+                        >
+                          <Link
+                            href={`/admin/products/edit/${product.id}`}
+                            className="flex items-center gap-[8px] px-[12px] py-[8px] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
+                            onClick={() => setOpenMenuId(null)}
                           >
-                            <DotsIcon />
+                            <EditIcon />
+                            {'แก้ไข'}
+                          </Link>
+                          <button
+                            className="flex items-center gap-[8px] w-full px-[12px] py-[8px] text-[13px] text-[#ef4444] hover:bg-[#fef2f2] border-none bg-transparent cursor-pointer transition-colors"
+                            onClick={() => handleDelete(product.id)}
+                          >
+                            <TrashIcon />
+                            {'ลบ'}
                           </button>
-                          {openMenuId === product.id && (
-                            <>
-                              <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
-                              <div className="absolute right-0 top-[36px] z-20 bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[140px]">
-                                <Link
-                                  href={`/admin/products/edit/${product.id}`}
-                                  className="flex items-center gap-[8px] px-[12px] py-[8px] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
-                                  onClick={() => setOpenMenuId(null)}
-                                >
-                                  <EditIcon />
-                                  {'แก้ไข'}
-                                </Link>
-                                <button
-                                  className="flex items-center gap-[8px] w-full px-[12px] py-[8px] text-[13px] text-[#ef4444] hover:bg-[#fef2f2] border-none bg-transparent cursor-pointer transition-colors"
-                                  onClick={() => handleDelete(product.id)}
-                                >
-                                  <TrashIcon />
-                                  {'ลบ'}
-                                </button>
-                              </div>
-                            </>
-                          )}
-                        </div>
+                        </ActionMenu>
                       </td>
                     </tr>
                   )

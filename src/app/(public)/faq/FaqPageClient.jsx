@@ -126,7 +126,7 @@ function FaqSection({ section, sectionIndex, openItems, onToggle }) {
   )
 }
 
-export default function FaqPageClient({ faqGroups = [] }) {
+export default function FaqPageClient({ faqGroups = [], bannerUrl = '' }) {
   const [openItems, setOpenItems] = useState(new Set(['0-0']))
 
   const hasDbData = Array.isArray(faqGroups) ? faqGroups.length > 0 : Object.keys(faqGroups).length > 0
@@ -157,7 +157,7 @@ export default function FaqPageClient({ faqGroups = [] }) {
   return (
     <div className="flex flex-col items-center w-full pb-[36px] lg:pb-[60px]">
       <div className="h-[116px] lg:h-[200px] relative w-full overflow-hidden flex items-center justify-center">
-        <img alt="" className="absolute max-w-none object-cover size-full" src={imgBanner} />
+        <img alt="" className="absolute max-w-none object-cover size-full" src={bannerUrl || imgBanner} />
         <p className="relative font-['IBM_Plex_Sans_Thai'] font-semibold text-[24px] lg:text-[64px] text-white text-center tracking-[0.25px] leading-[1.3]">
           คำถามที่พบบ่อย FAQs
         </p>

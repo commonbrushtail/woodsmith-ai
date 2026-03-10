@@ -9,6 +9,7 @@ import { useFormErrors } from '@/lib/hooks/use-form-errors'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import ProductImageUploader from '@/components/admin/ProductImageUploader'
 import VariationLinker from '@/components/admin/VariationLinker'
+import VariationImageManager from '@/components/admin/VariationImageManager'
 import CalendarPicker from '@/components/admin/CalendarPicker'
 import TimePickerDropdown from '@/components/admin/TimePickerDropdown'
 
@@ -475,6 +476,13 @@ export default function ProductEditClient({ product, categories = [], variationG
             allGroups={variationGroups}
             initialLinks={product.product_variation_links || []}
             onChange={setVariationLinks}
+          />
+
+          {/* 8b. Variation Images */}
+          <VariationImageManager
+            productId={product.id}
+            variationLinks={product.product_variation_links || []}
+            existingImages={(product.product_images || []).filter(img => img.variation_entry_id)}
           />
 
           {/* 9. รายละเอียดสินค้า */}

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createManual } from '@/lib/actions/manuals'
 import { useToast } from '@/lib/toast-context'
-import { validateFile, ALLOWED_IMAGE_TYPES, ALLOWED_PDF_TYPES, MAX_IMAGE_SIZE, MAX_PDF_SIZE } from '@/lib/upload-validation'
+import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, ALLOWED_PDF_TYPES, MAX_IMAGE_SIZE, MAX_PDF_SIZE } from '@/lib/upload-validation'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -375,16 +375,17 @@ export default function ManualCreatePage() {
   const TITLE_MAX = 120
 
   /* ---- Image upload handler ---- */
-  const handleImageUpload = (files) => {
+  const handleImageUpload = async (files) => {
     if (files.length > 0) {
       const f = files[0]
       const check = validateFile(f, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
       if (!check.valid) { toast.error(check.error); return }
+      const compressed = await compressImage(f)
       setImage({
         id: Date.now() + Math.random(),
-        name: f.name,
-        url: URL.createObjectURL(f),
-        file: f,
+        name: compressed.name,
+        url: URL.createObjectURL(compressed),
+        file: compressed,
       })
     }
   }

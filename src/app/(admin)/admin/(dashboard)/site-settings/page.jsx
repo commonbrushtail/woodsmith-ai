@@ -47,6 +47,11 @@ export default function SiteSettingsPage() {
   const [statProducts, setStatProducts] = useState('')
   const [statCustomers, setStatCustomers] = useState('')
 
+  // Hero Banners
+  const [bannerFiles, setBannerFiles] = useState({})
+  const [bannerPreviews, setBannerPreviews] = useState({})
+  const [bannerUrls, setBannerUrls] = useState({})
+
   useEffect(() => {
     console.log('🔄 Loading site settings...')
     getSiteSettings().then(({ data, error }) => {
@@ -64,6 +69,12 @@ export default function SiteSettingsPage() {
         setStatBranches(data.stat_branches || '')
         setStatProducts(data.stat_products || '')
         setStatCustomers(data.stat_customers || '')
+        // Load existing banner URLs
+        const urls = {}
+        for (const key of ['banner_about', 'banner_blog', 'banner_manual', 'banner_highlight', 'banner_faq']) {
+          if (data[`${key}_url`]) urls[key] = data[`${key}_url`]
+        }
+        setBannerUrls(urls)
         console.log('✅ Form fields populated')
       }
       if (error) {
@@ -89,6 +100,15 @@ export default function SiteSettingsPage() {
       formData.set('stat_branches', statBranches)
       formData.set('stat_products', statProducts)
       formData.set('stat_customers', statCustomers)
+
+      // Append banner files or existing URLs
+      for (const key of ['banner_about', 'banner_blog', 'banner_manual', 'banner_highlight', 'banner_faq']) {
+        if (bannerFiles[key]) {
+          formData.set(key, bannerFiles[key])
+        } else if (bannerUrls[key]) {
+          formData.set(`${key}_url`, bannerUrls[key])
+        }
+      }
 
       // Log what we're sending
       console.log('📤 Submitting data:', {
@@ -365,6 +385,64 @@ export default function SiteSettingsPage() {
                 className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none focus:border-[#ff7e1b] focus:ring-1 focus:ring-[#ff7e1b]/20 transition-all placeholder:text-[#bfbfbf] bg-white"
               />
             </section>
+          </div>
+
+          {/* ---------------------------------------------------------- */}
+          {/*  Section: Hero Banner Images                                */}
+          {/* ---------------------------------------------------------- */}
+          <div className="flex flex-col gap-[16px]">
+            <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-[#1f2937] m-0">
+              รูปแบนเนอร์หน้าเว็บ (Hero Banner Images)
+            </h2>
+            <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280] m-0 -mt-[8px]">
+              อัปโหลดรูปแบนเนอร์สำหรับส่วนหัวของแต่ละหน้า (แนะนำ 1920x400px)
+            </p>
+
+            {[
+              { key: 'banner_about', label: 'เกี่ยวกับเรา (About)' },
+              { key: 'banner_blog', label: 'บทความ (Blog)' },
+              { key: 'banner_manual', label: 'คู่มือ (Manual)' },
+              { key: 'banner_highlight', label: 'ไฮไลท์ (Highlight)' },
+              { key: 'banner_faq', label: 'คำถามที่พบบ่อย (FAQ)' },
+            ].map(({ key, label }) => (
+              <section key={key} className="bg-white rounded-[12px] border border-[#e8eaef] p-[24px] flex flex-col gap-[12px]">
+                <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937]">
+                  {label}
+                </label>
+                {(bannerPreviews[key] || bannerUrls[key]) && (
+                  <div className="relative w-full h-[120px] rounded-[8px] overflow-hidden bg-[#f3f4f6]">
+                    <img
+                      src={bannerPreviews[key] || bannerUrls[key]}
+                      alt={label}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setBannerFiles(prev => { const n = { ...prev }; delete n[key]; return n })
+                        setBannerPreviews(prev => { const n = { ...prev }; delete n[key]; return n })
+                        setBannerUrls(prev => { const n = { ...prev }; delete n[key]; return n })
+                      }}
+                      className="absolute top-[8px] right-[8px] size-[28px] flex items-center justify-center rounded-full bg-black/50 text-white border-0 cursor-pointer hover:bg-black/70 text-[14px]"
+                      aria-label="ลบรูปแบนเนอร์"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (!file) return
+                    setBannerFiles(prev => ({ ...prev, [key]: file }))
+                    setBannerPreviews(prev => ({ ...prev, [key]: URL.createObjectURL(file) }))
+                  }}
+                  className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]"
+                />
+              </section>
+            ))}
           </div>
         </div>
 

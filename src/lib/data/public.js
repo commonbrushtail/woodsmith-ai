@@ -51,7 +51,7 @@ export async function getPublishedProduct(id) {
         group_id,
         entry_id,
         show_image,
-        variation_groups!group_id(id, name),
+        variation_groups!group_id(id, name, display_name),
         variation_entries!entry_id(id, label, image_url, sort_order)
       )
     `)
@@ -88,7 +88,7 @@ export async function getPublishedProductBySlug(slug) {
         group_id,
         entry_id,
         show_image,
-        variation_groups!group_id(id, name),
+        variation_groups!group_id(id, name, display_name),
         variation_entries!entry_id(id, label, image_url, sort_order)
       )
     `)

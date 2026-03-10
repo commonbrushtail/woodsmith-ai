@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateBlogPost } from '@/lib/actions/blog'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
-import { validateFile, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
+import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import CalendarPicker from '@/components/admin/CalendarPicker'
 import CategorySelect from '@/components/admin/CategorySelect'
@@ -71,13 +71,14 @@ export default function BlogEditClient({ post }) {
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0
   const charCount = content.length
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
     const check = validateFile(file, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
     if (!check.valid) { toast.error(check.error); e.target.value = ''; return }
-    setCoverFile(file)
-    setCoverPreview(URL.createObjectURL(file))
+    const compressed = await compressImage(file)
+    setCoverFile(compressed)
+    setCoverPreview(URL.createObjectURL(compressed))
   }
 
   const handleSubmit = (publish) => {

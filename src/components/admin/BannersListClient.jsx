@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { deleteBanner, toggleBannerStatus, reorderBanners } from '@/lib/actions/banners'
+import ActionMenu from '@/components/admin/ActionMenu'
 import { buildSortOrderUpdates } from '@/lib/reorder'
 import {
   DndContext,
@@ -97,6 +98,8 @@ export default function BannersListClient({ banners }) {
   const [openMenuId, setOpenMenuId] = useState(null)
   const [orderedBanners, setOrderedBanners] = useState(banners)
 
+  useEffect(() => { setOrderedBanners(banners) }, [banners])
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -144,10 +147,11 @@ export default function BannersListClient({ banners }) {
 
   const handleDelete = (id) => {
     if (!confirm('ต้องการลบแบนเนอร์นี้หรือไม่?')) return
+    setOrderedBanners(prev => prev.filter(b => b.id !== id))
+    setOpenMenuId(null)
     startTransition(async () => {
       const result = await deleteBanner(id)
       if (result.error) toast.error('เกิดข้อผิดพลาด: ' + result.error)
-      setOpenMenuId(null)
       router.refresh()
     })
   }
@@ -312,47 +316,34 @@ export default function BannersListClient({ banners }) {
                           </button>
                         </td>
                         <td className="px-[12px] py-[16px] text-center">
-                          <div className="relative inline-block">
-                            <button
-                              onClick={() => setOpenMenuId(openMenuId === banner.id ? null : banner.id)}
-                              className="size-[32px] flex items-center justify-center rounded-[6px] hover:bg-[#f3f4f6] transition-colors cursor-pointer bg-transparent border-none"
-                              aria-label={`Actions for banner ${banner.sort_order}`}
+                          <ActionMenu
+                            open={openMenuId === banner.id}
+                            onToggle={() => setOpenMenuId(openMenuId === banner.id ? null : banner.id)}
+                            onClose={() => setOpenMenuId(null)}
+                            label={`Actions for banner ${banner.sort_order}`}
+                          >
+                            <Link
+                              href={`/admin/banner/edit/${banner.id}`}
+                              className="flex items-center gap-[8px] px-[12px] py-[8px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
+                              onClick={() => setOpenMenuId(null)}
                             >
-                              <svg width="16" height="16" viewBox="0 0 16 16" fill="#6b7280">
-                                <circle cx="8" cy="3" r="1.5" />
-                                <circle cx="8" cy="8" r="1.5" />
-                                <circle cx="8" cy="13" r="1.5" />
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                               </svg>
+                              {'แก้ไข'}
+                            </Link>
+                            <button
+                              className="flex items-center gap-[8px] w-full px-[12px] py-[8px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#ef4444] hover:bg-[#fef2f2] border-none bg-transparent cursor-pointer transition-colors"
+                              onClick={() => handleDelete(banner.id)}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="3 6 5 6 21 6" />
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                              </svg>
+                              {'ลบ'}
                             </button>
-                            {openMenuId === banner.id && (
-                              <>
-                                <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
-                                <div className="absolute right-0 top-[36px] z-20 bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[140px]">
-                                  <Link
-                                    href={`/admin/banner/edit/${banner.id}`}
-                                    className="flex items-center gap-[8px] px-[12px] py-[8px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
-                                    onClick={() => setOpenMenuId(null)}
-                                  >
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                    </svg>
-                                    {'แก้ไข'}
-                                  </Link>
-                                  <button
-                                    className="flex items-center gap-[8px] w-full px-[12px] py-[8px] font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#ef4444] hover:bg-[#fef2f2] border-none bg-transparent cursor-pointer transition-colors"
-                                    onClick={() => handleDelete(banner.id)}
-                                  >
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                      <polyline points="3 6 5 6 21 6" />
-                                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                    </svg>
-                                    {'ลบ'}
-                                  </button>
-                                </div>
-                              </>
-                            )}
-                          </div>
+                          </ActionMenu>
                         </td>
                       </SortableRow>
                     ))

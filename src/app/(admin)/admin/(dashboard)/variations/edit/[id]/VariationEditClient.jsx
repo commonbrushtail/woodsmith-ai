@@ -13,7 +13,7 @@ import {
 } from '@/lib/actions/variations'
 import { useToast } from '@/lib/toast-context'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
-import { validateFile } from '@/lib/upload-validation'
+import { validateFile, compressImage } from '@/lib/upload-validation'
 import { buildSortOrderUpdates } from '@/lib/reorder'
 import {
   DndContext,
@@ -99,14 +99,15 @@ const inputCls = (hasError) =>
 function EntryImageUpload({ entry, onImageChange, onImageRemove }) {
   const fileRef = useRef(null)
 
-  const handleFile = (e) => {
+  const handleFile = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
     e.target.value = ''
     const result = validateFile(file)
     if (!result.valid) return
-    const previewUrl = URL.createObjectURL(file)
-    onImageChange(file, previewUrl)
+    const compressed = await compressImage(file, { maxWidth: 100, maxHeight: 100, quality: 0.7 })
+    const previewUrl = URL.createObjectURL(compressed)
+    onImageChange(compressed, previewUrl)
   }
 
   const src = entry.previewUrl || entry.imageUrl
@@ -192,7 +193,9 @@ export default function VariationEditClient({ group }) {
   const formErrors = useFormErrors()
 
   const originalGroupName = group.name
+  const originalDisplayName = group.display_name || ''
   const [groupName, setGroupName] = useState(group.name)
+  const [displayName, setDisplayName] = useState(group.display_name || '')
   const [entries, setEntries] = useState(() =>
     (group.variation_entries || []).map(e => ({
       id: e.id,
@@ -291,10 +294,11 @@ export default function VariationEditClient({ group }) {
     }
 
     startTransition(async () => {
-      // Step 1: Update group name if changed
-      if (groupName !== originalGroupName) {
+      // Step 1: Update group name/display_name if changed
+      if (groupName !== originalGroupName || displayName !== originalDisplayName) {
         const groupFormData = new FormData()
         groupFormData.append('name', groupName)
+        groupFormData.append('display_name', displayName.trim())
 
         const groupResult = await updateVariationGroup(group.id, groupFormData)
 
@@ -435,6 +439,19 @@ export default function VariationEditClient({ group }) {
                 {formErrors.getError('name')}
               </p>
             )}
+            <label className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#1f2937] mt-3">
+              ชื่อที่แสดงให้ลูกค้า (Display Name)
+            </label>
+            <input
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="เช่น สี, ขนาด, แบบ (ถ้าไม่กรอกจะใช้ชื่อกลุ่มตัวเลือก)"
+              className={inputCls(false)}
+            />
+            <p className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#9ca3af] m-0">
+              ชื่อที่ลูกค้าจะเห็นในหน้าสินค้า เช่น &quot;สี&quot; แทนที่จะเป็น &quot;สี - ประตูเมลามีน&quot;
+            </p>
           </section>
 
           {/* Entries section with drag-and-drop */}

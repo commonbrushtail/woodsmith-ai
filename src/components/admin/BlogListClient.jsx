@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { deleteBlogPost, toggleBlogRecommended, toggleBlogPublished } from '@/lib/actions/blog'
+import ActionMenu from '@/components/admin/ActionMenu'
 
 function formatThaiDate(dateStr) {
   if (!dateStr) return '-'
@@ -153,10 +154,11 @@ export default function BlogListClient({ blogs: blogsProp, totalCount }) {
 
   const handleDelete = (id) => {
     if (!confirm('ต้องการลบบทความนี้หรือไม่?')) return
+    setBlogs(prev => prev.filter(b => b.id !== id))
+    setOpenMenuId(null)
     startTransition(async () => {
       const result = await deleteBlogPost(id)
       if (result.error) toast.error('เกิดข้อผิดพลาด: ' + result.error)
-      setOpenMenuId(null)
       router.refresh()
     })
   }
@@ -351,38 +353,30 @@ export default function BlogListClient({ blogs: blogsProp, totalCount }) {
                       {renderPublishBadge(blog)}
                     </td>
                     <td className="px-[10px] py-[10px] text-center">
-                      <div className="relative inline-block" ref={openMenuId === blog.id ? menuRef : null}>
-                        <button
-                          onClick={() => setOpenMenuId(openMenuId === blog.id ? null : blog.id)}
-                          className="size-[32px] inline-flex items-center justify-center rounded-[6px] hover:bg-[#f3f4f6] transition-colors cursor-pointer bg-transparent border-none"
-                          aria-label={`Actions for ${blog.title}`}
-                          aria-expanded={openMenuId === blog.id}
-                          aria-haspopup="true"
+                      <ActionMenu
+                        open={openMenuId === blog.id}
+                        onToggle={() => setOpenMenuId(openMenuId === blog.id ? null : blog.id)}
+                        onClose={() => setOpenMenuId(null)}
+                        label={`Actions for ${blog.title}`}
+                      >
+                        <Link
+                          href={`/admin/blog/edit/${blog.id}`}
+                          className="flex items-center gap-[8px] px-[12px] py-[8px] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
+                          onClick={() => setOpenMenuId(null)}
+                          role="menuitem"
                         >
-                          <DotsIcon />
+                          <EditIcon />
+                          {'แก้ไข'}
+                        </Link>
+                        <button
+                          className="flex items-center gap-[8px] w-full px-[12px] py-[8px] text-[13px] text-[#ef4444] hover:bg-[#fef2f2] border-none bg-transparent cursor-pointer transition-colors"
+                          onClick={() => handleDelete(blog.id)}
+                          role="menuitem"
+                        >
+                          <TrashIcon />
+                          {'ลบ'}
                         </button>
-                        {openMenuId === blog.id && (
-                          <div className="absolute right-0 top-[36px] z-20 bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[140px]" role="menu">
-                            <Link
-                              href={`/admin/blog/edit/${blog.id}`}
-                              className="flex items-center gap-[8px] px-[12px] py-[8px] text-[13px] text-[#374151] hover:bg-[#f9fafb] no-underline transition-colors"
-                              onClick={() => setOpenMenuId(null)}
-                              role="menuitem"
-                            >
-                              <EditIcon />
-                              {'แก้ไข'}
-                            </Link>
-                            <button
-                              className="flex items-center gap-[8px] w-full px-[12px] py-[8px] text-[13px] text-[#ef4444] hover:bg-[#fef2f2] border-none bg-transparent cursor-pointer transition-colors"
-                              onClick={() => handleDelete(blog.id)}
-                              role="menuitem"
-                            >
-                              <TrashIcon />
-                              {'ลบ'}
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      </ActionMenu>
                     </td>
                   </tr>
                 ))
