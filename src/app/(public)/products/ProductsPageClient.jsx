@@ -7,59 +7,6 @@ import { getProductUrl } from '@/lib/product-url'
 import { getPageNumbers } from '@/lib/pagination'
 import imgCategoryBg from '../../../assets/product_category_bg.png'
 import imgSearch from '../../../assets/icon_search.svg'
-import imgRectangle15 from '../../../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
-import imgRectangle21 from '../../../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
-import imgRectangle22 from '../../../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
-import imgRectangle23 from '../../../assets/363360e0eabb614000b96e9e0872777c65463b3a.png'
-import imgRectangle24 from '../../../assets/0c3090fa51a394a39ced02aa6235d63e1ed6948a.png'
-import imgRectangle25 from '../../../assets/e9b01d1a4a14a251433baa636e611ba911b29402.png'
-
-const fallbackProducts = [
-  { id: '55690', image: imgRectangle15, category: 'ไม้พื้น', name: 'ไม้พื้นลามิเนตแบบแผ่นยาว 55690' },
-  { id: '30600', image: imgRectangle21, category: 'ไม้พื้น', name: 'ไม้พื้นลามิเนต รุ่น Standard 30600' },
-  { id: '10746', image: imgRectangle22, category: 'ไม้พื้น', name: 'ไม้พื้นลามิเนตแบบแผ่นกว้าง (Wide Plank) 10746' },
-  { id: '10172', image: imgRectangle23, category: 'ไม้พื้น', name: 'ไม้พื้นลามิเนต รุ่น V-Groove 10172' },
-  { id: 'hdf-01', image: imgRectangle24, category: 'ไม้พื้น', name: 'ไม้พื้นไม้ HDF เคลือบผิว' },
-  { id: 'vy15003', image: imgRectangle25, category: 'ไม้พื้น', name: 'ไม้พื้นไม้ HDF เคลือบผิว VY15003 White oak' },
-  { id: 'pb-01', image: imgRectangle22, category: 'ไม้บอร์ด', name: 'PB : ParticleBoard' },
-  { id: 'mdf-01', image: imgRectangle23, category: 'ไม้บอร์ด', name: 'MDF : Medium Density Fiberboard' },
-  { id: 'hdf-02', image: imgRectangle15, category: 'ไม้บอร์ด', name: 'HDF : High Density Fiber Board' },
-  { id: 'lb-01', image: imgRectangle21, category: 'ไม้บอร์ด', name: 'Laminated Board' },
-  { id: 'osb-01', image: imgRectangle24, category: 'ไม้บอร์ด', name: 'OSB: Oriented Strand Board' },
-  { id: 'floor-01', image: imgRectangle25, category: 'ไม้บอร์ด', name: 'ไม้พื้น' },
-  { id: '10780', image: imgRectangle22, category: 'ประตู', name: 'ประตูเมลามีน MELAMINE DOOR MAG1 10780' },
-  { id: '10790', image: imgRectangle23, category: 'ประตู', name: 'ประตูเมลามีน MELAMINE DOOR MAG1 10790' },
-  { id: '2mv1', image: imgRectangle24, category: 'ประตู', name: 'ประตูหลัก HMR+ HDF HMR Moulded Door 2MV1' },
-  { id: '4mv2', image: imgRectangle25, category: 'ประตู', name: 'ประตูหลัก HMR+ HDF HMR Moulded Door 4MV2' },
-]
-
-const fallbackFilterCategories = [
-  {
-    title: 'วัสดุก่อสร้าง',
-    count: 250,
-    items: [
-      { name: 'ปาร์ติเกิลบอร์ด', label: 'ปาร์ติเกิลบอร์ด' },
-      { name: 'ไม้ OSB', label: 'ไม้ OSB' },
-      { name: 'แผ่นไฟเบอร์ซีเมนต์และบอร์ดและ ประตูเมลามีน', label: 'แผ่นไฟเบอร์ซีเมนต์และบอร์ดและ ประตูเมลามีน' },
-      { name: 'ไม้อัดเฌอร่า', label: 'ไม้อัดเฌอร่า' },
-      { name: 'ไม้อัดยิปซั่มบอร์ด', label: 'ไม้อัดยิปซั่มบอร์ด' },
-      { name: 'แผ่นไม้แผ่นรีไซเคิล', label: 'แผ่นไม้แผ่นรีไซเคิล' },
-    ],
-  },
-  {
-    title: 'ผลิตภัณฑ์สำเร็จ',
-    count: 250,
-    items: [
-      { name: 'ไม้พื้น', label: 'ไม้พื้น (24)' },
-      { name: 'ไม้พื้นลามิเนต', label: 'ไม้พื้นลามิเนต (11)' },
-      { name: 'ประตูเมลามีน', label: 'ประตูเมลามีน (12)' },
-      { name: 'ไม้ฝา', label: 'ไม้ฝา (10)' },
-      { name: 'สำเร็จรูปเมลามีน', label: 'สำเร็จรูปเมลามีน (12)' },
-      { name: 'บานประตู', label: 'บานประตู' },
-      { name: 'บานหน้าต่าง', label: 'บานหน้าต่าง' },
-    ],
-  },
-]
 
 const DESKTOP_PAGE_SIZE = 16
 const MOBILE_PAGE_SIZE = 6
@@ -69,7 +16,7 @@ function ProductCard({ href, image, category, name }) {
     <Link href={href} className="flex flex-col gap-[16px] items-start w-full no-underline">
       <div className="h-[170px] lg:h-[222px] relative w-full overflow-hidden">
         <div className="absolute bg-[#e8e3da] inset-0" />
-        <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
+        {image && <img alt="" className="absolute max-w-none object-cover size-full" src={image} />}
       </div>
       <div className="flex flex-col gap-[2px] items-start w-full">
         <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-black tracking-[0.14px]">
@@ -201,18 +148,16 @@ export default function ProductsPageClient({ products: dbProducts = [], categori
     setMobileVisible(MOBILE_PAGE_SIZE)
   }
 
-  const mappedProducts = dbProducts.length > 0
-    ? dbProducts.map(p => {
-        const primaryImg = p.product_images?.find(img => img.is_primary)
-        return {
-          id: p.id,
-          href: getProductUrl(p),
-          image: primaryImg?.url || p.product_images?.[0]?.url || imgRectangle15,
-          category: p.category || '',
-          name: p.name,
-        }
-      })
-    : fallbackProducts
+  const mappedProducts = dbProducts.map(p => {
+    const primaryImg = p.product_images?.find(img => img.is_primary)
+    return {
+      id: p.id,
+      href: getProductUrl(p),
+      image: primaryImg?.url || p.product_images?.[0]?.url || null,
+      category: p.category || '',
+      name: p.name,
+    }
+  })
 
   let allProducts = mappedProducts
 
@@ -227,20 +172,18 @@ export default function ProductsPageClient({ products: dbProducts = [], categori
     )
   }
 
-  const filterCategories = dbCategories.length > 0
-    ? [
-        {
-          title: 'วัสดุก่อสร้าง',
-          count: dbCategories.filter(c => c.type === 'construction').reduce((sum, c) => sum + c.count, 0),
-          items: dbCategories.filter(c => c.type === 'construction').map(c => ({ name: c.name, label: `${c.name} (${c.count})` })),
-        },
-        {
-          title: 'ผลิตภัณฑ์สำเร็จ',
-          count: dbCategories.filter(c => c.type !== 'construction').reduce((sum, c) => sum + c.count, 0),
-          items: dbCategories.filter(c => c.type !== 'construction').map(c => ({ name: c.name, label: `${c.name} (${c.count})` })),
-        },
-      ]
-    : fallbackFilterCategories
+  const filterCategories = [
+    {
+      title: 'วัสดุก่อสร้าง',
+      count: dbCategories.filter(c => c.type === 'construction').reduce((sum, c) => sum + c.count, 0),
+      items: dbCategories.filter(c => c.type === 'construction').map(c => ({ name: c.name, label: `${c.name} (${c.count})` })),
+    },
+    {
+      title: 'ผลิตภัณฑ์สำเร็จ',
+      count: dbCategories.filter(c => c.type !== 'construction').reduce((sum, c) => sum + c.count, 0),
+      items: dbCategories.filter(c => c.type !== 'construction').map(c => ({ name: c.name, label: `${c.name} (${c.count})` })),
+    },
+  ]
 
   const totalPages = Math.ceil(allProducts.length / DESKTOP_PAGE_SIZE) || 1
   const desktopProducts = allProducts.slice(
@@ -282,18 +225,12 @@ export default function ProductsPageClient({ products: dbProducts = [], categori
             />
           </div>
           <div className="flex flex-col sm:flex-row gap-[16px] lg:gap-[24px] w-full">
-            {(dbProductTypes.length > 0
-              ? dbProductTypes.map(pt => ({
-                  label: pt.name,
-                  count: `${filterCategories.find(fc => fc.title === pt.name)?.count || 0} รายการ`,
-                  path: `/products/${pt.type}`,
-                  image: pt.image_url || imgCategoryBg,
-                }))
-              : [
-                  { label: 'วัสดุก่อสร้าง', count: `${filterCategories[0]?.count || 250} รายการ`, path: '/products/construction', image: imgCategoryBg },
-                  { label: 'ผลิตภัณฑ์สำเร็จ', count: `${filterCategories[1]?.count || 250} รายการ`, path: '/products/decoration', image: imgCategoryBg },
-                ]
-            ).map((cat) => (
+            {dbProductTypes.map(pt => ({
+              label: pt.name,
+              count: `${filterCategories.find(fc => fc.title === pt.name)?.count || 0} รายการ`,
+              path: `/products/${pt.type}`,
+              image: pt.image_url || imgCategoryBg,
+            })).map((cat) => (
               <Link
                 key={cat.label}
                 href={cat.path}
@@ -360,19 +297,30 @@ export default function ProductsPageClient({ products: dbProducts = [], categori
             </p>
           </div>
 
-          {allProducts.length === 0 && searchQuery.trim() ? (
+          {allProducts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-[48px] gap-[8px]">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#bfbfbf" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                <line x1="12" y1="22.08" x2="12" y2="12" />
+              </svg>
               <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[18px] text-black">
-                ไม่พบสินค้าที่ค้นหา
+                {searchQuery.trim() ? 'ไม่พบสินค้าที่ค้นหา' : 'ยังไม่มีสินค้าในขณะนี้'}
               </p>
               <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-grey">
-                ลองค้นหาด้วยคำอื่น หรือ{' '}
-                <button
-                  className="text-orange bg-transparent border-none cursor-pointer p-0 font-['IBM_Plex_Sans_Thai'] text-[14px] underline"
-                  onClick={() => { setSearchQuery(''); setCurrentPage(1); setMobileVisible(MOBILE_PAGE_SIZE) }}
-                >
-                  ดูสินค้าทั้งหมด
-                </button>
+                {searchQuery.trim() ? (
+                  <>
+                    ลองค้นหาด้วยคำอื่น หรือ{' '}
+                    <button
+                      className="text-orange bg-transparent border-none cursor-pointer p-0 font-['IBM_Plex_Sans_Thai'] text-[14px] underline"
+                      onClick={() => { setSearchQuery(''); setCurrentPage(1); setMobileVisible(MOBILE_PAGE_SIZE) }}
+                    >
+                      ดูสินค้าทั้งหมด
+                    </button>
+                  </>
+                ) : (
+                  'กรุณากลับมาใหม่ในภายหลัง'
+                )}
               </p>
             </div>
           ) : (

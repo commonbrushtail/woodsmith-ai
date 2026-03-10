@@ -2,19 +2,12 @@
 
 import { useState } from 'react'
 import ArrowRight from './ArrowRight'
-import imgRectangle15 from '../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
-import imgRectangle21 from '../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
-import imgRectangle22 from '../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
-import imgRectangle23 from '../assets/363360e0eabb614000b96e9e0872777c65463b3a.png'
-import imgRectangle24 from '../assets/0c3090fa51a394a39ced02aa6235d63e1ed6948a.png'
-import imgRectangle25 from '../assets/e9b01d1a4a14a251433baa636e611ba911b29402.png'
-
 function CardProduct({ image, thaiName, engName }) {
   return (
     <div className="bg-white flex flex-col gap-[12px] lg:gap-[16px] items-start w-full">
       <div className="h-[170px] lg:h-[268px] relative w-full overflow-hidden">
         <div className="absolute bg-[#e8e3da] inset-0" />
-        <img alt="" className="absolute max-w-none object-cover size-full" src={image} />
+        {image && <img alt="" className="absolute max-w-none object-cover size-full" src={image} />}
       </div>
       <div className="flex flex-col gap-[3px] items-start text-black w-full">
         <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] lg:text-[15px] tracking-[0.14px] lg:tracking-[0.15px] w-full">
@@ -37,42 +30,19 @@ function CardProduct({ image, thaiName, engName }) {
 export default function ProductsSection({ products: dbProducts = [] }) {
   const [activeTab, setActiveTab] = useState('construction')
 
-  const fallbackConstruction = [
-    { image: imgRectangle15, thaiName: 'ปาร์ติเกิลบอร์ด', engName: 'PB : ParticleBoard' },
-    { image: imgRectangle21, thaiName: 'ไม้อัด OSB', engName: 'OSB : Oriented Strand Board' },
-    { image: imgRectangle22, thaiName: 'แผ่นใยไม้อัดความหนาแน่นปานกลาง', engName: 'MDF : Medium Density Fiberboard' },
-    { image: imgRectangle23, thaiName: 'แผ่นใยไม้อัดความหนาแน่นสูง', engName: 'HDF : High Density FiberBoard' },
-    { image: imgRectangle24, thaiName: 'ไม้บอร์ดปิดผิวลามิเนต', engName: 'Laminated Board' },
-    { image: imgRectangle25, thaiName: 'แผ่นใยไม้เชิงวิศวกรรม', engName: 'Shuttering Board' },
-  ]
-
-  const fallbackFinished = [
-    { image: imgRectangle22, thaiName: 'ประตูเมลามีน', engName: 'Melamine Door' },
-    { image: imgRectangle23, thaiName: 'วงกบประตู', engName: 'Door Frame' },
-    { image: imgRectangle24, thaiName: 'บานประตู PVC', engName: 'PVC Door' },
-    { image: imgRectangle25, thaiName: 'พื้นลามิเนต', engName: 'Laminate Flooring' },
-    { image: imgRectangle15, thaiName: 'ไม้ฝาเฌอร่า', engName: 'Shera Plank' },
-    { image: imgRectangle21, thaiName: 'ไม้พื้นสำเร็จรูป', engName: 'Engineered Wood Flooring' },
-  ]
-
   // Map DB products to card format, split by type
   const mapProduct = (p) => {
     const primaryImg = p.product_images?.find(img => img.is_primary)
     return {
       id: p.id,
-      image: primaryImg?.url || p.product_images?.[0]?.url || imgRectangle15,
+      image: primaryImg?.url || p.product_images?.[0]?.url || null,
       thaiName: p.category || '',
       engName: p.name,
     }
   }
 
-  const constructionProducts = dbProducts.length > 0
-    ? dbProducts.filter(p => p.type === 'construction').map(mapProduct)
-    : fallbackConstruction
-
-  const finishedProducts = dbProducts.length > 0
-    ? dbProducts.filter(p => p.type !== 'construction').map(mapProduct)
-    : fallbackFinished
+  const constructionProducts = dbProducts.filter(p => p.type === 'construction').map(mapProduct)
+  const finishedProducts = dbProducts.filter(p => p.type !== 'construction').map(mapProduct)
 
   const products = activeTab === 'construction' ? constructionProducts : finishedProducts
 

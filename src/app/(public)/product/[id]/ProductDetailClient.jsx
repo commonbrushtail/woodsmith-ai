@@ -10,49 +10,19 @@ import ArrowRight from '../../../../components/ArrowRight'
 import { getProductUrl } from '@/lib/product-url'
 import QuotationModal from '../../../../components/QuotationModal'
 import AreaCalculator from '../../../../components/AreaCalculator'
-import imgRectangle15 from '../../../../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
-import imgRectangle21 from '../../../../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
-import imgRectangle22 from '../../../../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
-import imgRectangle23 from '../../../../assets/363360e0eabb614000b96e9e0872777c65463b3a.png'
-import imgRectangle24 from '../../../../assets/0c3090fa51a394a39ced02aa6235d63e1ed6948a.png'
-
 const fallbackProduct = {
-  name: 'ไม้พื้นไส้ HDF ปิดวีเนียร์',
-  sku: 'VV10603',
-  category: { slug: 'finished', title: 'ผลิตภัณฑ์สำเร็จ' },
-  subcategory: { slug: 'flooring', title: 'ไม้พื้น' },
-  images: [imgRectangle15, imgRectangle21, imgRectangle22, imgRectangle23, imgRectangle24, imgRectangle15],
-  colors: [
-    { id: 'vv10603', name: 'VV10603 White oak', swatch: imgRectangle15 },
-    { id: 'vv12401', name: 'VV12401 Natural Sapele', swatch: imgRectangle21 },
-    { id: '10101', name: '10101 Natural Alder', swatch: imgRectangle22 },
-    { id: '10201', name: '10201 White Birch', swatch: imgRectangle23 },
-  ],
-  surfaces: [
-    { id: 'wood-grain', name: 'ลายเสี้ยนไม้ (Wood grain)' },
-    { id: 'emboss', name: 'ลายเสี้ยนสลัก (Emboss)' },
-  ],
-  sizes: [
-    { id: '8', name: '8 มม.', status: 'sold' },
-    { id: '12', name: '12 มม.', status: 'selected' },
-    { id: '15', name: '15 มม.', status: 'choice' },
-    { id: '19', name: '19 มม.', status: 'choice' },
-    { id: '24', name: '24 มม.', status: 'choice' },
-  ],
+  name: '-',
+  sku: '-',
+  category: { slug: '', title: '-' },
+  subcategory: { slug: '', title: '-' },
+  images: [],
+  colors: [],
+  surfaces: [],
+  sizes: [],
   variations: {},
-  description: '<p>ไม้พื้นไส้ HDF ปิดวีเนียร์ ทางเลือกของคนที่ชื่นชอบพื้นไม้อารมณ์ใกล้ชิดธรรมชาติ เพราะผลิตโดยใช้วีเนียร์ ไม้จริงที่ให้ลายเสี้ยนไม้สวยงามปิดทับบนแผ่นไม้ HDF ความหนา 12 มิลลิเมตร พร้อมเคลือบ UV coating เพิ่มความทนทาน และปลอดภัยด้วยระดับฟอร์มัลดีไฮด์ E1</p>',
-  specs: [
-    { label: 'ผลิตภัณฑ์', value: 'ไม้พื้นลามิเนตแบบยาว\n(Long Plank)' },
-    { label: 'วัสดุ', value: 'HDF 12 มม.\nปิดผิวเมลามีน' },
-    { label: 'ลักษณะการยึด', value: 'click lock' },
-    { label: 'ระดับการทนขูดขีด', value: 'AC3' },
-  ],
-  relatedProducts: [
-    { image: imgRectangle15, category: 'ปาร์ติเกิลบอร์ด', engName: 'PB : ParticleBoard' },
-    { image: imgRectangle21, category: 'ไม้พื้น', engName: 'Laminate Flooring' },
-    { image: imgRectangle22, category: 'ไม้พื้น', engName: 'Laminate Long Plank' },
-    { image: imgRectangle24, category: 'ไม้พื้น', engName: 'HDF Veneer Flooring' },
-  ],
+  description: '',
+  specs: [],
+  relatedProducts: [],
 }
 
 function HomeIcon() {
@@ -95,6 +65,18 @@ function ImageGallery({ images }) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const mobileSwiperRef = useRef(null)
   const desktopSwiperRef = useRef(null)
+
+  if (!images || images.length === 0) {
+    return (
+      <div className="w-full aspect-square bg-[#e8e3da] flex items-center justify-center">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#bfbfbf" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <polyline points="21 15 16 10 5 21" />
+        </svg>
+      </div>
+    )
+  }
 
   const goNext = () => setActiveIndex((prev) => (prev + 1) % images.length)
   const goPrev = () => setActiveIndex((prev) => (prev - 1 + images.length) % images.length)
@@ -226,7 +208,7 @@ export default function ProductDetailClient({ product: dbProduct = null, isLogge
         })
         return acc
       }, {}),
-    colors: (dbProduct.product_options || []).filter(o => o.option_type === 'color').map(o => ({ id: o.id, name: o.label, swatch: imgRectangle15 })),
+    colors: (dbProduct.product_options || []).filter(o => o.option_type === 'color').map(o => ({ id: o.id, name: o.label, swatch: null })),
     surfaces: (dbProduct.product_options || []).filter(o => o.option_type === 'surface').map(o => ({ id: o.id, name: o.label })),
     sizes: (dbProduct.product_options || []).filter(o => o.option_type === 'size').map(o => ({ id: o.id, name: o.label, status: 'choice' })),
     description: dbProduct.description || '',
@@ -239,13 +221,12 @@ export default function ProductDetailClient({ product: dbProduct = null, isLogge
     plankLength: dbProduct.plank_length,
     wastePercentage: dbProduct.waste_percentage,
     relatedProducts: (dbProduct.relatedProducts || []).map(rp => {
-      const img = rp.product_images?.find(i => i.is_primary)?.url || rp.product_images?.[0]?.url || imgRectangle15
+      const img = rp.product_images?.find(i => i.is_primary)?.url || rp.product_images?.[0]?.url || null
       return { href: getProductUrl(rp), image: img, category: rp.category || '', engName: rp.name }
     }),
   } : fallbackProduct
 
-  // Ensure at least one image
-  if (product.images.length === 0) product.images = [imgRectangle15]
+  // No fallback image — show placeholder bg when empty
 
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.id || '')
   const [selectedSurface, setSelectedSurface] = useState(product.surfaces[0]?.id || '')
