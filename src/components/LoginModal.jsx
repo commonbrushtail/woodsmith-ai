@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import imgFavicon from '../assets/6727cae5f32ea2c35a94792ae9603addc6300612.png'
 import imgLine from '../assets/ee74c0d8544a46ac6f3c6d2eb640b43d65efe886.svg'
 
@@ -12,446 +13,79 @@ function CloseIcon() {
   )
 }
 
-// Screen: Phone Login
-function PhoneLoginScreen({ onSendOtp, onLineLogin }) {
-  const [phone, setPhone] = useState('')
-  const [sending, setSending] = useState(false)
-  const [error, setError] = useState('')
-
-  const handleSend = async () => {
-    setSending(true)
-    setError('')
-    const result = await onSendOtp(phone)
-    if (result?.error) {
-      setError(result.error)
-      setSending(false)
-    }
-    // On success, sending stays true — screen transitions away
-  }
-
-  return (
-    <div className="flex flex-col items-center w-full">
-      <img alt="WoodSmith" className="size-[60px] lg:size-[60px] object-cover" src={imgFavicon} />
-      <div className="mt-[24px] text-center">
-        <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] lg:text-[24px] text-orange leading-[1.2] m-0">
-          WoodSmith ยินดีต้อนรับ
-        </h2>
-      </div>
-
-      <div className="flex flex-col gap-[16px] w-full mt-[32px] lg:mt-[40px]">
-        {/* Phone input */}
-        <input
-          type="tel"
-          maxLength={10}
-          value={phone}
-          onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-          placeholder="กรอกเบอร์โทรศัพท์มือถือ 10 หลัก"
-          className="w-full h-[47px] lg:h-[48px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black placeholder:text-grey outline-none text-center"
-        />
-
-        {/* Login button */}
-        <button
-          onClick={handleSend}
-          disabled={phone.length !== 10 || sending}
-          className="w-full h-[48px] bg-orange flex items-center justify-center cursor-pointer border-none disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <span className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-white">
-            {sending ? 'กำลังส่ง OTP...' : 'เข้าสู่ระบบ'}
-          </span>
-        </button>
-
-        {/* Error message */}
-        {error && (
-          <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#dc2626] mt-[12px] m-0">{error}</p>
-        )}
-
-        {/* Divider */}
-        <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-grey text-center">หรือ</p>
-
-        {/* LINE login */}
-        <button
-          onClick={onLineLogin}
-          className="w-full h-[48px] border border-[#e5e7eb] flex items-center justify-center gap-[12px] cursor-pointer bg-transparent"
-        >
-          <img alt="LINE" className="size-[24px] shrink-0" src={imgLine} />
-          <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-black">
-            เข้าสู่ระบบด้วย LINE
-          </span>
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// Screen: OTP Verification
-function OtpScreen({ phone, refCode, onVerify, onResend, onBack }) {
-  const [otp, setOtp] = useState(['', '', '', '', '', ''])
-  const [countdown, setCountdown] = useState(179)
-  const [verifying, setVerifying] = useState(false)
-  const [error, setError] = useState('')
-  const inputRefs = useRef([])
-
-  useEffect(() => {
-    inputRefs.current[0]?.focus()
-  }, [])
-
-  useEffect(() => {
-    if (countdown <= 0) return
-    const timer = setInterval(() => setCountdown((c) => c - 1), 1000)
-    return () => clearInterval(timer)
-  }, [countdown])
-
-  const formatTime = (s) => {
-    const m = Math.floor(s / 60).toString().padStart(2, '0')
-    const sec = (s % 60).toString().padStart(2, '0')
-    return `00:${m}:${sec}`
-  }
-
-  const maskedPhone = phone
-    ? `${phone.slice(0, 3)}*****${phone.slice(-2)}`
-    : '088*****13'
-
-  const handleChange = (index, value) => {
-    if (!/^\d?$/.test(value)) return
-    const newOtp = [...otp]
-    newOtp[index] = value
-    setOtp(newOtp)
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus()
-    }
-  }
-
-  const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus()
-    }
-  }
-
-  const handleResend = () => {
-    if (countdown <= 0) {
-      setCountdown(179)
-      setOtp(['', '', '', '', '', ''])
-      setError('')
-      onResend()
-    }
-  }
-
-  const handleVerifyClick = async () => {
-    setVerifying(true)
-    setError('')
-    const result = await onVerify(otp.join(''))
-    if (result?.error) {
-      setError(result.error)
-      setOtp(['', '', '', '', '', ''])
-      inputRefs.current[0]?.focus()
-    }
-    setVerifying(false)
-  }
-
-  return (
-    <div className="flex flex-col items-start w-full">
-      <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[18px] text-black leading-[1.2] m-0">
-        เข้าสู่ระบบด้วย OTP
-      </h2>
-
-      <div className="flex flex-col gap-[8px] mt-[16px]">
-        <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-black leading-[1.4] m-0">
-          กรอกรหัส OTP 6 หลักที่ส่งไปยังหมายเลข {maskedPhone}
-        </p>
-        <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-black m-0">
-          รหัสอ้างอิง : {refCode}
-        </p>
-      </div>
-
-      {/* OTP Inputs */}
-      <div className="flex gap-[8px] mt-[24px]">
-        {otp.map((digit, i) => (
-          <input
-            key={i}
-            ref={(el) => (inputRefs.current[i] = el)}
-            type="text"
-            inputMode="numeric"
-            maxLength={1}
-            value={digit}
-            onChange={(e) => handleChange(i, e.target.value)}
-            onKeyDown={(e) => handleKeyDown(i, e)}
-            className="size-[52px] border border-[#e5e7eb] text-center font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-black outline-none focus:border-orange"
-          />
-        ))}
-      </div>
-
-      {/* Resend timer */}
-      <button
-        onClick={handleResend}
-        disabled={countdown > 0}
-        className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-black mt-[16px] bg-transparent border-none p-0 cursor-pointer disabled:cursor-default"
-      >
-        {countdown > 0
-          ? `ส่งรหัสอีกครั้งในอีก ${formatTime(countdown)}`
-          : 'ส่งรหัส OTP อีกครั้ง'}
-      </button>
-
-      {/* Error message */}
-      {error && (
-        <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#dc2626] mt-[12px] m-0">{error}</p>
-      )}
-
-      {/* Verify button */}
-      <button
-        onClick={handleVerifyClick}
-        disabled={otp.some((d) => !d) || verifying}
-        className="w-full h-[48px] bg-orange flex items-center justify-center cursor-pointer border-none mt-[24px] disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <span className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-white">
-          {verifying ? 'กำลังตรวจสอบ...' : 'ยืนยัน'}
-        </span>
-      </button>
-    </div>
-  )
-}
-
-// Screen: Registration
-function RegisterScreen({ phone, onRegister, onBack }) {
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '' })
-  const [agreed, setAgreed] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState('')
-
-  const maskedPhone = phone
-    ? `${phone.slice(0, 3)}*****${phone.slice(-2)}`
-    : '088*****13'
-
-  const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }))
-
-  const handleSubmit = async () => {
-    setSubmitting(true)
-    setError('')
-    const result = await onRegister(form)
-    if (result?.error) {
-      setError(result.error)
-      setSubmitting(false)
-    }
-  }
-
-  return (
-    <div className="flex flex-col items-start w-full">
-      <img alt="WoodSmith" className="size-[47px] lg:size-[60px] object-cover" src={imgFavicon} />
-
-      <div className="flex flex-col gap-[4px] mt-[16px] lg:mt-[24px]">
-        <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-black m-0">
-          สร้างบัญชี WoodSmith
-        </h2>
-        <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-grey m-0">
-          โปรดกรอกรายละเอียดของคุณเพื่อสร้างบัญชี
-        </p>
-      </div>
-
-      <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-black mt-[16px] m-0">
-        ลงทะเบียนด้วยเบอร์โทร. {maskedPhone}
-      </p>
-
-      {/* Form */}
-      <div className="flex flex-col gap-[24px] w-full mt-[24px]">
-        <div className="flex flex-col lg:flex-row gap-[24px] w-full">
-          <div className="flex flex-col gap-[8px] flex-1">
-            <label className="font-['IBM_Plex_Sans_Thai'] text-[11px] text-black">ชื่อจริง *</label>
-            <input
-              type="text"
-              value={form.firstName}
-              onChange={(e) => update('firstName', e.target.value)}
-              className="h-[42px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black outline-none"
-            />
-          </div>
-          <div className="flex flex-col gap-[8px] flex-1">
-            <label className="font-['IBM_Plex_Sans_Thai'] text-[11px] text-black">นามสกุล *</label>
-            <input
-              type="text"
-              value={form.lastName}
-              onChange={(e) => update('lastName', e.target.value)}
-              className="h-[42px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black outline-none"
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-[8px] w-full">
-          <label className="font-['IBM_Plex_Sans_Thai'] text-[11px] text-black">อีเมล *</label>
-          <input
-            type="email"
-            value={form.email}
-            onChange={(e) => update('email', e.target.value)}
-            className="h-[42px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black outline-none"
-          />
-        </div>
-      </div>
-
-      {/* Terms checkbox */}
-      <label className="flex gap-[8px] items-start mt-[24px] cursor-pointer">
-        <input
-          type="checkbox"
-          checked={agreed}
-          onChange={(e) => setAgreed(e.target.checked)}
-          className="mt-[2px] size-[16px] shrink-0 accent-orange"
-        />
-        <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-black leading-[1.4]">
-          ฉันได้อ่านและยอมรับ{' '}
-          <span className="text-orange underline">ข้อตกลงและเงื่อนไขการใช้บริการ</span>
-        </span>
-      </label>
-
-      {/* Error message */}
-      {error && (
-        <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#dc2626] mt-[12px] m-0">{error}</p>
-      )}
-
-      {/* Register button */}
-      <button
-        onClick={handleSubmit}
-        disabled={!form.firstName || !form.lastName || !form.email || !agreed || submitting}
-        className="w-full h-[48px] bg-orange flex items-center justify-center cursor-pointer border-none mt-[24px] disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <span className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-white">
-          {submitting ? 'กำลังสร้างบัญชี...' : 'สร้างบัญชี'}
-        </span>
-      </button>
-
-      {/* Back to login */}
-      <button
-        onClick={onBack}
-        className="w-full h-[48px] border border-[#e5e7eb] flex items-center justify-center cursor-pointer bg-transparent mt-[8px]"
-      >
-        <span className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-black">
-          กลับไปเข้าสู่ระบบ
-        </span>
-      </button>
-    </div>
-  )
-}
-
 export default function LoginModal({ isOpen, onClose }) {
-  const [screen, setScreen] = useState('login') // 'login' | 'otp' | 'register'
-  const [phone, setPhone] = useState('')
-  const [refCode, setRefCode] = useState('')
+  const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
-      setScreen('login')
-      setPhone('')
-      setRefCode('')
     }
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
   if (!isOpen) return null
 
-  const handleSendOtp = async (phoneNumber) => {
-    try {
-      setPhone(phoneNumber)
-      const { sendPhoneOtp } = await import('@/lib/actions/phone-auth')
-      const result = await sendPhoneOtp(phoneNumber)
-      if (result?.error) {
-        return { error: result.error }
-      }
-      setRefCode(result?.refCode || '')
-      setScreen('otp')
-    } catch (err) {
-      console.error('OTP send error:', err)
-      return { error: 'ไม่สามารถส่ง OTP ได้ กรุณาตรวจสอบเบอร์โทรและลองใหม่' }
-    }
-  }
-
-  const handleVerifyOtp = async (otpCode) => {
-    try {
-      const { verifyPhoneOtp } = await import('@/lib/actions/phone-auth')
-      const result = await verifyPhoneOtp(phone, otpCode)
-      if (result?.error) {
-        return { error: result.error }
-      }
-      if (result?.profileComplete) {
-        onClose()
-      } else {
-        setScreen('register')
-      }
-    } catch (err) {
-      console.error('OTP verify error:', err)
-      return { error: 'รหัส OTP ไม่ถูกต้องหรือหมดอายุ' }
-    }
-  }
-
-  const handleLineLogin = async () => {
-    const { getLineLoginUrl } = await import('@/lib/auth/line-config')
+  const handleLineLogin = () => {
     const state = crypto.randomUUID()
-    // Store state in HTTP-only-ish cookie for server-side CSRF validation
     document.cookie = `line_oauth_state=${state}; Path=/; Max-Age=600; SameSite=Lax`
-    const url = getLineLoginUrl(state)
-    window.location.href = url
+    const channelId = process.env.NEXT_PUBLIC_LINE_LOGIN_CHANNEL_ID
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: channelId,
+      redirect_uri: `${siteUrl}/auth/callback/line`,
+      state,
+      scope: 'openid profile email',
+    })
+    window.location.href = `https://access.line.me/oauth2/v2.1/authorize?${params}`
   }
 
-  const handleRegister = async (formData) => {
-    try {
-      const { createClient } = await import('@/lib/supabase/client')
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        return { error: 'ไม่พบผู้ใช้ กรุณาลองใหม่อีกครั้ง' }
-      }
+  const handleEmailLogin = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
 
-      const displayName = `${formData.firstName} ${formData.lastName}`.trim()
+    const { createClient } = await import('../lib/supabase/client')
+    const supabase = createClient()
 
-      // Update user metadata in Supabase Auth
-      const { error: metaError } = await supabase.auth.updateUser({
-        data: {
-          display_name: formData.firstName,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          profile_complete: true,
-        },
-      })
-      if (metaError) {
-        return { error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' }
-      }
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
 
-      // Create customer profile row via server action
-      const { createCustomerProfile } = await import('@/lib/actions/customer')
-      const { error: profileError } = await createCustomerProfile({
-        displayName,
-        phone: phone,
-        email: formData.email,
-      })
-      if (profileError) {
-        return { error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' }
-      }
-
-      onClose()
-    } catch (err) {
-      console.error('Registration error:', err)
-      return { error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' }
+    if (authError) {
+      setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง')
+      setLoading(false)
+      return
     }
+
+    onClose()
+    router.refresh()
   }
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60" />
 
-      {/* Modal container */}
       <div
-        className="relative bg-white w-full max-w-[390px] lg:max-w-[681px] max-h-[90vh] overflow-y-auto"
+        className="relative bg-white w-full max-w-[390px] lg:max-w-[450px] max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Desktop: Side image (only on login screen) */}
         <div className="flex">
-          {screen === 'login' && (
-            <div className="hidden lg:block w-[230px] shrink-0 bg-dark-brown relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-t from-dark-brown/80 to-transparent" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <img alt="WoodSmith" className="size-[120px] object-contain opacity-30" src={imgFavicon} />
-              </div>
+          {/* Desktop: Side image */}
+          <div className="hidden lg:block w-[180px] shrink-0 bg-dark-brown relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-t from-dark-brown/80 to-transparent" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <img alt="WoodSmith" className="size-[120px] object-contain opacity-30" src={imgFavicon} />
             </div>
-          )}
+          </div>
 
           {/* Content area */}
           <div className="flex-1 p-[20px] lg:p-[36px] relative">
-            {/* Close button */}
             <button
               onClick={onClose}
               className="absolute top-[20px] right-[20px] cursor-pointer bg-transparent border-none p-0 z-10"
@@ -459,30 +93,76 @@ export default function LoginModal({ isOpen, onClose }) {
               <CloseIcon />
             </button>
 
-            {/* Screens */}
-            <div className="mt-[16px]">
-              {screen === 'login' && (
-                <PhoneLoginScreen
-                  onSendOtp={handleSendOtp}
-                  onLineLogin={handleLineLogin}
+            <div className="mt-[16px] flex flex-col items-center">
+              <img alt="WoodSmith" className="size-[60px] object-contain" src={imgFavicon} />
+              <div className="mt-[24px] text-center">
+                <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] lg:text-[24px] text-orange leading-[1.2] m-0">
+                  WoodSmith ยินดีต้อนรับ
+                </h2>
+                <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-grey mt-[8px] m-0">
+                  เข้าสู่ระบบเพื่อดำเนินการต่อ
+                </p>
+              </div>
+
+              {/* LINE login */}
+              <div className="w-full mt-[24px]">
+                <button
+                  onClick={handleLineLogin}
+                  className="w-full h-[44px] bg-[#06C755] flex items-center justify-center gap-[12px] cursor-pointer border-none rounded-[4px]"
+                >
+                  <img alt="LINE" className="size-[24px] shrink-0" src={imgLine} />
+                  <span className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[14px] text-white">
+                    เข้าสู่ระบบด้วย LINE
+                  </span>
+                </button>
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-[12px] w-full mt-[16px]">
+                <div className="flex-1 h-[1px] bg-[#e5e7eb]" />
+                <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-grey">หรือ</span>
+                <div className="flex-1 h-[1px] bg-[#e5e7eb]" />
+              </div>
+
+              {/* Email/Password form */}
+              <form onSubmit={handleEmailLogin} className="flex flex-col gap-[12px] w-full mt-[16px]">
+                <input
+                  type="email"
+                  placeholder="อีเมล"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="h-[42px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black outline-none rounded-[4px]"
                 />
-              )}
-              {screen === 'otp' && (
-                <OtpScreen
-                  phone={phone}
-                  refCode={refCode}
-                  onVerify={handleVerifyOtp}
-                  onResend={() => handleSendOtp(phone)}
-                  onBack={() => setScreen('login')}
+                <input
+                  type="password"
+                  placeholder="รหัสผ่าน"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="h-[42px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black outline-none rounded-[4px]"
                 />
-              )}
-              {screen === 'register' && (
-                <RegisterScreen
-                  phone={phone}
-                  onRegister={handleRegister}
-                  onBack={() => setScreen('login')}
-                />
-              )}
+
+                {error && (
+                  <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-red-500 m-0 text-center">{error}</p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-[44px] bg-orange flex items-center justify-center cursor-pointer border-none rounded-[4px] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[14px] text-white">
+                    {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+                  </span>
+                </button>
+              </form>
+
+              {/* Register link */}
+              <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-grey mt-[16px] m-0">
+                ยังไม่มีบัญชี?{' '}
+                <a href="/register" className="text-orange underline" onClick={onClose}>สมัครสมาชิก</a>
+              </p>
             </div>
           </div>
         </div>

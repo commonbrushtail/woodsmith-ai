@@ -152,7 +152,7 @@ export default function Navbar() {
         <div className="max-w-[1212px] mx-auto w-full flex items-center justify-between px-[16px] py-[12px] h-[60px] lg:h-auto">
           <div className="flex gap-[40px] items-center">
             <Link href="/">
-              <img alt="WoodSmith" className="h-[48px] w-[38px] lg:h-[60px] lg:w-[47px] object-cover" src={imgFavicon} />
+              <img alt="WoodSmith" className="h-[48px] w-[38px] lg:h-[60px] lg:w-[47px] object-contain" src={imgFavicon} />
             </Link>
             {/* Desktop nav menu */}
             <div className="hidden lg:flex gap-[36px] items-start">

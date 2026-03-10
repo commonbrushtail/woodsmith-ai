@@ -211,13 +211,13 @@ export default async function Footer() {
           </p>
           <div className="flex flex-col lg:flex-row gap-[12px] lg:gap-[32px] items-center justify-center lg:justify-end">
             <div className="flex gap-[16px] items-center justify-center lg:justify-end">
-              <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] lg:text-[13px] text-white">ข้อกำหนดและเงื่อนไขการใช้งาน</p>
+              <Link href="/terms" className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] lg:text-[13px] text-white no-underline">ข้อกำหนดและเงื่อนไขการใช้งาน</Link>
               <div className="h-[13px] flex items-center justify-center w-0">
                 <div className="rotate-90 w-[13px] h-0 relative">
                   <img alt="" className="absolute inset-[-0.5px_0_0_0] block max-w-none size-full" src={imgLine34} />
                 </div>
               </div>
-              <p className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] lg:text-[13px] text-white">นโยบายความเป็นส่วนตัว</p>
+              <Link href="/privacy" className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] lg:text-[13px] text-white no-underline">นโยบายความเป็นส่วนตัว</Link>
             </div>
             <div className="h-[42px] rounded-[5px] w-[88px] relative overflow-hidden">
               <div className="absolute bg-white inset-0 rounded-[5px]" />

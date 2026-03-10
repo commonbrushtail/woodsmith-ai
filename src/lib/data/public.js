@@ -382,6 +382,26 @@ export async function getAboutContent() {
 }
 
 /**
+ * Fetch a legal page by slug (terms, privacy, cookies).
+ */
+export async function getLegalPage(slug) {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('legal_pages')
+    .select('title, content, updated_at')
+    .eq('slug', slug)
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') return { data: null, error: null }
+    return { data: null, error: error.message }
+  }
+
+  return { data, error: null }
+}
+
+/**
  * Fetch distinct product categories (for filter sidebar).
  */
 export async function getProductCategories() {

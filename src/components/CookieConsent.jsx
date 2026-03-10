@@ -10,7 +10,7 @@ function CloseIcon() {
   )
 }
 
-function CookiePolicyModal({ isOpen, onClose }) {
+function CookiePolicyModal({ isOpen, onClose, onAccept }) {
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
@@ -60,7 +60,7 @@ function CookiePolicyModal({ isOpen, onClose }) {
           </div>
 
           {/* Accept button */}
-          <button className="bg-orange flex h-[40px] items-center justify-center px-[24px] cursor-pointer border-none">
+          <button onClick={onAccept} className="bg-orange flex h-[40px] items-center justify-center px-[24px] cursor-pointer border-none">
             <span className="font-['Circular_Std'] font-medium text-[13.33px] text-white leading-[1.5]">
               ยอมรับทั้งหมด
             </span>
@@ -153,10 +153,8 @@ export default function CookieConsent() {
       {/* Cookie Policy Modal */}
       <CookiePolicyModal
         isOpen={policyOpen}
-        onClose={() => {
-          setPolicyOpen(false)
-          acceptAll()
-        }}
+        onClose={() => setPolicyOpen(false)}
+        onAccept={acceptAll}
       />
     </>
   )

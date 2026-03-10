@@ -138,41 +138,83 @@ export async function GET(request) {
           .is('email', null)
       }
     } else {
-      // Create new Supabase user — use real email from LINE ID token if available
-      const { data: newUser, error: createError } = await admin.auth.admin.createUser({
-        email: lineRealEmail || lineEmail,
-        email_confirm: true, // Skip email verification
-        app_metadata: { provider: 'line', line_user_id: profile.userId },
-        user_metadata: {
-          display_name: profile.displayName,
-          picture_url: profile.pictureUrl || null,
-          line_user_id: profile.userId,
-          role: 'customer',
-        },
-      })
+      // Check if a user with the same email already exists (registered via email)
+      if (lineRealEmail) {
+        const emailUser = existingUsers?.users?.find(u => u.email === lineRealEmail)
+        if (emailUser) {
+          // Link LINE to existing email account — add LINE metadata
+          const { data: linkedUser, error: linkError } = await admin.auth.admin.updateUserById(
+            emailUser.id,
+            {
+              app_metadata: {
+                ...emailUser.app_metadata,
+                line_user_id: profile.userId,
+              },
+              user_metadata: {
+                ...emailUser.user_metadata,
+                line_user_id: profile.userId,
+                picture_url: profile.pictureUrl || emailUser.user_metadata?.picture_url || null,
+              },
+            }
+          )
 
-      if (createError) {
-        console.error('Failed to create LINE user:', createError)
-        return NextResponse.redirect(`${origin}/?auth_error=line_session_failed`)
+          if (linkError) {
+            console.error('Failed to link LINE to existing user:', linkError)
+            return NextResponse.redirect(`${origin}/?auth_error=line_session_failed`)
+          }
+
+          supabaseUser = linkedUser.user
+
+          // Update user_profiles with LINE info
+          await admin.from('user_profiles')
+            .update({
+              auth_provider: 'line',
+              avatar_url: profile.pictureUrl || null,
+              line_user_id: profile.userId,
+            })
+            .eq('user_id', emailUser.id)
+
+          // Skip isNewUser — existing user, already has profile
+          // Jump to session establishment below
+        }
       }
 
-      supabaseUser = newUser.user
-      isNewUser = true
+      // If no linked user was found, create a new one
+      if (!supabaseUser) {
+        const { data: newUser, error: createError } = await admin.auth.admin.createUser({
+          email: lineRealEmail || lineEmail,
+          email_confirm: true,
+          app_metadata: { provider: 'line', line_user_id: profile.userId },
+          user_metadata: {
+            display_name: profile.displayName,
+            picture_url: profile.pictureUrl || null,
+            line_user_id: profile.userId,
+            role: 'customer',
+          },
+        })
 
-      // Create user_profiles row for new LINE user
-      const { error: profileError } = await admin.from('user_profiles').upsert({
-        user_id: supabaseUser.id,
-        display_name: profile.displayName,
-        phone: null,
-        role: 'customer',
-        auth_provider: 'line',
-        avatar_url: profile.pictureUrl || null,
-        email: lineRealEmail,
-      }, { onConflict: 'user_id' })
+        if (createError) {
+          console.error('Failed to create LINE user:', createError)
+          return NextResponse.redirect(`${origin}/?auth_error=line_session_failed`)
+        }
 
-      if (profileError) {
-        console.error('Failed to create user_profiles row:', profileError)
-        // Don't fail the login, profile can be created later
+        supabaseUser = newUser.user
+        isNewUser = true
+
+        // Create user_profiles row for new LINE user
+        const { error: profileError } = await admin.from('user_profiles').upsert({
+          user_id: supabaseUser.id,
+          display_name: profile.displayName,
+          phone: null,
+          role: 'customer',
+          auth_provider: 'line',
+          avatar_url: profile.pictureUrl || null,
+          email: lineRealEmail,
+        }, { onConflict: 'user_id' })
+
+        if (profileError) {
+          console.error('Failed to create user_profiles row:', profileError)
+        }
       }
     }
 

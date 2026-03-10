@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 const iconSidebar = [
-  { icon: 'book-open', section: 'content', paths: ['/admin/banner', '/admin/site-settings', '/admin/blog', '/admin/blog-categories', '/admin/video-highlight', '/admin/gallery', '/admin/manual', '/admin/about-us', '/admin/branch', '/admin/faq', '/admin/product-types', '/admin/categories', '/admin/products', '/admin/variations'] },
+  { icon: 'book-open', section: 'content', paths: ['/admin/banner', '/admin/site-settings', '/admin/blog', '/admin/blog-categories', '/admin/video-highlight', '/admin/gallery', '/admin/manual', '/admin/about-us', '/admin/branch', '/admin/faq', '/admin/legal-pages', '/admin/product-types', '/admin/categories', '/admin/products', '/admin/variations'] },
   { icon: 'file-text', section: 'quotation', paths: ['/admin/quotations'] },
   { icon: 'users', section: 'users', paths: ['/admin/users', '/admin/account'] },
 ]
@@ -21,6 +21,7 @@ const contentMenuItems = [
   { label: 'เกี่ยวกับเรา (About Us)', path: '/admin/about-us' },
   { label: 'ช่องทางสาขา (Branch)', path: '/admin/branch' },
   { label: 'คำถามที่พบบ่อย (FAQs)', path: '/admin/faq' },
+  { label: 'หน้ากฎหมาย (Legal Pages)', path: '/admin/legal-pages' },
   { label: 'ประเภทสินค้า (Product Type)', path: '/admin/product-types' },
   { label: 'หมวดหมู่สินค้า (Category)', path: '/admin/categories' },
   { label: 'สินค้า (Product)', path: '/admin/products' },

@@ -109,7 +109,7 @@ export default function LineRegisterPage() {
     <div className="py-[60px] px-[20px]">
       <div className="max-w-[450px] mx-auto">
         {/* Logo */}
-        <img alt="WoodSmith" className="size-[47px] lg:size-[60px] object-cover" src={imgFavicon} />
+        <img alt="WoodSmith" className="size-[47px] lg:size-[60px] object-contain" src={imgFavicon} />
 
         {/* Heading */}
         <div className="flex flex-col gap-[4px] mt-[16px] lg:mt-[24px]">
@@ -181,7 +181,7 @@ export default function LineRegisterPage() {
           />
           <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-black leading-[1.4]">
             ฉันได้อ่านและยอมรับ{' '}
-            <span className="text-orange underline">ข้อตกลงและเงื่อนไขการใช้บริการ</span>
+            <a href="/terms" target="_blank" className="text-black underline">ข้อกำหนดและเงื่อนไขการใช้งาน</a>
           </span>
         </label>
 
