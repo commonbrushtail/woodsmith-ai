@@ -9,6 +9,7 @@ import 'swiper/css'
 import ArrowRight from '../../../../components/ArrowRight'
 import { getProductUrl } from '@/lib/product-url'
 import QuotationModal from '../../../../components/QuotationModal'
+import AreaCalculator from '../../../../components/AreaCalculator'
 import imgRectangle15 from '../../../../assets/0e0c21ac59c543d45fcb74164df547c01c8f3962.png'
 import imgRectangle21 from '../../../../assets/c173adf2801ab483dbd02d79c3a7c79625fdb495.png'
 import imgRectangle22 from '../../../../assets/3e2d5dd8c39488aa06c2f75daa4454423645d914.png'
@@ -201,7 +202,7 @@ function RelatedProductCard({ href, image, category, engName }) {
   )
 }
 
-export default function ProductDetailClient({ product: dbProduct = null }) {
+export default function ProductDetailClient({ product: dbProduct = null, isLoggedIn = false }) {
   // Map DB product to display format or use fallback
   const product = dbProduct ? {
     id: dbProduct.id,
@@ -231,6 +232,12 @@ export default function ProductDetailClient({ product: dbProduct = null }) {
     description: dbProduct.description || '',
     characteristics: dbProduct.characteristics || '',
     specs: dbProduct.specifications?.raw || dbProduct.specifications || '',
+    showAreaCalculator: dbProduct.show_area_calculator || false,
+    coveragePerBox: dbProduct.coverage_per_box,
+    piecesPerBox: dbProduct.pieces_per_box,
+    plankWidth: dbProduct.plank_width,
+    plankLength: dbProduct.plank_length,
+    wastePercentage: dbProduct.waste_percentage,
     relatedProducts: (dbProduct.relatedProducts || []).map(rp => {
       const img = rp.product_images?.find(i => i.is_primary)?.url || rp.product_images?.[0]?.url || imgRectangle15
       return { href: getProductUrl(rp), image: img, category: rp.category || '', engName: rp.name }
@@ -369,6 +376,15 @@ export default function ProductDetailClient({ product: dbProduct = null }) {
             </div>
           )}
           <SpecTable specs={product.specs} />
+          {product.showAreaCalculator && (
+            <AreaCalculator
+              coveragePerBox={product.coveragePerBox}
+              piecesPerBox={product.piecesPerBox}
+              plankWidth={product.plankWidth}
+              plankLength={product.plankLength}
+              wastePercentage={product.wastePercentage}
+            />
+          )}
         </div>
       </div>
 
@@ -390,6 +406,7 @@ export default function ProductDetailClient({ product: dbProduct = null }) {
         isOpen={quotationOpen}
         onClose={() => setQuotationOpen(false)}
         product={{ id: product.id, name: product.name, sku: product.sku, image: product.images[0] }}
+        isLoggedIn={isLoggedIn}
         selections={[
           ...(product.colors.length > 0 ? [{ label: 'สี', value: product.colors.find(c => c.id === selectedColor)?.name }] : []),
           ...(product.surfaces.length > 0 ? [{ label: 'พื้นผิว', value: product.surfaces.find(s => s.id === selectedSurface)?.name }] : []),

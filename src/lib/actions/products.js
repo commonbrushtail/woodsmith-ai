@@ -84,6 +84,12 @@ export async function createProduct(formData) {
     published: formData.get('published') === 'true',
     publish_start: formData.get('publish_start') || null,
     publish_end: formData.get('publish_end') || null,
+    show_area_calculator: formData.get('show_area_calculator') === 'true',
+    coverage_per_box: formData.get('coverage_per_box') ? parseFloat(formData.get('coverage_per_box')) : null,
+    pieces_per_box: formData.get('pieces_per_box') ? parseInt(formData.get('pieces_per_box'), 10) : null,
+    plank_width: formData.get('plank_width') ? parseFloat(formData.get('plank_width')) : null,
+    plank_length: formData.get('plank_length') ? parseFloat(formData.get('plank_length')) : null,
+    waste_percentage: formData.get('waste_percentage') ? parseFloat(formData.get('waste_percentage')) : 5,
   }
 
   // Sanitize text inputs before validation
@@ -156,6 +162,24 @@ export async function updateProduct(id, formData) {
   }
   if (formData.get('published') !== null) {
     updates.published = formData.get('published') === 'true'
+  }
+  if (formData.get('show_area_calculator') !== null) {
+    updates.show_area_calculator = formData.get('show_area_calculator') === 'true'
+  }
+  if (formData.get('coverage_per_box') !== null) {
+    updates.coverage_per_box = formData.get('coverage_per_box') ? parseFloat(formData.get('coverage_per_box')) : null
+  }
+  if (formData.get('pieces_per_box') !== null) {
+    updates.pieces_per_box = formData.get('pieces_per_box') ? parseInt(formData.get('pieces_per_box'), 10) : null
+  }
+  if (formData.get('plank_width') !== null) {
+    updates.plank_width = formData.get('plank_width') ? parseFloat(formData.get('plank_width')) : null
+  }
+  if (formData.get('plank_length') !== null) {
+    updates.plank_length = formData.get('plank_length') ? parseFloat(formData.get('plank_length')) : null
+  }
+  if (formData.get('waste_percentage') !== null) {
+    updates.waste_percentage = formData.get('waste_percentage') ? parseFloat(formData.get('waste_percentage')) : 5
   }
   if (formData.has('publish_start')) {
     updates.publish_start = formData.get('publish_start') || null

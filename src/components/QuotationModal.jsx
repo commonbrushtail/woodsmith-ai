@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 function EmailIcon() {
   return (
@@ -34,10 +34,38 @@ function SuccessIcon() {
   )
 }
 
-export default function QuotationModal({ isOpen, onClose, product, selections = [] }) {
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+
+export default function QuotationModal({ isOpen, onClose, product, selections = [], isLoggedIn = false }) {
   const [step, setStep] = useState('confirm') // 'confirm' | 'success'
   const [submitting, setSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+
+  // Guest form fields
+  const [guestName, setGuestName] = useState('')
+  const [guestSurname, setGuestSurname] = useState('')
+  const [guestEmail, setGuestEmail] = useState('')
+
+  // reCAPTCHA
+  const [captchaToken, setCaptchaToken] = useState('')
+  const captchaRef = useRef(null)
+  const captchaWidgetId = useRef(null)
+
+  const renderCaptcha = useCallback(() => {
+    if (!RECAPTCHA_SITE_KEY || isLoggedIn) return
+    if (!captchaRef.current) return
+    if (typeof window.grecaptcha === 'undefined' || !window.grecaptcha.render) return
+
+    // Clear previous widget safely
+    while (captchaRef.current.firstChild) {
+      captchaRef.current.removeChild(captchaRef.current.firstChild)
+    }
+    captchaWidgetId.current = window.grecaptcha.render(captchaRef.current, {
+      sitekey: RECAPTCHA_SITE_KEY,
+      callback: (token) => setCaptchaToken(token),
+      'expired-callback': () => setCaptchaToken(''),
+    })
+  }, [isLoggedIn])
 
   useEffect(() => {
     if (isOpen) {
@@ -45,14 +73,50 @@ export default function QuotationModal({ isOpen, onClose, product, selections = 
       setStep('confirm')
       setSubmitting(false)
       setErrorMsg('')
+      setCaptchaToken('')
+      setGuestName('')
+      setGuestSurname('')
+      setGuestEmail('')
     }
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
+
+  // Load reCAPTCHA script and render widget
+  useEffect(() => {
+    if (!isOpen || isLoggedIn || !RECAPTCHA_SITE_KEY) return
+
+    const scriptId = 'recaptcha-script'
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement('script')
+      script.id = scriptId
+      script.src = 'https://www.google.com/recaptcha/api.js?render=explicit'
+      script.async = true
+      script.defer = true
+      script.onload = () => {
+        if (window.grecaptcha && window.grecaptcha.ready) {
+          window.grecaptcha.ready(() => renderCaptcha())
+        }
+      }
+      document.head.appendChild(script)
+    } else if (window.grecaptcha && window.grecaptcha.render) {
+      setTimeout(() => renderCaptcha(), 100)
+    }
+  }, [isOpen, isLoggedIn, renderCaptcha])
 
   if (!isOpen) return null
 
   const handleSubmit = async () => {
     if (submitting) return
+
+    // Validate guest fields
+    if (!isLoggedIn) {
+      if (!guestName.trim()) { setErrorMsg('กรุณากรอกชื่อ'); return }
+      if (!guestSurname.trim()) { setErrorMsg('กรุณากรอกนามสกุล'); return }
+      if (!guestEmail.trim()) { setErrorMsg('กรุณากรอกอีเมล'); return }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) { setErrorMsg('รูปแบบอีเมลไม่ถูกต้อง'); return }
+      if (RECAPTCHA_SITE_KEY && !captchaToken) { setErrorMsg('กรุณายืนยันว่าคุณไม่ใช่หุ่นยนต์'); return }
+    }
+
     setSubmitting(true)
     setErrorMsg('')
     try {
@@ -60,11 +124,19 @@ export default function QuotationModal({ isOpen, onClose, product, selections = 
       const result = await submitQuotation({
         productId: product?.id || null,
         selectedVariations: selections.length > 0 ? selections : undefined,
+        requesterName: !isLoggedIn ? `${guestName.trim()} ${guestSurname.trim()}` : undefined,
+        requesterEmail: !isLoggedIn ? guestEmail.trim() : undefined,
+        captchaToken: !isLoggedIn ? captchaToken : undefined,
       })
       if (result.error) {
         console.error('Quotation submit error:', result.error)
         setErrorMsg(result.error)
         setSubmitting(false)
+        // Reset captcha on error
+        if (window.grecaptcha && captchaWidgetId.current !== null) {
+          window.grecaptcha.reset(captchaWidgetId.current)
+          setCaptchaToken('')
+        }
         return
       }
       setStep('success')
@@ -75,6 +147,8 @@ export default function QuotationModal({ isOpen, onClose, product, selections = 
     }
   }
 
+  const inputCls = "w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e8eaef] rounded-[8px] px-[14px] py-[10px] outline-none transition-all placeholder:text-[#bfbfbf] focus:border-orange focus:ring-1 focus:ring-orange/20"
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center" onClick={onClose}>
       {/* Backdrop */}
@@ -82,7 +156,7 @@ export default function QuotationModal({ isOpen, onClose, product, selections = 
 
       {/* Modal */}
       <div
-        className="relative bg-white flex flex-col gap-[20px] items-center py-[20px] shadow-[0px_6px_16px_0px_rgba(0,33,70,0.12)] w-[90%] max-w-[485px]"
+        className="relative bg-white flex flex-col gap-[20px] items-center py-[20px] shadow-[0px_6px_16px_0px_rgba(0,33,70,0.12)] w-[90%] max-w-[485px] max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {step === 'success' ? (
@@ -137,6 +211,40 @@ export default function QuotationModal({ isOpen, onClose, product, selections = 
                       {s.label}: {s.value}
                     </p>
                   ))}
+                </div>
+              )}
+
+              {/* Guest form — shown when not logged in */}
+              {!isLoggedIn && (
+                <div className="flex flex-col gap-[10px] w-full max-w-[335px]">
+                  <div className="flex gap-[10px]">
+                    <input
+                      type="text"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      placeholder="ชื่อ"
+                      className={inputCls}
+                    />
+                    <input
+                      type="text"
+                      value={guestSurname}
+                      onChange={(e) => setGuestSurname(e.target.value)}
+                      placeholder="นามสกุล"
+                      className={inputCls}
+                    />
+                  </div>
+                  <input
+                    type="email"
+                    value={guestEmail}
+                    onChange={(e) => setGuestEmail(e.target.value)}
+                    placeholder="อีเมล"
+                    className={inputCls}
+                  />
+                  {RECAPTCHA_SITE_KEY && (
+                    <div className="flex justify-center mt-[4px]">
+                      <div ref={captchaRef} />
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -122,8 +122,12 @@ export default function ProductEditClient({ product, categories = [], variationG
   const [description, setDescription] = useState(product.description || '')
   const [characteristics, setCharacteristics] = useState(product.characteristics || '')
   const [specifications, setSpecifications] = useState(product.specifications?.raw || product.specifications || '')
-
-
+  const [showAreaCalculator, setShowAreaCalculator] = useState(product.show_area_calculator || false)
+  const [coveragePerBox, setCoveragePerBox] = useState(product.coverage_per_box || '')
+  const [piecesPerBox, setPiecesPerBox] = useState(product.pieces_per_box || '')
+  const [plankWidth, setPlankWidth] = useState(product.plank_width || '')
+  const [plankLength, setPlankLength] = useState(product.plank_length || '')
+  const [wastePercentage, setWastePercentage] = useState(product.waste_percentage ?? 5)
 
   // Cascading categories — root type → category → subcategory
   const categoryOptions = useMemo(() => {
@@ -171,6 +175,14 @@ export default function ProductEditClient({ product, categories = [], variationG
       formData.set('specifications', specifications)
       formData.set('published', String(publish))
       formData.set('recommended', recommended === 'yes' ? 'true' : 'false')
+      formData.set('show_area_calculator', String(showAreaCalculator))
+      if (showAreaCalculator) {
+        formData.set('coverage_per_box', String(coveragePerBox || ''))
+        formData.set('pieces_per_box', String(piecesPerBox || ''))
+        formData.set('plank_width', String(plankWidth || ''))
+        formData.set('plank_length', String(plankLength || ''))
+        formData.set('waste_percentage', String(wastePercentage || 5))
+      }
 
       // Publish date range — always send these fields (empty string clears the value)
       formData.set('publish_start', startDate ? (startTime ? `${startDate}T${startTime}:00` : `${startDate}T00:00:00`) : '')
@@ -471,6 +483,44 @@ export default function ProductEditClient({ product, categories = [], variationG
               รายละเอียดสินค้า <span className="text-red-500">*</span>
             </label>
             <RichTextEditor content={description} onChange={setDescription} minHeight={180} />
+            <label className="flex items-center gap-[8px] mt-[8px] cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showAreaCalculator}
+                onChange={(e) => setShowAreaCalculator(e.target.checked)}
+                className="size-[16px] accent-orange"
+              />
+              <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
+                แสดงเครื่องคำนวณพื้นที่ (Area Calculator)
+              </span>
+            </label>
+            {showAreaCalculator && (
+              <div className="mt-[12px] p-[16px] bg-[#fafafa] rounded-[8px] border border-[#e8eaef] flex flex-col gap-[12px]">
+                <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] font-medium text-[#1f2937] m-0">ข้อมูลสูตรคำนวณ</p>
+                <div className="grid grid-cols-2 gap-[12px]">
+                  <div className="flex flex-col gap-[4px]">
+                    <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">พื้นที่ต่อกล่อง (ตร.ม.)</label>
+                    <input type="number" step="0.01" min="0" value={coveragePerBox} onChange={(e) => setCoveragePerBox(e.target.value)} placeholder="เช่น 2.08" className={inputCls(false)} />
+                  </div>
+                  <div className="flex flex-col gap-[4px]">
+                    <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">จำนวนแผ่นต่อกล่อง</label>
+                    <input type="number" step="1" min="0" value={piecesPerBox} onChange={(e) => setPiecesPerBox(e.target.value)} placeholder="เช่น 8" className={inputCls(false)} />
+                  </div>
+                  <div className="flex flex-col gap-[4px]">
+                    <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">ความกว้างแผ่น (มม.)</label>
+                    <input type="number" step="0.1" min="0" value={plankWidth} onChange={(e) => setPlankWidth(e.target.value)} placeholder="เช่น 193" className={inputCls(false)} />
+                  </div>
+                  <div className="flex flex-col gap-[4px]">
+                    <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">ความยาวแผ่น (มม.)</label>
+                    <input type="number" step="0.1" min="0" value={plankLength} onChange={(e) => setPlankLength(e.target.value)} placeholder="เช่น 1383" className={inputCls(false)} />
+                  </div>
+                  <div className="flex flex-col gap-[4px]">
+                    <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">เผื่อเศษ (%)</label>
+                    <input type="number" step="1" min="0" max="50" value={wastePercentage} onChange={(e) => setWastePercentage(e.target.value)} placeholder="5" className={inputCls(false)} />
+                  </div>
+                </div>
+              </div>
+            )}
           </section>
 
           {/* 10. คุณลักษณะ/คุณสมบัติของสินค้า */}

@@ -53,7 +53,7 @@ export async function getQuotation(id) {
   const supabase = createServiceClient()
   const { data, error } = await supabase
     .from('quotations')
-    .select('*, product:products(code, name)')
+    .select('*, product:products(code, name, product_images(url, is_primary, sort_order))')
     .eq('id', id)
     .single()
 

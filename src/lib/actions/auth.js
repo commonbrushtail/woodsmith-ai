@@ -34,9 +34,26 @@ export async function requestPasswordReset(email) {
  * @param {string} email
  * @returns {Promise<{ error: string | null }>}
  */
-export async function sendRegistrationEmail(email) {
+export async function sendRegistrationEmail(email, captchaToken) {
   if (!email || !EMAIL_REGEX.test(email)) {
     return { error: 'กรุณาระบุอีเมลที่ถูกต้อง' }
+  }
+
+  // Verify reCAPTCHA if configured
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY
+  if (secretKey) {
+    if (!captchaToken) {
+      return { error: 'กรุณายืนยันว่าคุณไม่ใช่หุ่นยนต์' }
+    }
+    const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `secret=${encodeURIComponent(secretKey)}&response=${encodeURIComponent(captchaToken)}`,
+    })
+    const verifyData = await verifyRes.json()
+    if (!verifyData.success) {
+      return { error: 'การยืนยันตัวตนล้มเหลว กรุณาลองใหม่' }
+    }
   }
 
   const { createServiceClient } = await import('@/lib/supabase/admin')

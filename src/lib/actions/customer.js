@@ -111,20 +111,42 @@ export async function submitQuotation({
   message,
   quantity,
   selectedVariations,
+  captchaToken,
 } = {}) {
   const authSupabase = await createClient()
   const { data: { user } } = await authSupabase.auth.getUser()
-  if (!user) {
-    return { data: null, error: 'กรุณาเข้าสู่ระบบก่อนขอใบเสนอราคา' }
-  }
+
+  const isGuest = !user
   const supabase = createServiceClient()
 
-  // Auto-fill from user profile if not provided
+  // Guest submissions require CAPTCHA verification
+  if (isGuest) {
+    if (!requesterName || !requesterEmail) {
+      return { data: null, error: 'กรุณากรอกชื่อและอีเมล' }
+    }
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY
+    if (secretKey) {
+      if (!captchaToken) {
+        return { data: null, error: 'กรุณายืนยันว่าคุณไม่ใช่หุ่นยนต์' }
+      }
+      const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `secret=${encodeURIComponent(secretKey)}&response=${encodeURIComponent(captchaToken)}`,
+      })
+      const verifyData = await verifyRes.json()
+      if (!verifyData.success) {
+        return { data: null, error: 'การยืนยันตัวตนล้มเหลว กรุณาลองใหม่' }
+      }
+    }
+  }
+
+  // Auto-fill from user profile if logged in
   let name = requesterName || ''
   let phone = requesterPhone || ''
   let email = requesterEmail || ''
 
-  if (!name || !phone) {
+  if (user && (!name || !phone)) {
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('first_name, last_name, display_name, phone, email')
@@ -173,7 +195,7 @@ export async function submitQuotation({
     .from('quotations')
     .insert({
       quotation_number: quotationNumber,
-      customer_id: user?.id || null,
+      customer_id: user ? user.id : null,
       product_id: productId,
       requester_name: name,
       requester_phone: phone,
@@ -371,4 +393,36 @@ export async function getMyQuotations() {
   }
 
   return { data: data || [], error: null }
+}
+
+/**
+ * Delete the current customer's account.
+ * Removes the customer_profiles row, then deletes the auth user via service client.
+ */
+export async function deleteMyAccount() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  // Delete customer profile row
+  const { error: profileError } = await supabase
+    .from('customer_profiles')
+    .delete()
+    .eq('id', user.id)
+
+  if (profileError) {
+    return { error: profileError.message }
+  }
+
+  // Delete auth user via service role
+  const admin = createServiceClient()
+  const { error: authError } = await admin.auth.admin.deleteUser(user.id)
+
+  if (authError) {
+    return { error: authError.message }
+  }
+
+  return { error: null }
 }
