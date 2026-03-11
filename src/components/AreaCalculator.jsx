@@ -40,7 +40,7 @@ export default function AreaCalculator({ sizes = [], piecesPerBox, plankWidth, p
 
   const results = patterns.map(({ label, waste }) => {
     const areaWithWaste = totalArea * (1 + waste / 100)
-    const boxes = hasCoverage ? Math.ceil(areaWithWaste / cov) : 0
+    const boxes = hasCoverage ? Math.round(areaWithWaste / cov) : 0
     const totalPcs = pieces > 0 ? boxes * pieces : null
     return { label, waste, areaWithWaste, boxes, totalPcs }
   })
