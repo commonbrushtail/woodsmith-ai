@@ -81,14 +81,22 @@ export async function updateSiteSettings(formData) {
     }
 
     // Handle banner image uploads
+    const bannerErrors = []
     for (const key of BANNER_KEYS) {
       const file = formData.get(key)
       if (file && file.size > 0) {
         const ext = file.name.split('.').pop() || 'webp'
         const storagePath = `site/${key}.${ext}`
+        console.log(`📤 Uploading banner: ${key} → banners/${storagePath} (${file.size} bytes)`)
         const { error: uploadError } = await uploadFile('banners', file, storagePath)
-        if (!uploadError) {
-          settingsData[`${key}_url`] = getPublicUrl('banners', storagePath)
+        if (uploadError) {
+          console.error(`❌ Banner upload failed for ${key}:`, uploadError)
+          bannerErrors.push(`${key}: ${uploadError.message}`)
+        } else {
+          const url = getPublicUrl('banners', storagePath)
+          // Add cache-busting timestamp to force browsers to fetch the new image
+          settingsData[`${key}_url`] = `${url}?t=${Date.now()}`
+          console.log(`✅ Banner uploaded: ${key} → ${settingsData[`${key}_url`]}`)
         }
       } else {
         // Preserve existing URL if no new file uploaded
@@ -97,6 +105,10 @@ export async function updateSiteSettings(formData) {
           settingsData[`${key}_url`] = existingUrl
         }
       }
+    }
+
+    if (bannerErrors.length > 0) {
+      console.error('⚠️ Some banner uploads failed:', bannerErrors)
     }
 
     let data, error

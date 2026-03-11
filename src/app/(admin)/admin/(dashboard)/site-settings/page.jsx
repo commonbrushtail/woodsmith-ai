@@ -136,6 +136,16 @@ export default function SiteSettingsPage() {
       } else {
         console.log('✅ Save successful, returned data:', result.data)
         toast.success('บันทึกการตั้งค่าเรียบร้อยแล้ว')
+        // Update banner URLs from saved data and clear file selections
+        if (result.data) {
+          const urls = {}
+          for (const key of ['banner_about', 'banner_blog', 'banner_manual', 'banner_highlight', 'banner_faq']) {
+            if (result.data[`${key}_url`]) urls[key] = result.data[`${key}_url`]
+          }
+          setBannerUrls(urls)
+          setBannerFiles({})
+          setBannerPreviews({})
+        }
       }
     })
   }
