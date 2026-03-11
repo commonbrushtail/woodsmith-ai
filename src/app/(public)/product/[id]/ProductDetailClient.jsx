@@ -228,11 +228,9 @@ export default function ProductDetailClient({ product: dbProduct = null, isLogge
     specs: dbProduct.specifications?.raw || dbProduct.specifications || '',
     showAreaCalculator: dbProduct.show_area_calculator || false,
     calculatorSizes: dbProduct.calculator_sizes || [],
-    coveragePerBox: dbProduct.coverage_per_box,
     piecesPerBox: dbProduct.pieces_per_box,
     plankWidth: dbProduct.plank_width,
     plankLength: dbProduct.plank_length,
-    wastePercentage: dbProduct.waste_percentage,
     relatedProducts: (dbProduct.relatedProducts || []).map(rp => {
       const img = rp.product_images?.find(i => i.is_primary)?.url || rp.product_images?.[0]?.url || null
       return { href: getProductUrl(rp), image: img, category: rp.category || '', engName: rp.name }
@@ -398,11 +396,9 @@ export default function ProductDetailClient({ product: dbProduct = null, isLogge
           {product.showAreaCalculator && (
             <AreaCalculator
               sizes={product.calculatorSizes}
-              coveragePerBox={product.coveragePerBox}
               piecesPerBox={product.piecesPerBox}
               plankWidth={product.plankWidth}
               plankLength={product.plankLength}
-              wastePercentage={product.wastePercentage}
             />
           )}
         </div>

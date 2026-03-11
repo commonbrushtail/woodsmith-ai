@@ -124,19 +124,23 @@ export default function ProductEditClient({ product, categories = [], variationG
   const [characteristics, setCharacteristics] = useState(product.characteristics || '')
   const [specifications, setSpecifications] = useState(product.specifications?.raw || product.specifications || '')
   const [showAreaCalculator, setShowAreaCalculator] = useState(product.show_area_calculator || false)
+  const defaultPatterns = [
+    { label: 'ปูแบบก่ออิฐ', waste: 15 },
+    { label: 'ปูแบบขั้นบันได', waste: 10 },
+    { label: 'ปูแบบไหล', waste: 5 },
+  ]
   const [calculatorSizes, setCalculatorSizes] = useState(() => {
     const sizes = product.calculator_sizes || []
     if (sizes.length > 0) {
       return sizes.map(s => ({
         label: s.label || '',
-        coveragePerBox: s.coverage_per_box ?? '',
         piecesPerBox: s.pieces_per_box ?? '',
         plankWidth: s.plank_width ?? '',
         plankLength: s.plank_length ?? '',
-        wastePercentage: s.waste_percentage ?? 5,
+        installationPatterns: (s.installation_patterns && s.installation_patterns.length > 0) ? s.installation_patterns : defaultPatterns,
       }))
     }
-    return [{ label: '', coveragePerBox: '', piecesPerBox: '', plankWidth: '', plankLength: '', wastePercentage: 5 }]
+    return [{ label: '', piecesPerBox: '', plankWidth: '', plankLength: '', installationPatterns: defaultPatterns }]
   })
 
   // Cascading categories — root type → category → subcategory
@@ -188,14 +192,15 @@ export default function ProductEditClient({ product, categories = [], variationG
       formData.set('show_area_calculator', String(showAreaCalculator))
       if (showAreaCalculator) {
         const sizes = calculatorSizes
-          .filter(s => s.coveragePerBox || s.plankWidth)
+          .filter(s => s.plankWidth && s.plankLength)
           .map(s => ({
             label: s.label || '',
-            coverage_per_box: s.coveragePerBox ? parseFloat(s.coveragePerBox) : null,
             pieces_per_box: s.piecesPerBox ? parseInt(s.piecesPerBox, 10) : null,
             plank_width: s.plankWidth ? parseFloat(s.plankWidth) : null,
             plank_length: s.plankLength ? parseFloat(s.plankLength) : null,
-            waste_percentage: s.wastePercentage ? parseFloat(s.wastePercentage) : 5,
+            installation_patterns: (s.installationPatterns || [])
+              .filter(p => p.label && p.waste > 0)
+              .map(p => ({ label: p.label, waste: parseFloat(p.waste) })),
           }))
         formData.set('calculator_sizes', JSON.stringify(sizes))
       }
@@ -531,14 +536,10 @@ export default function ProductEditClient({ product, categories = [], variationG
                         </button>
                       )}
                     </div>
-                    <div className="flex flex-col gap-[4px]">
-                      <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">ชื่อขนาด (เช่น 8 มม., 12 มม.)</label>
-                      <input type="text" value={size.label} onChange={(e) => { const v = e.target.value; setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, label: v } : s)) }} placeholder="เช่น 8 มม." className={inputCls(false)} />
-                    </div>
                     <div className="grid grid-cols-2 gap-[12px]">
                       <div className="flex flex-col gap-[4px]">
-                        <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">พื้นที่ต่อกล่อง (ตร.ม.)</label>
-                        <input type="number" step="0.01" min="0" value={size.coveragePerBox} onChange={(e) => { const v = e.target.value; setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, coveragePerBox: v } : s)) }} placeholder="เช่น 2.08" className={inputCls(false)} />
+                        <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">ชื่อขนาด (เช่น 8 มม., 12 มม.)</label>
+                        <input type="text" value={size.label} onChange={(e) => { const v = e.target.value; setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, label: v } : s)) }} placeholder="เช่น 8 มม." className={inputCls(false)} />
                       </div>
                       <div className="flex flex-col gap-[4px]">
                         <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">จำนวนแผ่นต่อกล่อง</label>
@@ -552,16 +553,32 @@ export default function ProductEditClient({ product, categories = [], variationG
                         <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">ความยาวแผ่น (มม.)</label>
                         <input type="number" step="0.1" min="0" value={size.plankLength} onChange={(e) => { const v = e.target.value; setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, plankLength: v } : s)) }} placeholder="เช่น 1383" className={inputCls(false)} />
                       </div>
-                      <div className="flex flex-col gap-[4px]">
-                        <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">เผื่อเศษ (%)</label>
-                        <input type="number" step="1" min="0" max="50" value={size.wastePercentage} onChange={(e) => { const v = e.target.value; setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, wastePercentage: v } : s)) }} placeholder="5" className={inputCls(false)} />
+                    </div>
+
+                    {/* Installation patterns per size */}
+                    <div className="border-t border-[#e8eaef] pt-[12px] mt-[4px]">
+                      <p className="font-['IBM_Plex_Sans_Thai'] text-[12px] font-medium text-[#1f2937] m-0 mb-[8px]">แบบการปู (เผื่อเศษ %)</p>
+                      <div className="flex flex-col gap-[6px]">
+                        {(size.installationPatterns || []).map((p, pIdx) => (
+                          <div key={pIdx} className="grid grid-cols-[1fr_70px_auto_auto] gap-[8px] items-center">
+                            <input type="text" value={p.label} onChange={(e) => { const v = e.target.value; setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, installationPatterns: s.installationPatterns.map((pat, pi) => pi === pIdx ? { ...pat, label: v } : pat) } : s)) }} placeholder="ชื่อแบบการปู" className={inputCls(false)} />
+                            <input type="number" step="1" min="0" max="50" value={p.waste} onChange={(e) => { const v = e.target.value; setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, installationPatterns: s.installationPatterns.map((pat, pi) => pi === pIdx ? { ...pat, waste: v } : pat) } : s)) }} className={inputCls(false)} />
+                            <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">%</span>
+                            {(size.installationPatterns || []).length > 1 && (
+                              <button type="button" onClick={() => setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, installationPatterns: s.installationPatterns.filter((_, pi) => pi !== pIdx) } : s))} className="font-['IBM_Plex_Sans_Thai'] text-[11px] text-red-500 hover:text-red-700">ลบ</button>
+                            )}
+                          </div>
+                        ))}
+                        <button type="button" onClick={() => setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, installationPatterns: [...(s.installationPatterns || []), { label: '', waste: 5 }] } : s))} className="font-['IBM_Plex_Sans_Thai'] text-[11px] text-orange hover:text-orange/80">
+                          + เพิ่มแบบการปู
+                        </button>
                       </div>
                     </div>
                   </div>
                 ))}
                 <button
                   type="button"
-                  onClick={() => setCalculatorSizes(prev => [...prev, { label: '', coveragePerBox: '', piecesPerBox: '', plankWidth: '', plankLength: '', wastePercentage: 5 }])}
+                  onClick={() => setCalculatorSizes(prev => [...prev, { label: '', piecesPerBox: '', plankWidth: '', plankLength: '', installationPatterns: defaultPatterns }])}
                   className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-orange hover:text-orange/80 border border-dashed border-orange/40 rounded-[8px] py-[10px] flex items-center justify-center gap-[6px]"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>

@@ -2,22 +2,29 @@
 
 import { useState } from 'react'
 
-export default function AreaCalculator({ sizes = [], coveragePerBox, piecesPerBox, plankWidth, plankLength, wastePercentage = 5 }) {
+const DEFAULT_PATTERNS = [
+  { label: 'ปูแบบก่ออิฐ', waste: 15 },
+  { label: 'ปูแบบขั้นบันได', waste: 10 },
+  { label: 'ปูแบบไหล', waste: 5 },
+]
+
+export default function AreaCalculator({ sizes = [], piecesPerBox, plankWidth, plankLength }) {
   // Support both new multi-size format and legacy single-size props
   const sizeOptions = sizes.length > 0
     ? sizes
-    : (coveragePerBox ? [{ label: '', coverage_per_box: coveragePerBox, pieces_per_box: piecesPerBox, plank_width: plankWidth, plank_length: plankLength, waste_percentage: wastePercentage }] : [])
+    : (plankWidth && plankLength ? [{ label: '', pieces_per_box: piecesPerBox, plank_width: plankWidth, plank_length: plankLength }] : [])
 
   const [selectedIdx, setSelectedIdx] = useState(0)
   const [roomWidth, setRoomWidth] = useState('')
   const [roomLength, setRoomLength] = useState('')
 
   const current = sizeOptions[selectedIdx] || {}
-  const cov = current.coverage_per_box
   const pieces = current.pieces_per_box
   const pw = current.plank_width
   const pl = current.plank_length
-  const waste = current.waste_percentage ?? 5
+
+  // Auto-calculate coverage: width(mm) × length(mm) × pieces / 1,000,000 = sqm
+  const cov = (pw > 0 && pl > 0 && pieces > 0) ? (pw * pl * pieces) / 1_000_000 : 0
 
   const width = parseFloat(roomWidth)
   const length = parseFloat(roomLength)
@@ -25,10 +32,18 @@ export default function AreaCalculator({ sizes = [], coveragePerBox, piecesPerBo
   const hasCoverage = cov > 0
 
   const totalArea = hasInput ? width * length : 0
-  const wasteFactor = 1 + (waste || 0) / 100
-  const areaWithWaste = totalArea * wasteFactor
-  const boxesNeeded = hasCoverage ? Math.ceil(areaWithWaste / cov) : 0
-  const totalPieces = pieces > 0 ? boxesNeeded * pieces : null
+
+  // Use per-size patterns if available, otherwise defaults
+  const patterns = (current.installation_patterns && current.installation_patterns.length > 0)
+    ? current.installation_patterns
+    : DEFAULT_PATTERNS
+
+  const results = patterns.map(({ label, waste }) => {
+    const areaWithWaste = totalArea * (1 + waste / 100)
+    const boxes = hasCoverage ? Math.ceil(areaWithWaste / cov) : 0
+    const totalPcs = pieces > 0 ? boxes * pieces : null
+    return { label, waste, areaWithWaste, boxes, totalPcs }
+  })
 
   return (
     <div className="bg-[#f8f3ea] rounded-[12px] p-[24px] flex flex-col gap-[20px]">
@@ -65,7 +80,7 @@ export default function AreaCalculator({ sizes = [], coveragePerBox, piecesPerBo
       <div className="flex flex-wrap gap-[16px]">
         {hasCoverage && (
           <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
-            พื้นที่ต่อกล่อง: <strong className="text-black">{cov} ตร.ม.</strong>
+            พื้นที่ต่อกล่อง: <strong className="text-black">{cov.toFixed(2)} ตร.ม.</strong>
           </span>
         )}
         {pieces > 0 && (
@@ -109,29 +124,33 @@ export default function AreaCalculator({ sizes = [], coveragePerBox, piecesPerBo
         </div>
       </div>
 
-      {/* Results */}
+      {/* Results — installation patterns */}
       {hasInput && hasCoverage && (
         <div className="bg-white rounded-[8px] border border-[#e5e7eb] p-[20px] flex flex-col gap-[12px]">
           <div className="flex justify-between items-center">
             <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#6b7280]">พื้นที่ห้อง</span>
             <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-black">{totalArea.toFixed(2)} ตร.ม.</span>
           </div>
-          {waste > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#6b7280]">เผื่อเศษ ({waste}%)</span>
-              <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-black">{areaWithWaste.toFixed(2)} ตร.ม.</span>
+
+          <div className="border-t border-[#e5e7eb] pt-[12px]">
+            <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[14px] text-black m-0 mb-[10px]">จำนวนที่ต้องใช้ตามแบบการปู</p>
+            <div className="flex flex-col gap-[8px]">
+              {results.map((r) => (
+                <div key={r.label} className="flex justify-between items-center bg-[#f8f3ea] rounded-[8px] px-[14px] py-[10px]">
+                  <div className="flex flex-col">
+                    <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-black">{r.label}</span>
+                    <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">เผื่อเศษ {r.waste}% — {r.areaWithWaste.toFixed(2)} ตร.ม.</span>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="font-['IBM_Plex_Sans_Thai'] font-bold text-[20px] text-orange">{r.boxes} <span className="text-[14px] font-medium">กล่อง</span></span>
+                    {r.totalPcs !== null && (
+                      <span className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">{r.totalPcs} แผ่น</span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
-          <div className="border-t border-[#e5e7eb] pt-[12px] flex justify-between items-center">
-            <span className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-black">จำนวนที่ต้องใช้</span>
-            <span className="font-['IBM_Plex_Sans_Thai'] font-bold text-[24px] text-orange">{boxesNeeded} กล่อง</span>
           </div>
-          {totalPieces !== null && (
-            <div className="flex justify-between items-center">
-              <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">รวมทั้งหมด</span>
-              <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">{totalPieces} แผ่น</span>
-            </div>
-          )}
         </div>
       )}
 
