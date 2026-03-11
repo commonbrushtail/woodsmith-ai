@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import ArrowRight from './ArrowRight'
 function CardProduct({ image, thaiName, engName }) {
   return (
@@ -77,12 +78,12 @@ export default function ProductsSection({ products: dbProducts = [] }) {
           </div>
         </div>
         {/* Mobile button text slightly different */}
-        <button className="border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full ">
+        <Link href="/products" className="no-underline border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full">
           <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-black">
             <span className="lg:hidden">ดูสินค้าทั้งหมด</span>
             <span className="hidden lg:inline">ดูสินค้าของเราทั้งหมด</span>
           </p>
-        </button>
+        </Link>
       </div>
     </div>
   )

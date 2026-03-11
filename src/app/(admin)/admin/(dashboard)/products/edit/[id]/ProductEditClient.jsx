@@ -124,11 +124,20 @@ export default function ProductEditClient({ product, categories = [], variationG
   const [characteristics, setCharacteristics] = useState(product.characteristics || '')
   const [specifications, setSpecifications] = useState(product.specifications?.raw || product.specifications || '')
   const [showAreaCalculator, setShowAreaCalculator] = useState(product.show_area_calculator || false)
-  const [coveragePerBox, setCoveragePerBox] = useState(product.coverage_per_box || '')
-  const [piecesPerBox, setPiecesPerBox] = useState(product.pieces_per_box || '')
-  const [plankWidth, setPlankWidth] = useState(product.plank_width || '')
-  const [plankLength, setPlankLength] = useState(product.plank_length || '')
-  const [wastePercentage, setWastePercentage] = useState(product.waste_percentage ?? 5)
+  const [calculatorSizes, setCalculatorSizes] = useState(() => {
+    const sizes = product.calculator_sizes || []
+    if (sizes.length > 0) {
+      return sizes.map(s => ({
+        label: s.label || '',
+        coveragePerBox: s.coverage_per_box ?? '',
+        piecesPerBox: s.pieces_per_box ?? '',
+        plankWidth: s.plank_width ?? '',
+        plankLength: s.plank_length ?? '',
+        wastePercentage: s.waste_percentage ?? 5,
+      }))
+    }
+    return [{ label: '', coveragePerBox: '', piecesPerBox: '', plankWidth: '', plankLength: '', wastePercentage: 5 }]
+  })
 
   // Cascading categories — root type → category → subcategory
   const categoryOptions = useMemo(() => {
@@ -178,11 +187,17 @@ export default function ProductEditClient({ product, categories = [], variationG
       formData.set('recommended', recommended === 'yes' ? 'true' : 'false')
       formData.set('show_area_calculator', String(showAreaCalculator))
       if (showAreaCalculator) {
-        formData.set('coverage_per_box', String(coveragePerBox || ''))
-        formData.set('pieces_per_box', String(piecesPerBox || ''))
-        formData.set('plank_width', String(plankWidth || ''))
-        formData.set('plank_length', String(plankLength || ''))
-        formData.set('waste_percentage', String(wastePercentage || 5))
+        const sizes = calculatorSizes
+          .filter(s => s.coveragePerBox || s.plankWidth)
+          .map(s => ({
+            label: s.label || '',
+            coverage_per_box: s.coveragePerBox ? parseFloat(s.coveragePerBox) : null,
+            pieces_per_box: s.piecesPerBox ? parseInt(s.piecesPerBox, 10) : null,
+            plank_width: s.plankWidth ? parseFloat(s.plankWidth) : null,
+            plank_length: s.plankLength ? parseFloat(s.plankLength) : null,
+            waste_percentage: s.wastePercentage ? parseFloat(s.wastePercentage) : 5,
+          }))
+        formData.set('calculator_sizes', JSON.stringify(sizes))
       }
 
       // Publish date range — always send these fields (empty string clears the value)
@@ -503,30 +518,55 @@ export default function ProductEditClient({ product, categories = [], variationG
               </span>
             </label>
             {showAreaCalculator && (
-              <div className="mt-[12px] p-[16px] bg-[#fafafa] rounded-[8px] border border-[#e8eaef] flex flex-col gap-[12px]">
-                <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] font-medium text-[#1f2937] m-0">ข้อมูลสูตรคำนวณ</p>
-                <div className="grid grid-cols-2 gap-[12px]">
-                  <div className="flex flex-col gap-[4px]">
-                    <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">พื้นที่ต่อกล่อง (ตร.ม.)</label>
-                    <input type="number" step="0.01" min="0" value={coveragePerBox} onChange={(e) => setCoveragePerBox(e.target.value)} placeholder="เช่น 2.08" className={inputCls(false)} />
+              <div className="mt-[12px] flex flex-col gap-[12px]">
+                {calculatorSizes.map((size, idx) => (
+                  <div key={idx} className="p-[16px] bg-[#fafafa] rounded-[8px] border border-[#e8eaef] flex flex-col gap-[12px]">
+                    <div className="flex items-center justify-between">
+                      <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] font-medium text-[#1f2937] m-0">
+                        ขนาดที่ {idx + 1}
+                      </p>
+                      {calculatorSizes.length > 1 && (
+                        <button type="button" onClick={() => setCalculatorSizes(prev => prev.filter((_, i) => i !== idx))} className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-red-500 hover:text-red-700">
+                          ลบ
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-[4px]">
+                      <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">ชื่อขนาด (เช่น 8 มม., 12 มม.)</label>
+                      <input type="text" value={size.label} onChange={(e) => { const v = e.target.value; setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, label: v } : s)) }} placeholder="เช่น 8 มม." className={inputCls(false)} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-[12px]">
+                      <div className="flex flex-col gap-[4px]">
+                        <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">พื้นที่ต่อกล่อง (ตร.ม.)</label>
+                        <input type="number" step="0.01" min="0" value={size.coveragePerBox} onChange={(e) => { const v = e.target.value; setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, coveragePerBox: v } : s)) }} placeholder="เช่น 2.08" className={inputCls(false)} />
+                      </div>
+                      <div className="flex flex-col gap-[4px]">
+                        <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">จำนวนแผ่นต่อกล่อง</label>
+                        <input type="number" step="1" min="0" value={size.piecesPerBox} onChange={(e) => { const v = e.target.value; setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, piecesPerBox: v } : s)) }} placeholder="เช่น 8" className={inputCls(false)} />
+                      </div>
+                      <div className="flex flex-col gap-[4px]">
+                        <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">ความกว้างแผ่น (มม.)</label>
+                        <input type="number" step="0.1" min="0" value={size.plankWidth} onChange={(e) => { const v = e.target.value; setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, plankWidth: v } : s)) }} placeholder="เช่น 193" className={inputCls(false)} />
+                      </div>
+                      <div className="flex flex-col gap-[4px]">
+                        <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">ความยาวแผ่น (มม.)</label>
+                        <input type="number" step="0.1" min="0" value={size.plankLength} onChange={(e) => { const v = e.target.value; setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, plankLength: v } : s)) }} placeholder="เช่น 1383" className={inputCls(false)} />
+                      </div>
+                      <div className="flex flex-col gap-[4px]">
+                        <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">เผื่อเศษ (%)</label>
+                        <input type="number" step="1" min="0" max="50" value={size.wastePercentage} onChange={(e) => { const v = e.target.value; setCalculatorSizes(prev => prev.map((s, i) => i === idx ? { ...s, wastePercentage: v } : s)) }} placeholder="5" className={inputCls(false)} />
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-[4px]">
-                    <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">จำนวนแผ่นต่อกล่อง</label>
-                    <input type="number" step="1" min="0" value={piecesPerBox} onChange={(e) => setPiecesPerBox(e.target.value)} placeholder="เช่น 8" className={inputCls(false)} />
-                  </div>
-                  <div className="flex flex-col gap-[4px]">
-                    <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">ความกว้างแผ่น (มม.)</label>
-                    <input type="number" step="0.1" min="0" value={plankWidth} onChange={(e) => setPlankWidth(e.target.value)} placeholder="เช่น 193" className={inputCls(false)} />
-                  </div>
-                  <div className="flex flex-col gap-[4px]">
-                    <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">ความยาวแผ่น (มม.)</label>
-                    <input type="number" step="0.1" min="0" value={plankLength} onChange={(e) => setPlankLength(e.target.value)} placeholder="เช่น 1383" className={inputCls(false)} />
-                  </div>
-                  <div className="flex flex-col gap-[4px]">
-                    <label className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">เผื่อเศษ (%)</label>
-                    <input type="number" step="1" min="0" max="50" value={wastePercentage} onChange={(e) => setWastePercentage(e.target.value)} placeholder="5" className={inputCls(false)} />
-                  </div>
-                </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setCalculatorSizes(prev => [...prev, { label: '', coveragePerBox: '', piecesPerBox: '', plankWidth: '', plankLength: '', wastePercentage: 5 }])}
+                  className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-orange hover:text-orange/80 border border-dashed border-orange/40 rounded-[8px] py-[10px] flex items-center justify-center gap-[6px]"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
+                  เพิ่มขนาดใหม่
+                </button>
               </div>
             )}
           </section>

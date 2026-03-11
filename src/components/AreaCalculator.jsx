@@ -2,20 +2,33 @@
 
 import { useState } from 'react'
 
-export default function AreaCalculator({ coveragePerBox, piecesPerBox, plankWidth, plankLength, wastePercentage = 5 }) {
+export default function AreaCalculator({ sizes = [], coveragePerBox, piecesPerBox, plankWidth, plankLength, wastePercentage = 5 }) {
+  // Support both new multi-size format and legacy single-size props
+  const sizeOptions = sizes.length > 0
+    ? sizes
+    : (coveragePerBox ? [{ label: '', coverage_per_box: coveragePerBox, pieces_per_box: piecesPerBox, plank_width: plankWidth, plank_length: plankLength, waste_percentage: wastePercentage }] : [])
+
+  const [selectedIdx, setSelectedIdx] = useState(0)
   const [roomWidth, setRoomWidth] = useState('')
   const [roomLength, setRoomLength] = useState('')
+
+  const current = sizeOptions[selectedIdx] || {}
+  const cov = current.coverage_per_box
+  const pieces = current.pieces_per_box
+  const pw = current.plank_width
+  const pl = current.plank_length
+  const waste = current.waste_percentage ?? 5
 
   const width = parseFloat(roomWidth)
   const length = parseFloat(roomLength)
   const hasInput = width > 0 && length > 0
-  const hasCoverage = coveragePerBox > 0
+  const hasCoverage = cov > 0
 
   const totalArea = hasInput ? width * length : 0
-  const wasteFactor = 1 + (wastePercentage || 0) / 100
+  const wasteFactor = 1 + (waste || 0) / 100
   const areaWithWaste = totalArea * wasteFactor
-  const boxesNeeded = hasCoverage ? Math.ceil(areaWithWaste / coveragePerBox) : 0
-  const totalPieces = piecesPerBox > 0 ? boxesNeeded * piecesPerBox : null
+  const boxesNeeded = hasCoverage ? Math.ceil(areaWithWaste / cov) : 0
+  const totalPieces = pieces > 0 ? boxesNeeded * pieces : null
 
   return (
     <div className="bg-[#f8f3ea] rounded-[12px] p-[24px] flex flex-col gap-[20px]">
@@ -29,21 +42,40 @@ export default function AreaCalculator({ coveragePerBox, piecesPerBox, plankWidt
         </p>
       </div>
 
+      {/* Size selector — only show if multiple sizes */}
+      {sizeOptions.length > 1 && (
+        <div className="flex flex-wrap gap-[8px]">
+          {sizeOptions.map((s, i) => (
+            <button
+              key={i}
+              onClick={() => setSelectedIdx(i)}
+              className={`font-['IBM_Plex_Sans_Thai'] text-[13px] px-[14px] py-[6px] rounded-full border transition-all ${
+                i === selectedIdx
+                  ? 'bg-orange text-white border-orange'
+                  : 'bg-white text-black border-[#e5e7eb] hover:border-orange/50'
+              }`}
+            >
+              {s.label || `ขนาด ${i + 1}`}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Info line */}
       <div className="flex flex-wrap gap-[16px]">
         {hasCoverage && (
           <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
-            พื้นที่ต่อกล่อง: <strong className="text-black">{coveragePerBox} ตร.ม.</strong>
+            พื้นที่ต่อกล่อง: <strong className="text-black">{cov} ตร.ม.</strong>
           </span>
         )}
-        {piecesPerBox > 0 && (
+        {pieces > 0 && (
           <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
-            จำนวนแผ่นต่อกล่อง: <strong className="text-black">{piecesPerBox} แผ่น</strong>
+            จำนวนแผ่นต่อกล่อง: <strong className="text-black">{pieces} แผ่น</strong>
           </span>
         )}
-        {plankWidth > 0 && plankLength > 0 && (
+        {pw > 0 && pl > 0 && (
           <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
-            ขนาดแผ่น: <strong className="text-black">{plankWidth} x {plankLength} มม.</strong>
+            ขนาดแผ่น: <strong className="text-black">{pw} x {pl} มม.</strong>
           </span>
         )}
       </div>
@@ -84,9 +116,9 @@ export default function AreaCalculator({ coveragePerBox, piecesPerBox, plankWidt
             <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#6b7280]">พื้นที่ห้อง</span>
             <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-black">{totalArea.toFixed(2)} ตร.ม.</span>
           </div>
-          {wastePercentage > 0 && (
+          {waste > 0 && (
             <div className="flex justify-between items-center">
-              <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#6b7280]">เผื่อเศษ ({wastePercentage}%)</span>
+              <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#6b7280]">เผื่อเศษ ({waste}%)</span>
               <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-black">{areaWithWaste.toFixed(2)} ตร.ม.</span>
             </div>
           )}

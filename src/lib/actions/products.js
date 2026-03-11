@@ -12,7 +12,7 @@ import { logAudit } from '@/lib/audit'
 /**
  * Fetch paginated products with optional search/filter.
  */
-export async function getProducts({ page = 1, perPage = 10, search = '', sortAsc = true } = {}) {
+export async function getProducts({ page = 1, perPage = 10, search = '', sortAsc = true, type = '', category = '' } = {}) {
   const { user, error: authError } = await requireAdmin()
   if (authError) return { data: [], count: 0, error: authError }
 
@@ -23,11 +23,18 @@ export async function getProducts({ page = 1, perPage = 10, search = '', sortAsc
   let query = supabase
     .from('products')
     .select('*, product_images(id, url, is_primary, sort_order)', { count: 'exact' })
-    .order('sort_order', { ascending: sortAsc })
+    .order('sort_order', { ascending: sortAsc, nullsFirst: false })
+    .order('created_at', { ascending: false })
     .range(from, to)
 
   if (search) {
     query = query.or(`name.ilike.%${search}%,code.ilike.%${search}%,sku.ilike.%${search}%`)
+  }
+  if (type) {
+    query = query.eq('type', type)
+  }
+  if (category) {
+    query = query.eq('category', category)
   }
 
   const { data, count, error } = await query
@@ -85,11 +92,7 @@ export async function createProduct(formData) {
     publish_start: formData.get('publish_start') || null,
     publish_end: formData.get('publish_end') || null,
     show_area_calculator: formData.get('show_area_calculator') === 'true',
-    coverage_per_box: formData.get('coverage_per_box') ? parseFloat(formData.get('coverage_per_box')) : null,
-    pieces_per_box: formData.get('pieces_per_box') ? parseInt(formData.get('pieces_per_box'), 10) : null,
-    plank_width: formData.get('plank_width') ? parseFloat(formData.get('plank_width')) : null,
-    plank_length: formData.get('plank_length') ? parseFloat(formData.get('plank_length')) : null,
-    waste_percentage: formData.get('waste_percentage') ? parseFloat(formData.get('waste_percentage')) : 5,
+    calculator_sizes: formData.get('calculator_sizes') ? JSON.parse(formData.get('calculator_sizes')) : [],
   }
 
   // Sanitize text inputs before validation
@@ -166,20 +169,8 @@ export async function updateProduct(id, formData) {
   if (formData.get('show_area_calculator') !== null) {
     updates.show_area_calculator = formData.get('show_area_calculator') === 'true'
   }
-  if (formData.get('coverage_per_box') !== null) {
-    updates.coverage_per_box = formData.get('coverage_per_box') ? parseFloat(formData.get('coverage_per_box')) : null
-  }
-  if (formData.get('pieces_per_box') !== null) {
-    updates.pieces_per_box = formData.get('pieces_per_box') ? parseInt(formData.get('pieces_per_box'), 10) : null
-  }
-  if (formData.get('plank_width') !== null) {
-    updates.plank_width = formData.get('plank_width') ? parseFloat(formData.get('plank_width')) : null
-  }
-  if (formData.get('plank_length') !== null) {
-    updates.plank_length = formData.get('plank_length') ? parseFloat(formData.get('plank_length')) : null
-  }
-  if (formData.get('waste_percentage') !== null) {
-    updates.waste_percentage = formData.get('waste_percentage') ? parseFloat(formData.get('waste_percentage')) : 5
+  if (formData.get('calculator_sizes') !== null) {
+    updates.calculator_sizes = formData.get('calculator_sizes') ? JSON.parse(formData.get('calculator_sizes')) : []
   }
   if (formData.has('publish_start')) {
     updates.publish_start = formData.get('publish_start') || null

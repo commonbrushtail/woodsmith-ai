@@ -227,6 +227,7 @@ export default function ProductDetailClient({ product: dbProduct = null, isLogge
     characteristics: dbProduct.characteristics || '',
     specs: dbProduct.specifications?.raw || dbProduct.specifications || '',
     showAreaCalculator: dbProduct.show_area_calculator || false,
+    calculatorSizes: dbProduct.calculator_sizes || [],
     coveragePerBox: dbProduct.coverage_per_box,
     piecesPerBox: dbProduct.pieces_per_box,
     plankWidth: dbProduct.plank_width,
@@ -396,6 +397,7 @@ export default function ProductDetailClient({ product: dbProduct = null, isLogge
           <SpecTable specs={product.specs} />
           {product.showAreaCalculator && (
             <AreaCalculator
+              sizes={product.calculatorSizes}
               coveragePerBox={product.coveragePerBox}
               piecesPerBox={product.piecesPerBox}
               plankWidth={product.plankWidth}

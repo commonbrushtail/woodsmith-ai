@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import imgRectangle38 from '../assets/a95471a3a128e488d696bd58ef944e6616e0e70f.png'
 
 function getYoutubeVideoId(url) {
@@ -62,9 +63,9 @@ export default function HighlightSection({ highlights = [] }) {
               </p>
             </div>
             {/* Desktop-only button */}
-            <button className="hidden lg:flex border border-[#e5e7eb] h-[48px] items-center justify-center w-full">
+            <Link href="/highlight" className="no-underline hidden lg:flex border border-[#e5e7eb] h-[48px] items-center justify-center w-full">
               <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-white">ดูเพิ่มเติม</p>
-            </button>
+            </Link>
           </div>
           <div className="flex flex-col lg:flex-row lg:flex-wrap gap-[25px] items-start justify-center w-full lg:w-[800px]">
             {cards.map((card, i) => (
@@ -72,9 +73,9 @@ export default function HighlightSection({ highlights = [] }) {
             ))}
           </div>
           {/* Mobile-only button */}
-          <button className="lg:hidden border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full">
+          <Link href="/highlight" className="no-underline lg:hidden border border-[#e5e7eb] flex h-[48px] items-center justify-center w-full">
             <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[16px] text-white">ดูเพิ่มเติม</p>
-          </button>
+          </Link>
         </div>
       </div>
     </div>

@@ -121,7 +121,7 @@ export default function VariationImageManager({ productId, variationLinks = [], 
           <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] font-medium text-[#494c4f] m-0">
             {groupName}
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-[12px]">
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-[10px]">
             {group.entries.map(entry => {
               const currentImage = imageByEntry[entry.entryId]
               const isUploading = uploading[entry.entryId]
