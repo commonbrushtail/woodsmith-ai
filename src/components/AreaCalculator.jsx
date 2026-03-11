@@ -53,50 +53,59 @@ export default function AreaCalculator({ sizes = [], piecesPerBox, plankWidth, p
           <path d="M4 9h16M9 4v16" />
         </svg>
         <p className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[18px] text-black m-0">
-          คำนวณพื้นที่
+          คำนวณจำนวนกล่องที่ต้องใช้สำหรับปูพื้น
         </p>
       </div>
 
-      {/* Size selector — only show if multiple sizes */}
-      {sizeOptions.length > 1 && (
-        <div className="flex flex-wrap gap-[8px]">
-          {sizeOptions.map((s, i) => (
-            <button
-              key={i}
-              onClick={() => setSelectedIdx(i)}
-              className={`font-['IBM_Plex_Sans_Thai'] text-[13px] px-[14px] py-[6px] rounded-full border transition-all ${
-                i === selectedIdx
-                  ? 'bg-orange text-white border-orange'
-                  : 'bg-white text-black border-[#e5e7eb] hover:border-orange/50'
-              }`}
-            >
-              {s.label || `ขนาด ${i + 1}`}
-            </button>
-          ))}
+      {/* Step 1: Size selector */}
+      <div className="flex flex-col gap-[8px]">
+        <div className="flex items-center gap-[8px]">
+          <span className="font-['IBM_Plex_Sans_Thai'] font-bold text-[13px] text-orange bg-orange/10 rounded-full w-[22px] h-[22px] flex items-center justify-center shrink-0">1</span>
+          <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-black">เลือกขนาด/แบบ</span>
         </div>
-      )}
-
-      {/* Info line */}
-      <div className="flex flex-wrap gap-[16px]">
-        {hasCoverage && (
-          <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
-            พื้นที่ต่อกล่อง: <strong className="text-black">{cov.toFixed(2)} ตร.ม.</strong>
-          </span>
+        {sizeOptions.length > 1 && (
+          <div className="flex flex-wrap gap-[8px]">
+            {sizeOptions.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => setSelectedIdx(i)}
+                className={`font-['IBM_Plex_Sans_Thai'] text-[13px] px-[14px] py-[6px] rounded-full border transition-all ${
+                  i === selectedIdx
+                    ? 'bg-orange text-white border-orange'
+                    : 'bg-white text-black border-[#e5e7eb] hover:border-orange/50'
+                }`}
+              >
+                {s.label || `ขนาด ${i + 1}`}
+              </button>
+            ))}
+          </div>
         )}
-        {pieces > 0 && (
-          <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
-            จำนวนแผ่นต่อกล่อง: <strong className="text-black">{pieces} แผ่น</strong>
-          </span>
-        )}
-        {pw > 0 && pl > 0 && (
-          <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
-            ขนาดแผ่น: <strong className="text-black">{pw} x {pl} มม.</strong>
-          </span>
-        )}
+        <div className="flex flex-wrap gap-[16px]">
+          {hasCoverage && (
+            <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
+              พื้นที่ต่อกล่อง: <strong className="text-black">{cov.toFixed(2)} ตร.ม.</strong>
+            </span>
+          )}
+          {pieces > 0 && (
+            <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
+              จำนวนแผ่นต่อกล่อง: <strong className="text-black">{pieces} แผ่น</strong>
+            </span>
+          )}
+          {pw > 0 && pl > 0 && (
+            <span className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">
+              ขนาดแผ่น: <strong className="text-black">{pw} x {pl} มม.</strong>
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Inputs */}
-      <div className="flex gap-[12px] items-end">
+      {/* Step 2: Room size inputs */}
+      <div className="flex flex-col gap-[8px] mt-1">
+        <div className="flex items-center gap-[8px]">
+          <span className="font-['IBM_Plex_Sans_Thai'] font-bold text-[13px] text-orange bg-orange/10 rounded-full w-[22px] h-[22px] flex items-center justify-center shrink-0">2</span>
+          <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-black">ใส่ขนาดของพื้นที่</span>
+        </div>
+        <div className="flex gap-[12px] items-end">
         <div className="flex-1 flex flex-col gap-[6px]">
           <label className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280]">ความกว้างห้อง (เมตร)</label>
           <input
@@ -123,12 +132,13 @@ export default function AreaCalculator({ sizes = [], piecesPerBox, plankWidth, p
           />
         </div>
       </div>
+      </div>
 
       {/* Results — installation patterns */}
       {hasInput && hasCoverage && (
         <div className="bg-white rounded-[8px] border border-[#e5e7eb] p-[20px] flex flex-col gap-[12px]">
           <div className="flex justify-between items-center">
-            <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#6b7280]">พื้นที่ห้อง</span>
+            <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#6b7280]">พื้นที่ของคุณ</span>
             <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-black">{totalArea.toFixed(2)} ตร.ม.</span>
           </div>
 
@@ -157,7 +167,7 @@ export default function AreaCalculator({ sizes = [], piecesPerBox, plankWidth, p
       {hasInput && !hasCoverage && (
         <div className="bg-white rounded-[8px] border border-[#e5e7eb] p-[20px]">
           <div className="flex justify-between items-center">
-            <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#6b7280]">พื้นที่ห้อง</span>
+            <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#6b7280]">พื้นที่ของคุณ</span>
             <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[16px] text-black">{totalArea.toFixed(2)} ตร.ม.</span>
           </div>
         </div>
