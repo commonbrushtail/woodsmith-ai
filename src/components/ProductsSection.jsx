@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import ArrowRight from './ArrowRight'
-function CardProduct({ image, thaiName, engName }) {
+import { getProductUrl } from '@/lib/product-url'
+function CardProduct({ href, image, thaiName, engName }) {
   return (
-    <div className="bg-white flex flex-col gap-[12px] lg:gap-[16px] items-start w-full">
+    <Link href={href} className="bg-white flex flex-col gap-[12px] lg:gap-[16px] items-start w-full no-underline">
       <div className="h-[170px] lg:h-[268px] relative w-full overflow-hidden">
         <div className="absolute bg-[#e8e3da] inset-0" />
         {image && <img alt="" className="absolute max-w-none object-cover size-full" src={image} />}
@@ -24,7 +25,7 @@ function CardProduct({ image, thaiName, engName }) {
         </p>
         <ArrowRight />
       </div>
-    </div>
+    </Link>
   )
 }
 
@@ -36,6 +37,7 @@ export default function ProductsSection({ products: dbProducts = [] }) {
     const primaryImg = p.product_images?.find(img => img.is_primary)
     return {
       id: p.id,
+      href: getProductUrl(p),
       image: primaryImg?.url || p.product_images?.[0]?.url || null,
       thaiName: p.category || '',
       engName: p.name,
