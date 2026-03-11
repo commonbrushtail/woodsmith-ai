@@ -5,24 +5,82 @@ import { createClient } from '@/lib/supabase/server'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /**
- * Request a password reset email via Supabase.
+ * Request a password reset email.
+ * Bypasses Supabase's built-in email — generates recovery link via admin API
+ * and sends a Thai email via Resend.
  * @param {string} email
  * @returns {Promise<{ error: string | null }>}
  */
-export async function requestPasswordReset(email) {
+export async function requestPasswordReset(email, captchaToken) {
   if (!email || !EMAIL_REGEX.test(email)) {
     return { error: 'กรุณาระบุอีเมลที่ถูกต้อง' }
   }
 
-  const supabase = await createClient()
+  // Verify reCAPTCHA if configured
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY
+  if (secretKey) {
+    if (!captchaToken) {
+      return { error: 'กรุณายืนยันว่าคุณไม่ใช่หุ่นยนต์' }
+    }
+    const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `secret=${encodeURIComponent(secretKey)}&response=${encodeURIComponent(captchaToken)}`,
+    })
+    const verifyData = await verifyRes.json()
+    if (!verifyData.success) {
+      return { error: 'การยืนยันตัวตนล้มเหลว กรุณาลองใหม่' }
+    }
+  }
+
+  const { createServiceClient } = await import('@/lib/supabase/admin')
+  const admin = createServiceClient()
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${siteUrl}/auth/reset-password`,
+  // Generate recovery link via admin API (bypasses Supabase email)
+  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+    type: 'recovery',
+    email,
   })
 
-  if (error) {
-    return { error: error.message }
+  if (linkError) {
+    // Don't reveal whether the email exists — always show success
+    return { error: null }
+  }
+
+  // Build a link directly to our route with the token_hash
+  // (bypasses Supabase's verify endpoint which does implicit redirect with hash fragments)
+  const tokenHash = linkData.properties.hashed_token
+  const resetLink = `${siteUrl}/auth/reset-password?token_hash=${encodeURIComponent(tokenHash)}&type=recovery`
+
+  // Send Thai email via Resend
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: process.env.RESEND_FROM_EMAIL || 'WoodSmith <noreply@testemail.work>',
+      to: [email],
+      subject: 'กู้คืนรหัสผ่าน WoodSmith',
+      html: `
+        <div style="font-family: 'IBM Plex Sans Thai', sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; text-align: center;">
+          <img src="${siteUrl}/favicon.png" alt="WoodSmith" width="60" height="60" style="display: block; margin: 0 auto 16px;" />
+          <h2 style="color: #ff7e1b; margin: 0 0 8px;">WoodSmith</h2>
+          <p style="color: #666; margin: 0 0 24px;">กู้คืนรหัสผ่านของคุณ</p>
+          <p style="color: #333;">เราได้รับคำขอให้เปลี่ยนรหัสผ่านของคุณ<br/>กรุณาคลิกปุ่มด้านล่างเพื่อตั้งรหัสผ่านใหม่</p>
+          <p><a href="${resetLink}" style="display: inline-block; background: #ff7e1b; color: white; padding: 12px 32px; text-decoration: none; border-radius: 4px; margin: 16px 0; font-weight: 600;">ตั้งรหัสผ่านใหม่</a></p>
+          <p style="color: #999; font-size: 12px; margin-top: 24px;">ลิงก์นี้จะหมดอายุใน 1 ชั่วโมง</p>
+          <p style="color: #999; font-size: 12px;">หากคุณไม่ได้ขอเปลี่ยนรหัสผ่าน สามารถเพิกเฉยอีเมลนี้ได้</p>
+        </div>
+      `,
+    }),
+  })
+
+  if (!res.ok) {
+    console.error('Failed to send reset email:', await res.text())
+    return { error: 'ไม่สามารถส่งอีเมลได้ กรุณาลองใหม่อีกครั้ง' }
   }
 
   return { error: null }
@@ -96,7 +154,7 @@ export async function sendRegistrationEmail(email, captchaToken) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'WoodSmith <onboarding@resend.dev>',
+      from: process.env.RESEND_FROM_EMAIL || 'WoodSmith <noreply@testemail.work>',
       to: [email],
       subject: 'ยืนยันอีเมลเพื่อสมัครสมาชิก WoodSmith',
       html: `

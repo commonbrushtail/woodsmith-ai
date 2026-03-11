@@ -36,6 +36,7 @@ export async function getAccountInfo() {
 
 /**
  * Send password reset email to the current admin user.
+ * Uses admin API to generate link + Resend to send Thai email.
  */
 export async function sendPasswordResetEmail() {
   const supabase = await createClient()
@@ -44,14 +45,7 @@ export async function sendPasswordResetEmail() {
 
   if (!user.email) return { error: 'ไม่พบอีเมลของบัญชีนี้' }
 
-  const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/reset-password`,
-  })
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  return { error: null }
+  const { requestPasswordReset } = await import('@/lib/actions/auth')
+  return requestPasswordReset(user.email)
 }
 

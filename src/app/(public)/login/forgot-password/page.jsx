@@ -1,27 +1,75 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { requestPasswordReset } from '@/lib/actions/auth'
 import imgFavicon from '@/assets/6727cae5f32ea2c35a94792ae9603addc6300612.png'
 
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+
 export default function CustomerForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [captchaToken, setCaptchaToken] = useState('')
+  const captchaRef = useRef(null)
+  const captchaWidgetId = useRef(null)
   const router = useRouter()
+
+  const renderCaptcha = useCallback(() => {
+    if (!RECAPTCHA_SITE_KEY || !captchaRef.current) return
+    if (typeof window.grecaptcha === 'undefined' || !window.grecaptcha.render) return
+    while (captchaRef.current.firstChild) {
+      captchaRef.current.removeChild(captchaRef.current.firstChild)
+    }
+    captchaWidgetId.current = window.grecaptcha.render(captchaRef.current, {
+      sitekey: RECAPTCHA_SITE_KEY,
+      callback: (token) => setCaptchaToken(token),
+      'expired-callback': () => setCaptchaToken(''),
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!RECAPTCHA_SITE_KEY) return
+    const scriptId = 'recaptcha-script'
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement('script')
+      script.id = scriptId
+      script.src = 'https://www.google.com/recaptcha/api.js?render=explicit'
+      script.async = true
+      script.defer = true
+      script.onload = () => {
+        if (window.grecaptcha && window.grecaptcha.ready) {
+          window.grecaptcha.ready(() => renderCaptcha())
+        }
+      }
+      document.head.appendChild(script)
+    } else if (window.grecaptcha && window.grecaptcha.render) {
+      setTimeout(() => renderCaptcha(), 100)
+    }
+  }, [renderCaptcha])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError(null)
+
+    if (RECAPTCHA_SITE_KEY && !captchaToken) {
+      setError('กรุณายืนยันว่าคุณไม่ใช่หุ่นยนต์')
+      return
+    }
+
     setLoading(true)
 
-    const result = await requestPasswordReset(email)
+    const result = await requestPasswordReset(email, captchaToken)
 
     if (result.error) {
       setError(result.error)
       setLoading(false)
+      if (window.grecaptcha && captchaWidgetId.current !== null) {
+        window.grecaptcha.reset(captchaWidgetId.current)
+        setCaptchaToken('')
+      }
       return
     }
 
@@ -53,10 +101,17 @@ export default function CustomerForgotPasswordPage() {
               placeholder="example@email.com"
               className="h-[42px] border border-[#e5e7eb] px-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-black outline-none rounded-[4px] focus:border-orange"
             />
-            {error && (
-              <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-red-500 m-0">{error}</p>
-            )}
           </div>
+
+          {RECAPTCHA_SITE_KEY && (
+            <div className="flex justify-center">
+              <div ref={captchaRef} />
+            </div>
+          )}
+
+          {error && (
+            <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-red-500 m-0 text-center">{error}</p>
+          )}
 
           <button
             type="submit"
