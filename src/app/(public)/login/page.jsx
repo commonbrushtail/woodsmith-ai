@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import imgFavicon from '@/assets/6727cae5f32ea2c35a94792ae9603addc6300612.png'
 import imgLine from '@/assets/ee74c0d8544a46ac6f3c6d2eb640b43d65efe886.svg'
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const resetSuccess = searchParams.get('reset') === 'success'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -76,6 +78,14 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {resetSuccess && (
+          <div className="w-full mt-[16px] bg-green-50 border border-green-200 rounded-[4px] px-[16px] py-[10px]">
+            <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-green-700 m-0 text-center">
+              เปลี่ยนรหัสผ่านสำเร็จแล้ว กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่
+            </p>
+          </div>
+        )}
+
         {/* LINE login */}
         <div className="w-full mt-[32px]">
           <button
@@ -123,6 +133,12 @@ export default function LoginPage() {
             <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-red-500 m-0 text-center">{error}</p>
           )}
 
+          <div className="text-right">
+            <a href="/login/forgot-password" className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-grey hover:text-orange transition-colors">
+              ลืมรหัสผ่าน?
+            </a>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -141,5 +157,13 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   )
 }

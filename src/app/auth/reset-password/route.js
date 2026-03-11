@@ -30,12 +30,17 @@ export async function GET(request) {
       }
     )
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`${origin}/admin/login/set-new-password`)
+      // Check user role to redirect to the correct set-new-password page
+      const role = data?.user?.user_metadata?.role
+      if (role === 'admin' || role === 'editor') {
+        return NextResponse.redirect(`${origin}/admin/login/set-new-password`)
+      }
+      return NextResponse.redirect(`${origin}/login/set-new-password`)
     }
   }
 
-  // Invalid or missing code — redirect to forgot-password with error
-  return NextResponse.redirect(`${origin}/admin/login/forgot-password?error=invalid_link`)
+  // Invalid or missing code — redirect to login with error
+  return NextResponse.redirect(`${origin}/login?error=invalid_link`)
 }
