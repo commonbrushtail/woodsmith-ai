@@ -7,6 +7,7 @@ import { useToast } from '@/lib/toast-context'
 import { updateCategory } from '@/lib/actions/categories'
 import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 import AdminFileInput from '@/components/admin/AdminFileInput'
+import PreviewButton from '@/components/admin/PreviewButton'
 
 function generateSlug(name) {
   return name
@@ -227,6 +228,8 @@ export default function CategoryEditClient({ category, parentCategories }) {
             >
               บันทึกแบบร่าง
             </button>
+
+            <PreviewButton path="/products" label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>
       </div>

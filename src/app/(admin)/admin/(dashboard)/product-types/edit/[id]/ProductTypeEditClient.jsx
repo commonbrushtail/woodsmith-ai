@@ -7,6 +7,7 @@ import { useToast } from '@/lib/toast-context'
 import { updateCategory } from '@/lib/actions/categories'
 import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 import AdminFileInput from '@/components/admin/AdminFileInput'
+import PreviewButton from '@/components/admin/PreviewButton'
 
 const typeOptions = [
   { value: 'construction', label: 'วัสดุก่อสร้าง' },
@@ -206,6 +207,8 @@ export default function ProductTypeEditClient({ category }) {
             >
               บันทึกแบบร่าง
             </button>
+
+            <PreviewButton path={type ? `/products/${type}` : '/products'} label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>
       </div>
