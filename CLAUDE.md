@@ -76,6 +76,15 @@ docs/                         # TODO.md, ADMIN_PROGRESS.md
 - **Data fetching**: Public pages use `src/lib/data/public.js` (server-side, RLS-filtered). Admin pages fetch directly via Supabase server client.
 - **Auth flow**: All auth runs on Supabase Auth. Admin uses email/password (role-gated to `admin`/`editor`). Customers use email/password + LINE Login (OAuth). Registration and password-reset emails are sent via Resend (Supabase's built-in emails are bypassed), gated by reCAPTCHA. Middleware protects `/admin/*` and `/account/*` routes. NOTE: SMS OTP (SMSKUB) is NOT implemented — env vars exist but no code path uses them.
 
+## Admin Preview Mode
+
+Admins can preview how content will look on the public site, in two complementary modes:
+
+- **Live panel (Approach A)** — `PreviewToggleButton` opens `PreviewPanel` (`src/components/admin/preview/`), a slide-over that renders the REAL public component with props mapped from the current *unsaved* form state by a per-entity adapter in `src/lib/preview/adapters/` (blog, product, legal, about). Updates live as you type; uses `next/dynamic({ ssr:false })`. Add a new entity by writing one adapter (`toProps` must be pure + total) and wiring `<PreviewPanel adapter={...} formState={...} />` — no server/action changes.
+- **Draft preview (Approach B)** — `PreviewButton` links to `/api/preview?path=<public-route>`, which enables Next.js **Draft Mode** (only behind `requireAdmin()`), so the admin sees a saved draft on the real page. `src/lib/data/draft.js` `getReadClient()` returns the service-role client (bypassing RLS) ONLY when Draft Mode is on AND `requireAdmin()` passes at read time — a forged cookie alone never exposes drafts. `public.js` reads through `getReadClient()`; non-preview behavior is unchanged. The public layout shows `DraftModeBanner` while previewing; exit via `/api/preview/disable`.
+
+Security: no new RLS policy; drafts are double-gated (enable + read). Always-public singletons (about/legal) have no draft state, so the live panel is their meaningful preview. Taxonomy editors (category/product-types) are not yet wired (add a `PreviewButton` → `/products` when needed).
+
 ## Design System
 
 Use Tailwind token classes — never hardcode hex values in new code.
