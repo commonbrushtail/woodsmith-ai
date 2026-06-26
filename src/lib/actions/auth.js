@@ -114,12 +114,14 @@ export async function sendRegistrationEmail(email, captchaToken) {
     }
   }
 
-  const { createServiceClient } = await import('@/lib/supabase/admin')
+  const { createServiceClient, listAllAuthUsers } = await import('@/lib/supabase/admin')
   const admin = createServiceClient()
 
-  // Check if email is already registered with complete profile
-  const { data: { users } } = await admin.auth.admin.listUsers()
-  const existingUser = users?.find((u) => u.email === email)
+  // Check if email is already registered with complete profile.
+  // Page through ALL users — listUsers() alone caps at one page (50), which
+  // would let a duplicate registration slip past once the user base grows.
+  const users = await listAllAuthUsers(admin)
+  const existingUser = users.find((u) => u.email === email)
   if (existingUser?.user_metadata?.profile_complete) {
     return { error: 'อีเมลนี้มีบัญชีอยู่แล้ว กรุณาเข้าสู่ระบบ' }
   }
@@ -229,7 +231,7 @@ export async function completeRegistration({ token, password, firstName, lastNam
   }
 
   // Verify token from DB
-  const { createServiceClient } = await import('@/lib/supabase/admin')
+  const { createServiceClient, listAllAuthUsers } = await import('@/lib/supabase/admin')
   const admin = createServiceClient()
 
   const { data: pending, error: lookupError } = await admin
@@ -249,9 +251,10 @@ export async function completeRegistration({ token, password, firstName, lastNam
 
   const { email } = pending
 
-  // Delete any existing incomplete user with this email
-  const { data: { users } } = await admin.auth.admin.listUsers()
-  const existingUser = users?.find((u) => u.email === email)
+  // Delete any existing incomplete user with this email.
+  // Page through ALL users so the lookup stays correct past the first page.
+  const users = await listAllAuthUsers(admin)
+  const existingUser = users.find((u) => u.email === email)
   if (existingUser?.user_metadata?.profile_complete) {
     return { email: null, error: 'อีเมลนี้มีบัญชีอยู่แล้ว กรุณาเข้าสู่ระบบ' }
   }

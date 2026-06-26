@@ -74,7 +74,7 @@ docs/                         # TODO.md, ADMIN_PROGRESS.md
 - **No `tailwind.config.js`**: Tailwind v4 uses `@theme` block in `globals.css`. Design tokens are defined there.
 - **Server Actions**: All mutations use `'use server'` actions in `src/lib/actions/`. No API routes for data mutation.
 - **Data fetching**: Public pages use `src/lib/data/public.js` (server-side, RLS-filtered). Admin pages fetch directly via Supabase server client.
-- **Auth flow**: Admin uses email/password. Customers use SMS OTP + LINE Login. Middleware protects `/admin/*` and `/account/*` routes.
+- **Auth flow**: All auth runs on Supabase Auth. Admin uses email/password (role-gated to `admin`/`editor`). Customers use email/password + LINE Login (OAuth). Registration and password-reset emails are sent via Resend (Supabase's built-in emails are bypassed), gated by reCAPTCHA. Middleware protects `/admin/*` and `/account/*` routes. NOTE: SMS OTP (SMSKUB) is NOT implemented — env vars exist but no code path uses them.
 
 ## Design System
 
@@ -95,7 +95,7 @@ Layout: `max-w-[1212px]` containers, mobile-first with `lg:` breakpoint.
 ## Current State
 
 - **Frontend + Backend**: 46 pages (12 public + 34 admin), all wired to Supabase
-- **Auth**: Admin email/password login, customer SMS OTP + LINE Login, forgot-password flow
+- **Auth**: Admin email/password login (role-gated), customer email/password + LINE Login, forgot-password flow (Resend + reCAPTCHA). SMS OTP scaffolded but not wired.
 - **Testing**: 202 tests (199 pass, 3 pre-existing validation failures)
 - **Known bugs**: 5 runtime bugs tracked in `.planning/PROJECT.md` (TipTap SSR crash, dnd-kit hydration, missing banner create page, profile HTML display, gallery order off-by-one)
 - **Next milestone**: Bug Fixes. See `.planning/ROADMAP.md`.
@@ -104,7 +104,7 @@ Layout: `max-w-[1212px]` containers, mobile-first with `lg:` breakpoint.
 
 Two user types:
 - **Admin** (`/admin/*`): email + password login via Supabase Auth. Roles: `admin`, `editor`.
-- **Customer** (public site): SMS OTP + LINE Login via Supabase Auth. Can browse products and submit quotation requests.
+- **Customer** (public site): email/password + LINE Login via Supabase Auth. Can browse products and submit quotation requests. (SMS OTP via SMSKUB is scaffolded in env vars but not implemented in code.)
 
 ## Commands
 
@@ -117,6 +117,19 @@ npm test             # Vitest (run once)
 npm run test:watch   # Vitest (watch mode)
 npm run test:e2e     # Playwright E2E tests
 ```
+
+## Database Migrations
+
+The hosted Supabase project (`qmmrjkrzhroiskunmvxa`) is on a **separate Supabase account** from this machine's global `supabase login`. A normal `supabase db push` authenticates via the Management API as the wrong account and fails with `403`. So migrations are applied through a direct Postgres connection instead:
+
+```powershell
+powershell -File ./scripts/db-push.ps1            # apply pending migrations
+powershell -File ./scripts/db-push.ps1 -DryRun    # preview without applying
+```
+
+(This machine has Windows PowerShell 5.1, not `pwsh`/PowerShell 7. From an open PS prompt, `./scripts/db-push.ps1` works directly.)
+
+The script reads the DB password from `supabase/.db-credentials.local` (gitignored via `*.local`; template at `supabase/.db-credentials.local.example`) and connects with `supabase db push --db-url` — no account login needed. Do **not** rely on `supabase db push` alone here. Migration SQL lives in `supabase/migrations/` (sequentially numbered).
 
 ## MCP Servers
 
