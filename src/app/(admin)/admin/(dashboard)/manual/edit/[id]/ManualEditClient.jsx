@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateManual } from '@/lib/actions/manuals'
+import PreviewButton from '@/components/admin/PreviewButton'
 import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, ALLOWED_PDF_TYPES, MAX_IMAGE_SIZE, MAX_PDF_SIZE } from '@/lib/upload-validation'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
@@ -318,6 +319,8 @@ export default function ManualEditClient({ manual }) {
             >
               บันทึกฉบับร่าง
             </button>
+
+            <PreviewButton path="/manual" label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>
       </div>

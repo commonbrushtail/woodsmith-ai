@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateBranch } from '@/lib/actions/branches'
 import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
+import PreviewButton from '@/components/admin/PreviewButton'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
   return (
@@ -317,6 +318,8 @@ export default function BranchEditClient({ branch }) {
             >
               บันทึกฉบับร่าง
             </button>
+
+            <PreviewButton path="/branches" label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>
       </div>

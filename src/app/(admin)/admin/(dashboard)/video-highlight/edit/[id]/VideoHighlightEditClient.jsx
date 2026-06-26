@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateVideoHighlight } from '@/lib/actions/video-highlights'
+import PreviewButton from '@/components/admin/PreviewButton'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
   return (
@@ -156,6 +157,8 @@ export default function VideoHighlightEditClient({ highlight }) {
             >
               บันทึกฉบับร่าง
             </button>
+
+            <PreviewButton path="/highlight" label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>
       </div>

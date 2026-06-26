@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateBanner } from '@/lib/actions/banners'
 import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
+import PreviewButton from '@/components/admin/PreviewButton'
 
 function PlusIcon({ size = 18, color = '#ff7e1b' }) {
   return (
@@ -235,6 +236,9 @@ export default function BannerEditClient({ banner }) {
             >
               บันทึกฉบับร่าง
             </button>
+
+            {/* Draft preview on the real homepage */}
+            <PreviewButton path="/" label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>
       </div>

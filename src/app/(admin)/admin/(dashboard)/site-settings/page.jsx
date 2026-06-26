@@ -3,6 +3,7 @@
 import { useState, useEffect, useTransition } from 'react'
 import { getSiteSettings, updateSiteSettings } from '@/lib/actions/site-settings'
 import { useToast } from '@/lib/toast-context'
+import PreviewButton from '@/components/admin/PreviewButton'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -164,6 +165,7 @@ export default function SiteSettingsPage() {
         </div>
 
         <div className="flex items-center gap-[8px]">
+          <PreviewButton path="/" label="พรีวิวหน้าแรก" />
           <button
             type="button"
             className="size-[32px] flex items-center justify-center rounded-[8px] hover:bg-gray-100 cursor-pointer bg-transparent border-0"

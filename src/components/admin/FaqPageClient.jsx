@@ -6,6 +6,7 @@ import { useToast } from '@/lib/toast-context'
 import { createFaqGroup, updateFaqGroup, deleteFaqGroup, reorderFaqGroups, toggleFaqGroupPublished } from '@/lib/actions/faq-groups'
 import { createFaq, updateFaq, deleteFaq, reorderFaqs } from '@/lib/actions/faqs'
 import { buildSortOrderUpdates } from '@/lib/reorder'
+import PreviewButton from '@/components/admin/PreviewButton'
 import { validateFile, compressImage } from '@/lib/upload-validation'
 import {
   DndContext,
@@ -608,15 +609,18 @@ export default function FaqPageClient({ groups: initialGroups }) {
           </span>
         </div>
 
-        <button
-          type="button"
-          onClick={handleAddGroup}
-          disabled={isPending}
-          className="flex items-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
-        >
-          <PlusIcon size={16} color="white" />
-          <span>เพิ่มกลุ่ม</span>
-        </button>
+        <div className="flex items-center gap-[8px]">
+          <PreviewButton path="/faq" label="พรีวิว" />
+          <button
+            type="button"
+            onClick={handleAddGroup}
+            disabled={isPending}
+            className="flex items-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] transition-colors disabled:opacity-50"
+          >
+            <PlusIcon size={16} color="white" />
+            <span>เพิ่มกลุ่ม</span>
+          </button>
+        </div>
       </div>
 
       {/* Groups */}

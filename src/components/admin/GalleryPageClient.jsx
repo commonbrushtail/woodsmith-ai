@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '@/lib/toast-context'
 import { createGalleryItems, deleteGalleryItem, reorderGalleryItems } from '@/lib/actions/gallery'
 import { buildSortOrderUpdates } from '@/lib/reorder'
+import PreviewButton from '@/components/admin/PreviewButton'
 import { validateFile, compressImage } from '@/lib/upload-validation'
 import {
   DndContext,
@@ -294,13 +295,16 @@ function GalleryGridSection({ title, section, items: initialItems }) {
 export default function GalleryPageClient({ homepageItems, aboutItems }) {
   return (
     <div className="flex flex-col gap-[24px]">
-      <div className="py-[12px]">
-        <h1 className="font-['IBM_Plex_Sans_Thai'] font-bold text-[22px] text-[#1f2937] m-0">
-          แกลเลอรี่ (Gallery)
-        </h1>
-        <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280] mt-[4px] m-0">
-          จัดการรูปภาพแกลเลอรี่สำหรับหน้าแรกและหน้าเกี่ยวกับเรา
-        </p>
+      <div className="py-[12px] flex items-start justify-between gap-[12px]">
+        <div>
+          <h1 className="font-['IBM_Plex_Sans_Thai'] font-bold text-[22px] text-[#1f2937] m-0">
+            แกลเลอรี่ (Gallery)
+          </h1>
+          <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280] mt-[4px] m-0">
+            จัดการรูปภาพแกลเลอรี่สำหรับหน้าแรกและหน้าเกี่ยวกับเรา
+          </p>
+        </div>
+        <PreviewButton path="/" label="พรีวิวหน้าแรก" className="shrink-0" />
       </div>
 
       <GalleryGridSection
