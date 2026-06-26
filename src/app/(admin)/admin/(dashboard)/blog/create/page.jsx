@@ -10,6 +10,9 @@ import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import CalendarPicker from '@/components/admin/CalendarPicker'
 import CategorySelect from '@/components/admin/CategorySelect'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggleButton from '@/components/admin/preview/PreviewToggleButton'
+import blogAdapter from '@/lib/preview/adapters/blog'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -214,6 +217,7 @@ export default function BlogCreatePage() {
 
   /* ---- Picker visibility ---- */
   const [showStartCal, setShowStartCal] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(false)
 
 
   /* ---- Derived values ---- */
@@ -530,9 +534,29 @@ export default function BlogCreatePage() {
             >
               บันทึกฉบับร่าง
             </button>
+
+            {/* Live preview of the unsaved draft */}
+            <PreviewToggleButton onClick={() => setPreviewOpen(true)} className="w-full" />
           </div>
         </aside>
       </div>
+
+      <PreviewPanel
+        adapter={blogAdapter}
+        formState={{
+          id: 'preview',
+          slug: null,
+          title,
+          content,
+          coverPreview: images[0]?.url || null,
+          category,
+          publishDate: startDate,
+          viewCount: 0,
+          createdAt: null,
+        }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }
