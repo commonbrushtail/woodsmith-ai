@@ -1,15 +1,20 @@
-import { createClient } from '@/lib/supabase/server'
+import { getReadClient } from '@/lib/data/draft'
 
 // -------------------------------------------------------------------
 // Public data-fetching functions (server-side, RLS-filtered)
 // RLS policies automatically filter to published = true for anon/auth.
+//
+// Reads go through getReadClient(): normally the anon client (RLS =
+// published only), but when an admin is in Draft Mode it returns the
+// service-role client so drafts/scheduled content render in preview.
+// Non-preview behavior is identical to the previous createClient() path.
 // -------------------------------------------------------------------
 
 /**
  * Fetch published products with optional category/search filter.
  */
 export async function getPublishedProducts({ page = 1, perPage = 16, type = '', category = '', search = '' } = {}) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
   const from = (page - 1) * perPage
   const to = from + perPage - 1
 
@@ -38,7 +43,7 @@ export async function getPublishedProducts({ page = 1, perPage = 16, type = '', 
  * Fetch a single published product with images + options.
  */
 export async function getPublishedProduct(id) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   const { data, error } = await supabase
     .from('products')
@@ -75,7 +80,7 @@ export async function getPublishedProduct(id) {
  * Fetch a single published product by slug with images + options.
  */
 export async function getPublishedProductBySlug(slug) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   const { data, error } = await supabase
     .from('products')
@@ -112,7 +117,7 @@ export async function getPublishedProductBySlug(slug) {
  * Fetch published blog posts with optional category filter.
  */
 export async function getPublishedBlogPosts({ page = 1, perPage = 20, category = '' } = {}) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
   const from = (page - 1) * perPage
   const to = from + perPage - 1
 
@@ -135,7 +140,7 @@ export async function getPublishedBlogPosts({ page = 1, perPage = 20, category =
  * Fetch a single published blog post by ID or slug.
  */
 export async function getPublishedBlogPost(idOrSlug) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   // Try by ID first, then by slug
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug)
@@ -182,7 +187,7 @@ export async function getPublishedBlogPost(idOrSlug) {
  * Fetch published branches with optional region filter.
  */
 export async function getPublishedBranches({ region = '' } = {}) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   let query = supabase
     .from('branches')
@@ -202,7 +207,7 @@ export async function getPublishedBranches({ region = '' } = {}) {
  * Fetch the head office branch (is_hq = true).
  */
 export async function getHqBranch() {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
   const { data, error } = await supabase
     .from('branches')
     .select('*')
@@ -217,7 +222,7 @@ export async function getHqBranch() {
  * Returns array of groups, each with nested faqs array.
  */
 export async function getPublishedFaqs() {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   const { data, error } = await supabase
     .from('faq_groups')
@@ -234,7 +239,7 @@ export async function getPublishedFaqs() {
  * Fetch published video highlights.
  */
 export async function getPublishedHighlights({ page = 1, perPage = 18 } = {}) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
   const from = (page - 1) * perPage
   const to = from + perPage - 1
 
@@ -252,7 +257,7 @@ export async function getPublishedHighlights({ page = 1, perPage = 18 } = {}) {
  * Fetch recommended video highlights for homepage.
  */
 export async function getRecommendedHighlights({ perPage = 4 } = {}) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
   const { data, error } = await supabase
     .from('video_highlights')
     .select('*')
@@ -267,7 +272,7 @@ export async function getRecommendedHighlights({ perPage = 4 } = {}) {
  * Fetch recommended blog posts for homepage.
  */
 export async function getRecommendedBlogPosts({ perPage = 5 } = {}) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
   const { data, error } = await supabase
     .from('blog_posts')
     .select('*, blog_categories(name)')
@@ -286,7 +291,7 @@ export async function getRecommendedBlogPosts({ perPage = 5 } = {}) {
  * Fetch recommended products for homepage.
  */
 export async function getRecommendedProducts({ perPage = 12 } = {}) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
   const { data, error } = await supabase
     .from('products')
     .select('*, product_images(*)')
@@ -301,7 +306,7 @@ export async function getRecommendedProducts({ perPage = 12 } = {}) {
  * Fetch published manuals.
  */
 export async function getPublishedManuals({ page = 1, perPage = 10 } = {}) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
   const from = (page - 1) * perPage
   const to = from + perPage - 1
 
@@ -319,7 +324,7 @@ export async function getPublishedManuals({ page = 1, perPage = 10 } = {}) {
  * Fetch published gallery items, optionally filtered by section.
  */
 export async function getPublishedGalleryItems(section) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   let query = supabase
     .from('gallery_items')
@@ -339,7 +344,7 @@ export async function getPublishedGalleryItems(section) {
  * Fetch active banners.
  */
 export async function getActiveBanners() {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   const { data, error } = await supabase
     .from('banners')
@@ -355,7 +360,7 @@ export async function getActiveBanners() {
  * Returns { companyDetail } parsed from JSON content column.
  */
 export async function getAboutContent() {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   const { data, error } = await supabase
     .from('about_us')
@@ -385,7 +390,7 @@ export async function getAboutContent() {
  * Fetch a legal page by slug (terms, privacy, cookies).
  */
 export async function getLegalPage(slug) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   const { data, error } = await supabase
     .from('legal_pages')
@@ -405,7 +410,7 @@ export async function getLegalPage(slug) {
  * Fetch distinct product categories (for filter sidebar).
  */
 export async function getProductCategories() {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   const { data, error } = await supabase
     .from('products')
@@ -429,7 +434,7 @@ export async function getProductCategories() {
  * Fetch published categories from product_categories table (with images).
  */
 export async function getPublishedCategories({ type = '' } = {}) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   let query = supabase
     .from('product_categories')
@@ -451,7 +456,7 @@ export async function getPublishedCategories({ type = '' } = {}) {
  * RLS automatically filters to published = true.
  */
 export async function getPublishedProductTypes() {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   const { data, error } = await supabase
     .from('product_categories')
@@ -469,7 +474,7 @@ export async function getPublishedProductTypes() {
  * RLS automatically filters to published = true.
  */
 export async function getPublishedSubcategories({ type = '', featured = false } = {}) {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   let query = supabase
     .from('product_categories')
@@ -493,7 +498,7 @@ export async function getPublishedSubcategories({ type = '', featured = false } 
  * Fetch distinct branch regions (for tab filter).
  */
 export async function getBranchRegions() {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   const { data, error } = await supabase
     .from('branches')
@@ -509,7 +514,7 @@ export async function getBranchRegions() {
  * Fetch site settings (public access for footer/header).
  */
 export async function getSiteSettings() {
-  const supabase = await createClient()
+  const supabase = await getReadClient()
 
   const { data, error } = await supabase
     .from('site_settings')

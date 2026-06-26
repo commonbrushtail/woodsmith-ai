@@ -14,8 +14,11 @@ function createQueryChain(finalResult = { data: null, error: null, count: 0 }) {
 let mockQueryChain
 let mockServerClient
 
-vi.mock('@/lib/supabase/server', () => ({
-  createClient: vi.fn(async () => mockServerClient),
+// public.js now reads through getReadClient(); in non-preview tests it must
+// resolve to the same mock client the assertions inspect.
+vi.mock('@/lib/data/draft', () => ({
+  getReadClient: vi.fn(async () => mockServerClient),
+  isPreview: vi.fn(async () => false),
 }))
 
 beforeEach(() => {
