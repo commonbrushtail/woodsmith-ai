@@ -7,6 +7,9 @@ import { createFaqGroup, updateFaqGroup, deleteFaqGroup, reorderFaqGroups, toggl
 import { createFaq, updateFaq, deleteFaq, reorderFaqs } from '@/lib/actions/faqs'
 import { buildSortOrderUpdates } from '@/lib/reorder'
 import PreviewButton from '@/components/admin/PreviewButton'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import faqAdapter from '@/lib/preview/adapters/faq'
 import { validateFile, compressImage } from '@/lib/upload-validation'
 import {
   DndContext,
@@ -557,6 +560,7 @@ export default function FaqPageClient({ groups: initialGroups }) {
   const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [groups, setGroups] = useState(initialGroups)
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   // Sync with server data
   useEffect(() => {
@@ -610,6 +614,7 @@ export default function FaqPageClient({ groups: initialGroups }) {
         </div>
 
         <div className="flex items-center gap-[8px]">
+          <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="!w-auto" />
           <PreviewButton path="/faq" label="พรีวิว" />
           <button
             type="button"
@@ -659,6 +664,13 @@ export default function FaqPageClient({ groups: initialGroups }) {
           </DndContext>
         )}
       </div>
+
+      <PreviewPanel
+        adapter={faqAdapter}
+        formState={{ groups }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }

@@ -13,7 +13,7 @@ import VariationImageManager from '@/components/admin/VariationImageManager'
 import CalendarPicker from '@/components/admin/CalendarPicker'
 import TimePickerDropdown from '@/components/admin/TimePickerDropdown'
 import PreviewPanel from '@/components/admin/preview/PreviewPanel'
-import PreviewToggleButton from '@/components/admin/preview/PreviewToggleButton'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
 import PreviewButton from '@/components/admin/PreviewButton'
 import productAdapter from '@/lib/preview/adapters/product'
 
@@ -656,7 +656,7 @@ export default function ProductEditClient({ product, categories = [], variationG
             </a>
 
             {/* Live preview (unsaved edits) + draft preview on the real page */}
-            <PreviewToggleButton onClick={() => setPreviewOpen(true)} className="w-full" />
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
             <PreviewButton path={`/product/${product.id}`} label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>

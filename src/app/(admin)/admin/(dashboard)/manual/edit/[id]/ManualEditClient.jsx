@@ -6,6 +6,9 @@ import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateManual } from '@/lib/actions/manuals'
 import PreviewButton from '@/components/admin/PreviewButton'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import manualAdapter from '@/lib/preview/adapters/manual'
 import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, ALLOWED_PDF_TYPES, MAX_IMAGE_SIZE, MAX_PDF_SIZE } from '@/lib/upload-validation'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
@@ -66,6 +69,7 @@ export default function ManualEditClient({ manual }) {
   const [pdfFile, setPdfFile] = useState(manual.file_url ? { name: manual.file_url.split('/').pop(), url: manual.file_url } : null)
   const [pdfNewFile, setPdfNewFile] = useState(null)
   const [youtubeUrl, setYoutubeUrl] = useState(manual.youtube_url || '')
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   const TITLE_MAX = 120
 
@@ -320,10 +324,18 @@ export default function ManualEditClient({ manual }) {
               บันทึกฉบับร่าง
             </button>
 
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
             <PreviewButton path="/manual" label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>
       </div>
+
+      <PreviewPanel
+        adapter={manualAdapter}
+        formState={{ id: manual.id, title, coverPreview, fileUrl: pdfFile?.url || null, youtubeUrl }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }

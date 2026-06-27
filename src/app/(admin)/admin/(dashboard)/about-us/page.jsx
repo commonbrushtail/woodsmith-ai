@@ -6,7 +6,7 @@ import { getAboutUs, updateAboutUs } from '@/lib/actions/about-us'
 import { useToast } from '@/lib/toast-context'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import PreviewPanel from '@/components/admin/preview/PreviewPanel'
-import PreviewToggleButton from '@/components/admin/preview/PreviewToggleButton'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
 import PreviewButton from '@/components/admin/PreviewButton'
 import aboutAdapter from '@/lib/preview/adapters/about'
 
@@ -152,7 +152,7 @@ export default function AboutUsPage() {
               {isPending ? 'กำลังบันทึก...' : 'บันทึก'}
             </button>
 
-            <PreviewToggleButton onClick={() => setPreviewOpen(true)} className="w-full" />
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
             <PreviewButton path="/about" label="เปิดหน้าจริง" disabledHint="" className="w-full" />
           </div>
         </aside>

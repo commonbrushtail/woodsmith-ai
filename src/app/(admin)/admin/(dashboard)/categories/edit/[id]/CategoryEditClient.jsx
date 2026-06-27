@@ -8,6 +8,9 @@ import { updateCategory } from '@/lib/actions/categories'
 import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
 import AdminFileInput from '@/components/admin/AdminFileInput'
 import PreviewButton from '@/components/admin/PreviewButton'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import categoryAdapter from '@/lib/preview/adapters/category'
 
 function generateSlug(name) {
   return name
@@ -29,6 +32,7 @@ export default function CategoryEditClient({ category, parentCategories }) {
   const [selectedFile, setSelectedFile] = useState(null)
   const [removeImage, setRemoveImage] = useState(false)
   const [fieldErrors, setFieldErrors] = useState({})
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0]
@@ -229,10 +233,18 @@ export default function CategoryEditClient({ category, parentCategories }) {
               บันทึกแบบร่าง
             </button>
 
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
             <PreviewButton path="/products" label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>
       </div>
+
+      <PreviewPanel
+        adapter={categoryAdapter}
+        formState={{ name, imagePreview, typeLabel: parentCategories.find(p => p.id === parentId)?.name || '' }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }

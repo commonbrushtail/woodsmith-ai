@@ -6,6 +6,9 @@ import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateVideoHighlight } from '@/lib/actions/video-highlights'
 import PreviewButton from '@/components/admin/PreviewButton'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import videoAdapter from '@/lib/preview/adapters/video'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
   return (
@@ -32,6 +35,7 @@ export default function VideoHighlightEditClient({ highlight }) {
 
   const [title, setTitle] = useState(highlight.title || '')
   const [youtubeUrl, setYoutubeUrl] = useState(highlight.youtube_url || '')
+  const [previewOpen, setPreviewOpen] = useState(false)
   const handleSubmit = (publish) => {
     if (!title.trim()) { toast.error('กรุณากรอกชื่อไฮไลท์'); return }
 
@@ -158,10 +162,18 @@ export default function VideoHighlightEditClient({ highlight }) {
               บันทึกฉบับร่าง
             </button>
 
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
             <PreviewButton path="/highlight" label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>
       </div>
+
+      <PreviewPanel
+        adapter={videoAdapter}
+        formState={{ id: highlight.id, title, youtubeUrl }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }

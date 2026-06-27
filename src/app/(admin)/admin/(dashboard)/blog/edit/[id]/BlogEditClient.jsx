@@ -11,7 +11,7 @@ import RichTextEditor from '@/components/admin/RichTextEditor'
 import CalendarPicker from '@/components/admin/CalendarPicker'
 import CategorySelect from '@/components/admin/CategorySelect'
 import PreviewPanel from '@/components/admin/preview/PreviewPanel'
-import PreviewToggleButton from '@/components/admin/preview/PreviewToggleButton'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
 import PreviewButton from '@/components/admin/PreviewButton'
 import blogAdapter from '@/lib/preview/adapters/blog'
 
@@ -361,7 +361,7 @@ export default function BlogEditClient({ post }) {
             </a>
 
             {/* Live preview (unsaved edits) + draft preview on the real page */}
-            <PreviewToggleButton onClick={() => setPreviewOpen(true)} className="w-full" />
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
             <PreviewButton path={`/blog/${post.slug || post.id}`} label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>

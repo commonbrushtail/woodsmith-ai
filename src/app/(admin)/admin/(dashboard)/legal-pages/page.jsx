@@ -5,7 +5,7 @@ import { getLegalPages, updateLegalPage } from '@/lib/actions/legal-pages'
 import { useToast } from '@/lib/toast-context'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import PreviewPanel from '@/components/admin/preview/PreviewPanel'
-import PreviewToggleButton from '@/components/admin/preview/PreviewToggleButton'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
 import PreviewButton from '@/components/admin/PreviewButton'
 import legalAdapter from '@/lib/preview/adapters/legal'
 import { LEGAL_TITLES } from '@/components/LegalContentView'
@@ -115,7 +115,7 @@ export default function LegalPagesAdmin() {
               {isPending ? 'กำลังบันทึก...' : 'บันทึก'}
             </button>
 
-            <PreviewToggleButton onClick={() => setPreviewOpen(true)} className="w-full" />
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
             <PreviewButton path={`/${activeTab}`} label="เปิดหน้าจริง" disabledHint="" className="w-full" />
           </div>
 

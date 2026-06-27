@@ -11,7 +11,7 @@ import RichTextEditor from '@/components/admin/RichTextEditor'
 import CalendarPicker from '@/components/admin/CalendarPicker'
 import CategorySelect from '@/components/admin/CategorySelect'
 import PreviewPanel from '@/components/admin/preview/PreviewPanel'
-import PreviewToggleButton from '@/components/admin/preview/PreviewToggleButton'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
 import blogAdapter from '@/lib/preview/adapters/blog'
 
 /* ------------------------------------------------------------------ */
@@ -536,7 +536,7 @@ export default function BlogCreatePage() {
             </button>
 
             {/* Live preview of the unsaved draft */}
-            <PreviewToggleButton onClick={() => setPreviewOpen(true)} className="w-full" />
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
           </div>
         </aside>
       </div>

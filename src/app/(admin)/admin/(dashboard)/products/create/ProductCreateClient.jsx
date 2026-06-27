@@ -9,7 +9,7 @@ import { useFormErrors } from '@/lib/hooks/use-form-errors'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import ProductImageUploader from '@/components/admin/ProductImageUploader'
 import PreviewPanel from '@/components/admin/preview/PreviewPanel'
-import PreviewToggleButton from '@/components/admin/preview/PreviewToggleButton'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
 import productAdapter from '@/lib/preview/adapters/product'
 import VariationLinker from '@/components/admin/VariationLinker'
 import CalendarPicker from '@/components/admin/CalendarPicker'
@@ -610,7 +610,7 @@ export default function ProductCreateClient({ categories = [], variationGroups =
             </button>
 
             {/* Live preview of the unsaved product */}
-            <PreviewToggleButton onClick={() => setPreviewOpen(true)} className="w-full" />
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
           </div>
         </aside>
       </div>
