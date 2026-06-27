@@ -9,7 +9,7 @@ export default async function DashboardLayout({ children }) {
   return (
     <div className="flex h-screen w-full bg-white overflow-hidden">
       <AdminSidebar />
-      <main className="flex-1 overflow-y-auto px-[32px] py-[20px]">
+      <main id="admin-main" className="flex-1 overflow-y-auto px-[32px] py-[20px]">
         <ErrorBoundary>
           <ClientOnly>
             {children}

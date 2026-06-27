@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
 import PreviewViewport from './PreviewViewport'
 import PreviewLayoutShim from './PreviewLayoutShim'
@@ -34,15 +34,24 @@ export default function PreviewPanel({ adapter, formState, open, onClose }) {
 
   const props = usePreviewState(adapter, formState)
 
+  // Non-modal: while open, shift the editor's <main> left (see globals.css)
+  // so the form stays fully visible and EDITABLE beside the live preview.
+  // No backdrop — the form must remain interactive for edit-on-the-fly.
+  useEffect(() => {
+    if (!open) return
+    const root = document.documentElement
+    root.setAttribute('data-preview-open', '')
+    return () => root.removeAttribute('data-preview-open')
+  }, [open])
+
   if (!open || !adapter) return null
 
   return (
     <>
-      <div className="fixed inset-0 z-[60] bg-black/30" onClick={onClose} aria-hidden="true" />
       <aside
         role="dialog"
         aria-label="ตัวอย่างสด"
-        className="fixed inset-y-0 right-0 z-[61] flex w-full max-w-[720px] flex-col bg-[#f3f4f6] shadow-2xl lg:max-w-[50vw]"
+        className="fixed inset-y-0 right-0 z-[61] flex w-full max-w-[720px] flex-col border-l border-[#e5e7eb] bg-[#f3f4f6] shadow-2xl lg:max-w-[50vw]"
       >
         <header className="flex items-center justify-between gap-3 border-b border-[#e5e7eb] bg-white px-4 py-3">
           <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] font-medium text-[#111827]">

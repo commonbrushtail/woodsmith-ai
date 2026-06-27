@@ -172,3 +172,16 @@ body {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+
+/* Live preview drawer: while open, shift the admin editor's main column left so
+   the form stays fully visible and editable beside the (non-modal) preview.
+   Desktop only — on mobile the drawer is full-width and the user toggles it off
+   to edit. The 50vw shift matches the drawer's lg:max-w-[50vw] width. */
+#admin-main {
+  transition: padding-right 0.2s ease;
+}
+@media (min-width: 1024px) {
+  html[data-preview-open] #admin-main {
+    padding-right: 50vw;
+  }
+}
