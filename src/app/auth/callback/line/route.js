@@ -83,7 +83,7 @@ export async function GET(request) {
     const profile = await profileResponse.json()
 
     // Create or find Supabase user via admin API
-    const { createServiceClient } = await import('@/lib/supabase/admin')
+    const { createServiceClient, listAllAuthUsers } = await import('@/lib/supabase/admin')
     const { createServerClient } = await import('@supabase/ssr')
     const { cookies } = await import('next/headers')
 
@@ -92,11 +92,13 @@ export async function GET(request) {
     // Use deterministic email pattern for LINE users
     const lineEmail = `line_${profile.userId}@line.placeholder`
 
-    // Find existing user by LINE user ID in app_metadata
-    const { data: existingUsers } = await admin.auth.admin.listUsers()
+    // Find existing user by LINE user ID in app_metadata.
+    // Page through ALL users — listUsers() alone caps at one page (50) and
+    // would treat a returning user beyond that as new, breaking their login.
+    const allUsers = await listAllAuthUsers(admin)
     // Note: do NOT check app_metadata.provider — Supabase resets it to 'email'
     // after magic link verifyOtp, overwriting our 'line' value. Use line_user_id only.
-    const existingUser = existingUsers?.users?.find(
+    const existingUser = allUsers.find(
       u => u.app_metadata?.line_user_id === profile.userId
     )
 
@@ -140,7 +142,7 @@ export async function GET(request) {
     } else {
       // Check if a user with the same email already exists (registered via email)
       if (lineRealEmail) {
-        const emailUser = existingUsers?.users?.find(u => u.email === lineRealEmail)
+        const emailUser = allUsers.find(u => u.email === lineRealEmail)
         if (emailUser) {
           // Link LINE to existing email account — add LINE metadata
           const { data: linkedUser, error: linkError } = await admin.auth.admin.updateUserById(
@@ -210,6 +212,7 @@ export async function GET(request) {
           auth_provider: 'line',
           avatar_url: profile.pictureUrl || null,
           email: lineRealEmail,
+          line_user_id: profile.userId,
         }, { onConflict: 'user_id' })
 
         if (profileError) {

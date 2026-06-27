@@ -74,7 +74,16 @@ docs/                         # TODO.md, ADMIN_PROGRESS.md
 - **No `tailwind.config.js`**: Tailwind v4 uses `@theme` block in `globals.css`. Design tokens are defined there.
 - **Server Actions**: All mutations use `'use server'` actions in `src/lib/actions/`. No API routes for data mutation.
 - **Data fetching**: Public pages use `src/lib/data/public.js` (server-side, RLS-filtered). Admin pages fetch directly via Supabase server client.
-- **Auth flow**: Admin uses email/password. Customers use SMS OTP + LINE Login. Middleware protects `/admin/*` and `/account/*` routes.
+- **Auth flow**: All auth runs on Supabase Auth. Admin uses email/password (role-gated to `admin`/`editor`). Customers use email/password + LINE Login (OAuth). Registration and password-reset emails are sent via Resend (Supabase's built-in emails are bypassed), gated by reCAPTCHA. Middleware protects `/admin/*` and `/account/*` routes. NOTE: SMS OTP (SMSKUB) is NOT implemented — env vars exist but no code path uses them.
+
+## Admin Preview Mode
+
+Admins can preview how content will look on the public site, in two complementary modes:
+
+- **Live panel (Approach A)** — a `PreviewToggle` switch shows/hides `PreviewPanel` (`src/components/admin/preview/`), a slide-over that renders the REAL public component with props mapped from the current *unsaved* form state by a per-entity adapter in `src/lib/preview/adapters/`. Updates live as you type; uses `next/dynamic({ ssr:false })`. Wired into every editable entity. Add a new one by writing one adapter (`toProps` must be pure + total) and wiring `<PreviewToggle checked={open} onChange={setOpen} />` + `<PreviewPanel adapter={...} formState={...} open={open} onClose={...} />` — no server/action changes.
+- **Draft preview (Approach B)** — `PreviewButton` links to `/api/preview?path=<public-route>`, which enables Next.js **Draft Mode** (only behind `requireAdmin()`), so the admin sees a saved draft on the real page. `src/lib/data/draft.js` `getReadClient()` returns the service-role client (bypassing RLS) ONLY when Draft Mode is on AND `requireAdmin()` passes at read time — a forged cookie alone never exposes drafts. `public.js` reads through `getReadClient()`; non-preview behavior is unchanged. The public layout shows `DraftModeBanner` while previewing; exit via `/api/preview/disable`.
+
+Security: no new RLS policy; drafts are double-gated (enable + read). Always-public singletons (about/legal) have no draft state, so the live panel is their meaningful preview. Every editable entity (including taxonomy: category → `/products`, product-types → `/products/{type}`) has at least the draft `PreviewButton`.
 
 ## Design System
 
@@ -95,7 +104,7 @@ Layout: `max-w-[1212px]` containers, mobile-first with `lg:` breakpoint.
 ## Current State
 
 - **Frontend + Backend**: 46 pages (12 public + 34 admin), all wired to Supabase
-- **Auth**: Admin email/password login, customer SMS OTP + LINE Login, forgot-password flow
+- **Auth**: Admin email/password login (role-gated), customer email/password + LINE Login, forgot-password flow (Resend + reCAPTCHA). SMS OTP scaffolded but not wired.
 - **Testing**: 202 tests (199 pass, 3 pre-existing validation failures)
 - **Known bugs**: 5 runtime bugs tracked in `.planning/PROJECT.md` (TipTap SSR crash, dnd-kit hydration, missing banner create page, profile HTML display, gallery order off-by-one)
 - **Next milestone**: Bug Fixes. See `.planning/ROADMAP.md`.
@@ -104,7 +113,7 @@ Layout: `max-w-[1212px]` containers, mobile-first with `lg:` breakpoint.
 
 Two user types:
 - **Admin** (`/admin/*`): email + password login via Supabase Auth. Roles: `admin`, `editor`.
-- **Customer** (public site): SMS OTP + LINE Login via Supabase Auth. Can browse products and submit quotation requests.
+- **Customer** (public site): email/password + LINE Login via Supabase Auth. Can browse products and submit quotation requests. (SMS OTP via SMSKUB is scaffolded in env vars but not implemented in code.)
 
 ## Commands
 
@@ -117,6 +126,30 @@ npm test             # Vitest (run once)
 npm run test:watch   # Vitest (watch mode)
 npm run test:e2e     # Playwright E2E tests
 ```
+
+## Database Migrations
+
+The hosted Supabase project (`qmmrjkrzhroiskunmvxa`) is on a **separate Supabase account** from this machine's global `supabase login`. A normal `supabase db push` authenticates via the Management API as the wrong account and fails with `403`. So migrations are applied through a direct Postgres connection instead:
+
+```powershell
+powershell -File ./scripts/db-push.ps1            # apply pending migrations
+powershell -File ./scripts/db-push.ps1 -DryRun    # preview without applying
+```
+
+(This machine has Windows PowerShell 5.1, not `pwsh`/PowerShell 7. From an open PS prompt, `./scripts/db-push.ps1` works directly.)
+
+The script reads the DB password from `supabase/.db-credentials.local` (gitignored via `*.local`; template at `supabase/.db-credentials.local.example`) and connects with `supabase db push --db-url` — no account login needed. Do **not** rely on `supabase db push` alone here. Migration SQL lives in `supabase/migrations/` (sequentially numbered).
+
+## Deployment (Vercel)
+
+The hosted Vercel project (`woodsmith`, team `team_4AgM6HjzfR3pE38elkRNfqgP`) is on a **separate Vercel account** from this machine's global `vercel login`, so a plain `vercel --prod` fails with *"Could not retrieve Project Settings."* Deploy with a project-scoped access token instead:
+
+```powershell
+powershell -File ./scripts/deploy.ps1            # production deploy
+powershell -File ./scripts/deploy.ps1 -Preview   # preview (non-prod) deploy
+```
+
+The script reads `VERCEL_TOKEN` (and optional `VERCEL_SCOPE` team slug) from `.vercel-token.local` (gitignored via `*.local`; template at `.vercel-token.local.example`) and runs `vercel --prod --token=…`. It uploads the local tree directly, so **no `git push` is required to deploy**. (Pushing to GitHub is a separate step and needs your GitHub credentials via Git Credential Manager.)
 
 ## MCP Servers
 

@@ -6,6 +6,10 @@ import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateBranch } from '@/lib/actions/branches'
 import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
+import PreviewButton from '@/components/admin/PreviewButton'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import branchAdapter from '@/lib/preview/adapters/branch'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
   return (
@@ -47,6 +51,7 @@ export default function BranchEditClient({ branch }) {
   const [imagePreview, setImagePreview] = useState(branch.image_url || null)
   const [imageFile, setImageFile] = useState(null)
   const [removeImage, setRemoveImage] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(false)
   const fileInputRef = useRef(null)
 
   const handleImageSelect = async (e) => {
@@ -317,9 +322,19 @@ export default function BranchEditClient({ branch }) {
             >
               บันทึกฉบับร่าง
             </button>
+
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
+            <PreviewButton path="/branches" label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>
       </div>
+
+      <PreviewPanel
+        adapter={branchAdapter}
+        formState={{ id: branch.id, name, address, phone, region, mapUrl, lineUrl, imagePreview, openTime, closeTime }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }

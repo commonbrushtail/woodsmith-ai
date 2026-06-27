@@ -22,6 +22,13 @@ nul
 # Supabase CLI temp files
 supabase/.temp/
 
+# Local self-hosted Supabase stack (~74M, includes Postgres data) — never commit
+supabase/docker/
+
+# Local reference materials (large image dumps, source spreadsheets)
+Vanachai website map*/
+*.xlsx
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

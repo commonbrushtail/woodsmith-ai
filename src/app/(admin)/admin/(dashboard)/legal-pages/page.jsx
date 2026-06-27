@@ -4,6 +4,11 @@ import { useState, useEffect, useTransition } from 'react'
 import { getLegalPages, updateLegalPage } from '@/lib/actions/legal-pages'
 import { useToast } from '@/lib/toast-context'
 import RichTextEditor from '@/components/admin/RichTextEditor'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import PreviewButton from '@/components/admin/PreviewButton'
+import legalAdapter from '@/lib/preview/adapters/legal'
+import { LEGAL_TITLES } from '@/components/LegalContentView'
 
 const TABS = [
   { slug: 'terms', label: 'ข้อกำหนดและเงื่อนไข' },
@@ -17,6 +22,7 @@ export default function LegalPagesAdmin() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('terms')
   const [contents, setContents] = useState({ terms: '', privacy: '', cookies: '' })
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   useEffect(() => {
     getLegalPages().then(({ data, error }) => {
@@ -108,6 +114,9 @@ export default function LegalPagesAdmin() {
             >
               {isPending ? 'กำลังบันทึก...' : 'บันทึก'}
             </button>
+
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
+            <PreviewButton path={`/${activeTab}`} label="เปิดหน้าจริง" disabledHint="" className="w-full" />
           </div>
 
           <div className="bg-white rounded-[12px] border border-[#e8eaef] p-[20px] flex flex-col gap-[8px]">
@@ -120,6 +129,13 @@ export default function LegalPagesAdmin() {
           </div>
         </aside>
       </div>
+
+      <PreviewPanel
+        adapter={legalAdapter}
+        formState={{ slug: activeTab, title: LEGAL_TITLES[activeTab], content: contents[activeTab], updatedAt: null }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }

@@ -8,6 +8,9 @@ import { useToast } from '@/lib/toast-context'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import ProductImageUploader from '@/components/admin/ProductImageUploader'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import productAdapter from '@/lib/preview/adapters/product'
 import VariationLinker from '@/components/admin/VariationLinker'
 import CalendarPicker from '@/components/admin/CalendarPicker'
 import TimePickerDropdown from '@/components/admin/TimePickerDropdown'
@@ -93,6 +96,7 @@ export default function ProductCreateClient({ categories = [], variationGroups =
 
   // Images (held as File objects until product is created)
   const [pendingFiles, setPendingFiles] = useState([])
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   // Variation links
   const [variationLinks, setVariationLinks] = useState([])
@@ -604,9 +608,39 @@ export default function ProductCreateClient({ categories = [], variationGroups =
             >
               บันทึกฉบับร่าง
             </button>
+
+            {/* Live preview of the unsaved product */}
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
           </div>
         </aside>
       </div>
+
+      <PreviewPanel
+        adapter={productAdapter}
+        formState={{
+          id: 'preview',
+          productName,
+          productCode,
+          productType,
+          productCategory,
+          slug,
+          description,
+          characteristics,
+          specifications,
+          showAreaCalculator,
+          calculatorSizes,
+          existingImages: pendingFiles.map((f, i) => ({
+            id: f.id,
+            url: f.previewUrl,
+            is_primary: i === 0,
+            sort_order: i,
+          })),
+          variationLinks,
+          variationGroups,
+        }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }

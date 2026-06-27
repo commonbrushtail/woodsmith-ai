@@ -12,6 +12,10 @@ import VariationLinker from '@/components/admin/VariationLinker'
 import VariationImageManager from '@/components/admin/VariationImageManager'
 import CalendarPicker from '@/components/admin/CalendarPicker'
 import TimePickerDropdown from '@/components/admin/TimePickerDropdown'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import PreviewButton from '@/components/admin/PreviewButton'
+import productAdapter from '@/lib/preview/adapters/product'
 
 const typeOptions = [
   { value: 'construction', label: 'วัสดุก่อสร้าง' },
@@ -105,6 +109,7 @@ export default function ProductEditClient({ product, categories = [], variationG
   const [showEndCal, setShowEndCal] = useState(false)
   const [showStartTime, setShowStartTime] = useState(false)
   const [showEndTime, setShowEndTime] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   // Images — edit mode (live upload/delete)
   const [existingImages, setExistingImages] = useState(
@@ -649,9 +654,36 @@ export default function ProductEditClient({ product, categories = [], variationG
               </svg>
               ดูหน้าเว็บ
             </a>
+
+            {/* Live preview (unsaved edits) + draft preview on the real page */}
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
+            <PreviewButton path={`/product/${product.id}`} label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>
       </div>
+
+      <PreviewPanel
+        adapter={productAdapter}
+        formState={{
+          id: product.id,
+          sku: product.sku,
+          productName,
+          productCode,
+          productType,
+          productCategory,
+          slug,
+          description,
+          characteristics,
+          specifications,
+          showAreaCalculator,
+          calculatorSizes,
+          existingImages,
+          variationLinks,
+          variationGroups,
+        }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }

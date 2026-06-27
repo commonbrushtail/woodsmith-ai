@@ -1,0 +1,6 @@
+# Local self-hosted Supabase stack (~74M, includes Postgres data) — never deploy.
+supabase/docker
+
+# Dev-only material not needed in the deployment bundle.
+.planning
+supabase/migrations

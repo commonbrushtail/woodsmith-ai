@@ -10,6 +10,10 @@ import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import CalendarPicker from '@/components/admin/CalendarPicker'
 import CategorySelect from '@/components/admin/CategorySelect'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import PreviewButton from '@/components/admin/PreviewButton'
+import blogAdapter from '@/lib/preview/adapters/blog'
 
 function ChevronLeftIcon({ size = 16, color = 'currentColor' }) {
   return (
@@ -66,6 +70,7 @@ export default function BlogEditClient({ post }) {
     post.publish_date ? post.publish_date.split('T')[0] : ''
   )
   const [showCal, setShowCal] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   const TITLE_MAX = 120
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0
@@ -354,9 +359,30 @@ export default function BlogEditClient({ post }) {
               </svg>
               ดูหน้าเว็บ
             </a>
+
+            {/* Live preview (unsaved edits) + draft preview on the real page */}
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
+            <PreviewButton path={`/blog/${post.slug || post.id}`} label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>
       </div>
+
+      <PreviewPanel
+        adapter={blogAdapter}
+        formState={{
+          id: post.id,
+          slug: post.slug,
+          title,
+          content,
+          coverPreview,
+          category,
+          publishDate,
+          viewCount: post.view_count,
+          createdAt: post.created_at,
+        }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }

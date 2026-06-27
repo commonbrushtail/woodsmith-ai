@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation'
 import { getAboutUs, updateAboutUs } from '@/lib/actions/about-us'
 import { useToast } from '@/lib/toast-context'
 import RichTextEditor from '@/components/admin/RichTextEditor'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import PreviewButton from '@/components/admin/PreviewButton'
+import aboutAdapter from '@/lib/preview/adapters/about'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -32,6 +36,7 @@ export default function AboutUsPage() {
   /* ---- Form state ---- */
   const [companyDetail, setCompanyDetail] = useState('')
   const [loading, setLoading] = useState(true)
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   /* ---- Load existing data ---- */
   useEffect(() => {
@@ -146,9 +151,19 @@ export default function AboutUsPage() {
             >
               {isPending ? 'กำลังบันทึก...' : 'บันทึก'}
             </button>
+
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
+            <PreviewButton path="/about" label="เปิดหน้าจริง" disabledHint="" className="w-full" />
           </div>
         </aside>
       </div>
+
+      <PreviewPanel
+        adapter={aboutAdapter}
+        formState={{ companyDetail }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }

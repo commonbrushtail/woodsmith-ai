@@ -1,0 +1,13 @@
+# Vercel access token for deploying the hosted WoodSmith project.
+# Create it in the Vercel dashboard (logged in as the account/team that owns
+# `woodsmith`): Account Settings -> Tokens -> Create Token.
+#
+# Copy this file to  .vercel-token.local  and paste the token below.
+# The real file matches *.local in .gitignore, so it is never committed.
+# Used by scripts/deploy.ps1.
+VERCEL_TOKEN=
+
+# Optional: the team slug, required only if `woodsmith` lives under a team
+# (it does — team_4AgM6HjzfR3pE38elkRNfqgP). Find the slug in the team's
+# Vercel dashboard URL, e.g. vercel.com/<team-slug>.
+VERCEL_SCOPE=

@@ -6,6 +6,10 @@ import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { updateBanner } from '@/lib/actions/banners'
 import { validateFile, compressImage, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/upload-validation'
+import PreviewButton from '@/components/admin/PreviewButton'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import bannerAdapter from '@/lib/preview/adapters/banner'
 
 function PlusIcon({ size = 18, color = '#ff7e1b' }) {
   return (
@@ -51,6 +55,7 @@ export default function BannerEditClient({ banner }) {
   const [linkUrl, setLinkUrl] = useState(banner.link_url || '')
   const [imagePreview, setImagePreview] = useState(banner.image_url || null)
   const [selectedFile, setSelectedFile] = useState(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
   const fileInputRef = useRef(null)
 
   const handleFileSelect = async (e) => {
@@ -235,9 +240,20 @@ export default function BannerEditClient({ banner }) {
             >
               บันทึกฉบับร่าง
             </button>
+
+            {/* Live preview + draft preview on the real homepage */}
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
+            <PreviewButton path="/" label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </aside>
       </div>
+
+      <PreviewPanel
+        adapter={bannerAdapter}
+        formState={{ imagePreview, linkUrl }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }

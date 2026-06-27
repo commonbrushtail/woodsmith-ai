@@ -3,6 +3,10 @@
 import { useState, useEffect, useTransition } from 'react'
 import { getSiteSettings, updateSiteSettings } from '@/lib/actions/site-settings'
 import { useToast } from '@/lib/toast-context'
+import PreviewButton from '@/components/admin/PreviewButton'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import siteSettingsAdapter from '@/lib/preview/adapters/site-settings'
 
 /* ------------------------------------------------------------------ */
 /*  SVG icon helpers                                                   */
@@ -26,6 +30,7 @@ export default function SiteSettingsPage() {
   const { toast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [loading, setLoading] = useState(true)
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   // Company Information
   const [companyName, setCompanyName] = useState('')
@@ -164,6 +169,8 @@ export default function SiteSettingsPage() {
         </div>
 
         <div className="flex items-center gap-[8px]">
+          <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="!w-auto" />
+          <PreviewButton path="/" label="พรีวิวหน้าแรก" />
           <button
             type="button"
             className="size-[32px] flex items-center justify-center rounded-[8px] hover:bg-gray-100 cursor-pointer bg-transparent border-0"
@@ -477,6 +484,13 @@ export default function SiteSettingsPage() {
           </div>
         </aside>
       </div>
+
+      <PreviewPanel
+        adapter={siteSettingsAdapter}
+        formState={{ companyName, companyAddress, phoneNumber, lineId, copyrightText, facebookUrl, instagramUrl, tiktokUrl, lineUrl }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }
