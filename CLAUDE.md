@@ -140,6 +140,17 @@ powershell -File ./scripts/db-push.ps1 -DryRun    # preview without applying
 
 The script reads the DB password from `supabase/.db-credentials.local` (gitignored via `*.local`; template at `supabase/.db-credentials.local.example`) and connects with `supabase db push --db-url` — no account login needed. Do **not** rely on `supabase db push` alone here. Migration SQL lives in `supabase/migrations/` (sequentially numbered).
 
+## Deployment (Vercel)
+
+The hosted Vercel project (`woodsmith`, team `team_4AgM6HjzfR3pE38elkRNfqgP`) is on a **separate Vercel account** from this machine's global `vercel login`, so a plain `vercel --prod` fails with *"Could not retrieve Project Settings."* Deploy with a project-scoped access token instead:
+
+```powershell
+powershell -File ./scripts/deploy.ps1            # production deploy
+powershell -File ./scripts/deploy.ps1 -Preview   # preview (non-prod) deploy
+```
+
+The script reads `VERCEL_TOKEN` (and optional `VERCEL_SCOPE` team slug) from `.vercel-token.local` (gitignored via `*.local`; template at `.vercel-token.local.example`) and runs `vercel --prod --token=…`. It uploads the local tree directly, so **no `git push` is required to deploy**. (Pushing to GitHub is a separate step and needs your GitHub credentials via Git Credential Manager.)
+
 ## MCP Servers
 
 Both are configured as Claude Code plugins (enabled in `~/.claude/settings.json`).
