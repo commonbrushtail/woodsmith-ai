@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
-import { updateQuotationStatus, updateAdminNotes } from '@/lib/actions/quotations'
+import { updateQuotationStatus, updateAdminNotes, sendQuotationResponse } from '@/lib/actions/quotations'
 
 function ChevronDownIcon({ size = 10, color = '#6b7280' }) {
   return (
@@ -84,6 +84,8 @@ export default function QuotationDetailClient({ quotation }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [adminNotes, setAdminNotes] = useState(quotation.admin_notes || '')
+  const [quoteAmount, setQuoteAmount] = useState(quotation.quoted_amount ?? '')
+  const [quoteMessage, setQuoteMessage] = useState(quotation.quote_message || '')
 
   function fmtDate(dateStr) {
     if (!dateStr) return '-'
@@ -108,6 +110,14 @@ export default function QuotationDetailClient({ quotation }) {
       const result = await updateAdminNotes(quotation.id, adminNotes)
       if (result.error) toast.error('เกิดข้อผิดพลาด: ' + result.error)
       else router.refresh()
+    })
+  }
+
+  const handleSendQuote = () => {
+    startTransition(async () => {
+      const result = await sendQuotationResponse(quotation.id, { amount: quoteAmount, message: quoteMessage })
+      if (result.error) toast.error('เกิดข้อผิดพลาด: ' + result.error)
+      else { toast.success('ส่งใบเสนอราคาให้ลูกค้าแล้ว'); router.refresh() }
     })
   }
 
@@ -201,26 +211,70 @@ export default function QuotationDetailClient({ quotation }) {
           </div>
         </div>
 
-        {/* Sidebar: หมายเหตุ (30%) */}
-        <div className="bg-white rounded-[5px] p-[24px] flex flex-col gap-[16px] flex-[3] sticky top-[16px]">
-          <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[24px] text-[#202124] leading-[28px] m-0">
-            หมายเหตุ
-          </h2>
-          <textarea
-            value={adminNotes}
-            onChange={(e) => setAdminNotes(e.target.value)}
-            placeholder="เพิ่มหมายเหตุ..."
-            rows={6}
-            className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e5e7eb] rounded-[6px] px-[14px] py-[10px] outline-none focus:border-orange focus:ring-1 focus:ring-orange/20 placeholder:text-[#bfbfbf] resize-y"
-          />
-          <button
-            type="button"
-            onClick={handleSaveNotes}
-            disabled={isPending}
-            className="w-full py-[10px] rounded-[6px] bg-orange text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] disabled:opacity-50"
-          >
-            {isPending ? 'บันทึก...' : 'บันทึก'}
-          </button>
+        {/* Sidebar (30%): quote response + internal notes */}
+        <div className="flex flex-col gap-[16px] flex-[3] sticky top-[16px]">
+          {/* Quote response to customer (emails them) */}
+          <div className="bg-white rounded-[5px] p-[24px] flex flex-col gap-[12px]">
+            <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-[#202124] leading-[24px] m-0">
+              ตอบกลับลูกค้า (ใบเสนอราคา)
+            </h2>
+            {quotation.quoted_at && (
+              <p className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#16a34a] m-0">
+                ส่งให้ลูกค้าล่าสุด: {fmtDate(quotation.quoted_at)}
+              </p>
+            )}
+            <label className="font-['IBM_Plex_Sans_Thai'] text-[13px] font-medium text-[#374151]">ราคาที่เสนอ (บาท)</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={quoteAmount}
+              onChange={(e) => setQuoteAmount(e.target.value)}
+              placeholder="เช่น 12000"
+              className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e5e7eb] rounded-[6px] px-[14px] py-[10px] outline-none focus:border-orange focus:ring-1 focus:ring-orange/20 placeholder:text-[#bfbfbf]"
+            />
+            <label className="font-['IBM_Plex_Sans_Thai'] text-[13px] font-medium text-[#374151]">ข้อความถึงลูกค้า</label>
+            <textarea
+              value={quoteMessage}
+              onChange={(e) => setQuoteMessage(e.target.value)}
+              placeholder="รายละเอียดใบเสนอราคา เงื่อนไข ฯลฯ"
+              rows={4}
+              className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e5e7eb] rounded-[6px] px-[14px] py-[10px] outline-none focus:border-orange focus:ring-1 focus:ring-orange/20 placeholder:text-[#bfbfbf] resize-y"
+            />
+            <button
+              type="button"
+              onClick={handleSendQuote}
+              disabled={isPending}
+              className="w-full py-[10px] rounded-[6px] bg-orange text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15] disabled:opacity-50"
+            >
+              {isPending ? 'กำลังส่ง...' : 'ส่งใบเสนอราคาให้ลูกค้า'}
+            </button>
+            <p className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#9ca3af] m-0">
+              ลูกค้าจะได้รับอีเมลและเห็นใบเสนอราคานี้ในบัญชีของตน
+            </p>
+          </div>
+
+          {/* Internal notes (not visible to customer) */}
+          <div className="bg-white rounded-[5px] p-[24px] flex flex-col gap-[16px]">
+            <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-[#202124] leading-[24px] m-0">
+              หมายเหตุภายใน
+            </h2>
+            <textarea
+              value={adminNotes}
+              onChange={(e) => setAdminNotes(e.target.value)}
+              placeholder="เพิ่มหมายเหตุ..."
+              rows={6}
+              className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e5e7eb] rounded-[6px] px-[14px] py-[10px] outline-none focus:border-orange focus:ring-1 focus:ring-orange/20 placeholder:text-[#bfbfbf] resize-y"
+            />
+            <button
+              type="button"
+              onClick={handleSaveNotes}
+              disabled={isPending}
+              className="w-full py-[10px] rounded-[6px] bg-white text-[#374151] border border-[#e5e7eb] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] cursor-pointer hover:bg-[#f9fafb] disabled:opacity-50"
+            >
+              {isPending ? 'บันทึก...' : 'บันทึกหมายเหตุ'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

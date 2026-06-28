@@ -45,6 +45,11 @@ export default function QuotationModal({ isOpen, onClose, product, selections = 
   const [guestName, setGuestName] = useState('')
   const [guestSurname, setGuestSurname] = useState('')
   const [guestEmail, setGuestEmail] = useState('')
+  const [guestPhone, setGuestPhone] = useState('')
+
+  // Shared request details (all users)
+  const [message, setMessage] = useState('')
+  const [quantity, setQuantity] = useState('')
 
   // reCAPTCHA
   const [captchaToken, setCaptchaToken] = useState('')
@@ -77,6 +82,9 @@ export default function QuotationModal({ isOpen, onClose, product, selections = 
       setGuestName('')
       setGuestSurname('')
       setGuestEmail('')
+      setGuestPhone('')
+      setMessage('')
+      setQuantity('')
     }
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
@@ -126,6 +134,9 @@ export default function QuotationModal({ isOpen, onClose, product, selections = 
         selectedVariations: selections.length > 0 ? selections : undefined,
         requesterName: !isLoggedIn ? `${guestName.trim()} ${guestSurname.trim()}` : undefined,
         requesterEmail: !isLoggedIn ? guestEmail.trim() : undefined,
+        requesterPhone: !isLoggedIn ? (guestPhone.trim() || undefined) : undefined,
+        message: message.trim() || undefined,
+        quantity: quantity ? Number(quantity) : undefined,
         captchaToken: !isLoggedIn ? captchaToken : undefined,
       })
       if (result.error) {
@@ -240,6 +251,13 @@ export default function QuotationModal({ isOpen, onClose, product, selections = 
                     placeholder="อีเมล"
                     className={inputCls}
                   />
+                  <input
+                    type="tel"
+                    value={guestPhone}
+                    onChange={(e) => setGuestPhone(e.target.value)}
+                    placeholder="เบอร์โทรศัพท์ (ไม่บังคับ)"
+                    className={inputCls}
+                  />
                   {RECAPTCHA_SITE_KEY && (
                     <div className="flex justify-center mt-[4px]">
                       <div ref={captchaRef} />
@@ -247,6 +265,25 @@ export default function QuotationModal({ isOpen, onClose, product, selections = 
                   )}
                 </div>
               )}
+
+              {/* Request details — all users */}
+              <div className="flex flex-col gap-[10px] w-full max-w-[335px]">
+                <input
+                  type="number"
+                  min="1"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  placeholder="จำนวนที่ต้องการ (ไม่บังคับ)"
+                  className={inputCls}
+                />
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="ข้อความถึงเจ้าหน้าที่ (ไม่บังคับ)"
+                  rows={3}
+                  className={`${inputCls} resize-none`}
+                />
+              </div>
             </div>
             {errorMsg && (
               <p className="font-['IBM_Plex_Sans_Thai'] text-[13px] text-red-500 text-center px-[40px] m-0">

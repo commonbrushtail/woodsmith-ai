@@ -7,7 +7,7 @@ import { quotationStatusSchema } from '@/lib/validations/quotations'
 import { logAudit } from '@/lib/audit'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { sendEmail } from '@/lib/email'
-import { quotationStatusNotification } from '@/lib/email-templates'
+import { quotationStatusNotification, quotationQuote } from '@/lib/email-templates'
 
 /**
  * List quotations with pagination and optional status filter.
@@ -105,6 +105,60 @@ export async function updateQuotationStatus(id, status) {
       })
       sendEmail({ to: quotation.requester_email, subject, html })
     }
+  }
+
+  revalidatePath('/admin/quotations')
+  revalidatePath(`/admin/quotations/${id}`)
+  return { error: null }
+}
+
+/**
+ * Send a quote response (price + customer-visible message) and email it to the
+ * customer. Distinct from admin_notes (internal). Does not change status.
+ */
+export async function sendQuotationResponse(id, { amount, message } = {}) {
+  const { user, error: authError } = await requireAdmin()
+  if (authError) return { error: authError }
+
+  const trimmedMessage = typeof message === 'string' ? message.trim() : ''
+  const hasAmount = amount !== null && amount !== undefined && amount !== ''
+  if (!hasAmount && !trimmedMessage) {
+    return { error: 'กรุณาระบุราคาหรือข้อความถึงลูกค้า' }
+  }
+  const quotedAmount = hasAmount ? Number(amount) : null
+  if (quotedAmount !== null && (Number.isNaN(quotedAmount) || quotedAmount < 0)) {
+    return { error: 'ราคาไม่ถูกต้อง' }
+  }
+
+  const supabase = createServiceClient()
+  const { error } = await supabase
+    .from('quotations')
+    .update({
+      quoted_amount: quotedAmount,
+      quote_message: trimmedMessage || null,
+      quoted_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+
+  if (error) return { error: error.message }
+
+  logAudit({ userId: user?.id, action: 'quotation.quote_sent', targetId: id, details: { quotedAmount } })
+
+  // Fire-and-forget: email the quote to the customer.
+  const { data: quotation } = await supabase
+    .from('quotations')
+    .select('quotation_number, requester_name, requester_email')
+    .eq('id', id)
+    .single()
+
+  if (quotation?.requester_email) {
+    const { subject, html } = quotationQuote({
+      quotationNumber: quotation.quotation_number,
+      requesterName: quotation.requester_name,
+      quotedAmount,
+      quoteMessage: trimmedMessage || null,
+    })
+    sendEmail({ to: quotation.requester_email, subject, html })
   }
 
   revalidatePath('/admin/quotations')

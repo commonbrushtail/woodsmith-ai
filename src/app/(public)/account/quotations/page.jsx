@@ -61,10 +61,75 @@ function formatVariations(q) {
   return parts.join(', ') || '-'
 }
 
+function formatBaht(n) {
+  if (n === null || n === undefined || n === '') return null
+  return '฿' + Number(n).toLocaleString('th-TH', { minimumFractionDigits: 2 })
+}
+
+function DetailRow({ label, children }) {
+  return (
+    <div className="flex gap-[12px]">
+      <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-grey w-[88px] shrink-0">{label}</span>
+      <span className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-black whitespace-pre-wrap">{children || '-'}</span>
+    </div>
+  )
+}
+
+function QuoteDetailModal({ quotation: q, onClose }) {
+  const amount = formatBaht(q.quoted_amount)
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-[16px]" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/50" />
+      <div
+        className="relative bg-white rounded-[12px] w-full max-w-[480px] max-h-[85vh] overflow-y-auto p-[24px] flex flex-col gap-[16px]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-[12px]">
+          <div>
+            <p className="m-0 font-['IBM_Plex_Sans_Thai'] font-semibold text-[18px] text-black">รายละเอียดใบเสนอราคา</p>
+            <p className="m-0 font-['IBM_Plex_Sans_Thai'] text-[13px] text-grey">{q.quotation_number}</p>
+          </div>
+          <StatusBadge status={q.status} />
+        </div>
+
+        <div className="flex flex-col gap-[8px] border-t border-[#e5e7eb] pt-[16px]">
+          <DetailRow label="สินค้า">{q.product?.name}</DetailRow>
+          <DetailRow label="ตัวเลือก">{formatVariations(q)}</DetailRow>
+          {q.quantity && <DetailRow label="จำนวน">{q.quantity}</DetailRow>}
+          {q.message && <DetailRow label="ข้อความ">{q.message}</DetailRow>}
+          <DetailRow label="วันที่ขอ">{formatDate(q.created_at)}</DetailRow>
+        </div>
+
+        {q.quoted_at ? (
+          <div className="bg-[#fff8ef] border border-orange/30 rounded-[8px] p-[16px] flex flex-col gap-[6px]">
+            <p className="m-0 font-['IBM_Plex_Sans_Thai'] font-semibold text-[15px] text-orange">ใบเสนอราคาจากเรา</p>
+            {amount && <p className="m-0 font-['IBM_Plex_Sans_Thai'] font-bold text-[26px] text-black">{amount}</p>}
+            {q.quote_message && <p className="m-0 font-['IBM_Plex_Sans_Thai'] text-[14px] text-black whitespace-pre-wrap">{q.quote_message}</p>}
+            <p className="m-0 font-['IBM_Plex_Sans_Thai'] text-[12px] text-grey">ตอบกลับเมื่อ {formatDate(q.quoted_at)}</p>
+          </div>
+        ) : (
+          <div className="bg-[#f8f3ea] rounded-[8px] p-[16px] font-['IBM_Plex_Sans_Thai'] text-[14px] text-grey text-center">
+            ทีมงานกำลังจัดทำใบเสนอราคา กรุณารอการตอบกลับ
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-full py-[10px] rounded-[8px] bg-orange text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] border-0 cursor-pointer hover:bg-[#e56f15]"
+        >
+          ปิด
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function AccountQuotationsPage() {
   const [quotations, setQuotations] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('pending')
+  const [selected, setSelected] = useState(null)
 
   useEffect(() => {
     async function load() {
@@ -159,7 +224,11 @@ export default function AccountQuotationsPage() {
               {activeItems.map((q) => {
                 const imageUrl = getProductImage(q.product)
                 return (
-                  <tr key={q.id} className="border-b border-[#e5e7eb] h-[80px]">
+                  <tr
+                    key={q.id}
+                    onClick={() => setSelected(q)}
+                    className="border-b border-[#e5e7eb] h-[80px] cursor-pointer hover:bg-[#f9fafb] transition-colors"
+                  >
                     {/* Product */}
                     <td className="px-[20px] py-[12px]">
                       <div className="flex gap-[10px] items-center">
@@ -177,6 +246,7 @@ export default function AccountQuotationsPage() {
                           ) : (
                             <p className="m-0 text-grey">-</p>
                           )}
+                          <p className="m-0 text-[12px] text-grey font-normal">{q.quotation_number}</p>
                         </div>
                       </div>
                     </td>
@@ -203,6 +273,8 @@ export default function AccountQuotationsPage() {
           </table>
         </div>
       )}
+
+      {selected && <QuoteDetailModal quotation={selected} onClose={() => setSelected(null)} />}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { newQuotationNotification, quotationStatusNotification, quotationConfirmation } from '@/lib/email-templates'
+import { newQuotationNotification, quotationStatusNotification, quotationConfirmation, quotationQuote } from '@/lib/email-templates'
 
 describe('newQuotationNotification', () => {
   beforeEach(() => {
@@ -90,6 +90,24 @@ describe('quotationConfirmation', () => {
   it('includes product name when provided', () => {
     const r = quotationConfirmation({ quotationNumber: 'QT-1', requesterName: 'x', productName: 'ไม้สักทอง' })
     expect(r.html).toContain('ไม้สักทอง')
+  })
+})
+
+describe('quotationQuote', () => {
+  it('formats the quoted amount in baht', () => {
+    const r = quotationQuote({ quotationNumber: 'QT-1', requesterName: 'สมชาย', quotedAmount: 12000 })
+    expect(r.subject).toBe('ใบเสนอราคา QT-1')
+    expect(r.html).toContain('฿12,000.00')
+  })
+
+  it('includes the quote message', () => {
+    const r = quotationQuote({ quotationNumber: 'QT-1', requesterName: 'x', quoteMessage: 'ราคารวมติดตั้ง' })
+    expect(r.html).toContain('ราคารวมติดตั้ง')
+  })
+
+  it('omits the amount block when no amount is given', () => {
+    const r = quotationQuote({ quotationNumber: 'QT-1', requesterName: 'x', quoteMessage: 'msg' })
+    expect(r.html).not.toContain('ราคาที่เสนอ')
   })
 })
 

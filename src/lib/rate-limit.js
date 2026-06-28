@@ -49,5 +49,4 @@ export function createRateLimiter({ windowMs, max }) {
 // Pre-configured limiters for common use cases
 export const loginLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 5 })
 export const passwordResetLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 3 })
-// Guest quotation submissions: 5 per 10 minutes per IP.
-export const quotationLimiter = createRateLimiter({ windowMs: 10 * 60 * 1000, max: 5 })
+// (Quotation submissions use the durable DB-backed limiter in rate-limit-db.js.)

@@ -7,7 +7,7 @@ import { quotationCreateSchema } from '@/lib/validations/quotations'
 import { sanitizeObject } from '@/lib/sanitize'
 import { sendEmail } from '@/lib/email'
 import { newQuotationNotification, quotationConfirmation } from '@/lib/email-templates'
-import { quotationLimiter } from '@/lib/rate-limit'
+import { checkRateLimitDb } from '@/lib/rate-limit-db'
 import { headers } from 'next/headers'
 
 /**
@@ -126,10 +126,11 @@ export async function submitQuotation({
     if (!requesterName || !requesterEmail) {
       return { data: null, error: 'กรุณากรอกชื่อและอีเมล' }
     }
-    // Throttle guest submissions per IP to prevent spam.
+    // Throttle guest submissions per IP (5 per 10 min), durable across instances.
     const hdrs = await headers()
     const ip = (hdrs.get('x-forwarded-for') || '').split(',')[0].trim() || 'unknown'
-    if (!quotationLimiter.check(`quote:${ip}`).allowed) {
+    const allowed = await checkRateLimitDb(supabase, `quote:${ip}`, { windowSeconds: 600, max: 5 })
+    if (!allowed) {
       return { data: null, error: 'คุณส่งคำขอบ่อยเกินไป กรุณาลองใหม่อีกครั้งในภายหลัง' }
     }
     const secretKey = process.env.RECAPTCHA_SECRET_KEY

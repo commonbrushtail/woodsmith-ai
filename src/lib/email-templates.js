@@ -89,6 +89,37 @@ export function quotationConfirmation({ quotationNumber, requesterName, productN
 }
 
 /**
+ * Customer: the admin's quote response (price + message).
+ */
+export function quotationQuote({ quotationNumber, requesterName, quotedAmount, quoteMessage }) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const amountLine =
+    quotedAmount !== null && quotedAmount !== undefined && quotedAmount !== ''
+      ? `<div style="text-align:center;margin:20px 0;">
+           <p style="margin:0;font-size:14px;color:#6b7280;">ราคาที่เสนอ</p>
+           <p style="margin:4px 0 0;font-size:32px;font-weight:bold;color:${BRAND_COLOR};">฿${Number(quotedAmount).toLocaleString('th-TH', { minimumFractionDigits: 2 })}</p>
+         </div>`
+      : ''
+  const messageLine = quoteMessage
+    ? `<div style="background:#f8f3ea;padding:16px;border-radius:8px;margin:16px 0;white-space:pre-wrap;">${quoteMessage}</div>`
+    : ''
+
+  return {
+    subject: `ใบเสนอราคา ${quotationNumber}`,
+    html: emailLayout(`
+      <h2 style="color:${BRAND_COLOR};margin-top:0;">ใบเสนอราคาของคุณ</h2>
+      <p>สวัสดีคุณ ${requesterName},</p>
+      <p>ทีมงานได้จัดทำใบเสนอราคาสำหรับคำขอเลขที่ <strong>${quotationNumber}</strong> เรียบร้อยแล้ว</p>
+      ${amountLine}
+      ${messageLine}
+      <p>ดูรายละเอียดหรือดำเนินการต่อได้ที่
+        <a href="${siteUrl}/account/quotations" style="color:${BRAND_COLOR};">บัญชีของฉัน</a></p>
+      <p>ขอบคุณที่ใช้บริการ WoodSmith</p>
+    `),
+  }
+}
+
+/**
  * Customer notification: quotation status changed.
  */
 export function quotationStatusNotification({ quotationNumber, requesterName, status }) {
