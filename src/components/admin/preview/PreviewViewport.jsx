@@ -8,16 +8,31 @@ import { createPortal } from 'react-dom'
 // viewport, not a container) reflects the chosen device. The desktop frame is
 // scaled down to fit the panel; the mobile frame renders 1:1 and centered.
 const DEVICE_WIDTH = { desktop: 1280, mobile: 390 }
+const STYLE_SELECTOR =
+  'style, link[rel="stylesheet"], link[rel="preconnect"], link[rel="dns-prefetch"], link[as="font"]'
 
-function syncStyles(doc) {
-  // Mirror the app's stylesheets + font links into the iframe so Tailwind
-  // classes and fonts resolve. Idempotent: replace head each time.
+// Mirror the app's stylesheets/fonts into the iframe AND keep mirroring any
+// that get injected later — Next.js loads a dynamically-imported component's
+// CSS (e.g. Swiper's `import 'swiper/css'`) as a separate chunk that lands in
+// the parent <head> after the iframe is first set up. A one-time clone misses
+// it, which left the gallery carousel unstyled (slides stacked vertically).
+function mirrorStyles(doc) {
   doc.head.replaceChildren()
-  document
-    .querySelectorAll('style, link[rel="stylesheet"], link[rel="preconnect"], link[rel="dns-prefetch"], link[as="font"]')
-    .forEach((node) => doc.head.appendChild(node.cloneNode(true)))
+  document.querySelectorAll(STYLE_SELECTOR).forEach((node) => doc.head.appendChild(node.cloneNode(true)))
   doc.documentElement.style.background = '#ffffff'
   doc.body.style.margin = '0'
+
+  const observer = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      for (const node of m.addedNodes) {
+        if (node.nodeType === 1 && node.matches?.(STYLE_SELECTOR)) {
+          doc.head.appendChild(node.cloneNode(true))
+        }
+      }
+    }
+  })
+  observer.observe(document.head, { childList: true })
+  return observer
 }
 
 /**
@@ -30,6 +45,7 @@ function syncStyles(doc) {
 export default function PreviewViewport({ viewport = 'desktop', children }) {
   const containerRef = useRef(null)
   const iframeRef = useRef(null)
+  const observerRef = useRef(null)
   const [body, setBody] = useState(null)
   const [size, setSize] = useState({ w: 0, h: 0 })
 
@@ -49,13 +65,15 @@ export default function PreviewViewport({ viewport = 'desktop', children }) {
   const setup = () => {
     const doc = iframeRef.current?.contentDocument
     if (!doc) return
-    syncStyles(doc)
+    observerRef.current?.disconnect()
+    observerRef.current = mirrorStyles(doc)
     setBody(doc.body)
   }
 
   // contentDocument can be ready before onLoad fires.
   useEffect(() => {
     setup()
+    return () => observerRef.current?.disconnect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
