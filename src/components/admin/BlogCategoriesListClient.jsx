@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { deleteBlogCategory } from '@/lib/actions/blog-categories'
 import { useToast } from '@/lib/toast-context'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import PreviewButton from '@/components/admin/PreviewButton'
+import blogCategoryAdapter from '@/lib/preview/adapters/blog-category'
 
 function DotsIcon({ size = 18, color = '#6b7280' }) {
   return (
@@ -49,6 +53,7 @@ export default function BlogCategoriesListClient({ categories }) {
   const [isPending, startTransition] = useTransition()
   const [openMenuId, setOpenMenuId] = useState(null)
   const [search, setSearch] = useState('')
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   const filtered = categories.filter(
     (c) => !search || c.name?.toLowerCase().includes(search.toLowerCase())
@@ -96,13 +101,17 @@ export default function BlogCategoriesListClient({ categories }) {
           </span>
         </div>
 
-        <Link
-          href="/admin/blog-categories/create"
-          className="flex items-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] no-underline hover:bg-[#e56f15] transition-colors"
-        >
-          <PlusIcon size={16} color="white" />
-          <span>Create new entry</span>
-        </Link>
+        <div className="flex items-center gap-[8px]">
+          <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="!w-auto" />
+          <PreviewButton path="/blog" label="พรีวิว" />
+          <Link
+            href="/admin/blog-categories/create"
+            className="flex items-center gap-[6px] px-[16px] py-[8px] rounded-[8px] bg-[#ff7e1b] text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] no-underline hover:bg-[#e56f15] transition-colors"
+          >
+            <PlusIcon size={16} color="white" />
+            <span>Create new entry</span>
+          </Link>
+        </div>
       </div>
 
       {/* Search */}
@@ -198,6 +207,13 @@ export default function BlogCategoriesListClient({ categories }) {
           </tbody>
         </table>
       </div>
+
+      <PreviewPanel
+        adapter={blogCategoryAdapter}
+        formState={{ categories }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }

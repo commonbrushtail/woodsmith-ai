@@ -7,6 +7,7 @@ import gallery from '@/lib/preview/adapters/gallery'
 import faq from '@/lib/preview/adapters/faq'
 import siteSettings from '@/lib/preview/adapters/site-settings'
 import category from '@/lib/preview/adapters/category'
+import blogCategory from '@/lib/preview/adapters/blog-category'
 
 // Every adapter's toProps must be total (never throw) and produce the prop
 // shape its target public component expects.
@@ -49,6 +50,13 @@ describe('adapter totality + mapping', () => {
     expect(() => siteSettings.toProps({})).not.toThrow()
     const p = siteSettings.toProps({ companyName: 'ACME', phoneNumber: '123', facebookUrl: 'fb' })
     expect(p.settings).toMatchObject({ company_name: 'ACME', phone_number: '123', facebook_url: 'fb' })
+  })
+
+  it('blog-category -> BlogPageClient categories (tabs)', () => {
+    expect(blogCategory.toProps({}).categories).toEqual([])
+    const p = blogCategory.toProps({ categories: [{ slug: 'trend', name: 'เทรนด์' }] })
+    expect(p.categories[0]).toMatchObject({ slug: 'trend', name: 'เทรนด์' })
+    expect(p.posts).toEqual([])
   })
 
   it('category -> TaxonomyCardPreview card', () => {

@@ -6,6 +6,10 @@ import Link from 'next/link'
 import { updateBlogCategory, deleteBlogCategory } from '@/lib/actions/blog-categories'
 import { useToast } from '@/lib/toast-context'
 import { useFormErrors } from '@/lib/hooks/use-form-errors'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import PreviewButton from '@/components/admin/PreviewButton'
+import blogCategoryAdapter from '@/lib/preview/adapters/blog-category'
 
 function ChevronLeftIcon() {
   return (
@@ -25,6 +29,7 @@ export default function BlogCategoryEditClient({ category }) {
   const formErrors = useFormErrors()
 
   const [name, setName] = useState(category.name)
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   const slug = name
     .toLowerCase()
@@ -163,9 +168,19 @@ export default function BlogCategoryEditClient({ category }) {
             >
               ลบหมวดหมู่
             </button>
+
+            <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
+            <PreviewButton path="/blog" label="พรีวิวฉบับร่าง" className="w-full" />
           </div>
         </div>
       </div>
+
+      <PreviewPanel
+        adapter={blogCategoryAdapter}
+        formState={{ categories: [{ slug, name }] }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }
