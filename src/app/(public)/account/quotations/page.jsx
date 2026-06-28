@@ -105,6 +105,19 @@ function QuoteDetailModal({ quotation: q, onClose }) {
             <p className="m-0 font-['IBM_Plex_Sans_Thai'] font-semibold text-[15px] text-orange">ใบเสนอราคาจากเรา</p>
             {amount && <p className="m-0 font-['IBM_Plex_Sans_Thai'] font-bold text-[26px] text-black">{amount}</p>}
             {q.quote_message && <p className="m-0 font-['IBM_Plex_Sans_Thai'] text-[14px] text-black whitespace-pre-wrap">{q.quote_message}</p>}
+            {q.quote_file_url && (
+              <a
+                href={q.quote_file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="self-start inline-flex items-center gap-[6px] mt-[4px] px-[14px] py-[8px] rounded-[6px] bg-orange text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] no-underline"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                ดาวน์โหลดใบเสนอราคา{q.quote_file_name ? ` (${q.quote_file_name})` : ''}
+              </a>
+            )}
             <p className="m-0 font-['IBM_Plex_Sans_Thai'] text-[12px] text-grey">ตอบกลับเมื่อ {formatDate(q.quoted_at)}</p>
           </div>
         ) : (

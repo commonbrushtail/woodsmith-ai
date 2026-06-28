@@ -109,6 +109,18 @@ describe('quotationQuote', () => {
     const r = quotationQuote({ quotationNumber: 'QT-1', requesterName: 'x', quoteMessage: 'msg' })
     expect(r.html).not.toContain('ราคาที่เสนอ')
   })
+
+  it('includes a download link when a file is attached', () => {
+    const r = quotationQuote({ quotationNumber: 'QT-1', requesterName: 'x', fileUrl: 'https://x/quote.pdf', fileName: 'quote.pdf' })
+    expect(r.html).toContain('https://x/quote.pdf')
+    expect(r.html).toContain('ดาวน์โหลดใบเสนอราคา')
+    expect(r.html).toContain('quote.pdf')
+  })
+
+  it('omits the download link when no file', () => {
+    const r = quotationQuote({ quotationNumber: 'QT-1', requesterName: 'x', quotedAmount: 100 })
+    expect(r.html).not.toContain('ดาวน์โหลด')
+  })
 })
 
 describe('quotationStatusNotification', () => {

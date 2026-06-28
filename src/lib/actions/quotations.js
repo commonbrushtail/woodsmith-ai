@@ -8,6 +8,10 @@ import { logAudit } from '@/lib/audit'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { sendEmail } from '@/lib/email'
 import { quotationStatusNotification, quotationQuote } from '@/lib/email-templates'
+import { uploadFile, getPublicUrl } from '@/lib/storage'
+
+const QUOTE_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
+const QUOTE_FILE_MAX = 10 * 1024 * 1024 // 10MB
 
 /**
  * List quotations with pagination and optional status filter.
@@ -116,38 +120,56 @@ export async function updateQuotationStatus(id, status) {
  * Send a quote response (price + customer-visible message) and email it to the
  * customer. Distinct from admin_notes (internal). Does not change status.
  */
-export async function sendQuotationResponse(id, { amount, message } = {}) {
+export async function sendQuotationResponse(id, formData) {
   const { user, error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
-  const trimmedMessage = typeof message === 'string' ? message.trim() : ''
-  const hasAmount = amount !== null && amount !== undefined && amount !== ''
-  if (!hasAmount && !trimmedMessage) {
-    return { error: 'กรุณาระบุราคาหรือข้อความถึงลูกค้า' }
+  const amountRaw = formData.get('amount')
+  const message = (formData.get('message') || '').toString().trim()
+  const file = formData.get('file')
+  const hasFile = file && typeof file === 'object' && typeof file.size === 'number' && file.size > 0
+  const hasAmount = amountRaw !== null && amountRaw !== '' && amountRaw !== undefined
+
+  if (!hasAmount && !message && !hasFile) {
+    return { error: 'กรุณาระบุราคา ข้อความ หรือแนบไฟล์ถึงลูกค้า' }
   }
-  const quotedAmount = hasAmount ? Number(amount) : null
+  const quotedAmount = hasAmount ? Number(amountRaw) : null
   if (quotedAmount !== null && (Number.isNaN(quotedAmount) || quotedAmount < 0)) {
     return { error: 'ราคาไม่ถูกต้อง' }
   }
 
   const supabase = createServiceClient()
-  const { error } = await supabase
-    .from('quotations')
-    .update({
-      quoted_amount: quotedAmount,
-      quote_message: trimmedMessage || null,
-      quoted_at: new Date().toISOString(),
-    })
-    .eq('id', id)
 
+  // Upload the attachment if provided.
+  const update = {
+    quoted_amount: quotedAmount,
+    quote_message: message || null,
+    quoted_at: new Date().toISOString(),
+  }
+  if (hasFile) {
+    if (!QUOTE_FILE_TYPES.includes(file.type)) {
+      return { error: 'รองรับเฉพาะไฟล์ PDF หรือรูปภาพ' }
+    }
+    if (file.size > QUOTE_FILE_MAX) {
+      return { error: 'ไฟล์ใหญ่เกิน 10MB' }
+    }
+    const safeName = (file.name || 'quote').replace(/[^\w.\-]+/g, '_')
+    const path = `${id}/quote-${safeName}`
+    const { error: upErr } = await uploadFile('quotations', file, path)
+    if (upErr) return { error: 'อัปโหลดไฟล์ไม่สำเร็จ' }
+    update.quote_file_url = getPublicUrl('quotations', path)
+    update.quote_file_name = file.name || 'ใบเสนอราคา'
+  }
+
+  const { error } = await supabase.from('quotations').update(update).eq('id', id)
   if (error) return { error: error.message }
 
-  logAudit({ userId: user?.id, action: 'quotation.quote_sent', targetId: id, details: { quotedAmount } })
+  logAudit({ userId: user?.id, action: 'quotation.quote_sent', targetId: id, details: { quotedAmount, hasFile } })
 
-  // Fire-and-forget: email the quote to the customer.
+  // Fire-and-forget: email the quote (with download link) to the customer.
   const { data: quotation } = await supabase
     .from('quotations')
-    .select('quotation_number, requester_name, requester_email')
+    .select('quotation_number, requester_name, requester_email, quote_file_url, quote_file_name')
     .eq('id', id)
     .single()
 
@@ -156,7 +178,9 @@ export async function sendQuotationResponse(id, { amount, message } = {}) {
       quotationNumber: quotation.quotation_number,
       requesterName: quotation.requester_name,
       quotedAmount,
-      quoteMessage: trimmedMessage || null,
+      quoteMessage: message || null,
+      fileUrl: quotation.quote_file_url,
+      fileName: quotation.quote_file_name,
     })
     sendEmail({ to: quotation.requester_email, subject, html })
   }

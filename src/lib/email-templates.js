@@ -91,7 +91,7 @@ export function quotationConfirmation({ quotationNumber, requesterName, productN
 /**
  * Customer: the admin's quote response (price + message).
  */
-export function quotationQuote({ quotationNumber, requesterName, quotedAmount, quoteMessage }) {
+export function quotationQuote({ quotationNumber, requesterName, quotedAmount, quoteMessage, fileUrl, fileName }) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   const amountLine =
     quotedAmount !== null && quotedAmount !== undefined && quotedAmount !== ''
@@ -103,6 +103,13 @@ export function quotationQuote({ quotationNumber, requesterName, quotedAmount, q
   const messageLine = quoteMessage
     ? `<div style="background:#f8f3ea;padding:16px;border-radius:8px;margin:16px 0;white-space:pre-wrap;">${quoteMessage}</div>`
     : ''
+  const fileLine = fileUrl
+    ? `<p style="text-align:center;margin:16px 0;">
+         <a href="${fileUrl}" style="display:inline-block;background:${BRAND_COLOR};color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;">
+           ดาวน์โหลดใบเสนอราคา${fileName ? ` (${fileName})` : ''}
+         </a>
+       </p>`
+    : ''
 
   return {
     subject: `ใบเสนอราคา ${quotationNumber}`,
@@ -112,6 +119,7 @@ export function quotationQuote({ quotationNumber, requesterName, quotedAmount, q
       <p>ทีมงานได้จัดทำใบเสนอราคาสำหรับคำขอเลขที่ <strong>${quotationNumber}</strong> เรียบร้อยแล้ว</p>
       ${amountLine}
       ${messageLine}
+      ${fileLine}
       <p>ดูรายละเอียดหรือดำเนินการต่อได้ที่
         <a href="${siteUrl}/account/quotations" style="color:${BRAND_COLOR};">บัญชีของฉัน</a></p>
       <p>ขอบคุณที่ใช้บริการ WoodSmith</p>

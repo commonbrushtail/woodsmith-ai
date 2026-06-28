@@ -86,6 +86,7 @@ export default function QuotationDetailClient({ quotation }) {
   const [adminNotes, setAdminNotes] = useState(quotation.admin_notes || '')
   const [quoteAmount, setQuoteAmount] = useState(quotation.quoted_amount ?? '')
   const [quoteMessage, setQuoteMessage] = useState(quotation.quote_message || '')
+  const [quoteFile, setQuoteFile] = useState(null)
 
   function fmtDate(dateStr) {
     if (!dateStr) return '-'
@@ -115,9 +116,13 @@ export default function QuotationDetailClient({ quotation }) {
 
   const handleSendQuote = () => {
     startTransition(async () => {
-      const result = await sendQuotationResponse(quotation.id, { amount: quoteAmount, message: quoteMessage })
+      const fd = new FormData()
+      fd.set('amount', quoteAmount ?? '')
+      fd.set('message', quoteMessage ?? '')
+      if (quoteFile) fd.set('file', quoteFile)
+      const result = await sendQuotationResponse(quotation.id, fd)
       if (result.error) toast.error('เกิดข้อผิดพลาด: ' + result.error)
-      else { toast.success('ส่งใบเสนอราคาให้ลูกค้าแล้ว'); router.refresh() }
+      else { toast.success('ส่งใบเสนอราคาให้ลูกค้าแล้ว'); setQuoteFile(null); router.refresh() }
     })
   }
 
@@ -241,6 +246,25 @@ export default function QuotationDetailClient({ quotation }) {
               rows={4}
               className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e5e7eb] rounded-[6px] px-[14px] py-[10px] outline-none focus:border-orange focus:ring-1 focus:ring-orange/20 placeholder:text-[#bfbfbf] resize-y"
             />
+            <label className="font-['IBM_Plex_Sans_Thai'] text-[13px] font-medium text-[#374151]">แนบไฟล์ใบเสนอราคา (PDF หรือรูปภาพ)</label>
+            <input
+              type="file"
+              accept="application/pdf,image/*"
+              onChange={(e) => setQuoteFile(e.target.files?.[0] || null)}
+              className="w-full font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#374151] file:mr-[10px] file:py-[6px] file:px-[12px] file:rounded-[6px] file:border-0 file:bg-[#f3f4f6] file:text-[#374151] file:cursor-pointer"
+            />
+            {quoteFile ? (
+              <p className="m-0 font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">ไฟล์ใหม่: {quoteFile.name}</p>
+            ) : quotation.quote_file_url ? (
+              <a
+                href={quotation.quote_file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="m-0 font-['IBM_Plex_Sans_Thai'] text-[12px] text-orange underline"
+              >
+                ไฟล์ปัจจุบัน: {quotation.quote_file_name || 'ดาวน์โหลด'}
+              </a>
+            ) : null}
             <button
               type="button"
               onClick={handleSendQuote}
