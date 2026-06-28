@@ -70,7 +70,7 @@ export default function PreviewPanel({ adapter, formState, open, onClose }) {
           </div>
         </header>
 
-        <div className="flex-1 overflow-auto p-4">
+        <div className="flex-1 overflow-hidden p-3">
           <PreviewViewport viewport={viewport}>
             <PreviewLayoutShim>
               {props?.__error ? (

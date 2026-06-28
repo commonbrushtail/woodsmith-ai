@@ -2,13 +2,12 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import PreviewPanel from '@/components/admin/preview/PreviewPanel'
 
-// A trivial adapter: renders the title prop, maps it from form state.
+// A trivial adapter (the real component is portaled into an iframe, which jsdom
+// doesn't fully render — adapter→component integration is covered separately in
+// preview-integration.test.jsx, so here we assert the panel chrome/behavior).
 const fakeAdapter = {
   defaultViewport: 'desktop',
-  component: () =>
-    Promise.resolve({
-      default: ({ title }) => <h1>{title}</h1>,
-    }),
+  component: () => Promise.resolve({ default: ({ title }) => <h1>{title}</h1> }),
   toProps: (s) => ({ title: s.title || '' }),
 }
 
@@ -20,30 +19,36 @@ describe('PreviewPanel', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
-  it('renders the public component with adapted props when open', async () => {
+  it('opens a preview frame (iframe) when open', () => {
     render(
       <PreviewPanel adapter={fakeAdapter} formState={{ title: 'สวัสดี' }} open onClose={() => {}} />
     )
-    expect(await screen.findByText('สวัสดี')).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'ตัวอย่างสด' })).toBeInTheDocument()
+    expect(screen.getByTitle('ตัวอย่าง')).toBeInTheDocument() // the iframe
   })
 
-  it('calls onClose when the close button is clicked', async () => {
-    const onClose = vi.fn()
-    render(
-      <PreviewPanel adapter={fakeAdapter} formState={{ title: 'x' }} open onClose={onClose} />
+  it('sets data-preview-open on <html> while open (non-modal shift)', () => {
+    const { rerender } = render(
+      <PreviewPanel adapter={fakeAdapter} formState={{ title: 'x' }} open onClose={() => {}} />
     )
+    expect(document.documentElement.hasAttribute('data-preview-open')).toBe(true)
+    rerender(
+      <PreviewPanel adapter={fakeAdapter} formState={{ title: 'x' }} open={false} onClose={() => {}} />
+    )
+    expect(document.documentElement.hasAttribute('data-preview-open')).toBe(false)
+  })
+
+  it('calls onClose when the close button is clicked', () => {
+    const onClose = vi.fn()
+    render(<PreviewPanel adapter={fakeAdapter} formState={{ title: 'x' }} open onClose={onClose} />)
     fireEvent.click(screen.getByLabelText('ปิดตัวอย่าง'))
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('switches viewport when the mobile toggle is clicked', async () => {
-    render(
-      <PreviewPanel adapter={fakeAdapter} formState={{ title: 'x' }} open onClose={() => {}} />
-    )
-    await screen.findByText('x')
+  it('switches viewport when the mobile toggle is clicked', () => {
+    render(<PreviewPanel adapter={fakeAdapter} formState={{ title: 'x' }} open onClose={() => {}} />)
     const mobileBtn = screen.getByText('มือถือ')
     fireEvent.click(mobileBtn)
-    // active toggle gets the orange background class
     expect(mobileBtn.className).toContain('bg-orange')
   })
 })
