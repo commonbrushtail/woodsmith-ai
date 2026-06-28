@@ -6,6 +6,10 @@ import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { deleteCategory, toggleCategoryPublished, toggleCategoryFeatured, reorderCategories } from '@/lib/actions/categories'
 import { buildSortOrderUpdates } from '@/lib/reorder'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import PreviewButton from '@/components/admin/PreviewButton'
+import categoryPageAdapter from '@/lib/preview/adapters/category-page'
 import {
   DndContext,
   closestCenter,
@@ -154,6 +158,7 @@ export default function CategoriesListClient({ categories, parentCategories = []
   const [openMenuId, setOpenMenuId] = useState(null)
   const [orderedCategories, setOrderedCategories] = useState(categories)
   const [searchQuery, setSearchQuery] = useState('')
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   useEffect(() => { setOrderedCategories(categories) }, [categories])
 
@@ -247,15 +252,19 @@ export default function CategoriesListClient({ categories, parentCategories = []
             {categories.length} entries found
           </p>
         </div>
-        <Link
-          href="/admin/categories/create"
-          className="flex items-center gap-[8px] bg-orange text-white px-[16px] py-[8px] rounded-[8px] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] hover:bg-orange/90 transition-colors no-underline"
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M7 1v12M1 7h12" />
-          </svg>
-          Create new entry
-        </Link>
+        <div className="flex items-center gap-[8px]">
+          <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="!w-auto" />
+          <PreviewButton path="/products" label="พรีวิว" />
+          <Link
+            href="/admin/categories/create"
+            className="flex items-center gap-[8px] bg-orange text-white px-[16px] py-[8px] rounded-[8px] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] hover:bg-orange/90 transition-colors no-underline"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 1v12M1 7h12" />
+            </svg>
+            Create new entry
+          </Link>
+        </div>
       </div>
 
       {/* Search */}
@@ -400,6 +409,16 @@ export default function CategoriesListClient({ categories, parentCategories = []
           </div>
         </SortableContext>
       </DndContext>
+
+      <PreviewPanel
+        adapter={categoryPageAdapter}
+        formState={{
+          categorySlug: orderedCategories[0]?.type || 'construction',
+          subcategories: orderedCategories.map((c) => ({ name: c.name, image_url: c.image_url })),
+        }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }

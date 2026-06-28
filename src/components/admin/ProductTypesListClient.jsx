@@ -6,6 +6,10 @@ import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
 import { deleteCategory, toggleCategoryPublished, reorderCategories } from '@/lib/actions/categories'
 import { buildSortOrderUpdates } from '@/lib/reorder'
+import PreviewPanel from '@/components/admin/preview/PreviewPanel'
+import PreviewToggle from '@/components/admin/preview/PreviewToggle'
+import PreviewButton from '@/components/admin/PreviewButton'
+import productTypeAdapter from '@/lib/preview/adapters/product-type'
 import {
   DndContext,
   closestCenter,
@@ -154,6 +158,7 @@ export default function ProductTypesListClient({ productTypes, childCounts = {} 
   const [openMenuId, setOpenMenuId] = useState(null)
   const [orderedTypes, setOrderedTypes] = useState(productTypes)
   const [searchQuery, setSearchQuery] = useState('')
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   useEffect(() => { setOrderedTypes(productTypes) }, [productTypes])
 
@@ -225,15 +230,19 @@ export default function ProductTypesListClient({ productTypes, childCounts = {} 
             {productTypes.length} entries found
           </p>
         </div>
-        <Link
-          href="/admin/product-types/create"
-          className="flex items-center gap-[8px] bg-orange text-white px-[16px] py-[8px] rounded-[8px] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] hover:bg-orange/90 transition-colors no-underline"
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M7 1v12M1 7h12" />
-          </svg>
-          Create new entry
-        </Link>
+        <div className="flex items-center gap-[8px]">
+          <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="!w-auto" />
+          <PreviewButton path="/products" label="พรีวิว" />
+          <Link
+            href="/admin/product-types/create"
+            className="flex items-center gap-[8px] bg-orange text-white px-[16px] py-[8px] rounded-[8px] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] hover:bg-orange/90 transition-colors no-underline"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 1v12M1 7h12" />
+            </svg>
+            Create new entry
+          </Link>
+        </div>
       </div>
 
       {/* Search */}
@@ -358,6 +367,13 @@ export default function ProductTypesListClient({ productTypes, childCounts = {} 
           </div>
         </SortableContext>
       </DndContext>
+
+      <PreviewPanel
+        adapter={productTypeAdapter}
+        formState={{ productTypes: orderedTypes.map((pt) => ({ name: pt.name, type: pt.type, image_url: pt.image_url })) }}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   )
 }

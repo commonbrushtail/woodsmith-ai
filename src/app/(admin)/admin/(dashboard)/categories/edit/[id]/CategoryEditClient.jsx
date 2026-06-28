@@ -10,7 +10,7 @@ import AdminFileInput from '@/components/admin/AdminFileInput'
 import PreviewButton from '@/components/admin/PreviewButton'
 import PreviewPanel from '@/components/admin/preview/PreviewPanel'
 import PreviewToggle from '@/components/admin/preview/PreviewToggle'
-import categoryAdapter from '@/lib/preview/adapters/category'
+import categoryPageAdapter from '@/lib/preview/adapters/category-page'
 
 function generateSlug(name) {
   return name
@@ -234,14 +234,21 @@ export default function CategoryEditClient({ category, parentCategories }) {
             </button>
 
             <PreviewToggle checked={previewOpen} onChange={setPreviewOpen} className="w-full" />
-            <PreviewButton path="/products" label="พรีวิวฉบับร่าง" className="w-full" />
+            <PreviewButton
+              path={`/products/${parentCategories.find(p => p.id === parentId)?.type || ''}`}
+              label="พรีวิวฉบับร่าง"
+              className="w-full"
+            />
           </div>
         </aside>
       </div>
 
       <PreviewPanel
-        adapter={categoryAdapter}
-        formState={{ name, imagePreview, typeLabel: parentCategories.find(p => p.id === parentId)?.name || '' }}
+        adapter={categoryPageAdapter}
+        formState={{
+          categorySlug: parentCategories.find(p => p.id === parentId)?.type || 'construction',
+          subcategories: [{ name, image_url: imagePreview }],
+        }}
         open={previewOpen}
         onClose={() => setPreviewOpen(false)}
       />

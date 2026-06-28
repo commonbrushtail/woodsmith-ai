@@ -10,17 +10,12 @@ const productTypeAdapter = {
   component: () => import('@/app/(public)/products/ProductsPageClient'),
 
   toProps(state = {}) {
-    return {
-      products: [],
-      categories: [],
-      productTypes: [
-        {
-          name: state.name || '',
-          type: state.type || '',
-          image_url: state.imagePreview || null,
-        },
-      ],
-    }
+    // List pages pass an explicit productTypes array; the edit page passes the
+    // single type's fields, which we wrap into a one-card list.
+    const productTypes = state.productTypes
+      ? state.productTypes
+      : [{ name: state.name || '', type: state.type || '', image_url: state.imagePreview || null }]
+    return { products: [], categories: [], productTypes }
   },
 }
 
