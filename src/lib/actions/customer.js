@@ -6,7 +6,9 @@ import { createServiceClient } from '@/lib/supabase/admin'
 import { quotationCreateSchema } from '@/lib/validations/quotations'
 import { sanitizeObject } from '@/lib/sanitize'
 import { sendEmail } from '@/lib/email'
-import { newQuotationNotification } from '@/lib/email-templates'
+import { newQuotationNotification, quotationConfirmation } from '@/lib/email-templates'
+import { quotationLimiter } from '@/lib/rate-limit'
+import { headers } from 'next/headers'
 
 /**
  * Create a customer profile row after registration.
@@ -124,6 +126,12 @@ export async function submitQuotation({
     if (!requesterName || !requesterEmail) {
       return { data: null, error: 'กรุณากรอกชื่อและอีเมล' }
     }
+    // Throttle guest submissions per IP to prevent spam.
+    const hdrs = await headers()
+    const ip = (hdrs.get('x-forwarded-for') || '').split(',')[0].trim() || 'unknown'
+    if (!quotationLimiter.check(`quote:${ip}`).allowed) {
+      return { data: null, error: 'คุณส่งคำขอบ่อยเกินไป กรุณาลองใหม่อีกครั้งในภายหลัง' }
+    }
     const secretKey = process.env.RECAPTCHA_SECRET_KEY
     if (secretKey) {
       if (!captchaToken) {
@@ -162,6 +170,10 @@ export async function submitQuotation({
       if (!email) email = profile.email || ''
     }
   }
+
+  // Logged-in users: always have an email for confirmation/status notices,
+  // falling back to the auth account email when the profile has none.
+  if (user && !email) email = user.email || ''
 
   // Sanitize text inputs before validation
   const sanitized = sanitizeObject({
@@ -212,20 +224,20 @@ export async function submitQuotation({
     return { data: null, error: error.message }
   }
 
-  // Fire-and-forget: notify admin about new quotation
+  // Look up product name once for the notification emails.
+  let productName = null
+  if (productId) {
+    const { data: product } = await supabase
+      .from('products')
+      .select('name')
+      .eq('id', productId)
+      .single()
+    productName = product?.name
+  }
+
+  // Fire-and-forget: notify admin about the new quotation.
   const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL
   if (adminEmail) {
-    // Look up product name for the notification
-    let productName = null
-    if (productId) {
-      const { data: product } = await supabase
-        .from('products')
-        .select('name')
-        .eq('id', productId)
-        .single()
-      productName = product?.name
-    }
-
     const { subject, html } = newQuotationNotification({
       quotationNumber,
       requesterName: name,
@@ -234,6 +246,17 @@ export async function submitQuotation({
       message,
     })
     sendEmail({ to: adminEmail, subject, html })
+  }
+
+  // Fire-and-forget: confirmation to the requester (guest or logged-in).
+  if (email) {
+    const { subject, html } = quotationConfirmation({
+      quotationNumber,
+      requesterName: name,
+      productName,
+      isRegistered: !!user,
+    })
+    sendEmail({ to: email, subject, html })
   }
 
   return { data, error: null }

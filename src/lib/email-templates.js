@@ -60,6 +60,35 @@ export function newQuotationNotification({ quotationNumber, requesterName, reque
 }
 
 /**
+ * Customer confirmation: quotation request received.
+ */
+export function quotationConfirmation({ quotationNumber, requesterName, productName, isRegistered }) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const productLine = productName
+    ? `<p style="margin:4px 0;"><strong>สินค้า:</strong> ${productName}</p>`
+    : ''
+  const trackLine = isRegistered
+    ? `<p>คุณสามารถติดตามสถานะได้ที่
+        <a href="${siteUrl}/account/quotations" style="color:${BRAND_COLOR};">บัญชีของฉัน</a></p>`
+    : `<p>เราจะแจ้งความคืบหน้าทางอีเมลนี้ หากคุณสมัครสมาชิกด้วยอีเมลเดียวกัน คำขอนี้จะปรากฏในบัญชีของคุณโดยอัตโนมัติ</p>`
+
+  return {
+    subject: `ได้รับคำขอใบเสนอราคาแล้ว ${quotationNumber}`,
+    html: emailLayout(`
+      <h2 style="color:${BRAND_COLOR};margin-top:0;">ได้รับคำขอใบเสนอราคาแล้ว</h2>
+      <p>สวัสดีคุณ ${requesterName},</p>
+      <p>เราได้รับคำขอใบเสนอราคาของคุณเรียบร้อยแล้ว ทีมงานจะตรวจสอบและติดต่อกลับโดยเร็วที่สุด</p>
+      <div style="background:#f8f3ea;padding:16px;border-radius:8px;margin:16px 0;">
+        <p style="margin:4px 0;"><strong>เลขที่:</strong> ${quotationNumber}</p>
+        ${productLine}
+      </div>
+      ${trackLine}
+      <p>ขอบคุณที่ใช้บริการ WoodSmith</p>
+    `),
+  }
+}
+
+/**
  * Customer notification: quotation status changed.
  */
 export function quotationStatusNotification({ quotationNumber, requesterName, status }) {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { newQuotationNotification, quotationStatusNotification } from '@/lib/email-templates'
+import { newQuotationNotification, quotationStatusNotification, quotationConfirmation } from '@/lib/email-templates'
 
 describe('newQuotationNotification', () => {
   beforeEach(() => {
@@ -61,6 +61,35 @@ describe('newQuotationNotification', () => {
       requesterPhone: '0812345678',
     })
     expect(result.html).toContain('https://woodsmith.co.th/admin/quotations')
+  })
+})
+
+describe('quotationConfirmation', () => {
+  beforeEach(() => {
+    vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://woodsmith.co.th')
+  })
+
+  it('confirms receipt with the quotation number', () => {
+    const r = quotationConfirmation({ quotationNumber: 'QT-20260627-0007', requesterName: 'สมชาย' })
+    expect(r.subject).toBe('ได้รับคำขอใบเสนอราคาแล้ว QT-20260627-0007')
+    expect(r.html).toContain('QT-20260627-0007')
+    expect(r.html).toContain('สมชาย')
+  })
+
+  it('links to the account page for registered users', () => {
+    const r = quotationConfirmation({ quotationNumber: 'QT-1', requesterName: 'x', isRegistered: true })
+    expect(r.html).toContain('https://woodsmith.co.th/account/quotations')
+  })
+
+  it('tells guests their quote will link on sign-up', () => {
+    const r = quotationConfirmation({ quotationNumber: 'QT-1', requesterName: 'x', isRegistered: false })
+    expect(r.html).not.toContain('/account/quotations')
+    expect(r.html).toContain('สมัครสมาชิก')
+  })
+
+  it('includes product name when provided', () => {
+    const r = quotationConfirmation({ quotationNumber: 'QT-1', requesterName: 'x', productName: 'ไม้สักทอง' })
+    expect(r.html).toContain('ไม้สักทอง')
   })
 })
 

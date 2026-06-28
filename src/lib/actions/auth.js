@@ -290,6 +290,14 @@ export async function completeRegistration({ token, password, firstName, lastNam
       role: 'customer',
       profile_complete: true,
     }, { onConflict: 'user_id' })
+
+    // Link any guest quotations submitted with this email to the new account,
+    // so they show up under /account/quotations after registering.
+    await admin
+      .from('quotations')
+      .update({ customer_id: userData.user.id })
+      .eq('requester_email', email)
+      .is('customer_id', null)
   }
 
   // Delete the pending registration
