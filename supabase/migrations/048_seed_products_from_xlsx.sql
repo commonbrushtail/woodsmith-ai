@@ -5,6 +5,14 @@
 -- VARIATION GROUPS
 -- ============================================================
 
+-- Guard: only seed when the catalog is empty. The live DB already has products
+-- (seeded another way, under different ids), so re-inserting these rows hits
+-- the products slug unique index. Skipping when products exist makes this
+-- migration idempotent/safe on any DB state while still seeding a fresh DB.
+DO $$
+BEGIN
+IF NOT EXISTS (SELECT 1 FROM products) THEN
+
 INSERT INTO variation_groups (id, name) VALUES
   ('20000000-0000-0000-0000-000000000001', 'ขนาด'),
   ('20000000-0000-0000-0000-000000000002', 'สี'),
@@ -470,5 +478,8 @@ INSERT INTO product_variation_links (id, product_id, group_id, entry_id) VALUES
   ('94f6ce11-5be7-4024-9eb8-94d326a6da3d', '98edf166-4d03-4725-b615-75582abf13d5', '20000000-0000-0000-0000-000000000002', '2457e0eb-9315-4135-9acc-ea1b0ed6b53b'),
   ('41b3f7e6-7397-48a7-8ee8-4c0c064fb326', '98edf166-4d03-4725-b615-75582abf13d5', '20000000-0000-0000-0000-000000000002', '10ed667f-8b95-4ba2-9a0c-c8cda8e70277')
 ON CONFLICT (product_id, entry_id) DO NOTHING;
+
+END IF;
+END $$;
 
 -- Summary: 38 products, 147 variation entries, 253 links
