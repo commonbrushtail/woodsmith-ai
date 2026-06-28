@@ -8,7 +8,7 @@ import { logAudit } from '@/lib/audit'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { sendEmail } from '@/lib/email'
 import { quotationStatusNotification, quotationQuote } from '@/lib/email-templates'
-import { uploadFile, getPublicUrl } from '@/lib/storage'
+import { uploadFile, getSignedUrl } from '@/lib/storage'
 
 const QUOTE_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
 const QUOTE_FILE_MAX = 10 * 1024 * 1024 // 10MB
@@ -63,6 +63,11 @@ export async function getQuotation(id) {
 
   if (error) {
     return { data: null, error: error.message }
+  }
+
+  // Signed URL so the admin can view the attached quote file (private bucket).
+  if (data?.quote_file_path) {
+    data.quote_file_signed_url = await getSignedUrl('quotations', data.quote_file_path)
   }
 
   return { data, error: null }
@@ -157,7 +162,7 @@ export async function sendQuotationResponse(id, formData) {
     const path = `${id}/quote-${safeName}`
     const { error: upErr } = await uploadFile('quotations', file, path)
     if (upErr) return { error: 'อัปโหลดไฟล์ไม่สำเร็จ' }
-    update.quote_file_url = getPublicUrl('quotations', path)
+    update.quote_file_path = path
     update.quote_file_name = file.name || 'ใบเสนอราคา'
   }
 
@@ -169,17 +174,22 @@ export async function sendQuotationResponse(id, formData) {
   // Fire-and-forget: email the quote (with download link) to the customer.
   const { data: quotation } = await supabase
     .from('quotations')
-    .select('quotation_number, requester_name, requester_email, quote_file_url, quote_file_name')
+    .select('quotation_number, requester_name, requester_email, quote_file_path, quote_file_name')
     .eq('id', id)
     .single()
 
   if (quotation?.requester_email) {
+    // 7-day signed URL for the email link (the account page generates fresh
+    // short-lived URLs after that).
+    const signedUrl = quotation.quote_file_path
+      ? await getSignedUrl('quotations', quotation.quote_file_path, 60 * 60 * 24 * 7)
+      : null
     const { subject, html } = quotationQuote({
       quotationNumber: quotation.quotation_number,
       requesterName: quotation.requester_name,
       quotedAmount,
       quoteMessage: message || null,
-      fileUrl: quotation.quote_file_url,
+      fileUrl: signedUrl,
       fileName: quotation.quote_file_name,
     })
     sendEmail({ to: quotation.requester_email, subject, html })

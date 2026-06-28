@@ -8,6 +8,7 @@ import { sanitizeObject } from '@/lib/sanitize'
 import { sendEmail } from '@/lib/email'
 import { newQuotationNotification, quotationConfirmation } from '@/lib/email-templates'
 import { checkRateLimitDb } from '@/lib/rate-limit-db'
+import { getSignedUrl } from '@/lib/storage'
 import { headers } from 'next/headers'
 
 /**
@@ -416,7 +417,18 @@ export async function getMyQuotations() {
     return { data: [], error: error.message }
   }
 
-  return { data: data || [], error: null }
+  // Attach short-lived signed download URLs for any attached quote files
+  // (private bucket). RLS already limits this to the user's own quotations.
+  const quotes = data || []
+  await Promise.all(
+    quotes.map(async (q) => {
+      if (q.quote_file_path) {
+        q.quote_file_signed_url = await getSignedUrl('quotations', q.quote_file_path)
+      }
+    })
+  )
+
+  return { data: quotes, error: null }
 }
 
 /**

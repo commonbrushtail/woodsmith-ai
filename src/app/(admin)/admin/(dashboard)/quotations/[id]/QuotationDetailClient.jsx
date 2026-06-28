@@ -255,9 +255,9 @@ export default function QuotationDetailClient({ quotation }) {
             />
             {quoteFile ? (
               <p className="m-0 font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#6b7280]">ไฟล์ใหม่: {quoteFile.name}</p>
-            ) : quotation.quote_file_url ? (
+            ) : quotation.quote_file_signed_url ? (
               <a
-                href={quotation.quote_file_url}
+                href={quotation.quote_file_signed_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="m-0 font-['IBM_Plex_Sans_Thai'] text-[12px] text-orange underline"

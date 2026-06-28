@@ -105,9 +105,9 @@ function QuoteDetailModal({ quotation: q, onClose }) {
             <p className="m-0 font-['IBM_Plex_Sans_Thai'] font-semibold text-[15px] text-orange">ใบเสนอราคาจากเรา</p>
             {amount && <p className="m-0 font-['IBM_Plex_Sans_Thai'] font-bold text-[26px] text-black">{amount}</p>}
             {q.quote_message && <p className="m-0 font-['IBM_Plex_Sans_Thai'] text-[14px] text-black whitespace-pre-wrap">{q.quote_message}</p>}
-            {q.quote_file_url && (
+            {q.quote_file_signed_url && (
               <a
-                href={q.quote_file_url}
+                href={q.quote_file_signed_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="self-start inline-flex items-center gap-[6px] mt-[4px] px-[14px] py-[8px] rounded-[6px] bg-orange text-white font-['IBM_Plex_Sans_Thai'] font-medium text-[13px] no-underline"
