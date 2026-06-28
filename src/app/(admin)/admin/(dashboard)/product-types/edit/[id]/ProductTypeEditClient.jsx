@@ -10,7 +10,7 @@ import AdminFileInput from '@/components/admin/AdminFileInput'
 import PreviewButton from '@/components/admin/PreviewButton'
 import PreviewPanel from '@/components/admin/preview/PreviewPanel'
 import PreviewToggle from '@/components/admin/preview/PreviewToggle'
-import categoryAdapter from '@/lib/preview/adapters/category'
+import productTypeAdapter from '@/lib/preview/adapters/product-type'
 
 const typeOptions = [
   { value: 'construction', label: 'วัสดุก่อสร้าง' },
@@ -219,8 +219,8 @@ export default function ProductTypeEditClient({ category }) {
       </div>
 
       <PreviewPanel
-        adapter={categoryAdapter}
-        formState={{ name, imagePreview, typeLabel: typeOptions.find(o => o.value === type)?.label || '' }}
+        adapter={productTypeAdapter}
+        formState={{ name, type, imagePreview }}
         open={previewOpen}
         onClose={() => setPreviewOpen(false)}
       />
