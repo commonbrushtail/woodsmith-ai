@@ -128,27 +128,21 @@ export function quotationQuote({ quotationNumber, requesterName, quotedAmount, q
 }
 
 /**
- * Customer notification: quotation status changed.
+ * Customer notification: quotation request declined (with optional reason).
  */
-export function quotationStatusNotification({ quotationNumber, requesterName, status }) {
-  const statusText = status === 'approved' ? 'อนุมัติแล้ว' : 'ไม่อนุมัติ'
-  const statusColor = status === 'approved' ? '#22c55e' : '#ef4444'
+export function quotationDeclined({ quotationNumber, requesterName, reason }) {
+  const reasonLine = reason
+    ? `<div style="background:#f8f3ea;padding:16px;border-radius:8px;margin:16px 0;white-space:pre-wrap;"><strong>เหตุผล:</strong> ${reason}</div>`
+    : ''
 
   return {
-    subject: `อัปเดตสถานะใบเสนอราคา ${quotationNumber}`,
+    subject: `คำขอใบเสนอราคาถูกปฏิเสธ ${quotationNumber}`,
     html: emailLayout(`
-      <h2 style="color:${BRAND_COLOR};margin-top:0;">อัปเดตสถานะใบเสนอราคา</h2>
+      <h2 style="color:${BRAND_COLOR};margin-top:0;">คำขอใบเสนอราคาถูกปฏิเสธ</h2>
       <p>สวัสดีคุณ ${requesterName},</p>
-      <p>ใบเสนอราคาเลขที่ <strong>${quotationNumber}</strong> ของคุณได้รับการอัปเดตสถานะ:</p>
-      <div style="text-align:center;margin:24px 0;">
-        <span style="display:inline-block;background:${statusColor};color:#fff;padding:8px 24px;border-radius:20px;font-size:18px;font-weight:bold;">
-          ${statusText}
-        </span>
-      </div>
-      ${status === 'approved'
-        ? '<p>ทีมงานจะติดต่อกลับเพื่อดำเนินการต่อไป</p>'
-        : '<p>หากมีข้อสงสัย กรุณาติดต่อเจ้าหน้าที่</p>'
-      }
+      <p>ขออภัย ทีมงานไม่สามารถดำเนินการตามคำขอใบเสนอราคาเลขที่ <strong>${quotationNumber}</strong> ได้</p>
+      ${reasonLine}
+      <p>หากมีข้อสงสัย กรุณาติดต่อเจ้าหน้าที่</p>
       <p>ขอบคุณที่ใช้บริการ WoodSmith</p>
     `),
   }

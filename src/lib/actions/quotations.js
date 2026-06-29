@@ -3,11 +3,11 @@
 import { revalidatePath } from 'next/cache'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
-import { quotationStatusSchema } from '@/lib/validations/quotations'
+import { quotationDeclineSchema } from '@/lib/validations/quotations'
 import { logAudit } from '@/lib/audit'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { sendEmail } from '@/lib/email'
-import { quotationStatusNotification, quotationQuote } from '@/lib/email-templates'
+import { quotationDeclined, quotationQuote } from '@/lib/email-templates'
 import { uploadFile, getSignedUrl } from '@/lib/storage'
 
 const QUOTE_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
@@ -74,46 +74,50 @@ export async function getQuotation(id) {
 }
 
 /**
- * Update quotation status.
+ * Decline a quotation request (terminal action). Sets status to 'rejected',
+ * records an optional reason, and emails the customer once. This is the only
+ * action that rejects — there is no standalone status control anymore.
  */
-export async function updateQuotationStatus(id, status) {
+export async function declineQuotation(id, reason) {
   const { user, error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
-  const parsed = quotationStatusSchema.safeParse(status)
+  const parsed = quotationDeclineSchema.safeParse({ reason })
   if (!parsed.success) {
-    return { error: 'สถานะไม่ถูกต้อง' }
+    return { error: 'เหตุผลในการปฏิเสธยาวเกินไป' }
   }
+  const declineReason = parsed.data.reason || null
 
   const supabase = createServiceClient()
   const { error } = await supabase
     .from('quotations')
-    .update({ status })
+    .update({
+      status: 'rejected',
+      decline_reason: declineReason,
+      declined_at: new Date().toISOString(),
+    })
     .eq('id', id)
 
   if (error) {
     return { error: error.message }
   }
 
-  // Audit log for status change
-  logAudit({ userId: user?.id, action: 'quotation.status_change', targetId: id, details: { status } })
+  logAudit({ userId: user?.id, action: 'quotation.declined', targetId: id, details: { hasReason: !!declineReason } })
 
-  // Fire-and-forget: notify customer about status change
-  if (status === 'approved' || status === 'rejected') {
-    const { data: quotation } = await supabase
-      .from('quotations')
-      .select('quotation_number, requester_name, requester_email')
-      .eq('id', id)
-      .single()
+  // Fire-and-forget: notify the customer that the request was declined.
+  const { data: quotation } = await supabase
+    .from('quotations')
+    .select('quotation_number, requester_name, requester_email')
+    .eq('id', id)
+    .single()
 
-    if (quotation?.requester_email) {
-      const { subject, html } = quotationStatusNotification({
-        quotationNumber: quotation.quotation_number,
-        requesterName: quotation.requester_name,
-        status,
-      })
-      sendEmail({ to: quotation.requester_email, subject, html })
-    }
+  if (quotation?.requester_email) {
+    const { subject, html } = quotationDeclined({
+      quotationNumber: quotation.quotation_number,
+      requesterName: quotation.requester_name,
+      reason: declineReason,
+    })
+    sendEmail({ to: quotation.requester_email, subject, html })
   }
 
   revalidatePath('/admin/quotations')
@@ -123,7 +127,9 @@ export async function updateQuotationStatus(id, status) {
 
 /**
  * Send a quote response (price + customer-visible message) and email it to the
- * customer. Distinct from admin_notes (internal). Does not change status.
+ * customer. Distinct from admin_notes (internal). Sending the quote is also the
+ * act of responding/approving, so it marks the quotation 'approved' in the same
+ * write and sends exactly one email (the quote).
  */
 export async function sendQuotationResponse(id, formData) {
   const { user, error: authError } = await requireAdmin()
@@ -150,6 +156,7 @@ export async function sendQuotationResponse(id, formData) {
     quoted_amount: quotedAmount,
     quote_message: message || null,
     quoted_at: new Date().toISOString(),
+    status: 'approved',
   }
   if (hasFile) {
     if (!QUOTE_FILE_TYPES.includes(file.type)) {
@@ -169,7 +176,7 @@ export async function sendQuotationResponse(id, formData) {
   const { error } = await supabase.from('quotations').update(update).eq('id', id)
   if (error) return { error: error.message }
 
-  logAudit({ userId: user?.id, action: 'quotation.quote_sent', targetId: id, details: { quotedAmount, hasFile } })
+  logAudit({ userId: user?.id, action: 'quotation.quote_sent', targetId: id, details: { quotedAmount, hasFile, status: 'approved' } })
 
   // Fire-and-forget: email the quote (with download link) to the customer.
   const { data: quotation } = await supabase

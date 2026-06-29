@@ -4,15 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/lib/toast-context'
-import { updateQuotationStatus, updateAdminNotes, sendQuotationResponse } from '@/lib/actions/quotations'
-
-function ChevronDownIcon({ size = 10, color = '#6b7280' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 12 12" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 4.5L6 7.5L9 4.5" />
-    </svg>
-  )
-}
+import { declineQuotation, updateAdminNotes, sendQuotationResponse } from '@/lib/actions/quotations'
 
 function ArrowLeftIcon() {
   return (
@@ -23,50 +15,21 @@ function ArrowLeftIcon() {
   )
 }
 
-const STATUS_OPTIONS = [
-  { key: 'pending', label: 'รอพิจารณา', bg: '#eaf5ff', text: '#0c75af', border: '#b8e1ff' },
-  { key: 'approved', label: 'อนุมัติ', bg: '#dcfce7', text: '#166534', border: '#86efac' },
-  { key: 'rejected', label: 'ไม่อนุมัติ', bg: '#fee2e2', text: '#991b1b', border: '#fca5a5' },
-]
+const STATUS_DISPLAY = {
+  pending: { label: 'รอตอบกลับ', bg: '#eaf5ff', text: '#0c75af', border: '#b8e1ff' },
+  approved: { label: 'ส่งใบเสนอราคาแล้ว', bg: '#dcfce7', text: '#166534', border: '#86efac' },
+  rejected: { label: 'ปฏิเสธคำขอ', bg: '#fee2e2', text: '#991b1b', border: '#fca5a5' },
+}
 
-function StatusDropdown({ status, onStatusChange, disabled }) {
-  const [isOpen, setIsOpen] = useState(false)
-  const current = STATUS_OPTIONS.find((s) => s.key === status) || STATUS_OPTIONS[0]
-
+function StatusBadge({ status }) {
+  const cfg = STATUS_DISPLAY[status] || STATUS_DISPLAY.pending
   return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => !disabled && setIsOpen(!isOpen)}
-        className="inline-flex items-center gap-[4px] px-[8px] py-[2px] h-[32px] rounded-[6px] border cursor-pointer"
-        style={{ backgroundColor: current.bg, color: current.text, borderColor: current.border }}
-        disabled={disabled}
-      >
-        <span className="font-['IBM_Plex_Sans_Thai'] text-[15px] font-medium">{current.label}</span>
-        <ChevronDownIcon size={10} color={current.text} />
-      </button>
-      {isOpen && (
-        <>
-          <div className="fixed inset-0 z-[40]" onClick={() => setIsOpen(false)} />
-          <ul className="absolute right-0 top-full mt-[4px] z-[50] bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[180px] list-none m-0 p-[4px]">
-            {STATUS_OPTIONS.map((option) => (
-              <li
-                key={option.key}
-                onClick={() => { onStatusChange(option.key); setIsOpen(false) }}
-                className="flex items-center gap-[8px] px-[12px] py-[6px] cursor-pointer hover:bg-[#f9fafb] rounded-[4px]"
-              >
-                <span
-                  className="inline-flex items-center px-[8px] py-[1px] rounded-[6px] border font-['IBM_Plex_Sans_Thai'] text-[13px] font-medium"
-                  style={{ backgroundColor: option.bg, color: option.text, borderColor: option.border }}
-                >
-                  {option.label}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-    </div>
+    <span
+      className="inline-flex items-center px-[10px] py-[3px] rounded-[6px] border font-['IBM_Plex_Sans_Thai'] text-[15px] font-medium"
+      style={{ backgroundColor: cfg.bg, color: cfg.text, borderColor: cfg.border }}
+    >
+      {cfg.label}
+    </span>
   )
 }
 
@@ -87,6 +50,8 @@ export default function QuotationDetailClient({ quotation }) {
   const [quoteAmount, setQuoteAmount] = useState(quotation.quoted_amount ?? '')
   const [quoteMessage, setQuoteMessage] = useState(quotation.quote_message || '')
   const [quoteFile, setQuoteFile] = useState(null)
+  const [showDecline, setShowDecline] = useState(false)
+  const [declineReason, setDeclineReason] = useState('')
 
   function fmtDate(dateStr) {
     if (!dateStr) return '-'
@@ -99,10 +64,11 @@ export default function QuotationDetailClient({ quotation }) {
     } catch { return dateStr }
   }
 
-  const handleStatusChange = (newStatus) => {
+  const handleDecline = () => {
     startTransition(async () => {
-      await updateQuotationStatus(quotation.id, newStatus)
-      router.refresh()
+      const result = await declineQuotation(quotation.id, declineReason)
+      if (result.error) toast.error('เกิดข้อผิดพลาด: ' + result.error)
+      else { toast.success('ปฏิเสธคำขอแล้ว'); setShowDecline(false); router.refresh() }
     })
   }
 
@@ -145,12 +111,12 @@ export default function QuotationDetailClient({ quotation }) {
       <div className="flex gap-[16px] items-start">
         {/* Main card */}
         <div className="bg-white rounded-[5px] p-[24px] flex flex-col gap-[48px] flex-[7]">
-          {/* Status bar */}
+          {/* Status bar (read-only — status is driven by sending or declining) */}
           <div className="flex gap-[16px] items-center justify-end pb-[16px] border-b border-[#e5e7eb]">
             <span className="font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] text-[#18191f] tracking-[0.07px]">
-              สถานะการอนุมัติใบเสนอราคา:
+              สถานะใบเสนอราคา:
             </span>
-            <StatusDropdown status={quotation.status} onStatusChange={handleStatusChange} disabled={isPending} />
+            <StatusBadge status={quotation.status} />
           </div>
 
           {/* Section: รายละเอียดใบเสนอราคา */}
@@ -221,7 +187,7 @@ export default function QuotationDetailClient({ quotation }) {
           {/* Quote response to customer (emails them) */}
           <div className="bg-white rounded-[5px] p-[24px] flex flex-col gap-[12px]">
             <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-[#202124] leading-[24px] m-0">
-              ตอบกลับลูกค้า (ใบเสนอราคา)
+              ส่งใบเสนอราคา
             </h2>
             {quotation.quoted_at && (
               <p className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#16a34a] m-0">
@@ -274,8 +240,75 @@ export default function QuotationDetailClient({ quotation }) {
               {isPending ? 'กำลังส่ง...' : 'ส่งใบเสนอราคาให้ลูกค้า'}
             </button>
             <p className="font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#9ca3af] m-0">
-              ลูกค้าจะได้รับอีเมลและเห็นใบเสนอราคานี้ในบัญชีของตน
+              เมื่อส่ง ระบบจะอนุมัติคำขอและส่งอีเมลใบเสนอราคาถึงลูกค้าโดยอัตโนมัติ (อีเมลเดียว)
             </p>
+          </div>
+
+          {/* Decline request (emails the customer once) */}
+          <div className="bg-white rounded-[5px] p-[24px] flex flex-col gap-[12px]">
+            <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-[#202124] leading-[24px] m-0">
+              ปฏิเสธคำขอ
+            </h2>
+            {quotation.status === 'rejected' ? (
+              <div className="flex flex-col gap-[6px]">
+                <p className="m-0 font-['IBM_Plex_Sans_Thai'] text-[13px] font-medium text-[#991b1b]">
+                  คำขอนี้ถูกปฏิเสธแล้ว
+                </p>
+                {quotation.decline_reason && (
+                  <p className="m-0 font-['IBM_Plex_Sans_Thai'] text-[13px] text-[#6b7280] whitespace-pre-wrap">
+                    เหตุผล: {quotation.decline_reason}
+                  </p>
+                )}
+                {quotation.declined_at && (
+                  <p className="m-0 font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#9ca3af]">
+                    ปฏิเสธเมื่อ: {fmtDate(quotation.declined_at)}
+                  </p>
+                )}
+              </div>
+            ) : !showDecline ? (
+              <button
+                type="button"
+                onClick={() => setShowDecline(true)}
+                disabled={isPending}
+                className="w-full py-[10px] rounded-[6px] bg-white text-[#991b1b] border border-[#fca5a5] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] cursor-pointer hover:bg-[#fef2f2] disabled:opacity-50"
+              >
+                ปฏิเสธคำขอ
+              </button>
+            ) : (
+              <>
+                {quotation.quoted_at && (
+                  <p className="m-0 font-['IBM_Plex_Sans_Thai'] text-[12px] text-[#b45309] bg-[#fffbeb] border border-[#fde68a] rounded-[6px] px-[10px] py-[8px]">
+                    ใบเสนอราคาถูกส่งไปแล้ว การปฏิเสธจะแจ้งลูกค้าว่าคำขอถูกปฏิเสธ
+                  </p>
+                )}
+                <label className="font-['IBM_Plex_Sans_Thai'] text-[13px] font-medium text-[#374151]">เหตุผลในการปฏิเสธ (ไม่บังคับ)</label>
+                <textarea
+                  value={declineReason}
+                  onChange={(e) => setDeclineReason(e.target.value)}
+                  placeholder="เช่น สินค้าหมด/นอกพื้นที่ให้บริการ"
+                  rows={3}
+                  className="w-full font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#1f2937] border border-[#e5e7eb] rounded-[6px] px-[14px] py-[10px] outline-none focus:border-orange focus:ring-1 focus:ring-orange/20 placeholder:text-[#bfbfbf] resize-y"
+                />
+                <div className="flex gap-[8px]">
+                  <button
+                    type="button"
+                    onClick={() => { setShowDecline(false); setDeclineReason('') }}
+                    disabled={isPending}
+                    className="flex-1 py-[10px] rounded-[6px] bg-white text-[#374151] border border-[#e5e7eb] font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] cursor-pointer hover:bg-[#f9fafb] disabled:opacity-50"
+                  >
+                    ยกเลิก
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDecline}
+                    disabled={isPending}
+                    className="flex-1 py-[10px] rounded-[6px] bg-[#dc2626] text-white border-0 font-['IBM_Plex_Sans_Thai'] font-medium text-[14px] cursor-pointer hover:bg-[#b91c1c] disabled:opacity-50"
+                  >
+                    {isPending ? 'กำลังปฏิเสธ...' : 'ยืนยันการปฏิเสธ'}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Internal notes (not visible to customer) */}
