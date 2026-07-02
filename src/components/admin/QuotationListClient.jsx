@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { updateQuotationStatus, deleteQuotation } from '@/lib/actions/quotations'
+import { updateQuotationStatus } from '@/lib/actions/quotations'
 
 /* ------------------------------------------------------------------ */
 /*  Status configuration                                               */

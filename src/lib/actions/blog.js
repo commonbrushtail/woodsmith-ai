@@ -1,7 +1,6 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
 import { blogCreateSchema, blogUpdateSchema } from '@/lib/validations/blog'
@@ -12,7 +11,7 @@ import { requireAdmin } from '@/lib/auth/require-admin'
  * Fetch paginated blog posts with optional search.
  */
 export async function getBlogPosts({ page = 1, perPage = 10, search = '', sortAsc = true } = {}) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: [], count: 0, error: authError }
 
   const supabase = createServiceClient()
@@ -42,7 +41,7 @@ export async function getBlogPosts({ page = 1, perPage = 10, search = '', sortAs
  * Fetch a single blog post by ID.
  */
 export async function getBlogPost(id) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -139,7 +138,7 @@ export async function createBlogPost(formData) {
  * Update a blog post.
  */
 export async function updateBlogPost(id, formData) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -200,7 +199,7 @@ export async function updateBlogPost(id, formData) {
  * Delete a blog post.
  */
 export async function deleteBlogPost(id) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()
@@ -234,7 +233,7 @@ export async function deleteBlogPost(id) {
  * Toggle blog post recommended status.
  */
 export async function toggleBlogRecommended(id, recommended) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()
@@ -257,7 +256,7 @@ export async function toggleBlogRecommended(id, recommended) {
  * Toggle blog post published status.
  */
 export async function toggleBlogPublished(id, published) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()
@@ -290,7 +289,7 @@ export async function incrementBlogViewCount(id) {
  * Returns { url: string } on success or { error: string } on failure.
  */
 export async function uploadEditorImage(formData) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { url: null, error: authError }
 
   const file = formData.get('file')

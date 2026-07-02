@@ -77,6 +77,13 @@ function ImageGallery({ images, jumpToIndex, jumpTrigger }) {
     prevImagesRef.current = images
   }, [images, jumpTrigger]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Declared before the early return below so hook order stays stable across
+  // renders (Rules of Hooks) — images can go from empty to non-empty.
+  useEffect(() => {
+    mobileSwiperRef.current?.slideTo(activeIndex)
+    desktopSwiperRef.current?.slideTo(activeIndex)
+  }, [activeIndex])
+
   if (!images || images.length === 0) {
     return (
       <div className="w-full aspect-square bg-[#e8e3da] flex items-center justify-center">
@@ -91,11 +98,6 @@ function ImageGallery({ images, jumpToIndex, jumpTrigger }) {
 
   const goNext = () => setActiveIndex((prev) => (prev + 1) % images.length)
   const goPrev = () => setActiveIndex((prev) => (prev - 1 + images.length) % images.length)
-
-  useEffect(() => {
-    mobileSwiperRef.current?.slideTo(activeIndex)
-    desktopSwiperRef.current?.slideTo(activeIndex)
-  }, [activeIndex])
 
   return (
     <div className="flex flex-col lg:flex-row gap-[16px] w-full">

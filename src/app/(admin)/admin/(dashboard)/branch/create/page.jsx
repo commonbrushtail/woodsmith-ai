@@ -517,10 +517,8 @@ export default function BranchCreatePage() {
   const [postalCode, setPostalCode] = useState('')
   const [phone, setPhone] = useState('')
   const [region, setRegion] = useState('')
-  const [workDate, setWorkDate] = useState('')
   const [workStartTime, setWorkStartTime] = useState('')
   const [workEndTime, setWorkEndTime] = useState('')
-  const [hours, setHours] = useState('')
   const [googleMapUrl, setGoogleMapUrl] = useState('')
   const [lineOaUrl, setLineOaUrl] = useState('')
 

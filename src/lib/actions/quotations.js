@@ -2,7 +2,6 @@
 
 import { revalidatePath } from 'next/cache'
 import { createServiceClient } from '@/lib/supabase/admin'
-import { createClient } from '@/lib/supabase/server'
 import { quotationStatusSchema } from '@/lib/validations/quotations'
 import { logAudit } from '@/lib/audit'
 import { requireAdmin } from '@/lib/auth/require-admin'
@@ -17,7 +16,7 @@ const QUOTE_FILE_MAX = 10 * 1024 * 1024 // 10MB
  * List quotations with pagination and optional status filter.
  */
 export async function getQuotations({ page = 1, perPage = 10, status = '', search = '' } = {}) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: [], count: 0, error: authError }
 
   const supabase = createServiceClient()
@@ -51,7 +50,7 @@ export async function getQuotations({ page = 1, perPage = 10, status = '', searc
  * Get a single quotation by ID with product details.
  */
 export async function getQuotation(id) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -158,7 +157,7 @@ export async function sendQuotationResponse(id, formData) {
     if (file.size > QUOTE_FILE_MAX) {
       return { error: 'ไฟล์ใหญ่เกิน 10MB' }
     }
-    const safeName = (file.name || 'quote').replace(/[^\w.\-]+/g, '_')
+    const safeName = (file.name || 'quote').replace(/[^\w.-]+/g, '_')
     const path = `${id}/quote-${safeName}`
     const { error: upErr } = await uploadFile('quotations', file, path)
     if (upErr) return { error: 'อัปโหลดไฟล์ไม่สำเร็จ' }
@@ -204,7 +203,7 @@ export async function sendQuotationResponse(id, formData) {
  * Add/update admin notes on a quotation.
  */
 export async function updateAdminNotes(id, notes) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()
@@ -225,7 +224,7 @@ export async function updateAdminNotes(id, notes) {
  * Delete a quotation.
  */
 export async function deleteQuotation(id) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()

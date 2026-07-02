@@ -2,7 +2,6 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
-import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
 import { variationGroupSchema, variationGroupUpdateSchema, variationEntrySchema, variationEntryUpdateSchema } from '@/lib/validations/variations'
@@ -13,7 +12,7 @@ import { logAudit } from '@/lib/audit'
  * Fetch all variation groups with entry counts and linked product counts.
  */
 export async function getVariationGroups() {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: [], count: 0, error: authError }
 
   const supabase = createServiceClient()
@@ -58,7 +57,7 @@ export async function getVariationGroups() {
  * Fetch a single variation group with all entries sorted by sort_order.
  */
 export async function getVariationGroup(id) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -412,7 +411,7 @@ export async function deleteVariationEntry(id) {
  * @param {Array<{id: string, sort_order: number}>} updates
  */
 export async function reorderVariationEntries(updates) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()
@@ -436,7 +435,7 @@ export async function reorderVariationEntries(updates) {
  * @param {FormData} formData - FormData with 'file' field
  */
 export async function uploadVariationSwatchImage(groupId, formData) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const file = formData.get('file')

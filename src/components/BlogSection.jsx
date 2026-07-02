@@ -42,7 +42,7 @@ const fallbackFeatured = {
 }
 
 const fallbackCards = [
-  { image: imgRectangle16, category: 'Style & Function', title: `Goodbye Sun☀️ & Rain 🌧️ประตูสวย ไม่กลัวน้ำ ไม่กลัว แดด ​3 จุดเด่นที่ทำให้ประตูเมลามีนกันน้ำอัลตร้าคือ คำตอบของทุกบ้าน` },
+  { image: imgRectangle16, category: 'Style & Function', title: `Goodbye Sun☀️ & Rain 🌧️ประตูสวย ไม่กลัวน้ำ ไม่กลัว แดด 3 จุดเด่นที่ทำให้ประตูเมลามีนกันน้ำอัลตร้าคือ คำตอบของทุกบ้าน` },
   { image: imgRectangle18, category: 'Knowledge, Style & Function', title: `"Life without limits" ใช้ชีวิตอย่างไร้ขีดจำกัด ไม้อัดวนชัย ไม้อัดแข็ง ไม้อัดเบา 5 ไม้บอร์ดอเนกประสงค์ ไม้อัดแข็ง ให้ความแข็งแรง` },
   { image: imgRectangle19, category: 'Style & Function', title: 'ไม้อัดวนชัย ครบจบทุกงาน ทั้งงานเฟอร์นิเจอร์วู้ดสมิตร คิดอย่างมิตร ทำอย่างจริงจัง' },
   { image: imgRectangle20, category: 'Idea & Tips', title: `"ปาร์ติเกิลบอร์ด ไม้อัดใช้แล้วหลอก ชนิดไหนดี ใช้ทำอะไร ต่างกันยังไง !!" ปาร์ติเกิลบอร์ด อเนกประสงค์` },

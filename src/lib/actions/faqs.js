@@ -8,7 +8,7 @@ import { createServiceClient } from '@/lib/supabase/admin'
  * Fetch all FAQs ordered by sort_order.
  */
 export async function getFaqs({ page = 1, perPage = 50, search = '', sortAsc = true } = {}) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: [], count: 0, error: authError }
 
   const supabase = createServiceClient()
@@ -38,7 +38,7 @@ export async function getFaqs({ page = 1, perPage = 50, search = '', sortAsc = t
  * Fetch a single FAQ by ID.
  */
 export async function getFaq(id) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -60,7 +60,7 @@ export async function getFaq(id) {
  * Create a new FAQ.
  */
 export async function createFaq(formData) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -107,7 +107,7 @@ export async function createFaq(formData) {
  * Update a FAQ.
  */
 export async function updateFaq(id, formData) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -138,7 +138,7 @@ export async function updateFaq(id, formData) {
  * Delete a FAQ.
  */
 export async function deleteFaq(id) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()
@@ -164,7 +164,7 @@ export async function deleteFaq(id) {
  * @param {Array<{id: string, sort_order: number}>} updates
  */
 export async function reorderFaqs(updates) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()
@@ -185,7 +185,7 @@ export async function reorderFaqs(updates) {
 }
 
 export async function toggleFaqPublished(id, published) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()

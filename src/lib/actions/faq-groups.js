@@ -9,7 +9,7 @@ import { uploadFile, deleteFile, getPublicUrl } from '@/lib/storage'
  * Fetch all FAQ groups with nested FAQs.
  */
 export async function getFaqGroups() {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: [], count: 0, error: authError }
 
   const supabase = createServiceClient()
@@ -31,7 +31,7 @@ export async function getFaqGroups() {
  * Create a new FAQ group.
  */
 export async function createFaqGroup(formData) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -81,7 +81,7 @@ export async function createFaqGroup(formData) {
  * Update a FAQ group (name and/or image).
  */
 export async function updateFaqGroup(id, formData) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -156,7 +156,7 @@ export async function updateFaqGroup(id, formData) {
  * FAQs cascade-delete via FK.
  */
 export async function deleteFaqGroup(id) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()
@@ -191,7 +191,7 @@ export async function deleteFaqGroup(id) {
  * Batch update sort_order for FAQ groups.
  */
 export async function reorderFaqGroups(updates) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()
@@ -216,7 +216,7 @@ export async function reorderFaqGroups(updates) {
  * Toggle FAQ group published status.
  */
 export async function toggleFaqGroupPublished(id, published) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()

@@ -176,6 +176,7 @@ function sanitizeStoragePath(relPath) {
   const ext = path.extname(relPath).toLowerCase()
   const base = path.basename(relPath, ext)
   // If filename has non-ASCII chars, hash it
+  // eslint-disable-next-line no-control-regex -- ASCII-range check needs \x00
   const hasNonAscii = /[^\x00-\x7F]/.test(base)
   const safeName = hasNonAscii
     ? crypto.createHash('md5').update(base).digest('hex').slice(0, 12)

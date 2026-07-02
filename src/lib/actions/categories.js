@@ -11,7 +11,7 @@ import { sanitizeInput } from '@/lib/sanitize'
  * Fetch all categories ordered by sort_order.
  */
 export async function getCategories() {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: [], count: 0, error: authError }
 
   const supabase = createServiceClient()
@@ -29,7 +29,7 @@ export async function getCategories() {
  * Fetch a single category by ID.
  */
 export async function getCategory(id) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -48,7 +48,7 @@ export async function getCategory(id) {
  * Fetch categories filtered by type (for product form dropdowns).
  */
 export async function getCategoriesByType(type) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -67,7 +67,7 @@ export async function getCategoriesByType(type) {
  * Create a new category.
  */
 export async function createCategory(formData) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -137,7 +137,7 @@ export async function createCategory(formData) {
  * Update a category.
  */
 export async function updateCategory(id, formData) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -215,7 +215,7 @@ export async function updateCategory(id, formData) {
  * Delete a category.
  */
 export async function deleteCategory(id) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()
@@ -248,7 +248,7 @@ export async function deleteCategory(id) {
  * @param {Array<{id: string, sort_order: number}>} updates
  */
 export async function reorderCategories(updates) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()
@@ -270,7 +270,7 @@ export async function reorderCategories(updates) {
  * Toggle category featured status.
  */
 export async function toggleCategoryFeatured(id, is_featured) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()
@@ -290,7 +290,7 @@ export async function toggleCategoryFeatured(id, is_featured) {
  * Toggle category published status.
  */
 export async function toggleCategoryPublished(id, published) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()
