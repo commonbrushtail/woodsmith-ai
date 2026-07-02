@@ -26,6 +26,13 @@ vi.mock('@/lib/supabase/admin', () => ({
   createServiceClient: vi.fn(() => mockAdmin),
 }))
 
+// account.sendPasswordResetEmail() delegates to auth.requestPasswordReset via a
+// dynamic import; mock it so we don't exercise the real reCAPTCHA/Resend flow.
+const { mockRequestPasswordReset } = vi.hoisted(() => ({ mockRequestPasswordReset: vi.fn() }))
+vi.mock('@/lib/actions/auth', () => ({
+  requestPasswordReset: (...args) => mockRequestPasswordReset(...args),
+}))
+
 function fakeFormData(obj) {
   const map = new Map(Object.entries(obj))
   return { get: (key) => (map.has(key) ? map.get(key) : null) }
@@ -93,91 +100,46 @@ describe('getAccountInfo', () => {
   })
 })
 
-describe('updatePassword', () => {
-  it('updates password when valid', async () => {
-    const { updatePassword } = await import('@/lib/actions/account')
-    const fd = fakeFormData({ new_password: 'newpass123', confirm_password: 'newpass123' })
-    const result = await updatePassword(fd)
+// The old admin updatePassword/updateEmail forms were removed in the "account
+// cleanup" refactor (commit 0d24ed7); the account page now offers a single
+// "reset via email" action. Test that current export instead.
+describe('sendPasswordResetEmail', () => {
+  it('delegates to requestPasswordReset with the current user email', async () => {
+    mockRequestPasswordReset.mockResolvedValue({ error: null })
 
+    const { sendPasswordResetEmail } = await import('@/lib/actions/account')
+    const result = await sendPasswordResetEmail()
+
+    expect(mockRequestPasswordReset).toHaveBeenCalledWith('admin@test.com')
     expect(result.error).toBeNull()
-    expect(mockAdmin.auth.admin.updateUserById).toHaveBeenCalledWith('u-1', { password: 'newpass123' })
   })
 
-  it('rejects password shorter than 8 characters', async () => {
-    const { updatePassword } = await import('@/lib/actions/account')
-    const fd = fakeFormData({ new_password: 'short', confirm_password: 'short' })
-    const result = await updatePassword(fd)
+  it('forwards an error returned by requestPasswordReset', async () => {
+    mockRequestPasswordReset.mockResolvedValue({ error: 'boom' })
 
-    expect(result.error).toBe('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร')
-  })
+    const { sendPasswordResetEmail } = await import('@/lib/actions/account')
+    const result = await sendPasswordResetEmail()
 
-  it('rejects mismatched passwords', async () => {
-    const { updatePassword } = await import('@/lib/actions/account')
-    const fd = fakeFormData({ new_password: 'password123', confirm_password: 'different123' })
-    const result = await updatePassword(fd)
-
-    expect(result.error).toBe('รหัสผ่านไม่ตรงกัน')
+    expect(result.error).toBe('boom')
   })
 
   it('returns error when not authenticated', async () => {
     mockServerClient.auth.getUser.mockResolvedValue({ data: { user: null } })
 
-    const { updatePassword } = await import('@/lib/actions/account')
-    const fd = fakeFormData({ new_password: 'newpass123', confirm_password: 'newpass123' })
-    const result = await updatePassword(fd)
+    const { sendPasswordResetEmail } = await import('@/lib/actions/account')
+    const result = await sendPasswordResetEmail()
 
     expect(result.error).toBe('ไม่ได้เข้าสู่ระบบ')
+    expect(mockRequestPasswordReset).not.toHaveBeenCalled()
   })
 
-  it('returns Supabase error on update failure', async () => {
-    mockAdmin.auth.admin.updateUserById.mockResolvedValue({ error: { message: 'weak password' } })
+  it('returns error when the account has no email', async () => {
+    mockServerClient.auth.getUser.mockResolvedValue({ data: { user: { id: 'u-1' } } })
 
-    const { updatePassword } = await import('@/lib/actions/account')
-    const fd = fakeFormData({ new_password: 'newpass123', confirm_password: 'newpass123' })
-    const result = await updatePassword(fd)
+    const { sendPasswordResetEmail } = await import('@/lib/actions/account')
+    const result = await sendPasswordResetEmail()
 
-    expect(result.error).toBe('weak password')
-  })
-})
-
-describe('updateEmail', () => {
-  it('updates email when provided', async () => {
-    const { updateEmail } = await import('@/lib/actions/account')
-    const fd = fakeFormData({ email: 'new@test.com' })
-    const result = await updateEmail(fd)
-
-    expect(result.error).toBeNull()
-    expect(mockAdmin.auth.admin.updateUserById).toHaveBeenCalledWith('u-1', {
-      email: 'new@test.com',
-      email_confirm: true,
-    })
-  })
-
-  it('rejects empty email', async () => {
-    const { updateEmail } = await import('@/lib/actions/account')
-    const fd = fakeFormData({ email: '' })
-    const result = await updateEmail(fd)
-
-    expect(result.error).toBe('กรุณาระบุอีเมล')
-  })
-
-  it('returns error when not authenticated', async () => {
-    mockServerClient.auth.getUser.mockResolvedValue({ data: { user: null } })
-
-    const { updateEmail } = await import('@/lib/actions/account')
-    const fd = fakeFormData({ email: 'new@test.com' })
-    const result = await updateEmail(fd)
-
-    expect(result.error).toBe('ไม่ได้เข้าสู่ระบบ')
-  })
-
-  it('returns Supabase error on update failure', async () => {
-    mockAdmin.auth.admin.updateUserById.mockResolvedValue({ error: { message: 'email taken' } })
-
-    const { updateEmail } = await import('@/lib/actions/account')
-    const fd = fakeFormData({ email: 'taken@test.com' })
-    const result = await updateEmail(fd)
-
-    expect(result.error).toBe('email taken')
+    expect(result.error).toBe('ไม่พบอีเมลของบัญชีนี้')
+    expect(mockRequestPasswordReset).not.toHaveBeenCalled()
   })
 })

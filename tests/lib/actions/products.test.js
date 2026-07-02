@@ -7,7 +7,7 @@ vi.mock('next/cache', () => ({ revalidatePath: (...args) => mockRevalidatePath(.
 // Build a chainable Supabase mock
 function createChain(finalResult = { data: null, error: null, count: 0 }) {
   const chain = {}
-  const methods = ['from', 'select', 'insert', 'update', 'delete', 'eq', 'or', 'ilike', 'order', 'range', 'single']
+  const methods = ['from', 'select', 'insert', 'update', 'delete', 'eq', 'is', 'or', 'ilike', 'order', 'range', 'limit', 'single']
   for (const m of methods) {
     chain[m] = vi.fn(() => chain)
   }
@@ -31,6 +31,12 @@ vi.mock('@/lib/supabase/server', () => ({
 
 vi.mock('@/lib/audit', () => ({
   logAudit: vi.fn(),
+}))
+
+// Admin mutations are gated by requireAdmin() (commit 7bd159f). Mock it as an
+// authorized admin so the tests exercise the action logic, not the auth gate.
+vi.mock('@/lib/auth/require-admin', () => ({
+  requireAdmin: vi.fn(async () => ({ user: { id: 'admin-1' }, error: null })),
 }))
 
 const mockUploadFile = vi.fn()
@@ -134,6 +140,7 @@ describe('createProduct', () => {
       name: 'Board',
       code: 'BRD-001',
       sku: 'SKU-001',
+      slug: 'board-001',
       type: 'construction',
       category: 'ไม้แปรรูป',
       description: 'A board',
@@ -172,6 +179,7 @@ describe('createProduct', () => {
       name: 'Board',
       code: 'BRD-002',
       sku: 'SKU-002',
+      slug: 'board-002',
       type: 'construction',
       category: 'ไม้แปรรูป',
       options,
@@ -191,6 +199,7 @@ describe('createProduct', () => {
       name: 'Board',
       code: 'BRD-003',
       sku: 'SKU-003',
+      slug: 'board-003',
       type: 'construction',
       category: 'ไม้แปรรูป',
     })

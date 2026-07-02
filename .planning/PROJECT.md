@@ -20,7 +20,7 @@ Customers can browse products and submit quotation requests seamlessly — the q
 - ✓ Admin user management (create, edit, delete users) — existing
 - ✓ Rich text editing for blog posts and product descriptions (TipTap) — existing
 - ✓ Drag-and-drop reordering for banners, gallery, FAQ, manuals, video highlights (dnd-kit) — existing
-- ✓ Image upload to Supabase Storage (6 buckets) — existing
+- ✓ Image upload to Supabase Storage (7 buckets) — existing
 - ✓ Input validation (Zod schemas) and sanitization (XSS prevention) — existing
 - ✓ Audit logging for admin actions — existing
 - ✓ Rate limiting on login attempts — existing

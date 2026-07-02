@@ -23,8 +23,8 @@ describe('blogCreateSchema', () => {
     expect(result.success).toBe(false)
   })
 
-  it('rejects empty content', () => {
-    const result = blogCreateSchema.safeParse({ title: 'x', content: '' })
-    expect(result.success).toBe(false)
+  it('accepts empty content (content is optional; only title is required)', () => {
+    expect(blogCreateSchema.safeParse({ title: 'x', content: '' }).success).toBe(true)
+    expect(blogCreateSchema.safeParse({ title: 'x' }).success).toBe(true)
   })
 })

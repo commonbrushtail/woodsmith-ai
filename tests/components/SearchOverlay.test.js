@@ -79,12 +79,14 @@ describe('SearchOverlay', () => {
     expect(onClose).toHaveBeenCalled()
   })
 
-  it('shows recent searches from localStorage', () => {
+  it('shows recent searches from localStorage', async () => {
     localStorage.setItem('woodsmith_recent_searches', JSON.stringify(['ไม้สัก', 'กระเบื้อง']))
 
     render(createElement(SearchOverlay, { isOpen: true, onClose: vi.fn() }))
 
-    expect(screen.getByText('การค้นหาล่าสุด')).toBeDefined()
+    // The overlay renders a loading spinner until the async default-data load
+    // (dynamic import of @/lib/actions/search) resolves; wait for it to clear.
+    expect(await screen.findByText('การค้นหาล่าสุด')).toBeDefined()
     expect(screen.getByText('ไม้สัก')).toBeDefined()
     expect(screen.getByText('กระเบื้อง')).toBeDefined()
   })

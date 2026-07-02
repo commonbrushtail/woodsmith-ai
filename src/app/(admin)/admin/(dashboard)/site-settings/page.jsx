@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useTransition } from 'react'
 import { getSiteSettings, updateSiteSettings } from '@/lib/actions/site-settings'
+import { stripHtmlTags } from '@/lib/sanitize'
 import { useToast } from '@/lib/toast-context'
 import PreviewButton from '@/components/admin/PreviewButton'
 import PreviewPanel from '@/components/admin/preview/PreviewPanel'
@@ -62,7 +63,9 @@ export default function SiteSettingsPage() {
     getSiteSettings().then(({ data, error }) => {
       console.log('📥 Loaded from database:', data)
       if (data) {
-        setCompanyName(data.company_name || '')
+        // Defensive: strip any stray HTML so it never renders as raw tags
+        // in this plain-text field (mirrors the old company-profile page).
+        setCompanyName(stripHtmlTags(data.company_name || ''))
         setCompanyAddress(data.company_address || '')
         setPhoneNumber(data.phone_number || '')
         setLineId(data.line_id || '')

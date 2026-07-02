@@ -60,9 +60,9 @@ describe('getRouteAction', () => {
     expect(action).toBe('allow')
   })
 
-  it('protects /account/* for unauthenticated users (redirects to homepage)', () => {
+  it('protects /account/* for unauthenticated users (redirects to login)', () => {
     const action = getRouteAction('/account/profile', null)
-    expect(action).toEqual({ redirect: '/' })
+    expect(action).toEqual({ redirect: '/login' })
   })
 
   it('allows /account/* for any authenticated user', () => {
@@ -161,7 +161,7 @@ describe('getRouteAction', () => {
   // --- Expanded tests: account route edge cases ---
   it('protects /account root for unauthenticated users', () => {
     const action = getRouteAction('/account', null)
-    expect(action).toEqual({ redirect: '/' })
+    expect(action).toEqual({ redirect: '/login' })
   })
 
   it('allows /account root for admin user', () => {

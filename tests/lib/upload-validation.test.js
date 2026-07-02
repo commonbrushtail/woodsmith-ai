@@ -32,7 +32,7 @@ describe('validateFile', () => {
 
   it('rejects file exceeding max size', () => {
     // Create a file that reports a large size
-    const bigContent = new Uint8Array(6 * 1024 * 1024) // 6MB
+    const bigContent = new Uint8Array(11 * 1024 * 1024) // 11MB (over the 10MB image limit)
     const file = new File([bigContent], 'huge.jpg', { type: 'image/jpeg' })
     const result = validateFile(file, { allowedTypes: ALLOWED_IMAGE_TYPES, maxSize: MAX_IMAGE_SIZE })
     expect(result.valid).toBe(false)
@@ -63,8 +63,8 @@ describe('constants', () => {
     expect(ALLOWED_PDF_TYPES).toContain('application/pdf')
   })
 
-  it('MAX_IMAGE_SIZE is 5MB', () => {
-    expect(MAX_IMAGE_SIZE).toBe(5 * 1024 * 1024)
+  it('MAX_IMAGE_SIZE is 10MB', () => {
+    expect(MAX_IMAGE_SIZE).toBe(10 * 1024 * 1024)
   })
 
   it('MAX_PDF_SIZE is 10MB', () => {
