@@ -33,11 +33,6 @@ vi.mock('@/lib/actions/auth', () => ({
   requestPasswordReset: (...args) => mockRequestPasswordReset(...args),
 }))
 
-function fakeFormData(obj) {
-  const map = new Map(Object.entries(obj))
-  return { get: (key) => (map.has(key) ? map.get(key) : null) }
-}
-
 beforeEach(() => {
   vi.clearAllMocks()
 
