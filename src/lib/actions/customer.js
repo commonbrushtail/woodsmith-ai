@@ -410,6 +410,10 @@ export async function getMyQuotations() {
 
   const { data, error } = await supabase
     .from('quotations')
+    // Defense-in-depth: filter by owner explicitly so RLS is not the ONLY
+    // guard. A single RLS misconfig would otherwise leak every customer's
+    // quotes (and signed URLs to their private quote PDFs, below).
+    .eq('customer_id', user.id)
     .select('*, product:products(code, name, product_images(url, sort_order))')
     .order('created_at', { ascending: false })
 
@@ -418,7 +422,8 @@ export async function getMyQuotations() {
   }
 
   // Attach short-lived signed download URLs for any attached quote files
-  // (private bucket). RLS already limits this to the user's own quotations.
+  // (private bucket). The query above is scoped to the current user, and RLS
+  // backs it up, so this only ever touches the user's own quotations.
   const quotes = data || []
   await Promise.all(
     quotes.map(async (q) => {

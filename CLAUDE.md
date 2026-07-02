@@ -7,7 +7,7 @@ Thai woodworking and construction materials website with admin CMS, customer aut
 - **Framework**: Next.js 16 (App Router) with `--webpack` flag
 - **UI**: React 19, JavaScript (JSX, no TypeScript)
 - **Styling**: Tailwind CSS v4 — tokens in `@theme` block in `src/app/globals.css`, no `tailwind.config.js`
-- **Backend**: Supabase (PostgreSQL 14 tables + Auth + Storage 6 buckets)
+- **Backend**: Supabase (PostgreSQL 14 tables + Auth + Storage 7 buckets)
 - **Rich Text**: TipTap 3 (`@tiptap/react`, `@tiptap/starter-kit`, image + link extensions)
 - **Drag & Drop**: dnd-kit (`@dnd-kit/core`, `@dnd-kit/sortable`)
 - **Carousel**: Swiper 12
@@ -52,7 +52,7 @@ src/
     validations/              # Zod schemas (products, blog, quotations)
     auth/                     # route-rules.js, line-config.js
     hooks/                    # use-form-errors.js
-    storage.js                # Upload/delete/getPublicUrl (6 buckets)
+    storage.js                # Upload/delete/getPublicUrl (7 buckets)
     toast-context.jsx         # Toast notification context
     upload-validation.js      # File type/size validation
     sanitize-html.js          # HTML sanitizer (TipTap output)

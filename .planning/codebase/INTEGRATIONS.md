@@ -35,14 +35,16 @@
 
 **File Storage:**
 - Supabase Storage (S3-compatible)
-  - 6 buckets used:
+  - 7 buckets used:
     - `blog` - Blog post cover images
-    - `products` - Product images
+    - `products` - Product images (also reused for variation / faq-group / branch images)
     - `banners` - Banner images
     - `manuals` - Manual PDFs and cover images
     - `gallery` - Gallery item images
-  - Client functions: `src/lib/storage.js` (uploadFile, deleteFile, getPublicUrl)
-  - Used by server actions: `src/lib/actions/blog.js`, `products.js`, `banners.js`, `manuals.js`, `gallery.js`
+    - `categories` - Category images
+    - `quotations` - **Private** bucket for customer quote attachments (signed URLs only)
+  - Client functions: `src/lib/storage.js` (uploadFile, deleteFile, getPublicUrl, getSignedUrl)
+  - Used by server actions: `src/lib/actions/blog.js`, `products.js`, `banners.js`, `manuals.js`, `gallery.js`, `categories.js`, `customer.js`
   - Service role key required for uploads (security)
 
 **Caching:**

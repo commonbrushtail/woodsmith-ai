@@ -249,4 +249,15 @@ describe('getMyQuotations', () => {
     expect(result.error).toBe('Not authenticated')
     expect(result.data).toEqual([])
   })
+
+  it('scopes the query to the current user by customer_id (defense-in-depth)', async () => {
+    mockQueryChain = createQueryChain({ data: [], error: null })
+    mockServerClient.from = vi.fn(() => mockQueryChain)
+
+    const { getMyQuotations } = await import('@/lib/actions/customer')
+    await getMyQuotations()
+
+    // Must not rely on RLS alone — filter explicitly by the owning column.
+    expect(mockQueryChain.eq).toHaveBeenCalledWith('customer_id', 'user-1')
+  })
 })
