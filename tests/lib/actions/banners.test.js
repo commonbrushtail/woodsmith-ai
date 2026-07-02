@@ -8,6 +8,13 @@ vi.mock('@/lib/supabase/admin', () => ({
   createServiceClient: () => mockAdmin,
 }))
 
+// createBanner and friends are gated by requireAdmin() (commit 7bd159f), which
+// calls the server client (next/headers cookies) — unavailable in unit tests.
+// Mock it as an authorized admin so the banner logic runs.
+vi.mock('@/lib/auth/require-admin', () => ({
+  requireAdmin: vi.fn(async () => ({ user: { id: 'admin-1' }, error: null })),
+}))
+
 // Mock next/cache
 const mockRevalidatePath = vi.fn()
 vi.mock('next/cache', () => ({

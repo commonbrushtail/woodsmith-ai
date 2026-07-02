@@ -12,7 +12,7 @@ Thai woodworking and construction materials website with admin CMS, customer aut
 - **Drag & Drop**: dnd-kit (`@dnd-kit/core`, `@dnd-kit/sortable`)
 - **Carousel**: Swiper 12
 - **Validation**: Zod 4
-- **Testing**: Vitest 4 + Testing Library + jsdom (202 tests), Playwright (E2E)
+- **Testing**: Vitest 4 + Testing Library + jsdom (471 tests), Playwright (E2E)
 - **Fonts**: IBM Plex Sans Thai (primary), Circular Std (display) — loaded via `<link>` in root layout
 
 ## Project Structure
@@ -63,7 +63,7 @@ src/
     errors.js                 # AppError class
 middleware.js                 # Supabase session refresh + route guard
 supabase/migrations/          # 4 SQL migrations (schema, RLS, columns, audit)
-tests/                        # 34 test files, 202 tests
+tests/                        # 56 test files, 471 tests
 docs/                         # TODO.md, ADMIN_PROGRESS.md
 ```
 
@@ -105,7 +105,7 @@ Layout: `max-w-[1212px]` containers, mobile-first with `lg:` breakpoint.
 
 - **Frontend + Backend**: 46 pages (12 public + 34 admin), all wired to Supabase
 - **Auth**: Admin email/password login (role-gated), customer email/password + LINE Login, forgot-password flow (Resend + reCAPTCHA). SMS OTP scaffolded but not wired.
-- **Testing**: 202 tests (199 pass, 3 pre-existing validation failures)
+- **Testing**: 471 tests (all passing)
 - **Known bugs**: 5 runtime bugs tracked in `.planning/PROJECT.md` (TipTap SSR crash, dnd-kit hydration, missing banner create page, profile HTML display, gallery order off-by-one)
 - **Next milestone**: Bug Fixes. See `.planning/ROADMAP.md`.
 

@@ -29,6 +29,12 @@ vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(async () => mockServerClient),
 }))
 
+// Admin mutations are gated by requireAdmin() (commit 7bd159f). Mock it as an
+// authorized admin so the tests exercise the action logic, not the auth gate.
+vi.mock('@/lib/auth/require-admin', () => ({
+  requireAdmin: vi.fn(async () => ({ user: { id: 'user-1' }, error: null })),
+}))
+
 const mockUploadFile = vi.fn()
 const mockDeleteFile = vi.fn()
 const mockGetPublicUrl = vi.fn()

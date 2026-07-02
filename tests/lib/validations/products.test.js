@@ -7,6 +7,7 @@ describe('productCreateSchema', () => {
       name: 'ไม้สักทอง',
       code: 'TEAK-001',
       sku: 'WS-TEAK-001',
+      slug: 'teak-001',
       type: 'construction',
       category: 'ไม้แปรรูป',
     }
@@ -30,6 +31,7 @@ describe('productCreateSchema', () => {
       name: 'Test',
       code: 'T-001',
       sku: 'WS-T-001',
+      slug: 't-001',
       type: 'construction',
       category: 'cat',
     }
@@ -43,6 +45,7 @@ describe('productCreateSchema', () => {
       name: 'Test',
       code: 'T-001',
       sku: 'WS-T-001',
+      slug: 't-001',
       type: 'construction',
       category: 'cat',
       publish_start: '2026-01-01',

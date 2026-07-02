@@ -2,10 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createElement } from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 
-// Mock dependencies
-vi.mock('@/lib/actions/profile', () => ({
-  getCompanyProfile: vi.fn(),
-  updateCompanyProfile: vi.fn(),
+// The admin "company profile" page was replaced by the Site Settings page.
+// Its company-name field must still strip stray HTML so it never renders raw tags.
+vi.mock('@/lib/actions/site-settings', () => ({
+  getSiteSettings: vi.fn(),
+  updateSiteSettings: vi.fn(),
 }))
 
 vi.mock('@/lib/toast-context', () => ({
@@ -16,24 +17,24 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }),
 }))
 
-describe('Profile Page - HTML Stripping', () => {
+// Isolate the page under test from the (heavy) admin preview infrastructure.
+vi.mock('@/components/admin/PreviewButton', () => ({ default: () => null }))
+vi.mock('@/components/admin/preview/PreviewPanel', () => ({ default: () => null }))
+vi.mock('@/components/admin/preview/PreviewToggle', () => ({ default: () => null }))
+
+const SITE_SETTINGS_PAGE = '@/app/(admin)/admin/(dashboard)/site-settings/page.jsx'
+
+describe('Site Settings Page - company name HTML stripping', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('strips HTML tags from company name field', async () => {
-    const { getCompanyProfile } = await import('@/lib/actions/profile')
-    getCompanyProfile.mockResolvedValue({
-      data: {
-        companyName: '<p>WoodSmith Co., Ltd.</p>',
-        setKey: 'test-key',
-        setRecommendedKey: 'test-rec',
-        setTip: 'test-tip',
-      },
-    })
+  it('strips HTML tags from the company name field', async () => {
+    const { getSiteSettings } = await import('@/lib/actions/site-settings')
+    getSiteSettings.mockResolvedValue({ data: { company_name: '<p>WoodSmith Co., Ltd.</p>' } })
 
-    const ProfilePage = (await import('@/app/(admin)/admin/profile/page.jsx')).default
-    render(createElement(ProfilePage))
+    const SiteSettingsPage = (await import(SITE_SETTINGS_PAGE)).default
+    render(createElement(SiteSettingsPage))
 
     await waitFor(() => {
       const input = screen.getByLabelText(/ชื่อบริษัท/)
@@ -43,19 +44,12 @@ describe('Profile Page - HTML Stripping', () => {
     })
   })
 
-  it('handles nested HTML tags in company name', async () => {
-    const { getCompanyProfile } = await import('@/lib/actions/profile')
-    getCompanyProfile.mockResolvedValue({
-      data: {
-        companyName: '<p><strong>Bold Company</strong> Name</p>',
-        setKey: 'key',
-        setRecommendedKey: 'rec',
-        setTip: 'tip',
-      },
-    })
+  it('handles nested HTML tags in the company name', async () => {
+    const { getSiteSettings } = await import('@/lib/actions/site-settings')
+    getSiteSettings.mockResolvedValue({ data: { company_name: '<p><strong>Bold Company</strong> Name</p>' } })
 
-    const ProfilePage = (await import('@/app/(admin)/admin/profile/page.jsx')).default
-    render(createElement(ProfilePage))
+    const SiteSettingsPage = (await import(SITE_SETTINGS_PAGE)).default
+    render(createElement(SiteSettingsPage))
 
     await waitFor(() => {
       const input = screen.getByLabelText(/ชื่อบริษัท/)
@@ -63,19 +57,12 @@ describe('Profile Page - HTML Stripping', () => {
     })
   })
 
-  it('handles plain text company name (no HTML)', async () => {
-    const { getCompanyProfile } = await import('@/lib/actions/profile')
-    getCompanyProfile.mockResolvedValue({
-      data: {
-        companyName: 'Plain Company Name',
-        setKey: 'key',
-        setRecommendedKey: 'rec',
-        setTip: 'tip',
-      },
-    })
+  it('handles a plain-text company name (no HTML)', async () => {
+    const { getSiteSettings } = await import('@/lib/actions/site-settings')
+    getSiteSettings.mockResolvedValue({ data: { company_name: 'Plain Company Name' } })
 
-    const ProfilePage = (await import('@/app/(admin)/admin/profile/page.jsx')).default
-    render(createElement(ProfilePage))
+    const SiteSettingsPage = (await import(SITE_SETTINGS_PAGE)).default
+    render(createElement(SiteSettingsPage))
 
     await waitFor(() => {
       const input = screen.getByLabelText(/ชื่อบริษัท/)

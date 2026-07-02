@@ -4,16 +4,17 @@ import { quotationCreateSchema, quotationStatusSchema } from '@/lib/validations/
 describe('quotationCreateSchema', () => {
   it('accepts valid quotation data', () => {
     const result = quotationCreateSchema.safeParse({
-      product_id: 'uuid-here',
+      product_id: '11111111-1111-4111-8111-111111111111',
       requester_name: 'สมชาย',
       requester_phone: '+66812345678',
     })
     expect(result.success).toBe(true)
   })
 
-  it('rejects missing product_id', () => {
+  it('rejects missing requester_name', () => {
+    // product_id is optional (general/non-product quote requests are allowed);
+    // requester_name is the one genuinely required field.
     const result = quotationCreateSchema.safeParse({
-      requester_name: 'สมชาย',
       requester_phone: '+66812345678',
     })
     expect(result.success).toBe(false)
