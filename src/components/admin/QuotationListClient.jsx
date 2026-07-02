@@ -1,39 +1,31 @@
 'use client'
 
-import { useState, useRef, useEffect, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import Link from 'next/link'
-import { updateQuotationStatus, deleteQuotation } from '@/lib/actions/quotations'
 
 /* ------------------------------------------------------------------ */
 /*  Status configuration                                               */
 /* ------------------------------------------------------------------ */
 const STATUS_CONFIG = {
   pending: {
-    label: 'รอพิจารณา',
+    label: 'รอตอบกลับ',
     bg: 'bg-[#fef3c7]',
     text: 'text-[#92400e]',
     border: 'border-[#fcd34d]',
   },
   approved: {
-    label: 'อนุมัติใบเสนอราคา',
+    label: 'ส่งใบเสนอราคาแล้ว',
     bg: 'bg-[#d1fae5]',
     text: 'text-[#065f46]',
     border: 'border-[#6ee7b7]',
   },
   rejected: {
-    label: 'ไม่อนุมัติใบเสนอราคา',
+    label: 'ปฏิเสธคำขอ',
     bg: 'bg-[#fee2e2]',
     text: 'text-[#991b1b]',
     border: 'border-[#fca5a5]',
   },
 }
-
-const STATUS_OPTIONS = [
-  { value: 'pending', label: 'รอการพิจารณา' },
-  { value: 'approved', label: 'อนุมัติใบเสนอราคา' },
-  { value: 'rejected', label: 'ไม่อนุมัติใบเสนอราคา' },
-]
 
 /* ------------------------------------------------------------------ */
 /*  Inline SVG icon helpers                                            */
@@ -43,14 +35,6 @@ function SearchIcon() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="11" cy="11" r="8" />
       <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  )
-}
-
-function ChevronDownIcon({ className = '' }) {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <polyline points="6 9 12 15 18 9" />
     </svg>
   )
 }
@@ -103,27 +87,10 @@ function ChevronRightIcon() {
 /*  Page component                                                     */
 /* ------------------------------------------------------------------ */
 export default function QuotationListClient({ quotations, totalCount }) {
-  const router = useRouter()
-  const [isPending, startTransition] = useTransition()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRows, setSelectedRows] = useState([])
   const [sortField, setSortField] = useState('created_at')
   const [sortAsc, setSortAsc] = useState(false)
-  const [openStatusId, setOpenStatusId] = useState(null)
-  const statusMenuRef = useRef(null)
-
-  /* Close status dropdown on outside click */
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (statusMenuRef.current && !statusMenuRef.current.contains(e.target)) {
-        setOpenStatusId(null)
-      }
-    }
-    if (openStatusId !== null) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [openStatusId])
 
   const filtered = quotations.filter(
     (q) =>
@@ -168,15 +135,6 @@ export default function QuotationListClient({ quotations, totalCount }) {
     return 0
   })
 
-  /* Status change handler */
-  function handleStatusChange(quotationId, newStatus) {
-    startTransition(async () => {
-      await updateQuotationStatus(quotationId, newStatus)
-      setOpenStatusId(null)
-      router.refresh()
-    })
-  }
-
   /* Format date */
   function formatDate(dateStr) {
     if (!dateStr) return '-'
@@ -194,58 +152,17 @@ export default function QuotationListClient({ quotations, totalCount }) {
     }
   }
 
-  /* ---------- Status badge render ---------- */
+  /* ---------- Status badge render (read-only) ---------- */
   function renderStatusBadge(quotation) {
     const config = STATUS_CONFIG[quotation.status] || STATUS_CONFIG.pending
-    const isOpen = openStatusId === quotation.id
 
     return (
-      <div
-        className="relative inline-block"
-        ref={isOpen ? statusMenuRef : null}
+      <span
+        className={`inline-flex items-center rounded-full border ${config.border} ${config.text} ${config.bg} px-[10px] py-[2px] text-[12px] font-medium leading-[20px] whitespace-nowrap`}
+        style={{ borderWidth: '1px' }}
       >
-        <button
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            setOpenStatusId(isOpen ? null : quotation.id)
-          }}
-          className={`inline-flex items-center gap-[4px] rounded-full border ${config.border} ${config.text} ${config.bg} px-[10px] py-[2px] text-[12px] font-medium leading-[20px] whitespace-nowrap cursor-pointer bg-transparent transition-colors`}
-          style={{ borderWidth: '1px' }}
-          aria-haspopup="listbox"
-          aria-expanded={isOpen}
-        >
-          {config.label}
-          <ChevronDownIcon />
-        </button>
-
-        {isOpen && (
-          <div
-            className="absolute left-0 top-[32px] z-30 bg-white border border-[#e5e7eb] rounded-[8px] shadow-lg py-[4px] min-w-[220px]"
-            role="listbox"
-          >
-            {STATUS_OPTIONS.map((option) => (
-              <button
-                key={option.value}
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleStatusChange(quotation.id, option.value)
-                }}
-                className={`flex items-center gap-[8px] w-full px-[12px] py-[8px] text-[13px] hover:bg-[#f9fafb] border-none bg-transparent cursor-pointer transition-colors text-left ${
-                  quotation.status === option.value
-                    ? 'text-[#1f2937] font-medium bg-[#f9fafb]'
-                    : 'text-[#374151]'
-                }`}
-                role="option"
-                aria-selected={quotation.status === option.value}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+        {config.label}
+      </span>
     )
   }
 
@@ -291,7 +208,7 @@ export default function QuotationListClient({ quotations, totalCount }) {
   /*  JSX                                                              */
   /* ================================================================ */
   return (
-    <div className={`font-['IBM_Plex_Sans_Thai'] flex flex-col gap-[20px] ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
+    <div className="font-['IBM_Plex_Sans_Thai'] flex flex-col gap-[20px]">
       {/* ---- Page header ---- */}
       <div className="flex items-center justify-between py-[12px]">
         <div className="flex flex-col gap-[2px]">

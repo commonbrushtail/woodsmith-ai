@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { newQuotationNotification, quotationStatusNotification, quotationConfirmation, quotationQuote } from '@/lib/email-templates'
+import { newQuotationNotification, quotationDeclined, quotationConfirmation, quotationQuote } from '@/lib/email-templates'
 
 describe('newQuotationNotification', () => {
   beforeEach(() => {
@@ -123,42 +123,38 @@ describe('quotationQuote', () => {
   })
 })
 
-describe('quotationStatusNotification', () => {
-  it('shows approved status in Thai', () => {
-    const result = quotationStatusNotification({
-      quotationNumber: 'QT-20260218-0001',
-      requesterName: 'สมชาย',
-      status: 'approved',
-    })
-    expect(result.html).toContain('อนุมัติแล้ว')
-    expect(result.html).toContain('ทีมงานจะติดต่อกลับ')
-  })
-
-  it('shows rejected status in Thai', () => {
-    const result = quotationStatusNotification({
-      quotationNumber: 'QT-20260218-0001',
-      requesterName: 'สมชาย',
-      status: 'rejected',
-    })
-    expect(result.html).toContain('ไม่อนุมัติ')
-    expect(result.html).toContain('กรุณาติดต่อเจ้าหน้าที่')
-  })
-
+describe('quotationDeclined', () => {
   it('returns subject with quotation number', () => {
-    const result = quotationStatusNotification({
+    const result = quotationDeclined({
       quotationNumber: 'QT-20260218-0001',
       requesterName: 'สมชาย',
-      status: 'approved',
     })
-    expect(result.subject).toBe('อัปเดตสถานะใบเสนอราคา QT-20260218-0001')
+    expect(result.subject).toBe('คำขอใบเสนอราคาถูกปฏิเสธ QT-20260218-0001')
   })
 
   it('includes requester name', () => {
-    const result = quotationStatusNotification({
+    const result = quotationDeclined({
       quotationNumber: 'QT-20260218-0001',
       requesterName: 'สมหญิง',
-      status: 'approved',
     })
     expect(result.html).toContain('สมหญิง')
+  })
+
+  it('includes the reason block when a reason is given', () => {
+    const result = quotationDeclined({
+      quotationNumber: 'QT-20260218-0001',
+      requesterName: 'สมชาย',
+      reason: 'สินค้าหมด',
+    })
+    expect(result.html).toContain('เหตุผล:')
+    expect(result.html).toContain('สินค้าหมด')
+  })
+
+  it('omits the reason block when no reason is given', () => {
+    const result = quotationDeclined({
+      quotationNumber: 'QT-20260218-0001',
+      requesterName: 'สมชาย',
+    })
+    expect(result.html).not.toContain('เหตุผล:')
   })
 })

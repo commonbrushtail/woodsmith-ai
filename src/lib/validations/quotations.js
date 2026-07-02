@@ -10,3 +10,7 @@ export const quotationCreateSchema = z.object({
 })
 
 export const quotationStatusSchema = z.enum(['pending', 'approved', 'rejected'])
+
+export const quotationDeclineSchema = z.object({
+  reason: z.string().trim().max(1000).optional(),
+})

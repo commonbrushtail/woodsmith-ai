@@ -5,19 +5,19 @@ import Link from 'next/link'
 
 const statusConfig = {
   pending: {
-    label: 'รอการพิจารณาฯ',
+    label: 'รอการตอบกลับ',
     bg: 'bg-[#fff8e8]',
     border: 'border-[#e2a71a]',
     text: 'text-[#e2a71a]',
   },
   approved: {
-    label: 'อนุมัติใบเสนอราคาแล้ว',
+    label: 'เสนอราคาแล้ว',
     bg: 'bg-[#e5f7f2]',
     border: 'border-[#48c29b]',
     text: 'text-[#48c29b]',
   },
   rejected: {
-    label: 'ไม่อนุมัติใบเสนอราคา',
+    label: 'ปฏิเสธคำขอ',
     bg: 'bg-[#ffe9e7]',
     border: 'border-[#d63524]',
     text: 'text-[#d63524]',
@@ -100,7 +100,14 @@ function QuoteDetailModal({ quotation: q, onClose }) {
           <DetailRow label="วันที่ขอ">{formatDate(q.created_at)}</DetailRow>
         </div>
 
-        {q.quoted_at ? (
+        {q.status === 'rejected' ? (
+          <div className="bg-[#ffe9e7] border border-[#d63524]/30 rounded-[8px] p-[16px] flex flex-col gap-[6px]">
+            <p className="m-0 font-['IBM_Plex_Sans_Thai'] font-semibold text-[15px] text-[#d63524]">คำขอถูกปฏิเสธ</p>
+            <p className="m-0 font-['IBM_Plex_Sans_Thai'] text-[14px] text-black whitespace-pre-wrap">
+              {q.decline_reason || 'ทีมงานไม่สามารถดำเนินการตามคำขอนี้ได้'}
+            </p>
+          </div>
+        ) : q.quoted_at ? (
           <div className="bg-[#fff8ef] border border-orange/30 rounded-[8px] p-[16px] flex flex-col gap-[6px]">
             <p className="m-0 font-['IBM_Plex_Sans_Thai'] font-semibold text-[15px] text-orange">ใบเสนอราคาจากเรา</p>
             {amount && <p className="m-0 font-['IBM_Plex_Sans_Thai'] font-bold text-[26px] text-black">{amount}</p>}
@@ -159,7 +166,7 @@ export default function AccountQuotationsPage() {
   }, [])
 
   const pendingItems = quotations.filter((q) => q.status === 'pending')
-  const repliedItems = quotations.filter((q) => q.status === 'approved' || q.status === 'rejected')
+  const repliedItems = quotations.filter((q) => q.status !== 'pending')
   const activeItems = activeTab === 'pending' ? pendingItems : repliedItems
 
   if (loading) {

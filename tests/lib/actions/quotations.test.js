@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { sendEmail } from '@/lib/email'
+import { logAudit } from '@/lib/audit'
 
 // --- Mocks ---
 const mockRevalidatePath = vi.fn()
@@ -19,9 +21,10 @@ vi.mock('@/lib/supabase/admin', () => ({
   createServiceClient: vi.fn(() => mockAdmin),
 }))
 
-// Mock server client (used by audit logging in updateQuotationStatus)
+// Mock server client (used by requireAdmin) — provide an admin role so the
+// auth gate passes.
 const mockServerClient = {
-  auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'admin-1' } } }) },
+  auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'admin-1', user_metadata: { role: 'admin' } } } }) },
 }
 vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(async () => mockServerClient),
@@ -31,10 +34,13 @@ vi.mock('@/lib/audit', () => ({
   logAudit: vi.fn(),
 }))
 
-// Admin mutations are gated by requireAdmin() (commit 7bd159f). Mock it as an
-// authorized admin so the tests exercise the action logic, not the auth gate.
-vi.mock('@/lib/auth/require-admin', () => ({
-  requireAdmin: vi.fn(async () => ({ user: { id: 'admin-1' }, error: null })),
+vi.mock('@/lib/email', () => ({
+  sendEmail: vi.fn(),
+}))
+
+vi.mock('@/lib/storage', () => ({
+  uploadFile: vi.fn(),
+  getSignedUrl: vi.fn(),
 }))
 
 beforeEach(() => {
@@ -108,35 +114,88 @@ describe('getQuotation', () => {
   })
 })
 
-describe('updateQuotationStatus', () => {
-  it('updates status for valid value', async () => {
-    mockAdmin = createChain({ error: null })
-    const { updateQuotationStatus } = await import('@/lib/actions/quotations')
-    const result = await updateQuotationStatus('q-1', 'approved')
+describe('sendQuotationResponse', () => {
+  it('records the quote, marks it approved, and emails the customer once', async () => {
+    mockAdmin = createChain({
+      error: null,
+      data: { quotation_number: 'QT-1', requester_name: 'สมชาย', requester_email: 'a@b.com', quote_file_path: null, quote_file_name: null },
+    })
+
+    const fd = new FormData()
+    fd.set('amount', '12000')
+    fd.set('message', 'ราคารวมติดตั้ง')
+
+    const { sendQuotationResponse } = await import('@/lib/actions/quotations')
+    const result = await sendQuotationResponse('q-1', fd)
 
     expect(result.error).toBeNull()
-    expect(mockAdmin.update).toHaveBeenCalledWith({ status: 'approved' })
+    expect(mockAdmin.update).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 'approved', quoted_amount: 12000, quoted_at: expect.any(String) })
+    )
+    expect(logAudit).toHaveBeenCalledWith(expect.objectContaining({ action: 'quotation.quote_sent' }))
+    expect(sendEmail).toHaveBeenCalledTimes(1)
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/admin/quotations/q-1')
+  })
+
+  it('still approves but sends no email for a guest with no email', async () => {
+    mockAdmin = createChain({
+      error: null,
+      data: { quotation_number: 'QT-1', requester_name: 'x', requester_email: null, quote_file_path: null },
+    })
+
+    const fd = new FormData()
+    fd.set('amount', '500')
+
+    const { sendQuotationResponse } = await import('@/lib/actions/quotations')
+    const result = await sendQuotationResponse('q-2', fd)
+
+    expect(result.error).toBeNull()
+    expect(mockAdmin.update).toHaveBeenCalledWith(expect.objectContaining({ status: 'approved' }))
+    expect(sendEmail).not.toHaveBeenCalled()
+  })
+
+  it('rejects when no amount, message, or file is provided', async () => {
+    const fd = new FormData()
+    const { sendQuotationResponse } = await import('@/lib/actions/quotations')
+    const result = await sendQuotationResponse('q-3', fd)
+
+    expect(result.error).toBe('กรุณาระบุราคา ข้อความ หรือแนบไฟล์ถึงลูกค้า')
+    expect(mockAdmin.update).not.toHaveBeenCalled()
+  })
+})
+
+describe('declineQuotation', () => {
+  it('sets status rejected with a reason and emails the customer once', async () => {
+    mockAdmin = createChain({
+      error: null,
+      data: { quotation_number: 'QT-1', requester_name: 'สมชาย', requester_email: 'a@b.com' },
+    })
+
+    const { declineQuotation } = await import('@/lib/actions/quotations')
+    const result = await declineQuotation('q-1', 'สินค้าหมด')
+
+    expect(result.error).toBeNull()
+    expect(mockAdmin.update).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 'rejected', decline_reason: 'สินค้าหมด', declined_at: expect.any(String) })
+    )
+    expect(logAudit).toHaveBeenCalledWith(expect.objectContaining({ action: 'quotation.declined' }))
+    expect(sendEmail).toHaveBeenCalledTimes(1)
     expect(mockRevalidatePath).toHaveBeenCalledWith('/admin/quotations')
     expect(mockRevalidatePath).toHaveBeenCalledWith('/admin/quotations/q-1')
   })
 
-  it('rejects invalid status value', async () => {
-    const { updateQuotationStatus } = await import('@/lib/actions/quotations')
-    const result = await updateQuotationStatus('q-1', 'invalid_status')
+  it('stores null reason and sends no email for a guest with no email', async () => {
+    mockAdmin = createChain({
+      error: null,
+      data: { quotation_number: 'QT-1', requester_name: 'x', requester_email: null },
+    })
 
-    expect(result.error).toBe('สถานะไม่ถูกต้อง')
-    // Should not call Supabase
-    expect(mockAdmin.update).not.toHaveBeenCalled()
-  })
+    const { declineQuotation } = await import('@/lib/actions/quotations')
+    const result = await declineQuotation('q-2', '')
 
-  it('accepts all valid enum values', async () => {
-    const { updateQuotationStatus } = await import('@/lib/actions/quotations')
-
-    for (const status of ['pending', 'approved', 'rejected']) {
-      mockAdmin = createChain({ error: null })
-      const result = await updateQuotationStatus('q-1', status)
-      expect(result.error).toBeNull()
-    }
+    expect(result.error).toBeNull()
+    expect(mockAdmin.update).toHaveBeenCalledWith(expect.objectContaining({ status: 'rejected', decline_reason: null }))
+    expect(sendEmail).not.toHaveBeenCalled()
   })
 })
 

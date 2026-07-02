@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { quotationCreateSchema, quotationStatusSchema } from '@/lib/validations/quotations'
+import { quotationCreateSchema, quotationStatusSchema, quotationDeclineSchema } from '@/lib/validations/quotations'
 
 describe('quotationCreateSchema', () => {
   it('accepts valid quotation data', () => {
@@ -30,5 +30,20 @@ describe('quotationStatusSchema', () => {
 
   it('rejects invalid status', () => {
     expect(quotationStatusSchema.safeParse('cancelled').success).toBe(false)
+  })
+})
+
+describe('quotationDeclineSchema', () => {
+  it('accepts an empty or omitted reason', () => {
+    expect(quotationDeclineSchema.safeParse({}).success).toBe(true)
+    expect(quotationDeclineSchema.safeParse({ reason: '' }).success).toBe(true)
+  })
+
+  it('accepts a normal reason string', () => {
+    expect(quotationDeclineSchema.safeParse({ reason: 'สินค้าหมด' }).success).toBe(true)
+  })
+
+  it('rejects an overly long reason', () => {
+    expect(quotationDeclineSchema.safeParse({ reason: 'x'.repeat(1001) }).success).toBe(false)
   })
 })
