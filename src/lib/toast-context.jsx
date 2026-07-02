@@ -46,9 +46,9 @@ export function useToast() {
     // Fallback when used outside provider — use alert
     return {
       toast: {
-        success: (msg) => {},
-        error: (msg) => {},
-        info: (msg) => {},
+        success: () => {},
+        error: () => {},
+        info: () => {},
       },
     }
   }

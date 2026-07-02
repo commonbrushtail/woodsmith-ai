@@ -11,7 +11,7 @@ const BANNER_KEYS = ['banner_about', 'banner_blog', 'banner_manual', 'banner_hig
  * Get site settings
  */
 export async function getSiteSettings() {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   try {
@@ -38,7 +38,7 @@ export async function getSiteSettings() {
  * Update site settings
  */
 export async function updateSiteSettings(formData) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   try {

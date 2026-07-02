@@ -10,7 +10,7 @@ import { logAudit } from '@/lib/audit'
  * List users from user_profiles joined with auth.users email.
  */
 export async function getUsers({ page = 1, perPage = 50, search = '' } = {}) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: [], count: 0, error: authError }
 
   const supabase = createServiceClient()
@@ -73,7 +73,7 @@ export async function getUsers({ page = 1, perPage = 50, search = '' } = {}) {
  * Get a single user profile by ID.
  */
 export async function getUser(id) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -100,7 +100,7 @@ export async function getUser(id) {
  * Invite a new user (create auth user + user_profile).
  */
 export async function inviteUser(formData) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -155,7 +155,7 @@ export async function inviteUser(formData) {
  * Update a user's role.
  */
 export async function updateUserRole(id, role) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -199,7 +199,7 @@ export async function updateUserRole(id, role) {
  * Get quotations submitted by a user (by user_profiles.id).
  */
 export async function getUserQuotations(profileId) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: [], error: authError }
 
   const supabase = createServiceClient()
@@ -228,7 +228,7 @@ export async function getUserQuotations(profileId) {
  * Delete/deactivate a user. Deletes auth user which cascades to user_profiles.
  */
 export async function deleteUser(id) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
   const supabase = createServiceClient()

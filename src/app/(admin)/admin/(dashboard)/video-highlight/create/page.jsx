@@ -266,12 +266,11 @@ export default function VideoHighlightCreatePage() {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [title, setTitle] = useState('')
-  const [youtubeUrl, setYoutubeUrl] = useState('')
+  const [youtubeUrl] = useState('')
   const [category, setCategory] = useState('')
   const [highlightType, setHighlightType] = useState('')
   const [selectedDay, setSelectedDay] = useState(28)
   const [selectedTime, setSelectedTime] = useState('00:00')
-  const [showCalendar, setShowCalendar] = useState(true)
 
   const handleSubmit = (publish) => {
     if (!title.trim()) { toast.error('กรุณากรอกชื่อไฮไลท์'); return }

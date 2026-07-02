@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 
 // Middleware logic is tested by extracting the route-matching logic into
 // a pure function that can be unit tested without Next.js middleware runtime.

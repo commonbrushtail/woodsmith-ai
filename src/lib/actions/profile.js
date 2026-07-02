@@ -9,7 +9,7 @@ import { requireAdmin } from '@/lib/auth/require-admin'
  * Content is stored as JSON in the 'content' text column.
  */
 export async function getCompanyProfile() {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()
@@ -49,7 +49,7 @@ export async function getCompanyProfile() {
  * Update the company profile (upsert singleton).
  */
 export async function updateCompanyProfile(formData) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()

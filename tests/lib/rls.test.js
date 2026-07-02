@@ -6,7 +6,7 @@ describe('RLS: anonymous access', () => {
   it('can read published products', async () => {
     const { createClient } = await import('@/lib/supabase/client')
     const supabase = createClient()
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('products')
       .select('id, name')
       .eq('published', true)

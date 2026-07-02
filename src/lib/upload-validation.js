@@ -22,7 +22,7 @@ export async function compressImage(file, { maxWidth = 1920, maxHeight = 1920, q
   // Skip GIFs (animated) — return as-is
   if (file.type === 'image/gif') return file
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const img = new Image()
     img.onload = () => {
       let { width, height } = img

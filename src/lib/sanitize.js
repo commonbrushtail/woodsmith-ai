@@ -12,6 +12,7 @@ export function sanitizeInput(input) {
     // Strip null bytes
     .replace(/\0/g, '')
     // Strip control characters except \n (0x0A) and \t (0x09)
+    // eslint-disable-next-line no-control-regex -- intentionally matches control chars
     .replace(/[\x01-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
     .trim()
 }

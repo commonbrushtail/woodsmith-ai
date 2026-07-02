@@ -1,7 +1,6 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/admin'
 import { blogCategorySchema, blogCategoryUpdateSchema } from '@/lib/validations/blog-categories'
 import { sanitizeInput } from '@/lib/sanitize'
@@ -12,7 +11,7 @@ import { requireAdmin } from '@/lib/auth/require-admin'
  * Fetch all blog categories sorted by sort_order.
  */
 export async function getBlogCategories() {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: [], error: authError }
 
   const supabase = createServiceClient()
@@ -30,7 +29,7 @@ export async function getBlogCategories() {
  * Fetch a single blog category by ID.
  */
 export async function getBlogCategory(id) {
-  const { user, error: authError } = await requireAdmin()
+  const { error: authError } = await requireAdmin()
   if (authError) return { data: null, error: authError }
 
   const supabase = createServiceClient()

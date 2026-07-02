@@ -74,7 +74,6 @@ export default function PreviewViewport({ viewport = 'desktop', children }) {
   useEffect(() => {
     setup()
     return () => observerRef.current?.disconnect()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const scale = size.w && deviceWidth > size.w ? size.w / deviceWidth : 1
