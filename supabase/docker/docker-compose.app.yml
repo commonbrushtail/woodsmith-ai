@@ -1,0 +1,61 @@
+# Production overlay: the Next.js app + Caddy TLS, fronting BOTH the app and the
+# Supabase API on ONE domain. Layer it on the lean stack (COMPOSE_PROFILES empty):
+#
+#   docker compose -f docker-compose.yml -f docker-compose.pg17.yml \
+#     -f docker-compose.s3.yml -f docker-compose.app.yml up -d
+#
+# Requires in .env: PROXY_DOMAIN (e.g. woodsmith.example.com), APP_IMAGE (registry
+# ref of a prebuilt image, built with NEXT_PUBLIC_* baked for the prod domain),
+# plus the app's server-side runtime secrets (see .env.example "App runtime").
+# See docs/DEPLOY_DIGITALOCEAN.md.
+
+services:
+  # Caddy terminates TLS in front of Kong — drop Kong's published ports.
+  kong:
+    ports: !reset []
+
+  app:
+    container_name: woodsmith-app
+    image: ${APP_IMAGE}
+    restart: unless-stopped
+    depends_on:
+      kong:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      # NEXT_PUBLIC_* are baked into the image at build time (client bundle) — set
+      # them as --build-arg when building, NOT here. Only server-side secrets here:
+      SUPABASE_SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
+      ADMIN_NOTIFICATION_EMAIL: ${ADMIN_NOTIFICATION_EMAIL}
+      LINE_LOGIN_CHANNEL_SECRET: ${LINE_LOGIN_CHANNEL_SECRET}
+    expose:
+      - "3000"
+
+  caddy:
+    container_name: supabase-caddy
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    depends_on:
+      kong:
+        condition: service_healthy
+      app:
+        condition: service_started
+    environment:
+      PROXY_DOMAIN: ${PROXY_DOMAIN}
+    command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+    volumes:
+      - ./volumes/proxy/caddy/Caddyfile.app:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

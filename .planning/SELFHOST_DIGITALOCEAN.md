@@ -120,13 +120,21 @@ Recommendation stands: **lean** → the ~$30/mo 4 GB droplet.
   request, both blocked on the (unregistered) domain, whereas Resend works today. The SES code lives only
   on the unmerged `ai/ses-email-migration` branch; `main` already uses Resend. Revisit SES post-launch if desired.
 
-### 5. Storage → DO Spaces (S3 backend)
-- Use `docker-compose.s3.yml` to point Storage at Spaces (S3-compatible). Repoint the 7 buckets.
-- Keep `getPublicUrl()` synchronous (buckets public). Set CDN/base URL.
+### 5. Storage → DO Spaces (S3 backend) — WIRED / documented, needs Spaces creds to test
+- `docker-compose.s3.yml` points Storage at Spaces (S3-compatible); env documented in `.env.example`
+  + the runbook (step 8). Keep `getPublicUrl()` synchronous (buckets public). **Remaining:** create the
+  Spaces bucket + keys and smoke-test an upload/serve.
 
-### 6. Droplet provisioning
-- Docker + compose + Caddy TLS (`docker-compose.caddy.yml`, auto-HTTPS) + secrets management +
-  backups (`pg_dump` → Spaces, cron) + basic monitoring + swap (build/boot memory).
+### 6. Droplet provisioning ✅ ARTIFACTS DONE (runbook + tooling)
+- `docs/DEPLOY_DIGITALOCEAN.md` — full runbook (prereqs → image build/push → droplet → hardening +
+  swap → Docker → secrets → DNS → Spaces → `up` → migrate → LINE callback → smoke test → backups → ops).
+- `supabase/docker/docker-compose.app.yml` + `volumes/proxy/caddy/Caddyfile.app` — the **app + Caddy TLS**
+  overlay: single domain, path-routed (`/auth/v1|/rest/v1|/storage/v1` → Kong, everything else → the Next.js
+  app), Kong ports reset behind Caddy, no studio dependency. **VERIFIED parses** (9 services: lean 7 + app + caddy).
+- `supabase/docker/scripts/gen-secrets.mjs` — generates all secrets + HS256 anon/service JWTs signed with the
+  new `JWT_SECRET`. **VERIFIED**: JWT signatures validate (and reject a wrong secret), `VAULT_ENC_KEY`=32 chars.
+- `supabase/docker/scripts/backup.sh` — `pg_dump | gzip` → Spaces via the aws-cli container (cron template).
+- **Remaining (needs the real droplet + domain):** actually provision + run it end-to-end.
 
 ### 7. Branch reconciliation
 - `main` (green, 52 migrations, 7 buckets, Resend email) is the base.

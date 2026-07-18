@@ -10,3 +10,5 @@
 Caddyfile      text eol=lf
 docker-compose.*.yml text eol=lf
 docker-compose.yml   text eol=lf
+*.mjs          text eol=lf
+Caddyfile.*    text eol=lf
