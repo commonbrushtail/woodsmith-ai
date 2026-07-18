@@ -1,0 +1,8 @@
+volumes/db/data
+volumes/storage
+volumes/logs/data
+.env
+.env.local
+.env.*.local
+test.http
+docker-compose.override.yml
