@@ -80,10 +80,17 @@ Recommendation: **lean** — 0 realtime/edge usage makes the trim safe. Local de
   Self-host foundation is 100% proven. Nothing app-side blocks the DO migration; remaining work is
   packaging/hosting (Dockerfile, migration apply-path, Spaces, droplet provisioning).**
 
-### 2. Dockerfile for the Next.js app
-- Multi-stage: `next build --webpack` (webpack flag required), `next/image` disabled + images via
-  webpack `asset/resource`, then `next start`. Standalone output to keep image small.
-- Build-time OOM risk on 4 GB droplet → build in CI / on a beefier machine, push image to a registry
+### 2. Dockerfile for the Next.js app ✅ DONE
+- `Dockerfile` (multi-stage deps→builder→runner) + `.dockerignore` + `output: 'standalone'` in
+  `next.config.mjs`. `next build --webpack`, runs `node server.js` as non-root, HEALTHCHECK on `/`.
+- NEXT_PUBLIC_* passed as `--build-arg` (inlined at build); server secrets at runtime only.
+- **VERIFIED:** image builds, boots (~74ms), and serves real data from the self-hosted stack
+  (homepage + /products taxonomy HTTP 200 via `host.docker.internal:8000`).
+- ⚠️ **Lockfile bug (worked around, needs a real fix):** committed `package-lock.json` is out of sync
+  (missing transitive `@floating-ui/dom@1.8.0`) → strict `npm ci` fails. Dockerfile falls back to
+  `npm install`. A clean regen bumps ~247 transitive pins → do it as its own change + full test run,
+  then switch the Dockerfile back to `npm ci` only.
+- Build-time OOM risk on 4 GB droplet → build in CI / beefier machine, push image to a registry
   (GHCR/DO Container Registry), pull on droplet. Don't `next build` on the lean droplet.
 
 ### 3. Migrations onto self-hosted Postgres
