@@ -1,0 +1,32 @@
+# Storage backend = DigitalOcean Spaces (S3-compatible), for the droplet.
+# Unlike docker-compose.s3.yml (which runs a local MinIO), this points the Storage
+# service at an EXTERNAL Spaces bucket — nothing extra runs on the droplet.
+#
+# Layer it on the lean stack + app:
+#   docker compose -f docker-compose.yml -f docker-compose.pg17.yml \
+#     -f docker-compose.spaces.yml -f docker-compose.app.yml up -d
+#
+# Required in .env (see .env.example "DigitalOcean Spaces"):
+#   SPACES_BUCKET, SPACES_REGION (e.g. sgp1),
+#   SPACES_ENDPOINT (https://sgp1.digitaloceanspaces.com),
+#   SPACES_ACCESS_KEY_ID, SPACES_SECRET_ACCESS_KEY
+#
+# Objects are still served THROUGH the Storage API (/storage/v1/object/public/...),
+# which streams from Spaces — so the app's getPublicUrl() is unchanged. (A later
+# optimization can serve public buckets straight from the Spaces CDN.)
+#
+# If uploads fail with signature/host errors, flip GLOBAL_S3_FORCE_PATH_STYLE to
+# "false" (virtual-hosted addressing) — Spaces supports both.
+
+services:
+  storage:
+    environment:
+      STORAGE_BACKEND: s3
+      GLOBAL_S3_BUCKET: ${SPACES_BUCKET}
+      GLOBAL_S3_ENDPOINT: ${SPACES_ENDPOINT}
+      GLOBAL_S3_PROTOCOL: https
+      GLOBAL_S3_FORCE_PATH_STYLE: "true"
+      REGION: ${SPACES_REGION}
+      AWS_DEFAULT_REGION: ${SPACES_REGION}
+      AWS_ACCESS_KEY_ID: ${SPACES_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${SPACES_SECRET_ACCESS_KEY}

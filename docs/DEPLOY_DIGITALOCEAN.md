@@ -109,7 +109,7 @@ Merge `.env.secrets.local` into `.env`, then set in `.env`:
 | `APP_IMAGE` | your pushed image ref |
 | `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `ADMIN_NOTIFICATION_EMAIL` | your Resend values |
 | `LINE_LOGIN_CHANNEL_SECRET` | your LINE channel secret |
-| Storage → Spaces (see step 8) | `GLOBAL_S3_BUCKET`, `REGION`, S3 endpoint/keys |
+| Storage → Spaces (see step 8) | `SPACES_BUCKET`, `SPACES_REGION`, `SPACES_ENDPOINT`, `SPACES_ACCESS_KEY_ID`, `SPACES_SECRET_ACCESS_KEY` |
 
 The app reads `SUPABASE_SERVICE_ROLE_KEY` = the `SERVICE_ROLE_KEY` you generated (the app overlay maps it). Keep `.env` and `.env.secrets.local` mode `600`; never commit them.
 
@@ -119,21 +119,25 @@ Point an **A record** for `woodsmith.example.com` → the droplet's public IP (A
 
 ## 8 — Storage → DO Spaces (S3 backend)
 
-Storage files must live in Spaces (durable + CDN), not on the droplet disk. Configure the S3
-overlay env in `.env` (`GLOBAL_S3_BUCKET`, `REGION`, and the S3 endpoint/keys per
-`docker-compose.s3.yml`), pointing at your Spaces bucket + keys. `getPublicUrl()` stays synchronous
-(buckets public). *(This is plan step 5 — wire + smoke-test with real Spaces keys.)*
+Storage files live in Spaces (durable), not on the droplet disk. In the DO console create a Spaces
+bucket + access keys, then set in `.env`: `SPACES_BUCKET`, `SPACES_REGION` (e.g. `sgp1`),
+`SPACES_ENDPOINT` (`https://sgp1.digitaloceanspaces.com`), `SPACES_ACCESS_KEY_ID`,
+`SPACES_SECRET_ACCESS_KEY`. The `docker-compose.spaces.yml` overlay (added in step 9) points the
+Storage service at Spaces via those vars. Objects still serve through the Storage API
+(`/storage/v1/object/public/...`, which streams from Spaces), so the app's `getPublicUrl()` is
+unchanged. If uploads fail with a signature/host error, flip `GLOBAL_S3_FORCE_PATH_STYLE` to `false`
+in the overlay. *(Smoke-test an upload in step 12.)*
 
 ## 9 — Bring up the stack
 
 ```bash
 docker compose \
   -f docker-compose.yml -f docker-compose.pg17.yml \
-  -f docker-compose.s3.yml -f docker-compose.app.yml \
+  -f docker-compose.spaces.yml -f docker-compose.app.yml \
   pull
 docker compose \
   -f docker-compose.yml -f docker-compose.pg17.yml \
-  -f docker-compose.s3.yml -f docker-compose.app.yml \
+  -f docker-compose.spaces.yml -f docker-compose.app.yml \
   up -d
 ```
 Caddy provisions TLS automatically (ports 80/443 open + DNS resolving). Watch: `docker compose logs -f caddy app kong`.

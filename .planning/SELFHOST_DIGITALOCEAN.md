@@ -120,10 +120,14 @@ Recommendation stands: **lean** → the ~$30/mo 4 GB droplet.
   request, both blocked on the (unregistered) domain, whereas Resend works today. The SES code lives only
   on the unmerged `ai/ses-email-migration` branch; `main` already uses Resend. Revisit SES post-launch if desired.
 
-### 5. Storage → DO Spaces (S3 backend) — WIRED / documented, needs Spaces creds to test
-- `docker-compose.s3.yml` points Storage at Spaces (S3-compatible); env documented in `.env.example`
-  + the runbook (step 8). Keep `getPublicUrl()` synchronous (buckets public). **Remaining:** create the
-  Spaces bucket + keys and smoke-test an upload/serve.
+### 5. Storage → DO Spaces (S3 backend) ✅ WIRED (needs Spaces creds to smoke-test)
+- `supabase/docker/docker-compose.spaces.yml` — overrides Storage to `STORAGE_BACKEND=s3` against an
+  EXTERNAL Spaces bucket (vs the vendored `docker-compose.s3.yml`, which runs a local MinIO). Uses
+  `SPACES_*` env (same names as `backup.sh`), documented in `.env.example`; runbook step 8/9 use it.
+  **VERIFIED parses:** full droplet chain (lean + spaces + app) = 9 services, storage backend = s3,
+  endpoint/bucket/path-style applied. Objects still serve via the Storage API → `getPublicUrl()` unchanged.
+- **Remaining:** create the Spaces bucket + keys, then the deploy smoke-test (step 12) validates
+  upload/serve (incl. Spaces-specific path-style/signature — can't be checked without real Spaces).
 
 ### 6. Droplet provisioning ✅ ARTIFACTS DONE (runbook + tooling)
 - `docs/DEPLOY_DIGITALOCEAN.md` — full runbook (prereqs → image build/push → droplet → hardening +
