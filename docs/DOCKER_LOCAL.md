@@ -69,15 +69,14 @@ When healthy, the stack exposes:
 
 ## Step 3 — Apply project migrations
 
-The repo's existing `supabase/migrations/*.sql` files describe our schema, RLS, and audit logs. Apply them to the local Postgres:
+The repo's `supabase/migrations/*.sql` files describe our schema, RLS, and audit logs. Apply them with the idempotent migration runner (a one-shot compose service — records applied migrations in a ledger table so re-runs only apply new ones):
 
 ```powershell
-# From repo root. PSQL is bundled inside the db container so we exec into it.
-Get-ChildItem supabase/migrations/*.sql | Sort-Object Name | ForEach-Object {
-  Write-Host "Applying $($_.Name)"
-  Get-Content $_.FullName -Raw | docker exec -i supabase-db psql -U postgres -d postgres
-}
+# From supabase/docker/ — safe to re-run any time; applies only new migrations.
+docker compose -f docker-compose.yml -f docker-compose.pg17.yml -f docker-compose.migrate.yml run --rm migrate
 ```
+
+If your DB already has migrations applied out-of-band (e.g. via the old manual loop), adopt the ledger once with `-e MIGRATE_BASELINE=1` (records them without re-running), then use the normal command above. See `supabase/docker/scripts/migrate.sh`.
 
 Verify:
 

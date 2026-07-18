@@ -1,0 +1,34 @@
+# One-shot, idempotent migration runner for the self-hosted stack.
+#
+# Applies supabase/migrations/*.sql to the `db` service, tracking applied ones in
+# a ledger table so re-runs only apply new migrations. Gated behind the `migrate`
+# profile so it never starts on a plain `docker compose up`.
+#
+# Run after the stack is up (and after adding new migrations):
+#   docker compose -f docker-compose.yml -f docker-compose.pg17.yml \
+#     -f docker-compose.migrate.yml run --rm migrate
+#
+# Adopt on a DB already migrated out-of-band (record without applying), once:
+#   docker compose -f docker-compose.yml -f docker-compose.pg17.yml \
+#     -f docker-compose.migrate.yml run --rm -e MIGRATE_BASELINE=1 migrate
+
+services:
+  migrate:
+    image: postgres:17-alpine
+    profiles: [migrate]
+    depends_on:
+      # several migrations reference auth.* — wait for GoTrue to create the schema
+      auth:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGPORT: ${POSTGRES_PORT:-5432}
+      PGUSER: postgres
+      PGDATABASE: ${POSTGRES_DB:-postgres}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      MIGRATIONS_DIR: /migrations
+    volumes:
+      - ../migrations:/migrations:ro
+      - ./scripts/migrate.sh:/usr/local/bin/migrate.sh:ro
+    entrypoint: ["sh", "/usr/local/bin/migrate.sh"]
+    restart: "no"

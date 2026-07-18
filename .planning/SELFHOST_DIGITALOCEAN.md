@@ -93,9 +93,18 @@ Recommendation: **lean** — 0 realtime/edge usage makes the trim safe. Local de
 - Build-time OOM risk on 4 GB droplet → build in CI / beefier machine, push image to a registry
   (GHCR/DO Container Registry), pull on droplet. Don't `next build` on the lean droplet.
 
-### 3. Migrations onto self-hosted Postgres
-- `scripts/db-push.ps1` currently targets the HOSTED Supabase over a direct PG URL. Add a self-hosted
-  apply path: init-on-boot (mount ordered SQL) or a one-shot `migrate` compose service. Idempotency check.
+### 3. Migrations onto self-hosted Postgres ✅ DONE
+- `supabase/docker/scripts/migrate.sh` — idempotent runner: applies `supabase/migrations/*.sql` in order,
+  each in its own transaction + a ledger insert (schema `migrations.schema_migrations`, keyed by filename +
+  md5 checksum), so re-runs only apply NEW migrations. `MIGRATE_BASELINE=1` adopts the ledger on a DB already
+  migrated out-of-band. Warns (doesn't re-run) if an applied migration's content changed.
+- `supabase/docker/docker-compose.migrate.yml` — one-shot `migrate` service (postgres:17-alpine), gated behind
+  the `migrate` profile (never runs on plain `up`), `depends_on: auth healthy` (8 migrations reference `auth.*`).
+  Run: `docker compose -f docker-compose.yml -f docker-compose.pg17.yml -f docker-compose.migrate.yml run --rm migrate`.
+- **VERIFIED** against the live stack: baseline recorded 52; normal re-run = no-op (applied=0, skipped=52);
+  adding a dummy migration applied only it (applied=1, skipped=52); ledger + table confirmed; cleaned up.
+- Replaces the manual psql loop (DOCKER_LOCAL.md Step 3 updated). On a fresh droplet the ledger starts empty →
+  all migrations apply on first run; deploy scripts (step 7) call this after `up`.
 
 ### 4. GoTrue config (email/password + LINE OAuth)
 - Verify the hand-rolled LINE flow (`generateLink` + `verifyOtp`) against self-hosted GoTrue.

@@ -22,8 +22,10 @@ nul
 # Supabase CLI temp files
 supabase/.temp/
 
-# Local self-hosted Supabase stack (~74M, includes Postgres data) — never commit
-supabase/docker/
+# Self-hosted Supabase stack: the SOURCE (compose, scripts, config) is tracked.
+# Runtime data + secrets are ignored by supabase/docker/.gitignore
+# (volumes/*/data, volumes/storage, .env). Do NOT blanket-ignore the whole dir —
+# that silently drops new stack files (compose overlays, scripts) from commits.
 
 # Local reference materials (large image dumps, source spreadsheets)
 Vanachai website map*/
