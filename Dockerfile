@@ -24,12 +24,7 @@ FROM node:22-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json ./
-# NOTE: the committed package-lock.json is currently out of sync (a transitive
-# @floating-ui/dom entry is missing), so strict `npm ci` fails. Fall back to
-# `npm install` until the lockfile is regenerated in a dedicated change (which
-# bumps ~247 transitive pins and must be validated against the full test suite).
-# Once fixed, the `npm ci` path takes over for fully reproducible builds.
-RUN npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+RUN npm ci --no-audit --no-fund
 
 # ---------- builder: next build --webpack -> .next/standalone ----------
 FROM node:22-alpine AS builder
