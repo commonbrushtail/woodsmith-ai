@@ -14,6 +14,7 @@ services:
 
   studio:
     container_name: supabase-studio
+    profiles: ["full"]   # lean: dashboard is optional (set COMPOSE_PROFILES=full)
     image: supabase/studio:2026.04.27-sha-5f60601
     restart: unless-stopped
     healthcheck:
@@ -86,9 +87,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    depends_on:
-      studio:
-        condition: service_healthy
+    # (lean) no depends_on studio — Studio is a `full`-profile extra; Kong routes
+    # to upstreams as they come up and does not need it to start.
     ports:
       - ${KONG_HTTP_PORT}:8000/tcp
       - ${KONG_HTTPS_PORT}:8443/tcp
@@ -287,6 +287,7 @@ services:
   realtime:
     # This container name looks inconsistent but is correct because realtime constructs tenant id by parsing the subdomain
     container_name: realtime-dev.supabase-realtime
+    profiles: ["full"]   # lean: app uses 0 realtime channels
     image: supabase/realtime:v2.76.5
     restart: unless-stopped
     depends_on:
@@ -436,6 +437,7 @@ services:
 
   functions:
     container_name: supabase-edge-functions
+    profiles: ["full"]   # lean: app uses 0 edge functions
     image: supabase/edge-runtime:v1.71.2
     restart: unless-stopped
     volumes:
@@ -467,6 +469,7 @@ services:
 
   analytics:
     container_name: supabase-analytics
+    profiles: ["full"]   # lean: Logflare log analytics is optional
     image: supabase/logflare:1.36.1
     restart: unless-stopped
     # ports:
@@ -569,6 +572,7 @@ services:
 
   vector:
     container_name: supabase-vector
+    profiles: ["full"]   # lean: log shipper is optional
     image: timberio/vector:0.53.0-alpine
     restart: unless-stopped
     volumes:
@@ -600,6 +604,7 @@ services:
   # Update the DATABASE_URL if you are using an external Postgres database
   supavisor:
     container_name: supabase-pooler
+    profiles: ["full"]   # lean: Supavisor pooler optional (app connects via Kong/PostgREST)
     image: supabase/supavisor:2.7.4
     restart: unless-stopped
     ports:

@@ -22,13 +22,18 @@ Keep ~100% of current code — this is packaging + hosting, not an app rewrite.
   the vanished path → `db/kong/vector/pooler` exit 127 on restart. Must be torn down before a clean boot.
 - Docs on the branch target **Hostinger**, not DigitalOcean — re-point them.
 
-## Stack: 13 services, keep vs trim
-Core (KEEP on droplet): `db` (Postgres), `auth` (GoTrue), `rest` (PostgREST), `storage`, `imgproxy`, `kong` (gateway).
-Trim for lean droplet (app doesn't use them): `realtime`, `functions` (edge), `analytics` (Logflare) + `vector`,
-`supavisor` (pooler), `studio` (run only when needed / behind auth).
+## Stack: 13 services, keep vs trim ✅ IMPLEMENTED
+Core LEAN (7, KEEP on droplet): `db` (Postgres), `auth` (GoTrue), `rest` (PostgREST), `storage`, `imgproxy`,
+`kong` (gateway), `meta` (postgres-meta, tiny; kept so Kong's /pg/ route is intact).
+Trimmed (6, `full`-profile only — app doesn't use them): `realtime`, `functions` (edge), `analytics` (Logflare),
+`vector`, `supavisor` (pooler), `studio`.
 - **Lean** → ~4 GB / 2 vCPU droplet ≈ **$24/mo** + Spaces $5 + backups ≈ **~$30/mo**.
 - **Full** → 8 GB / 4 vCPU ≈ **$48/mo** + extras ≈ **~$63/mo**.
-Recommendation: **lean** — 0 realtime/edge usage makes the trim safe. Local dev boots full for parity.
+- **How:** the 6 extras carry `profiles: ["full"]` in `docker-compose.yml`; `COMPOSE_PROFILES` in `.env` toggles.
+  Droplet `.env` leaves it EMPTY → lean; local dev sets `full` → Studio + extras. Removed kong→studio depends_on
+  (the only core→extra coupling). **VERIFIED:** lean boots 7 services; Kong→REST/Auth/Storage-API all 200;
+  migrate runner works against lean; `--profile full` restores all 13.
+Recommendation stands: **lean** → the ~$30/mo 4 GB droplet.
 
 ## Plan (in order)
 

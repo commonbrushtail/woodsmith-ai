@@ -48,6 +48,8 @@ From `supabase/docker/`:
 docker compose -f docker-compose.yml -f docker-compose.pg17.yml up -d
 ```
 
+**Lean vs full stack.** By default (`COMPOSE_PROFILES=` empty) `up` starts the **lean** 7-service core — `db, auth, rest, storage, imgproxy, kong, meta` — which is everything the app uses and what the production droplet runs. To also get the **Studio dashboard** + realtime/analytics/edge-functions/supavisor/vector, set `COMPOSE_PROFILES=full` in `.env` (recommended for local dev — the `.env.example` note explains it). The Studio URL below only exists in `full` mode.
+
 We use `docker-compose.pg17.yml` to pin Postgres 17 (the major version your `supabase/config.toml` already specifies for the cloud project — we want exact parity).
 
 **First run downloads ~3 GB of images** and takes 5–15 minutes depending on connection. Progress with:
