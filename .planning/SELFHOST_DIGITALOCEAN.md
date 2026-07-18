@@ -109,8 +109,11 @@ Recommendation: **lean** — 0 realtime/edge usage makes the trim safe. Local de
 ### 4. GoTrue config (email/password + LINE OAuth)
 - Verify the hand-rolled LINE flow (`generateLink` + `verifyOtp`) against self-hosted GoTrue.
 - Set `SITE_URL`, `API_EXTERNAL_URL`, `ADDITIONAL_REDIRECT_URLS`, JWT secret.
-- App bypasses Supabase built-in emails (sends via Resend/SES in app code) → GoTrue SMTP mostly moot;
-  confirm no flow depends on GoTrue-sent mail.
+- App bypasses Supabase built-in emails (sends via **Resend** in app code, `src/lib/email.js`) → GoTrue
+  SMTP mostly moot; confirm no flow depends on GoTrue-sent mail.
+- **Email = Resend (decided).** SES migration is SHELVED — it needs domain verification + a sandbox-exit
+  request, both blocked on the (unregistered) domain, whereas Resend works today. The SES code lives only
+  on the unmerged `ai/ses-email-migration` branch; `main` already uses Resend. Revisit SES post-launch if desired.
 
 ### 5. Storage → DO Spaces (S3 backend)
 - Use `docker-compose.s3.yml` to point Storage at Spaces (S3-compatible). Repoint the 7 buckets.
@@ -121,10 +124,10 @@ Recommendation: **lean** — 0 realtime/edge usage makes the trim safe. Local de
   backups (`pg_dump` → Spaces, cron) + basic monitoring + swap (build/boot memory).
 
 ### 7. Branch reconciliation
-- `main` (green, 52 migrations, 7 buckets, SES-ready tests) is the base.
+- `main` (green, 52 migrations, 7 buckets, Resend email) is the base.
 - Graft `supabase/docker/` + `docs/DOCKER_LOCAL.md` (retitled DO) from `ai/self-host-supabase` onto it
-  — done partially in this worktree already.
-- Fold `ai/ses-email-migration` as the email piece.
+  — DONE (merged to main: stack, Dockerfile, migration runner).
+- Do NOT merge `ai/ses-email-migration` — email stays on Resend (see step 4). Shelve/delete that branch.
 - Do NOT take the branch's test-file rewrites (main fixed the same tests differently) or its stale
   46-migration set. Take the stack, the SMS-removal, the LF `.gitattributes` fix.
 
